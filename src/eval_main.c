@@ -87,7 +87,7 @@ int eval_loop_output(Execute ptr, addr stream)
 
 	getvalues_list_control_heap(ptr, &list);
 	eval_loop_shift(ptr, list);
-	/* format_stream(ptr, stream, "~&~{~S~%~}~&", list, NULL); */
+	/* format_stream_(ptr, stream, "~&~{~S~%~}~&", list, NULL); */
 	Return(fresh_line_stream_(stream, NULL));
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
@@ -164,7 +164,7 @@ static int eval_loop_execute(Execute ptr, void *voidp)
 	ret = str->ret;
 
 	/* read */
-	Return(read_stream(ptr, stream, &check, &pos));
+	Return(read_stream_(ptr, stream, &check, &pos));
 
 	/* EOF */
 	if (check) {

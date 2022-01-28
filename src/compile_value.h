@@ -5,113 +5,113 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define faslwrite_value_nil _n(faslwrite_value_nil)
-#define faslwrite_value_t _n(faslwrite_value_t)
-#define faslwrite_value_clos _n(faslwrite_value_clos)
-#define faslwrite_value_cons _n(faslwrite_value_cons)
-#define faslwrite_value_vector _n(faslwrite_value_vector)
-#define faslwrite_value_character _n(faslwrite_value_character)
-#define faslwrite_value_string _n(faslwrite_value_string)
-#define faslwrite_value_symbol _n(faslwrite_value_symbol)
-#define faslwrite_value_hashtable _n(faslwrite_value_hashtable)
-#define faslwrite_value_fixnum _n(faslwrite_value_fixnum)
-#define faslwrite_value_bignum _n(faslwrite_value_bignum)
-#define faslwrite_value_ratio _n(faslwrite_value_ratio)
-#define faslwrite_value_single_float _n(faslwrite_value_single_float)
-#define faslwrite_value_double_float _n(faslwrite_value_double_float)
-#define faslwrite_value_long_float _n(faslwrite_value_long_float)
-#define faslwrite_value_complex _n(faslwrite_value_complex)
-#define faslwrite_value_callname _n(faslwrite_value_callname)
-#define faslwrite_value_index _n(faslwrite_value_index)
-#define faslwrite_value_package _n(faslwrite_value_package)
-#define faslwrite_value_random_state _n(faslwrite_value_random_state)
-#define faslwrite_value_pathname _n(faslwrite_value_pathname)
-#define faslwrite_value_quote _n(faslwrite_value_quote)
-#define faslwrite_value_bitvector _n(faslwrite_value_bitvector)
-#define faslwrite_value_load_time_value _n(faslwrite_value_load_time_value)
+#define faslwrite_value_nil_ _n(faslwrite_value_nil_)
+#define faslwrite_value_t_ _n(faslwrite_value_t_)
+#define faslwrite_value_clos_ _n(faslwrite_value_clos_)
+#define faslwrite_value_cons_ _n(faslwrite_value_cons_)
+#define faslwrite_value_vector_ _n(faslwrite_value_vector_)
+#define faslwrite_value_character_ _n(faslwrite_value_character_)
+#define faslwrite_value_string_ _n(faslwrite_value_string_)
+#define faslwrite_value_symbol_ _n(faslwrite_value_symbol_)
+#define faslwrite_value_hashtable_ _n(faslwrite_value_hashtable_)
+#define faslwrite_value_fixnum_ _n(faslwrite_value_fixnum_)
+#define faslwrite_value_bignum_ _n(faslwrite_value_bignum_)
+#define faslwrite_value_ratio_ _n(faslwrite_value_ratio_)
+#define faslwrite_value_single_float_ _n(faslwrite_value_single_float_)
+#define faslwrite_value_double_float_ _n(faslwrite_value_double_float_)
+#define faslwrite_value_long_float_ _n(faslwrite_value_long_float_)
+#define faslwrite_value_complex_ _n(faslwrite_value_complex_)
+#define faslwrite_value_callname_ _n(faslwrite_value_callname_)
+#define faslwrite_value_index_ _n(faslwrite_value_index_)
+#define faslwrite_value_package_ _n(faslwrite_value_package_)
+#define faslwrite_value_random_state_ _n(faslwrite_value_random_state_)
+#define faslwrite_value_pathname_ _n(faslwrite_value_pathname_)
+#define faslwrite_value_quote_ _n(faslwrite_value_quote_)
+#define faslwrite_value_bitvector_ _n(faslwrite_value_bitvector_)
+#define faslwrite_value_load_time_value_ _n(faslwrite_value_load_time_value_)
 
-#define faslread_value_nil _n(faslread_value_nil)
-#define faslread_value_t _n(faslread_value_t)
-#define faslread_value_clos _n(faslread_value_clos)
-#define faslread_value_cons _n(faslread_value_cons)
-#define faslread_value_vector2 _n(faslread_value_vector2)
-#define faslread_value_vector4 _n(faslread_value_vector4)
-#define faslread_value_vector8 _n(faslread_value_vector8)
-#define faslread_value_character _n(faslread_value_character)
-#define faslread_value_string _n(faslread_value_string)
-#define faslread_value_gensym _n(faslread_value_gensym)
-#define faslread_value_symbol _n(faslread_value_symbol)
-#define faslread_value_hashtable _n(faslread_value_hashtable)
-#define faslread_value_fixnum _n(faslread_value_fixnum)
-#define faslread_value_bignum _n(faslread_value_bignum)
-#define faslread_value_ratio _n(faslread_value_ratio)
-#define faslread_value_single_float _n(faslread_value_single_float)
-#define faslread_value_double_float _n(faslread_value_double_float)
-#define faslread_value_long_float _n(faslread_value_long_float)
-#define faslread_value_complex _n(faslread_value_complex)
-#define faslread_value_callname _n(faslread_value_callname)
-#define faslread_value_index _n(faslread_value_index)
-#define faslread_value_package _n(faslread_value_package)
-#define faslread_value_random_state _n(faslread_value_random_state)
-#define faslread_value_pathname _n(faslread_value_pathname)
-#define faslread_value_quote _n(faslread_value_quote)
-#define faslread_value_bitvector _n(faslread_value_bitvector)
-#define faslread_value_load_time_value _n(faslread_value_load_time_value)
+#define faslread_value_nil_ _n(faslread_value_nil_)
+#define faslread_value_t_ _n(faslread_value_t_)
+#define faslread_value_clos_ _n(faslread_value_clos_)
+#define faslread_value_cons_ _n(faslread_value_cons_)
+#define faslread_value_vector2_ _n(faslread_value_vector2_)
+#define faslread_value_vector4_ _n(faslread_value_vector4_)
+#define faslread_value_vector8_ _n(faslread_value_vector8_)
+#define faslread_value_character_ _n(faslread_value_character_)
+#define faslread_value_string_ _n(faslread_value_string_)
+#define faslread_value_gensym_ _n(faslread_value_gensym_)
+#define faslread_value_symbol_ _n(faslread_value_symbol_)
+#define faslread_value_hashtable_ _n(faslread_value_hashtable_)
+#define faslread_value_fixnum_ _n(faslread_value_fixnum_)
+#define faslread_value_bignum_ _n(faslread_value_bignum_)
+#define faslread_value_ratio_ _n(faslread_value_ratio_)
+#define faslread_value_single_float_ _n(faslread_value_single_float_)
+#define faslread_value_double_float_ _n(faslread_value_double_float_)
+#define faslread_value_long_float_ _n(faslread_value_long_float_)
+#define faslread_value_complex_ _n(faslread_value_complex_)
+#define faslread_value_callname_ _n(faslread_value_callname_)
+#define faslread_value_index_ _n(faslread_value_index_)
+#define faslread_value_package_ _n(faslread_value_package_)
+#define faslread_value_random_state_ _n(faslread_value_random_state_)
+#define faslread_value_pathname_ _n(faslread_value_pathname_)
+#define faslread_value_quote_ _n(faslread_value_quote_)
+#define faslread_value_bitvector_ _n(faslread_value_bitvector_)
+#define faslread_value_load_time_value_ _n(faslread_value_load_time_value_)
 
-int faslwrite_value_nil(Execute ptr, addr stream, addr pos);
-int faslwrite_value_t(Execute ptr, addr stream, addr pos);
-int faslwrite_value_clos(Execute ptr, addr stream, addr pos);
-int faslwrite_value_cons(Execute ptr, addr stream, addr pos);
-int faslwrite_value_vector(Execute ptr, addr stream, addr pos);
-int faslwrite_value_character(Execute ptr, addr stream, addr pos);
-int faslwrite_value_string(Execute ptr, addr stream, addr pos);
-int faslwrite_value_symbol(Execute ptr, addr stream, addr pos);
-int faslwrite_value_hashtable(Execute ptr, addr stream, addr pos);
-int faslwrite_value_fixnum(Execute ptr, addr stream, addr pos);
-int faslwrite_value_bignum(Execute ptr, addr stream, addr pos);
-int faslwrite_value_ratio(Execute ptr, addr stream, addr pos);
-int faslwrite_value_single_float(Execute ptr, addr stream, addr pos);
-int faslwrite_value_double_float(Execute ptr, addr stream, addr pos);
-int faslwrite_value_long_float(Execute ptr, addr stream, addr pos);
-int faslwrite_value_complex(Execute ptr, addr stream, addr pos);
-int faslwrite_value_callname(Execute ptr, addr stream, addr pos);
-int faslwrite_value_index(Execute ptr, addr stream, addr pos);
-int faslwrite_value_package(Execute ptr, addr stream, addr pos);
-int faslwrite_value_random_state(Execute ptr, addr stream, addr pos);
-int faslwrite_value_pathname(Execute ptr, addr stream, addr pos);
-int faslwrite_value_quote(Execute ptr, addr stream, addr pos);
-int faslwrite_value_bitvector(Execute ptr, addr stream, addr pos);
-int faslwrite_value_load_time_value(Execute ptr, addr stream, addr pos);
+int faslwrite_value_nil_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_t_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_clos_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_cons_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_vector_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_character_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_string_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_symbol_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_hashtable_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_fixnum_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_bignum_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_ratio_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_single_float_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_double_float_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_long_float_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_complex_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_callname_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_index_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_package_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_random_state_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_pathname_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_quote_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_bitvector_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_load_time_value_(Execute ptr, addr stream, addr pos);
 
-int faslread_value_nil(Execute ptr, addr stream, addr *ret);
-int faslread_value_t(Execute ptr, addr stream, addr *ret);
-int faslread_value_clos(Execute ptr, addr stream, addr *ret);
-int faslread_value_cons(Execute ptr, addr stream, addr *ret);
-int faslread_value_vector2(Execute ptr, addr stream, addr *ret);
-int faslread_value_vector4(Execute ptr, addr stream, addr *ret);
+int faslread_value_nil_(Execute ptr, addr stream, addr *ret);
+int faslread_value_t_(Execute ptr, addr stream, addr *ret);
+int faslread_value_clos_(Execute ptr, addr stream, addr *ret);
+int faslread_value_cons_(Execute ptr, addr stream, addr *ret);
+int faslread_value_vector2_(Execute ptr, addr stream, addr *ret);
+int faslread_value_vector4_(Execute ptr, addr stream, addr *ret);
 #ifdef LISP_ARCH_64BIT
-int faslread_value_vector8(Execute ptr, addr stream, addr *ret);
+int faslread_value_vector8_(Execute ptr, addr stream, addr *ret);
 #endif
-int faslread_value_character(Execute ptr, addr stream, addr *ret);
-int faslread_value_string(Execute ptr, addr stream, addr *ret);
-int faslread_value_gensym(Execute ptr, addr stream, addr *ret);
-int faslread_value_symbol(Execute ptr, addr stream, addr *ret);
-int faslread_value_hashtable(Execute ptr, addr stream, addr *ret);
-int faslread_value_fixnum(Execute ptr, addr stream, addr *ret);
-int faslread_value_bignum(Execute ptr, addr stream, addr *ret);
-int faslread_value_ratio(Execute ptr, addr stream, addr *ret);
-int faslread_value_single_float(Execute ptr, addr stream, addr *ret);
-int faslread_value_double_float(Execute ptr, addr stream, addr *ret);
-int faslread_value_long_float(Execute ptr, addr stream, addr *ret);
-int faslread_value_complex(Execute ptr, addr stream, addr *ret);
-int faslread_value_callname(Execute ptr, addr stream, addr *ret);
-int faslread_value_index(Execute ptr, addr stream, addr *ret);
-int faslread_value_package(Execute ptr, addr stream, addr *ret);
-int faslread_value_random_state(Execute ptr, addr stream, addr *ret);
-int faslread_value_pathname(Execute ptr, addr stream, addr *ret);
-int faslread_value_quote(Execute ptr, addr stream, addr *ret);
-int faslread_value_bitvector(Execute ptr, addr stream, addr *ret);
-int faslread_value_load_time_value(Execute ptr, addr stream, addr *ret);
+int faslread_value_character_(Execute ptr, addr stream, addr *ret);
+int faslread_value_string_(Execute ptr, addr stream, addr *ret);
+int faslread_value_gensym_(Execute ptr, addr stream, addr *ret);
+int faslread_value_symbol_(Execute ptr, addr stream, addr *ret);
+int faslread_value_hashtable_(Execute ptr, addr stream, addr *ret);
+int faslread_value_fixnum_(Execute ptr, addr stream, addr *ret);
+int faslread_value_bignum_(Execute ptr, addr stream, addr *ret);
+int faslread_value_ratio_(Execute ptr, addr stream, addr *ret);
+int faslread_value_single_float_(Execute ptr, addr stream, addr *ret);
+int faslread_value_double_float_(Execute ptr, addr stream, addr *ret);
+int faslread_value_long_float_(Execute ptr, addr stream, addr *ret);
+int faslread_value_complex_(Execute ptr, addr stream, addr *ret);
+int faslread_value_callname_(Execute ptr, addr stream, addr *ret);
+int faslread_value_index_(Execute ptr, addr stream, addr *ret);
+int faslread_value_package_(Execute ptr, addr stream, addr *ret);
+int faslread_value_random_state_(Execute ptr, addr stream, addr *ret);
+int faslread_value_pathname_(Execute ptr, addr stream, addr *ret);
+int faslread_value_quote_(Execute ptr, addr stream, addr *ret);
+int faslread_value_bitvector_(Execute ptr, addr stream, addr *ret);
+int faslread_value_load_time_value_(Execute ptr, addr stream, addr *ret);
 
 #endif
 

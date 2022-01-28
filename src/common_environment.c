@@ -27,16 +27,11 @@
  */
 static int function_decode_universal_time(Execute ptr, addr pos, addr zone)
 {
-	struct universal_time_struct u;
+	addr s, mi, h, d, m, y, w, daylight, z;
 
-	if (zone == Unbound)
-		zone = Nil;
-	Return(decode_universal_time_common_(ptr->local, &u, pos, zone));
-	setvalues_control(ptr,
-			u.second, u.minute, u.hour,
-			u.date, u.month, u.year,
-			u.week, u.daylight_p, u.zone, NULL);
-
+	Return(decode_universal_time_common_(ptr->local, pos, zone,
+				&s, &mi, &h, &d, &m, &y, &w, &daylight, &z));
+	setvalues_control(ptr, s, mi, h, d, m, y, w, daylight, z, NULL);
 	return 0;
 }
 
@@ -81,30 +76,9 @@ static void defun_decode_universal_time(void)
  */
 static int function_encode_universal_time(Execute ptr, addr rest)
 {
-	addr s, mi, h, d, m, y, z;
-
-	if (! consp_getcons(rest, &s, &rest))
-		goto error;
-	if (! consp_getcons(rest, &mi, &rest))
-		goto error;
-	if (! consp_getcons(rest, &h, &rest))
-		goto error;
-	if (! consp_getcons(rest, &d, &rest))
-		goto error;
-	if (! consp_getcons(rest, &m, &rest))
-		goto error;
-	if (! consp_getcons(rest, &y, &rest))
-		goto error;
-	if (! consp_getcons(rest, &z, &rest))
-		z = Unbound;
-	if (consp(rest))
-		goto error;
-	Return(encode_universal_time_common_(ptr->local, &s, s, mi, h, d, m, y, z));
-	setresult_control(ptr, s);
+	Return(encode_universal_time_common_(ptr->local, rest, &rest));
+	setresult_control(ptr, rest);
 	return 0;
-
-error:
-	return fmte_("Invalid argument ENCODE-UNIVERSAL-TIME.", NULL);
 }
 
 static void type_encode_universal_time(addr *ret)
@@ -145,9 +119,8 @@ static int function_get_universal_time(Execute ptr)
 {
 	addr pos;
 
-	Return(get_universal_time_common_(ptr->local, &pos));
+	Return(get_universal_time_call_(ptr->local, &pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -182,14 +155,11 @@ static void defun_get_universal_time(void)
  */
 static int function_get_decoded_time(Execute ptr)
 {
-	struct universal_time_struct u;
+	addr s, mi, h, d, m, y, w, daylight, z;
 
-	Return(get_decoded_time_common_(ptr->local, &u));
-	setvalues_control(ptr,
-			u.second, u.minute, u.hour,
-			u.date, u.month, u.year,
-			u.week, u.daylight_p, u.zone, NULL);
-
+	Return(get_decoded_time_common_(ptr->local,
+				&s, &mi, &h, &d, &m, &y, &w, &daylight, &z));
+	setvalues_control(ptr, s, mi, h, d, m, y, w, daylight, z, NULL);
 	return 0;
 }
 
@@ -467,7 +437,6 @@ static int function_get_internal_real_time(Execute ptr)
 
 	Return(get_internal_real_time_common_(ptr->local, &pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -494,7 +463,6 @@ static int function_get_internal_run_time(Execute ptr)
 
 	get_internal_run_time_common(&pos);
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -697,7 +665,6 @@ static int function_lisp_implementation_type(Execute ptr)
 
 	implementation_type_common(&pos);
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -724,7 +691,6 @@ static int function_lisp_implementation_version(Execute ptr)
 
 	implementation_version_common(&pos);
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -751,7 +717,6 @@ static int function_short_site_name(Execute ptr)
 
 	Return(short_site_name_common_(&pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -778,7 +743,6 @@ static int function_long_site_name(Execute ptr)
 
 	Return(long_site_name_common_(&pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -805,7 +769,6 @@ static int function_machine_instance(Execute ptr)
 
 	Return(machine_instance_common_(&pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -832,7 +795,6 @@ static int function_machine_type(Execute ptr)
 
 	Return(machine_type_common_(&pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -859,7 +821,6 @@ static int function_machine_version(Execute ptr)
 
 	Return(machine_version_common_(&pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -886,7 +847,6 @@ static int function_software_type(Execute ptr)
 
 	Return(software_type_common_(&pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
@@ -913,7 +873,6 @@ static int function_software_version(Execute ptr)
 
 	Return(software_version_common_(&pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 

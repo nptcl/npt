@@ -85,7 +85,7 @@ static int push_index_debugger_(Execute ptr)
 	Return(getspecialcheck_local_(ptr, symbol, &value));
 	Return(oneplus_integer_common_(ptr->local, value, &value));
 	pushspecial_control(ptr, symbol, value);
-	Return(format_string(ptr, &value, "[~A]* ", value, NULL));
+	Return(format_string_(ptr, &value, "[~A]* ", value, NULL));
 
 	/* push prompt */
 	push_prompt(ptr, value, prompt_debugger);
@@ -110,12 +110,12 @@ static int function_handler_warning(Execute ptr, addr condition)
 	if (check) {
 		Return(simple_condition_format_control_(condition, &format));
 		Return(simple_condition_format_arguments_(condition, &args));
-		Return(format_stream(ptr, stream, "~&WARNING: ", NULL));
-		Return(format_lisp(ptr, stream, format, args, &args));
+		Return(format_stream_(ptr, stream, "~&WARNING: ", NULL));
+		Return(format_lisp_(ptr, stream, format, args, &args));
 		Return(fresh_line_stream_(stream, NULL));
 	}
 	else {
-		Return(format_stream(ptr, stream, "~&WARNING: ~S~%", condition, NULL));
+		Return(format_stream_(ptr, stream, "~&WARNING: ~S~%", condition, NULL));
 	}
 
 	return force_output_stream_(stream);
@@ -176,13 +176,13 @@ int handler_exit_(Execute ptr)
 static int output_unbound_variable_(Execute ptr, addr stream, addr condition)
 {
 	Return(cell_error_name_(condition, &condition));
-	return format_stream(ptr, stream, "Unbound variable ~S.~%", condition, NULL);
+	return format_stream_(ptr, stream, "Unbound variable ~S.~%", condition, NULL);
 }
 
 static int output_undefined_function_(Execute ptr, addr stream, addr condition)
 {
 	Return(cell_error_name_(condition, &condition));
-	return format_stream(ptr, stream, "Undefined function ~S.~%", condition, NULL);
+	return format_stream_(ptr, stream, "Undefined function ~S.~%", condition, NULL);
 }
 
 static int output_unbound_slot_(Execute ptr, addr stream, addr condition)
@@ -191,7 +191,7 @@ static int output_unbound_slot_(Execute ptr, addr stream, addr condition)
 
 	Return(unbound_slot_instance_(condition, &instance));
 	Return(cell_error_name_(condition, &name));
-	return format_stream(ptr, stream,
+	return format_stream_(ptr, stream,
 			"The slot ~S is unbound in the ~S.~%", name, instance, NULL);
 }
 
@@ -200,7 +200,7 @@ static int output_simple_error_(Execute ptr, addr stream, addr condition)
 	addr control, arguments;
 
 	Return(simple_condition_format_(condition, &control, &arguments));
-	Return(format_stream_lisp(ptr, stream, control, arguments));
+	Return(format_stream_lisp_(ptr, stream, control, arguments));
 	Return(fresh_line_stream_(stream, NULL));
 	Return(terpri_stream_(stream));
 
@@ -216,7 +216,7 @@ static int output_type_error_(Execute ptr, addr stream, addr instance)
 	if (GetType(expected) == LISPTYPE_TYPE) {
 		Return(type_object_(&expected, expected));
 	}
-	return format_stream(ptr, stream,
+	return format_stream_(ptr, stream,
 			"The value ~S must be a ~S type.~%", datum, expected, NULL);
 }
 
@@ -261,7 +261,7 @@ static int output_debugger(Execute ptr, addr stream, addr pos)
 	if (check)
 		return output_condition_(ptr, stream, pos);
 	/* otherwise */
-	return format_stream(ptr, stream, "Invalid condition type ~S~%", pos, NULL);
+	return format_stream_(ptr, stream, "Invalid condition type ~S~%", pos, NULL);
 }
 
 static int invoke_standard_header_(Execute ptr, addr io, addr condition)
@@ -271,7 +271,7 @@ static int invoke_standard_header_(Execute ptr, addr io, addr condition)
 	Return(clos_class_of_(condition, &pos));
 	Return(stdget_class_name_(pos, &pos));
 	(void)text_color_terme(ptr, print_color_bright_red);
-	Return(format_stream(ptr, io, "~&ERROR: ~S~%", pos, NULL));
+	Return(format_stream_(ptr, io, "~&ERROR: ~S~%", pos, NULL));
 	(void)text_color_terme(ptr, print_color_reset);
 	Return(output_debugger(ptr, io, condition));
 
@@ -300,7 +300,7 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 			}
 		}
 		id = intsizeh(index);
-		Return(format_stream(ptr, io, "~2@A. ~16A ~A~%", id, symbol, name, NULL));
+		Return(format_stream_(ptr, io, "~2@A. ~16A ~A~%", id, symbol, name, NULL));
 	}
 
 	return 0;
@@ -366,13 +366,13 @@ static int enter_debugger_symbol_p(addr pos, const char *key, int keyword)
 
 static int enter_debugger_help_(Execute ptr, addr io)
 {
-	Return(format_stream(ptr, io, "~&Help:~%", NULL));
-	Return(format_stream(ptr, io, ":help   This message.~%", NULL));
-	Return(format_stream(ptr, io, "?       Run :help.~%", NULL));
-	Return(format_stream(ptr, io, ":show   Debugger information.~%", NULL));
-	Return(format_stream(ptr, io, ":stack  Stack-frame.~%", NULL));
-	Return(format_stream(ptr, io, ":exit   Exit debugger.~%", NULL));
-	Return(format_stream(ptr, io, "^D      Exit debugger.~%", NULL));
+	Return(format_stream_(ptr, io, "~&Help:~%", NULL));
+	Return(format_stream_(ptr, io, ":help   This message.~%", NULL));
+	Return(format_stream_(ptr, io, "?       Run :help.~%", NULL));
+	Return(format_stream_(ptr, io, ":show   Debugger information.~%", NULL));
+	Return(format_stream_(ptr, io, ":stack  Stack-frame.~%", NULL));
+	Return(format_stream_(ptr, io, ":exit   Exit debugger.~%", NULL));
+	Return(format_stream_(ptr, io, "^D      Exit debugger.~%", NULL));
 
 	return 0;
 }
@@ -384,7 +384,7 @@ static int enter_debugger_call_(Execute ptr, addr io, addr list, int *ret)
 	size_t select, size;
 
 	Return(clear_input_stream_(io));
-	Return(read_stream(ptr, io, &eof, &pos));
+	Return(read_stream_(ptr, io, &eof, &pos));
 
 	/* :exit, EOF */
 	if (eof || enter_debugger_symbol_p(pos, "EXIT", 1)) {
@@ -421,13 +421,13 @@ static int enter_debugger_call_(Execute ptr, addr io, addr list, int *ret)
 		return Result(ret, 0);
 	}
 	if (GetIndex_integer(pos, &select)) {
-		Return(format_stream(ptr, io, "Illegal integer value ~A.~%", pos, NULL));
+		Return(format_stream_(ptr, io, "Illegal integer value ~A.~%", pos, NULL));
 		return Result(ret, 0);
 	}
 
 	size = length_list_unsafe(list);
 	if (size <= select) {
-		Return(format_stream(ptr, io, "Too large index value ~A.~%", pos, NULL));
+		Return(format_stream_(ptr, io, "Too large index value ~A.~%", pos, NULL));
 		return Result(ret, 0);
 	}
 	/* execute */
@@ -486,7 +486,7 @@ static int invoke_standard_debugger_(Execute ptr, addr condition)
 	Return(enable_debugger_p_(ptr, &check));
 	if (! check) {
 		Return(invoke_standard_header_(ptr, io, condition));
-		Return(format_stream(ptr, io, "~2&Debugger is not enabled.~%", NULL));
+		Return(format_stream_(ptr, io, "~2&Debugger is not enabled.~%", NULL));
 		abort_execute();
 		return 0;
 	}
@@ -494,7 +494,7 @@ static int invoke_standard_debugger_(Execute ptr, addr condition)
 	/* no-restart */
 	if (list == Nil) {
 		Return(invoke_standard_header_(ptr, io, condition));
-		Return(format_stream(ptr, io, "There is no restarts, abort.~%", NULL));
+		Return(format_stream_(ptr, io, "There is no restarts, abort.~%", NULL));
 		abort_execute();
 		return 0;
 	}

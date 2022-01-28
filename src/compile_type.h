@@ -4,11 +4,11 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define faslwrite_value_type _n(faslwrite_value_type)
-#define faslread_value_type _n(faslread_value_type)
+#define faslwrite_value_type_ _n(faslwrite_value_type_)
+#define faslread_value_type_ _n(faslread_value_type_)
 
-int faslwrite_value_type(Execute ptr, addr stream, addr pos);
-int faslread_value_type(Execute ptr, addr stream, addr *ret);
+int faslwrite_value_type_(Execute ptr, addr stream, addr pos);
+int faslread_value_type_(Execute ptr, addr stream, addr *ret);
 
 #endif
 

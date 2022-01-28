@@ -21,7 +21,7 @@
 /*
  *  copy-readtable
  */
-int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret)
+int copy_readtable_common_(Execute ptr, addr from, addr to, addr *ret)
 {
 	int check1, check2;
 
@@ -59,7 +59,7 @@ int copy_readtable_common(Execute ptr, addr from, addr to, addr *ret)
 /*
  *  make-dispatch-macro-character
  */
-int make_dispatch_macro_character_common(Execute ptr,
+int make_dispatch_macro_character_common_(Execute ptr,
 		addr code, addr nonterm, addr readtable)
 {
 	if (nonterm == Unbound) {
@@ -101,7 +101,7 @@ int read_common_(Execute ptr, addr stream, addr errorp, addr eof, addr recp, add
 
 	/* read */
 	if (recp == Nil) {
-		Return(read_stream(ptr, stream, &check, &pos));
+		Return(read_stream_(ptr, stream, &check, &pos));
 		if (check) {
 			if (errorp != Nil)
 				return call_end_of_file_(ptr, stream);
@@ -109,7 +109,7 @@ int read_common_(Execute ptr, addr stream, addr errorp, addr eof, addr recp, add
 		}
 	}
 	else {
-		Return(read_recursive(ptr, stream, &check, &pos));
+		Return(read_recursive_(ptr, stream, &check, &pos));
 		if (check) {
 			if (errorp != Nil)
 				return fmte_("End-of-file occured by recursive-p read.", NULL);
@@ -150,7 +150,7 @@ int read_preserving_whitespace_common_(Execute ptr,
 
 	/* read */
 	if (recp == Nil) {
-		Return(read_preserving(ptr, stream, &check, &pos));
+		Return(read_preserving_(ptr, stream, &check, &pos));
 		if (check) {
 			if (errorp != Nil)
 				return call_end_of_file_(ptr, stream);
@@ -158,7 +158,7 @@ int read_preserving_whitespace_common_(Execute ptr,
 		}
 	}
 	else {
-		Return(read_recursive(ptr, stream, &check, &pos));
+		Return(read_recursive_(ptr, stream, &check, &pos));
 		if (check) {
 			if (errorp != Nil)
 				return fmte_("End-of-file occured by recursive-p read.", NULL);
@@ -174,7 +174,7 @@ int read_preserving_whitespace_common_(Execute ptr,
 /*
  *  read-delimited-list
  */
-int read_delimited_list_common(Execute ptr, addr code, addr stream, addr recp)
+int read_delimited_list_common_(Execute ptr, addr code, addr stream, addr recp)
 {
 	unicode c;
 
@@ -187,14 +187,14 @@ int read_delimited_list_common(Execute ptr, addr code, addr stream, addr recp)
 	}
 
 	GetCharacter(code, &c);
-	return read_delimited_list(ptr, stream, c, recp != Nil);
+	return read_delimited_list_(ptr, stream, c, recp != Nil);
 }
 
 
 /*
  *  read-from-string
  */
-static int read_from_string_execute_common(Execute ptr, addr string,
+static int read_from_string_execute_common_(Execute ptr, addr string,
 		int eofp, addr eof, size_t start, size_t end, int preserve,
 		addr *ret, addr *sec)
 {
@@ -204,10 +204,10 @@ static int read_from_string_execute_common(Execute ptr, addr string,
 
 	Return(open_input_string_stream2_(&stream, string, start, end));
 	if (preserve) {
-		Return(read_preserving(ptr, stream, &check, &pos));
+		Return(read_preserving_(ptr, stream, &check, &pos));
 	}
 	else {
-		Return(read_stream(ptr, stream, &check, &pos));
+		Return(read_stream_(ptr, stream, &check, &pos));
 	}
 	if (check) {
 		if (eofp) {
@@ -226,31 +226,28 @@ static int read_from_string_execute_common(Execute ptr, addr string,
 	return 0;
 }
 
-int read_from_string_common(Execute ptr, addr args, addr *ret, addr *sec)
+int read_from_string_common_(Execute ptr, addr args, addr *ret, addr *sec)
 {
 	int eofp, preserve;
 	addr str, eof, pos, key;
 	size_t start, end;
 
 	/* string */
-	if (! consp(args))
+	if (! consp_getcons(args, &str, &args))
 		goto error;
-	GetCons(args, &str, &args);
 	if (! stringp(str))
 		return fmte_("The read-from-string argument ~S must be a string.", str, NULL);
 	if (args == Nil)
 		goto default_string;
-	if (! consp(args))
-		goto error;
 	/* eof-error-p */
-	GetCons(args, &pos, &args);
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
 	eofp = (pos != Nil);
 	if (args == Nil)
 		goto default_eofp;
-	if (! consp(args))
-		goto error;
 	/* eof-value */
-	GetCons(args, &eof, &args);
+	if (! consp_getcons(args, &eof, &args))
+		goto error;
 	if (args == Nil)
 		goto default_eof;
 	if (! consp(args))
@@ -291,7 +288,7 @@ default_eof:
 	string_length(str, &end);
 	preserve = 0;
 execute:
-	return read_from_string_execute_common(ptr,
+	return read_from_string_execute_common_(ptr,
 			str, eofp, eof, start, end, preserve, ret, sec);
 
 error:
@@ -302,7 +299,7 @@ error:
 /*
  *  readtable-case
  */
-int readtable_case_common(addr var, addr *ret)
+int readtable_case_common_(addr var, addr *ret)
 {
 	constindex index;
 
@@ -335,7 +332,7 @@ int readtable_case_common(addr var, addr *ret)
 /*
  *  (setf readtable-case)
  */
-int setf_readtable_case_common(addr value, addr var)
+int setf_readtable_case_common_(addr value, addr var)
 {
 	addr key;
 
@@ -371,7 +368,7 @@ int setf_readtable_case_common(addr value, addr var)
 /*
  *  get-dispatch-macro-character
  */
-int get_dispatch_macro_character_common(Execute ptr,
+int get_dispatch_macro_character_common_(Execute ptr,
 		addr x, addr y, addr readtable, addr *ret)
 {
 	unicode a, b;
@@ -394,7 +391,7 @@ int get_dispatch_macro_character_common(Execute ptr,
 /*
  *  set-dispatch-macro-character
  */
-int set_dispatch_macro_character_common(Execute ptr,
+int set_dispatch_macro_character_common_(Execute ptr,
 		addr x, addr y, addr call, addr readtable)
 {
 	unicode a, b;
@@ -422,7 +419,7 @@ int set_dispatch_macro_character_common(Execute ptr,
 /*
  *  get-macro-character
  */
-int get_macro_character_common(Execute ptr,
+int get_macro_character_common_(Execute ptr,
 		addr code, addr readtable, addr *ret, addr *sec)
 {
 	int check;
@@ -450,7 +447,7 @@ int get_macro_character_common(Execute ptr,
 /*
  *  set-macro-character
  */
-int set_macro_character_common(Execute ptr,
+int set_macro_character_common_(Execute ptr,
 		addr code, addr call, addr nonterm, addr readtable)
 {
 	unicode c;
@@ -480,7 +477,7 @@ int set_macro_character_common(Execute ptr,
 /*
  *  set-syntax-from-char
  */
-int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
+int set_syntax_from_char_common_(Execute ptr, addr x, addr y, addr z, addr w)
 {
 	unicode a, b;
 
@@ -505,7 +502,7 @@ int set_syntax_from_char_common(Execute ptr, addr x, addr y, addr z, addr w)
 /*
  *  with-standard-io-syntax
  */
-int with_standard_io_syntax_common(addr form, addr env, addr *ret)
+int with_standard_io_syntax_common_(addr form, addr env, addr *ret)
 {
 	addr args, symbol, value, find, copy, quote;
 

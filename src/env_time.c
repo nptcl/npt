@@ -331,7 +331,7 @@ decode_default:
 	return decode_universal_default_(local, u, time, offset);
 }
 
-int decode_universal_time_common_(LocalRoot local,
+int decode_universal_time_call_(LocalRoot local,
 		struct universal_time_struct *u, addr pos, addr zone)
 {
 	if (zone == Nil)
@@ -539,7 +539,7 @@ static int encode_universal_time_year_(size_t year, addr year_error, size_t *ret
 	return Result(ret, 100*a + year);
 }
 
-int encode_universal_time_common_(LocalRoot local, addr *ret,
+int encode_universal_time_call_(LocalRoot local, addr *ret,
 		addr sec, addr min, addr hour,
 		addr day, addr month, addr year, addr zone)
 {
@@ -564,7 +564,7 @@ int encode_universal_time_common_(LocalRoot local, addr *ret,
 /*
  *  get-universal-time
  */
-int get_universal_time_common_(LocalRoot local, addr *ret)
+int get_universal_time_call_(LocalRoot local, addr *ret)
 {
 	addr left, right;
 
@@ -579,11 +579,11 @@ int get_universal_time_common_(LocalRoot local, addr *ret)
 /*
  *  get-decoded-time
  */
-int get_decoded_time_common_(LocalRoot local, struct universal_time_struct *u)
+int get_decoded_time_call_(LocalRoot local, struct universal_time_struct *u)
 {
 	addr pos;
-	Return(get_universal_time_common_(local, &pos));
-	return decode_universal_time_common_(local, u, pos, Nil);
+	Return(get_universal_time_call_(local, &pos));
+	return decode_universal_time_call_(local, u, pos, Nil);
 }
 
 
@@ -872,7 +872,7 @@ static int sleep_second_common(Execute ptr, fixnum value)
 #endif
 
 #if defined(LISP_POSIX) || defined(LISP_WINDOWS)
-static int sleep_integer_common(Execute ptr, addr var, int *ret)
+static int sleep_integer_common_(Execute ptr, addr var, int *ret)
 {
 	int check;
 	LocalRoot local;
@@ -904,7 +904,7 @@ static int sleep_execute_common_(Execute ptr, addr var, int *ret)
 	fixnum_heap(&right, LISP_SLEEP_INTERVAL);
 	local = ptr->local;
 	Return(truncate2_common_(local, &var, &right, var, right));
-	Return(sleep_integer_common(ptr, var, &check));
+	Return(sleep_integer_common_(ptr, var, &check));
 	if (check)
 		return Result(ret, 1);
 	GetFixnum(right, &value);

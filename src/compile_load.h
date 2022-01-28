@@ -4,9 +4,9 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define eval_compile_load _n(eval_compile_load)
+#define eval_compile_load_ _n(eval_compile_load_)
 
-int eval_compile_load(Execute ptr, addr stream);
+int eval_compile_load_(Execute ptr, addr stream);
 
 #endif
 

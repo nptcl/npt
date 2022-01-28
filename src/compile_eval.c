@@ -85,7 +85,7 @@ static int compile_eval_execute_call_(Execute ptr, addr pos, addr *rtype)
 	Return(compile_eval_execute_p_(ptr, &check));
 	if (check) {
 		localhold_set(hold, 0, pos);
-		Return(eval_compile_file(ptr, pos));
+		Return(eval_compile_file_(ptr, pos));
 	}
 
 	/* :compile-toplevel */
@@ -168,7 +168,7 @@ static int compile_eval_output_(Execute ptr)
 	if (size) {
 		code_make_load_alloc(ptr, &pos, pos);
 		localhold_set(hold, 0, pos);
-		Return(eval_compile_file(ptr, pos));
+		Return(eval_compile_file_(ptr, pos));
 		Return(compile_output_break_(ptr));
 	}
 	localhold_end(hold);
@@ -186,7 +186,7 @@ static int compile_gensym_output_(Execute ptr)
 	if (pos != Nil) {
 		code_make_load_gensym(ptr, &pos, pos);
 		localhold_set(hold, 0, pos);
-		Return(eval_compile_file(ptr, pos));
+		Return(eval_compile_file_(ptr, pos));
 		Return(compile_output_break_(ptr));
 	}
 	localhold_end(hold);

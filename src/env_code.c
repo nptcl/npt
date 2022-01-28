@@ -17,8 +17,8 @@
 #include "stream_function.h"
 #include "symbol.h"
 
-#define Fmt1(x) Return(format_stream(ptr, stream, x, NULL))
-#define Fmt2(x,y) Return(format_stream(ptr, stream, x, y, NULL))
+#define Fmt1(x) Return(format_stream_(ptr, stream, x, NULL))
+#define Fmt2(x,y) Return(format_stream_(ptr, stream, x, y, NULL))
 
 /*
  *  disassemble
@@ -61,7 +61,7 @@ static int disassemble_code_operator_(Execute ptr,
 
 	/* otherwise */
 	make_index_integer_heap(&index, i);
-	Return(format_stream(ptr, stream, "~5@A: ~20A ~S~%", index, car, cdr, NULL));
+	Return(format_stream_(ptr, stream, "~5@A: ~20A ~S~%", index, car, cdr, NULL));
 
 	/* execute */
 	if (disassmeble_code_p(car, cdr, &cdr))
@@ -92,9 +92,9 @@ static int disassemble_code_(Execute ptr, addr stream, addr code)
 		return 0;
 	/* code */
 	CheckType(code, LISPTYPE_CODE);
-	Return(format_stream(ptr, stream, "CODE-BEGIN: ~A~20T~%", code, NULL));
+	Return(format_stream_(ptr, stream, "CODE-BEGIN: ~A~20T~%", code, NULL));
 	Return(disassemble_code_body_(ptr, stream, code));
-	Return(format_stream(ptr, stream, "CODE-END: ~A~%", code, NULL));
+	Return(format_stream_(ptr, stream, "CODE-END: ~A~%", code, NULL));
 
 	return 0;
 }
@@ -254,7 +254,7 @@ static int defun_trace_function(Execute ptr, addr rest)
 	/* begin */
 	Return(trace_output_stream_(ptr, &stream));
 	cons_heap(&list, name, rest);
-	Return(format_stream(ptr, stream, "~&~A: ~S~%", index, list, NULL));
+	Return(format_stream_(ptr, stream, "~&~A: ~S~%", index, list, NULL));
 	/* call */
 	push_control(ptr, &control);
 	(void)apply_control_(ptr, pos, rest);
@@ -264,10 +264,10 @@ static int defun_trace_function(Execute ptr, addr rest)
 	normal_throw_control(ptr);
 	if (normalp) {
 		getvalues_list_control_heap(ptr, &list);
-		Return(format_stream(ptr, stream, "~&~A: Result => ~S~%", index, list, NULL));
+		Return(format_stream_(ptr, stream, "~&~A: Result => ~S~%", index, list, NULL));
 	}
 	else {
-		Return(format_stream(ptr, stream, "~&~A: Exit~%", index, NULL));
+		Return(format_stream_(ptr, stream, "~&~A: Exit~%", index, NULL));
 	}
 	restore_execute_control(ptr, save);
 	return pop_control_(ptr, control);

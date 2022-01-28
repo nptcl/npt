@@ -534,7 +534,7 @@ int eval_toplevel_loop_(Execute ptr, addr stream)
 	addr pos;
 
 	for (;;) {
-		Return(read_stream(ptr, stream, &check, &pos));
+		Return(read_stream_(ptr, stream, &check, &pos));
 		if (check)
 			break;
 		Return(eval_toplevel_execute_(ptr, pos));

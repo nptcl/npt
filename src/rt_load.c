@@ -65,7 +65,7 @@ static int loadrt_init_(Execute ptr, const char *name, int *ret)
 
 	/* title */
 	strvect_char_heap(&file, name);
-	Return(format_stdout(ptr, "~&[~A]~%", file, NULL));
+	Return(format_stdout_(ptr, "~&[~A]~%", file, NULL));
 
 	/* (let ((*package* (find-package 'common-lisp-user))) ...) */
 	Return(find_char_package_(LISP_COMMON_USER, &package));

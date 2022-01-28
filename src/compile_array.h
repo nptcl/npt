@@ -4,11 +4,11 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define faslwrite_value_array _n(faslwrite_value_array)
-#define faslread_value_array _n(faslread_value_array)
+#define faslwrite_value_array_ _n(faslwrite_value_array_)
+#define faslread_value_array_ _n(faslread_value_array_)
 
-int faslwrite_value_array(Execute ptr, addr stream, addr pos);
-int faslread_value_array(Execute ptr, addr stream, addr *ret);
+int faslwrite_value_array_(Execute ptr, addr stream, addr pos);
+int faslread_value_array_(Execute ptr, addr stream, addr *ret);
 
 #endif
 

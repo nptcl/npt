@@ -16,7 +16,7 @@
 /*
  *  array-t
  */
-static int faslwrite_value_array_t(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_t_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 	struct array_struct *str;
@@ -26,13 +26,13 @@ static int faslwrite_value_array_t(Execute ptr, addr stream, addr pos)
 	size = str->front;
 	for (i = 0; i < size; i++) {
 		Return(array_get_t_(pos, i, &value));
-		Return(faslwrite_value(ptr, stream, value));
+		Return(faslwrite_value_(ptr, stream, value));
 	}
 
 	return 0;
 }
 
-static int faslread_value_array_t(Execute ptr, addr stream, addr pos)
+static int faslread_value_array_t_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 	struct array_struct *str;
@@ -42,7 +42,7 @@ static int faslread_value_array_t(Execute ptr, addr stream, addr pos)
 	Return(array_allocate_(NULL, pos, str));
 	size = str->front;
 	for (i = 0; i < size; i++) {
-		Return(faslread_value(ptr, stream, &value));
+		Return(faslread_value_(ptr, stream, &value));
 		Return(array_set_(pos, i, value));
 	}
 
@@ -53,7 +53,7 @@ static int faslread_value_array_t(Execute ptr, addr stream, addr pos)
 /*
  *  array-bit
  */
-static int faslwrite_value_array_bit(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_bit_(Execute ptr, addr stream, addr pos)
 {
 	int value;
 	addr cons;
@@ -74,17 +74,17 @@ static int faslwrite_value_array_bit(Execute ptr, addr stream, addr pos)
 
 	/* write */
 	bitmemory_cons_local(local, &cons, cons);
-	Return(faslwrite_value(ptr, stream, cons));
+	Return(faslwrite_value_(ptr, stream, cons));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-static int faslread_value_array_bit(Execute ptr, addr stream, addr pos)
+static int faslread_value_array_bit_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 
-	Return(faslread_value(ptr, stream, &value));
+	Return(faslread_value_(ptr, stream, &value));
 	CheckType(value, LISPTYPE_BITVECTOR);
 	SetArrayInfo(pos, ARRAY_INDEX_MEMORY, value);
 
@@ -95,7 +95,7 @@ static int faslread_value_array_bit(Execute ptr, addr stream, addr pos)
 /*
  *  array-memory
  */
-static int faslwrite_value_array_memory(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_memory_(Execute ptr, addr stream, addr pos)
 {
 	unsigned element;
 	struct array_struct *str;
@@ -113,7 +113,7 @@ static int faslwrite_value_array_memory(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-static int faslread_value_array_memory(Execute ptr, addr stream, addr pos)
+static int faslread_value_array_memory_(Execute ptr, addr stream, addr pos)
 {
 	unsigned element;
 	struct array_struct *str;
@@ -136,17 +136,17 @@ static int faslread_value_array_memory(Execute ptr, addr stream, addr pos)
 /*
  *  body
  */
-static int faslwrite_value_array_body(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_body_(Execute ptr, addr stream, addr pos)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	switch (str->type) {
 		case ARRAY_TYPE_T:
-			return faslwrite_value_array_t(ptr, stream, pos);
+			return faslwrite_value_array_t_(ptr, stream, pos);
 
 		case ARRAY_TYPE_BIT:
-			return faslwrite_value_array_bit(ptr, stream, pos);
+			return faslwrite_value_array_bit_(ptr, stream, pos);
 
 		case ARRAY_TYPE_CHARACTER:
 		case ARRAY_TYPE_SIGNED:
@@ -154,24 +154,24 @@ static int faslwrite_value_array_body(Execute ptr, addr stream, addr pos)
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			return faslwrite_value_array_memory(ptr, stream, pos);
+			return faslwrite_value_array_memory_(ptr, stream, pos);
 
 		default:
 			return fmte_("Invalid array type.", NULL);
 	}
 }
 
-static int faslread_value_array_body(Execute ptr, addr stream, addr pos)
+static int faslread_value_array_body_(Execute ptr, addr stream, addr pos)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	switch (str->type) {
 		case ARRAY_TYPE_T:
-			return faslread_value_array_t(ptr, stream, pos);
+			return faslread_value_array_t_(ptr, stream, pos);
 
 		case ARRAY_TYPE_BIT:
-			return faslread_value_array_bit(ptr, stream, pos);
+			return faslread_value_array_bit_(ptr, stream, pos);
 
 		case ARRAY_TYPE_CHARACTER:
 		case ARRAY_TYPE_SIGNED:
@@ -179,7 +179,7 @@ static int faslread_value_array_body(Execute ptr, addr stream, addr pos)
 		case ARRAY_TYPE_SINGLE_FLOAT:
 		case ARRAY_TYPE_DOUBLE_FLOAT:
 		case ARRAY_TYPE_LONG_FLOAT:
-			return faslread_value_array_memory(ptr, stream, pos);
+			return faslread_value_array_memory_(ptr, stream, pos);
 
 		default:
 			return fmte_("Invalid array type.", NULL);
@@ -190,7 +190,7 @@ static int faslread_value_array_body(Execute ptr, addr stream, addr pos)
 /*
  *  dimension
  */
-static int faslwrite_value_array_dimension(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_dimension_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 	struct array_struct *str;
@@ -204,7 +204,7 @@ static int faslwrite_value_array_dimension(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-static int faslread_value_array_dimension(Execute ptr, addr stream, addr pos)
+static int faslread_value_array_dimension_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 	struct array_struct *str;
@@ -223,31 +223,31 @@ static int faslread_value_array_dimension(Execute ptr, addr stream, addr pos)
 /*
  *  info
  */
-static int faslwrite_value_array_info(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_info_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	GetArrayInfo(pos, ARRAY_INDEX_TYPE, &value);
-	Return(faslwrite_value(ptr, stream, value));
+	Return(faslwrite_value_(ptr, stream, value));
 	if (2 <= str->dimension) {
-		Return(faslwrite_value_array_dimension(ptr, stream, pos));
+		Return(faslwrite_value_array_dimension_(ptr, stream, pos));
 	}
 
 	return 0;
 }
 
-static int faslread_value_array_info(Execute ptr, addr stream, addr pos)
+static int faslread_value_array_info_(Execute ptr, addr stream, addr pos)
 {
 	addr value;
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	Return(faslread_value(ptr, stream, &value));
+	Return(faslread_value_(ptr, stream, &value));
 	SetArrayInfo(pos, ARRAY_INDEX_TYPE, value);
 	if (2 <= str->dimension) {
-		Return(faslread_value_array_dimension(ptr, stream, pos));
+		Return(faslread_value_array_dimension_(ptr, stream, pos));
 	}
 
 	return 0;
@@ -257,7 +257,7 @@ static int faslread_value_array_info(Execute ptr, addr stream, addr pos)
 /*
  *  array-write
  */
-static int faslwrite_value_array_displaced(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_displaced_(Execute ptr, addr stream, addr pos)
 {
 	struct array_struct str;
 
@@ -269,25 +269,25 @@ static int faslwrite_value_array_displaced(Execute ptr, addr stream, addr pos)
 
 	/* write */
 	Return(faslwrite_buffer_(stream, &str, sizeoft(struct array_struct)));
-	Return(faslwrite_value_array_info(ptr, stream, pos));
-	Return(faslwrite_value_array_body(ptr, stream, pos));
+	Return(faslwrite_value_array_info_(ptr, stream, pos));
+	Return(faslwrite_value_array_body_(ptr, stream, pos));
 
 	return 0;
 }
 
-static int faslwrite_value_array_normal(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_array_normal_(Execute ptr, addr stream, addr pos)
 {
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
 	Return(faslwrite_buffer_(stream, str, sizeoft(struct array_struct)));
-	Return(faslwrite_value_array_info(ptr, stream, pos));
-	Return(faslwrite_value_array_body(ptr, stream, pos));
+	Return(faslwrite_value_array_info_(ptr, stream, pos));
+	Return(faslwrite_value_array_body_(ptr, stream, pos));
 
 	return 0;
 }
 
-int faslwrite_value_array(Execute ptr, addr stream, addr pos)
+int faslwrite_value_array_(Execute ptr, addr stream, addr pos)
 {
 	struct array_struct *str;
 
@@ -295,16 +295,16 @@ int faslwrite_value_array(Execute ptr, addr stream, addr pos)
 	Return(faslwrite_type_(stream, FaslCode_array));
 	str = ArrayInfoStruct(pos);
 	if (str->displaced)
-		return faslwrite_value_array_displaced(ptr, stream, pos);
+		return faslwrite_value_array_displaced_(ptr, stream, pos);
 	else
-		return faslwrite_value_array_normal(ptr, stream, pos);
+		return faslwrite_value_array_normal_(ptr, stream, pos);
 }
 
 
 /*
  *  array-read
  */
-int faslread_value_array(Execute ptr, addr stream, addr *ret)
+int faslread_value_array_(Execute ptr, addr stream, addr *ret)
 {
 	addr pos;
 	struct array_struct *str;
@@ -312,8 +312,8 @@ int faslread_value_array(Execute ptr, addr stream, addr *ret)
 	array_empty_heap(&pos);
 	str = ArrayInfoStruct(pos);
 	Return(faslread_buffer_(stream, str, sizeoft(struct array_struct)));
-	Return(faslread_value_array_info(ptr, stream, pos));
-	Return(faslread_value_array_body(ptr, stream, pos));
+	Return(faslread_value_array_info_(ptr, stream, pos));
+	Return(faslread_value_array_body_(ptr, stream, pos));
 
 	return Result(ret, pos);
 }

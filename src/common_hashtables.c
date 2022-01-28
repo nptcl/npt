@@ -16,7 +16,7 @@
  */
 static int function_make_hash_table(Execute ptr, addr rest)
 {
-	Return(make_hash_table_common(rest, &rest));
+	Return(make_hash_table_common_(rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -121,7 +121,7 @@ static void defun_hash_table_count(void)
  */
 static int function_hash_table_rehash_size(Execute ptr, addr var)
 {
-	Return(hash_table_rehash_size_common(var, &var));
+	Return(hash_table_rehash_size_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -361,7 +361,7 @@ static void defun_remhash(void)
 /* (defun maphash (function hash-table) ...) -> null */
 static int function_maphash(Execute ptr, addr call, addr table)
 {
-	Return(maphash_common(ptr, call, table));
+	Return(maphash_common_(ptr, call, table));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -396,7 +396,7 @@ static void defun_maphash(void)
 /* (defmacro with-hash-table-iterator ((name hash-table) &body body) ...) */
 static int function_with_hash_table_iterator(Execute ptr, addr form, addr env)
 {
-	Return(with_hash_table_iterator_common(ptr, form, env, &form));
+	Return(with_hash_table_iterator_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

@@ -11,7 +11,7 @@
 /*
  *  clos
  */
-static int faslwritetype_clos(Execute ptr, addr stream, addr pos)
+static int faslwritetype_clos_(Execute ptr, addr stream, addr pos)
 {
 	GetArrayType(pos, 0, &pos);
 	if (type_asterisk_p(pos)) {
@@ -21,15 +21,15 @@ static int faslwritetype_clos(Execute ptr, addr stream, addr pos)
 		Return(stdget_class_name_(pos, &pos));
 	}
 
-	return faslwrite_value_symbol(ptr, stream, pos);
+	return faslwrite_value_symbol_(ptr, stream, pos);
 }
 
-static int faslreadtype_clos(Execute ptr, addr stream, addr pos)
+static int faslreadtype_clos_(Execute ptr, addr stream, addr pos)
 {
 	addr value, check;
 
 	Return(faslread_type_check_(stream, FaslCode_symbol));
-	Return(faslread_value_symbol(ptr, stream, &value));
+	Return(faslread_value_symbol_(ptr, stream, &value));
 	/* asterisk check */
 	GetConst(COMMON_ASTERISK, &check);
 	if (value != check) {
@@ -44,26 +44,26 @@ static int faslreadtype_clos(Execute ptr, addr stream, addr pos)
 /*
  *  object
  */
-static int faslwritetype_object(Execute ptr, addr stream, addr pos, size_t size)
+static int faslwritetype_object_(Execute ptr, addr stream, addr pos, size_t size)
 {
 	addr value;
 	size_t i;
 
 	for (i = 0; i < size; i++) {
 		GetArrayType(pos, i, &value);
-		Return(faslwrite_value(ptr, stream, value));
+		Return(faslwrite_value_(ptr, stream, value));
 	}
 
 	return 0;
 }
 
-static int faslreadtype_object(Execute ptr, addr stream, addr pos, size_t size)
+static int faslreadtype_object_(Execute ptr, addr stream, addr pos, size_t size)
 {
 	addr value;
 	size_t i;
 
 	for (i = 0; i < size; i++) {
-		Return(faslread_value(ptr, stream, &value));
+		Return(faslread_value_(ptr, stream, &value));
 		SetArrayType(pos, i, value);
 	}
 
@@ -74,7 +74,7 @@ static int faslreadtype_object(Execute ptr, addr stream, addr pos, size_t size)
 /*
  *  interface
  */
-int faslwrite_value_type(Execute ptr, addr stream, addr pos)
+int faslwrite_value_type_(Execute ptr, addr stream, addr pos)
 {
 	size_t size;
 
@@ -86,14 +86,14 @@ int faslwrite_value_type(Execute ptr, addr stream, addr pos)
 
 	switch (RefLispDecl(pos)) {
 		case LISPDECL_CLOS:
-			return faslwritetype_clos(ptr, stream, pos);
+			return faslwritetype_clos_(ptr, stream, pos);
 
 		default:
-			return faslwritetype_object(ptr, stream, pos, size);
+			return faslwritetype_object_(ptr, stream, pos, size);
 	}
 }
 
-int faslread_value_type(Execute ptr, addr stream, addr *ret)
+int faslread_value_type_(Execute ptr, addr stream, addr *ret)
 {
 	byte decl;
 	addr pos;
@@ -105,11 +105,11 @@ int faslread_value_type(Execute ptr, addr stream, addr *ret)
 
 	switch (RefLispDecl(pos)) {
 		case LISPDECL_CLOS:
-			Return(faslreadtype_clos(ptr, stream, pos));
+			Return(faslreadtype_clos_(ptr, stream, pos));
 			break;
 
 		default:
-			Return(faslreadtype_object(ptr, stream, pos, size));
+			Return(faslreadtype_object_(ptr, stream, pos, size));
 			break;
 	}
 

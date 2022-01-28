@@ -449,7 +449,7 @@ int lisp0_reader_(addr *ret, addr str)
 	addr value;
 
 	hold_value(str, &str);
-	Return(read_from_string(Execute_Thread, &check, &value, str));
+	Return(read_from_string_(Execute_Thread, &check, &value, str));
 	return Result(ret, check? NULL: value);
 }
 

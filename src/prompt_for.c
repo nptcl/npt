@@ -60,7 +60,7 @@ static int prompt_for_module_(Execute ptr, LocalHold hold,
 		if (check)
 			break;
 
-		Return(format_string(ptr, &prompt, "Please answer ~A type: ", type, NULL));
+		Return(format_string_(ptr, &prompt, "Please answer ~A type: ", type, NULL));
 		localhold_set(hold, 2, prompt);
 	}
 
@@ -88,7 +88,7 @@ static int prompt_for_lisp_(Execute ptr, LocalHold hold,
 		if (check)
 			break;
 
-		Return(format_stream(ptr, io, "~%Please answer ~A type: ", type, NULL));
+		Return(format_stream_(ptr, io, "~%Please answer ~A type: ", type, NULL));
 		Return(finish_output_stream_(io));
 	}
 
@@ -131,7 +131,7 @@ static int prompt_string_input_call_(Execute ptr, addr io, int errorp, addr *ret
 
 	Return(finish_output_stream_(io));
 	Return(clear_input_stream_(io));
-	Return(read_line_common(ptr, io, errorp? T: Nil, Nil, Nil, &value, &ignore));
+	Return(read_line_common_(ptr, io, errorp? T: Nil, Nil, Nil, &value, &ignore));
 
 	return Result(ret, value);
 }
@@ -158,7 +158,7 @@ static int prompt_string_lisp_(Execute ptr,
 
 	/* query */
 	Return(clear_input_stream_(io));
-	return read_line_common(ptr, io, errorp? T: Nil, Nil, Nil, ret, &ignore);
+	return read_line_common_(ptr, io, errorp? T: Nil, Nil, Nil, ret, &ignore);
 }
 
 int prompt_string_stream_(Execute ptr, addr prompt, int errorp, addr *ret)
@@ -189,7 +189,7 @@ static int yes_or_no_p_char_common_(Execute ptr, addr args, int *ret,
 	if (args != Nil) {
 		open_output_string_stream(&stream, 0);
 		GetCons(args, &control, &args);
-		Return(format_lisp(ptr, stream, control, args, &control));
+		Return(format_lisp_(ptr, stream, control, args, &control));
 		Return(print_ascii_stream_(stream, " "));
 		Return(string_stream_heap_(stream, &prompt));
 		Return(close_stream_(stream, NULL));

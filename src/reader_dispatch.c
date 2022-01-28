@@ -11,7 +11,7 @@
 /* (defun double-quote-reader (stream character) ...) -> * */
 static int function_reader_double_quote(Execute ptr, addr pos, addr code)
 {
-	Return(double_quote_reader(ptr->local, pos, &pos));
+	Return(double_quote_reader_(ptr->local, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -35,7 +35,7 @@ static void defun_double_quote_reader(void)
 /* (defun single-quote-reader (stream character) ...) -> * */
 static int function_reader_single_quote(Execute ptr, addr pos, addr code)
 {
-	Return(single_quote_reader(ptr, pos, &pos));
+	Return(single_quote_reader_(ptr, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -59,7 +59,7 @@ static void defun_single_quote_reader(void)
 /* (defun parensis-open-reader (stream character) ...) -> * */
 static int function_reader_parensis_open(Execute ptr, addr stream, addr code)
 {
-	return parensis_open_reader(ptr, stream);
+	return parensis_open_reader_(ptr, stream);
 }
 
 static void defun_parensis_open_reader(void)
@@ -81,7 +81,7 @@ static void defun_parensis_open_reader(void)
 /* (defun parensis-close-reader (stream character) ...) -> * */
 static int function_reader_parensis_close(Execute ptr, addr stream, addr code)
 {
-	return parensis_close_reader();
+	return parensis_close_reader_();
 }
 
 static void defun_parensis_close_reader(void)
@@ -127,7 +127,7 @@ static void defun_semicolon_reader(void)
 /* (defun backquote-reader (stream character) ...) -> * */
 static int function_reader_backquote(Execute ptr, addr stream, addr code)
 {
-	Return(backquote_reader(ptr, stream, &code));
+	Return(backquote_reader_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -151,7 +151,7 @@ static void defun_backquote_reader(void)
 /* (defun comma-reader (stream character) ...) -> * */
 static int function_reader_comma(Execute ptr, addr stream, addr code)
 {
-	Return(comma_reader(ptr, stream, &code));
+	Return(comma_reader_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -175,7 +175,7 @@ static void defun_comma_reader(void)
 /* (defun sharp-reader (stream character) ...) -> * */
 static int function_reader_sharp(Execute ptr, addr stream, addr code)
 {
-	return sharp_reader(ptr, stream, code);
+	return sharp_reader_(ptr, stream, code);
 }
 
 static void defun_sharp_reader(void)
@@ -217,7 +217,7 @@ static void reader_dispatch_function(void)
 /* (defun error-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_error(Execute ptr, addr stream, addr code, addr arg)
 {
-	return error_dispatch(code);
+	return error_dispatch_(code);
 }
 
 static void defun_error_dispatch(void)
@@ -239,7 +239,7 @@ static void defun_error_dispatch(void)
 /* (defun equal-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_equal(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(equal_dispatch(ptr, stream, code, arg, &code));
+	Return(equal_dispatch_(ptr, stream, code, arg, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -263,7 +263,7 @@ static void defun_equal_dispatch(void)
 /* (defun sharp-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_sharp(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(sharp_dispatch(ptr, arg, &code));
+	Return(sharp_dispatch_(ptr, arg, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -288,7 +288,7 @@ static void defun_sharp_dispatch(void)
 static int function_dispatch_single_quote(Execute ptr,
 		addr stream, addr code, addr arg)
 {
-	Return(single_quote_dispatch(ptr, stream, &code));
+	Return(single_quote_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -313,7 +313,7 @@ static void defun_single_quote_dispatch(void)
 static int function_dispatch_parensis_open(Execute ptr,
 		addr stream, addr code, addr arg)
 {
-	Return(parensis_open_dispatch(ptr, stream, arg, &code));
+	Return(parensis_open_dispatch_(ptr, stream, arg, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -338,7 +338,7 @@ static void defun_parensis_open_dispatch(void)
 static int function_dispatch_parensis_close(Execute ptr,
 		addr stream, addr code, addr arg)
 {
-	return parensis_close_dispatch();
+	return parensis_close_dispatch_();
 }
 
 static void defun_parensis_close_dispatch(void)
@@ -384,7 +384,7 @@ static void defun_asterisk_dispatch(void)
 /* (defun colon-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_colon(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(colon_dispatch(ptr, stream, &code));
+	Return(colon_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -408,7 +408,7 @@ static void defun_colon_dispatch(void)
 /* (defun less-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_less(Execute ptr, addr stream, addr code, addr arg)
 {
-	return less_dispatch();
+	return less_dispatch_();
 }
 
 static void defun_less_dispatch(void)
@@ -430,7 +430,7 @@ static void defun_less_dispatch(void)
 /* (defun backslash-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_backslash(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(backslash_dispatch(ptr, stream, &code));
+	Return(backslash_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -478,7 +478,7 @@ static void defun_or_dispatch(void)
 /* (defun plus-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_plus(Execute ptr, addr stream, addr code, addr arg)
 {
-	return plus_dispatch(ptr, stream);
+	return plus_dispatch_(ptr, stream);
 }
 
 static void defun_plus_dispatch(void)
@@ -500,7 +500,7 @@ static void defun_plus_dispatch(void)
 /* (defun minus-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_minus(Execute ptr, addr stream, addr code, addr arg)
 {
-	return minus_dispatch(ptr, stream);
+	return minus_dispatch_(ptr, stream);
 }
 
 static void defun_minus_dispatch(void)
@@ -522,7 +522,7 @@ static void defun_minus_dispatch(void)
 /* (defun dot-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_dot(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(dot_dispatch(ptr, stream, &code));
+	Return(dot_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -546,7 +546,7 @@ static void defun_dot_dispatch(void)
 /* (defun radix-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_radix(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(radix_dispatch(ptr, stream, arg, &code));
+	Return(radix_dispatch_(ptr, stream, arg, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -570,7 +570,7 @@ static void defun_radix_dispatch(void)
 /* (defun binary-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_binary(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(binary_dispatch(ptr, stream, &code));
+	Return(binary_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -594,7 +594,7 @@ static void defun_binary_dispatch(void)
 /* (defun octal-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_octal(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(octal_dispatch(ptr, stream, &code));
+	Return(octal_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -618,7 +618,7 @@ static void defun_octal_dispatch(void)
 /* (defun hexadecimal-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_hexadecimal(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(hexadecimal_dispatch(ptr, stream, &code));
+	Return(hexadecimal_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -642,7 +642,7 @@ static void defun_hexadecimal_dispatch(void)
 /* (defun complex-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_complex(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(complex_dispatch(ptr, stream, &code));
+	Return(complex_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -666,7 +666,7 @@ static void defun_complex_dispatch(void)
 /* (defun array-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_array(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(array_dispatch(ptr, stream, arg, &code));
+	Return(array_dispatch_(ptr, stream, arg, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -690,7 +690,7 @@ static void defun_array_dispatch(void)
 /* (defun pathname-dispatch (stream code arg) ...) -> * */
 static int function_dispatch_pathname(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(pathname_dispatch(ptr, stream, &code));
+	Return(pathname_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }
@@ -714,7 +714,7 @@ static void defun_pathname_dispatch(void)
 /* (defun structure-dispatch (stream code arg) ...) -> structure-object */
 static int function_dispatch_structure(Execute ptr, addr stream, addr code, addr arg)
 {
-	Return(structure_dispatch(ptr, stream, &code));
+	Return(structure_dispatch_(ptr, stream, &code));
 	setresult_control(ptr, code);
 	return 0;
 }

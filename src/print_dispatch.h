@@ -14,7 +14,7 @@
 #define setfunctionprinttable _n(setfunctionprinttable)
 #define getpriorityprinttable _n(getpriorityprinttable)
 #define setpriorityprinttable _n(setpriorityprinttable)
-#define find_function_print_dispatch _n(find_function_print_dispatch)
+#define find_function_print_dispatch_ _n(find_function_print_dispatch_)
 #define print_dispatch_p _n(print_dispatch_p)
 #define pprint_dispatch_heap _n(pprint_dispatch_heap)
 #define copy_pprint_dispatch_common_ _n(copy_pprint_dispatch_common_)
@@ -83,7 +83,7 @@ void getpriorityprinttable(addr pos, addr *ret);
 void setpriorityprinttable(addr pos, addr value);
 
 /* function */
-int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret);
+int find_function_print_dispatch_(Execute ptr, addr var, addr table, addr *ret);
 int print_dispatch_p(addr pos);
 void pprint_dispatch_heap(addr *ret);
 int copy_pprint_dispatch_common_(Execute ptr, addr var, addr *ret);

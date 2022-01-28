@@ -313,7 +313,7 @@ eof:
 	return Result(ret, ReadTable_Result_eof);
 }
 
-int readtable_novalue(Execute ptr, int *ret, addr *token, addr stream, addr table)
+int readtable_novalue_(Execute ptr, int *ret, addr *token, addr stream, addr table)
 {
 	enum ReadTable_Result value;
 	int check;
@@ -340,7 +340,7 @@ int readtable_novalue(Execute ptr, int *ret, addr *token, addr stream, addr tabl
 	if (check)
 		return fmte_("eof error", NULL);
 
-	Return(macro_character_execute(ptr, &check, &pos, u, stream, table));
+	Return(macro_character_execute_(ptr, &check, &pos, u, stream, table));
 	if (check) {
 		*token = pos;
 		return Result(ret, 0);
@@ -357,7 +357,7 @@ static int readtable_front(Execute ptr,
 	int check;
 
 	for (;;) {
-		Return(readtable_novalue(ptr, &check, ret, stream, table));
+		Return(readtable_novalue_(ptr, &check, ret, stream, table));
 		if (0 <= check) {
 			break;
 		}
@@ -382,7 +382,7 @@ static int readtable_front(Execute ptr,
 /*
  *  read
  */
-int read_call(Execute ptr, addr stream, int *result, addr *ret)
+int read_call_(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr table;
 	Return(getreadtable_(ptr, &table));
@@ -395,14 +395,14 @@ static int read_stream_call_(Execute ptr, LocalHold hold,
 	addr info;
 
 	pushreadinfo(ptr, &info);
-	Return(read_call(ptr, stream, result, ret));
+	Return(read_call_(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
 
 	return 0;
 }
 
-int read_stream(Execute ptr, addr stream, int *result, addr *ret)
+int read_stream_(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -423,14 +423,14 @@ static int read_preserving_call_(Execute ptr, LocalHold hold,
 
 	pushreadinfo(ptr, &info);
 	ReadInfoStruct(info)->preserving = 1;
-	Return(read_call(ptr, stream, result, ret));
+	Return(read_call_(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
 
 	return 0;
 }
 
-int read_preserving(Execute ptr, addr stream, int *result, addr *ret)
+int read_preserving_(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -450,14 +450,14 @@ static int read_recursive_call_(Execute ptr, LocalHold hold,
 	addr info;
 
 	Return(pushreadinfo_recursive_(ptr, &info));
-	Return(read_call(ptr, stream, result, ret));
+	Return(read_call_(ptr, stream, result, ret));
 	if (*result == 0)
 		localhold_set(hold, 0, *ret);
 
 	return 0;
 }
 
-int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
+int read_recursive_(Execute ptr, addr stream, int *result, addr *ret)
 {
 	addr control;
 	LocalHold hold;
@@ -471,14 +471,14 @@ int read_recursive(Execute ptr, addr stream, int *result, addr *ret)
 	return 0;
 }
 
-int read_from_string(Execute ptr, int *result, addr *ret, addr pos)
+int read_from_string_(Execute ptr, int *result, addr *ret, addr pos)
 {
 	addr stream;
 	LocalHold hold;
 
 	Return(open_input_string_stream_(&stream, pos));
 	hold = LocalHold_local_push(ptr, stream);
-	Return(read_stream(ptr, stream, result, ret));
+	Return(read_stream_(ptr, stream, result, ret));
 	localhold_end(hold);
 	close_input_string_stream(stream);
 
@@ -491,7 +491,7 @@ int readstring_debug(addr *ret, const char *code)
 	addr stream;
 
 	open_input_char_stream(&stream, code);
-	if (read_stream(Execute_Thread, stream, &result, ret))
+	if (read_stream_(Execute_Thread, stream, &result, ret))
 		Abort("Cannot catch a system signal.");
 	close_input_string_stream(stream);
 

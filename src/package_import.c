@@ -29,7 +29,7 @@ static int restart_force_import_package_(Execute ptr,
 	GetConst(COMMON_IMPORT, &pos);
 	restart_heap(&restart, pos);
 	/* report */
-	Return(format_string(ptr, &pos,
+	Return(format_string_(ptr, &pos,
 				"Import ~S and unintern ~S.", symbol1, symbol2, NULL));
 	setreport_restart(restart, pos);
 	/* function */

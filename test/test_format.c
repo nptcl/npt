@@ -41,7 +41,7 @@ static int test_format_stream_lisp(void)
 	test(RefFixnum(pos) == 30, "format_stream_list3");
 
 	clear_output_string_stream(stream);
-	format_stream_lisp(ptr, stream, format, list);
+	format_stream_lisp_(ptr, stream, format, list);
 	string_stream_heap(stream, &pos);
 	test(string_equal_char(pos, "Hello1020\n"), "format_stream_lisp1");
 
@@ -64,7 +64,7 @@ static int test_format_string_lisp(void)
 	list_local(local, &list,
 			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 
-	format_string_lisp(ptr, format, list, &pos);
+	format_string_lisp_(ptr, format, list, &pos);
 	test(string_equal_char(pos, "Hello1020\n"), "format_string_lisp1");
 
 	rollback_local(local, stack);
@@ -87,7 +87,7 @@ static int test_format_lisp(void)
 	list_local(local, &list,
 			fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 
-	format_lisp(ptr, Nil, format, list, &pos);
+	format_lisp_(ptr, Nil, format, list, &pos);
 	test(string_equal_char(pos, "Hello1020\n"), "format_lisp1");
 
 	rollback_local(local, stack);

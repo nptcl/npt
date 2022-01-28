@@ -32,7 +32,7 @@ static int eval_compile_load_toplevel_(Execute ptr, addr stream, int *ret)
 		}
 		Return(unread_byte_stream_(stream, (byte)type));
 
-		Return(faslread_value(ptr, stream, &code));
+		Return(faslread_value_(ptr, stream, &code));
 		localhold_set(hold, 0, code);
 		CheckType(code, LISPTYPE_CODE);
 		Return(runcode_control_(ptr, code));
@@ -76,7 +76,7 @@ static int eval_compile_load_call_(Execute ptr, addr stream)
 	return 0;
 }
 
-int eval_compile_load(Execute ptr, addr stream)
+int eval_compile_load_(Execute ptr, addr stream)
 {
 	addr control;
 

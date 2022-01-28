@@ -12,7 +12,7 @@
  */
 static int function_copy_readtable(Execute ptr, addr from, addr to)
 {
-	Return(copy_readtable_common(ptr, from, to, &from));
+	Return(copy_readtable_common_(ptr, from, to, &from));
 	setresult_control(ptr, from);
 	return 0;
 }
@@ -56,7 +56,7 @@ static void defun_copy_readtable(void)
 static int function_make_dispatch_macro_character(Execute ptr,
 		addr code, addr nonterm, addr readtable)
 {
-	Return(make_dispatch_macro_character_common(ptr, code, nonterm, readtable));
+	Return(make_dispatch_macro_character_common_(ptr, code, nonterm, readtable));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -155,7 +155,7 @@ static void defun_read_preserving_whitespace(void)
 static int function_read_delimited_list(Execute ptr,
 		addr code, addr stream, addr recp)
 {
-	return read_delimited_list_common(ptr, code, stream, recp);
+	return read_delimited_list_common_(ptr, code, stream, recp);
 }
 
 static void type_read_delimited_list(addr *ret)
@@ -207,7 +207,7 @@ static void defun_read_delimited_list(void)
 static int function_read_from_string(Execute ptr, addr args)
 {
 	addr second;
-	Return(read_from_string_common(ptr, args, &args, &second));
+	Return(read_from_string_common_(ptr, args, &args, &second));
 	setvalues_control(ptr, args, second, NULL);
 	return 0;
 }
@@ -261,7 +261,7 @@ static void defun_read_from_string(void)
 /* (defun readtable-case (readtable) ...) -> mode */
 static int function_readtable_case(Execute ptr, addr var)
 {
-	Return(readtable_case_common(var, &var));
+	Return(readtable_case_common_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -299,7 +299,7 @@ static void defun_readtable_case(void)
 /* (defun (setf readtable-case) (mode readtable) ...) -> mode */
 static int function_setf_readtable_case(Execute ptr, addr value, addr var)
 {
-	Return(setf_readtable_case_common(value, var));
+	Return(setf_readtable_case_common_(value, var));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -364,7 +364,7 @@ static void defun_readtablep(void)
 static int function_get_dispatch_macro_character(Execute ptr,
 		addr x, addr y, addr readtable)
 {
-	Return(get_dispatch_macro_character_common(ptr, x, y, readtable, &x));
+	Return(get_dispatch_macro_character_common_(ptr, x, y, readtable, &x));
 	setresult_control(ptr, x);
 	return 0;
 }
@@ -407,7 +407,7 @@ static void defun_get_dispatch_macro_character(void)
 static int function_set_dispatch_macro_character(Execute ptr,
 		addr x, addr y, addr call, addr readtable)
 {
-	Return(set_dispatch_macro_character_common(ptr, x, y, call, readtable));
+	Return(set_dispatch_macro_character_common_(ptr, x, y, call, readtable));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -449,7 +449,7 @@ static void defun_set_dispatch_macro_character(void)
  */
 static int function_get_macro_character(Execute ptr, addr code, addr table)
 {
-	Return(get_macro_character_common(ptr, code, table, &code, &table));
+	Return(get_macro_character_common_(ptr, code, table, &code, &table));
 	setvalues_control(ptr, code, table, NULL);
 	return 0;
 }
@@ -494,7 +494,7 @@ static void defun_get_macro_character(void)
 static int function_set_macro_character(Execute ptr,
 		addr code, addr call, addr nonterm, addr readtable)
 {
-	Return(set_macro_character_common(ptr, code, call, nonterm, readtable));
+	Return(set_macro_character_common_(ptr, code, call, nonterm, readtable));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -538,7 +538,7 @@ static void defun_set_macro_character(void)
  */
 static int function_set_syntax_from_char(Execute ptr, addr x, addr y, addr z, addr w)
 {
-	Return(set_syntax_from_char_common(ptr, x, y, z, w));
+	Return(set_syntax_from_char_common_(ptr, x, y, z, w));
 	setresult_control(ptr, T);
 	return 0;
 }
@@ -574,7 +574,7 @@ static void defun_set_syntax_from_char(void)
 /* (defmacro with-standard-io-syntax (&body form) ...) */
 static int function_with_standard_io_syntax(Execute ptr, addr form, addr env)
 {
-	Return(with_standard_io_syntax_common(form, env, &form));
+	Return(with_standard_io_syntax_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

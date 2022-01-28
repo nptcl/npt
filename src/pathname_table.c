@@ -150,7 +150,7 @@ static int check_parse_logical_pathname_(struct fileparse *pa)
 	pos = pa->version;
 	Return(check_version_logical_pathname_(pos));
 	if (stringp(pos)) {
-		if (read_from_string(pa->ptr, &check, &pos, pos))
+		if (read_from_string_(pa->ptr, &check, &pos, pos))
 			return fmte_("Cannot read ~S object.", pa->version, NULL);
 		if (check)
 			return fmte_("Cannot read ~S object.", pa->version, NULL);

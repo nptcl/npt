@@ -848,7 +848,7 @@ int stack_frame_stream_(Execute ptr, addr stream)
 	for (i = 0; list != Nil; i++) {
 		GetCons(list, &pos, &list);
 		fixnum_heap(&index, i);
-		Return(format_stream(ptr, stream, "~A: ~A~%", index, pos, NULL));
+		Return(format_stream_(ptr, stream, "~A: ~A~%", index, pos, NULL));
 	}
 
 	return 0;

@@ -274,7 +274,7 @@ static int cerror_restart_common_(Execute ptr, addr *ret, addr format, addr args
 {
 	addr inst, pos;
 
-	Return(format_string_lisp(ptr, format, args, &format));
+	Return(format_string_lisp_(ptr, format, args, &format));
 	GetConst(COMMON_CONTINUE, &pos);
 	restart_heap(&inst, pos);
 	GetConst(FUNCTION_NIL, &pos);
@@ -352,15 +352,15 @@ static int check_type_expand_common_(Execute ptr, addr env, addr *ret,
 	localhold_pushva(hold, a, b, g, w, r, NULL);
 	Return_getcar(g, &g);
 
-	Return(format_string(ptr, &str1,
+	Return(format_string_(ptr, &str1,
 				"Retry check-type with new value ~A.", place, NULL));
 	localhold_push(hold, str1);
 
-	Return(format_string(ptr, &str2,
+	Return(format_string_(ptr, &str2,
 				"Input ~A> ", place, NULL));
 	localhold_push(hold, str2);
 
-	Return(format_string(ptr, &str3,
+	Return(format_string_(ptr, &str3,
 				"The value of ~A, ~~A, is not ~~A.", place, NULL));
 	localhold_push(hold, str3);
 

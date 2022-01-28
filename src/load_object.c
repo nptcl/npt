@@ -33,4 +33,3 @@ int result_load_time_value_(Execute ptr, addr pos, addr *ret)
 	return Result(ret, pos);
 }
 
-

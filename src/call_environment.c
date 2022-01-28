@@ -9,6 +9,7 @@
 #include "control_execute.h"
 #include "control_object.h"
 #include "control_operator.h"
+#include "env_time.h"
 #include "eval_load.h"
 #include "format.h"
 #include "function.h"
@@ -34,6 +35,90 @@
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"
+
+
+/*
+ *  decode-universal-time
+ */
+int decode_universal_time_common_(LocalRoot local, addr pos, addr zone,
+		addr *rsecond, addr *rminute, addr *rhour,
+		addr *rdate, addr *rmonth, addr *ryear,
+		addr *rweek, addr *rdaylight, addr *rzone)
+{
+	struct universal_time_struct u;
+
+	if (zone == Unbound)
+		zone = Nil;
+	Return(decode_universal_time_call_(local, &u, pos, zone));
+	*rsecond = u.second;
+	*rminute = u.minute;
+	*rhour = u.hour;
+	*rdate = u.date;
+	*rmonth = u.month;
+	*ryear = u.year;
+	*rweek = u.week;
+	*rdaylight = u.daylight_p;
+	*rzone = u.zone;
+
+	return 0;
+}
+
+
+/*
+ *  encode-universal-time
+ */
+int encode_universal_time_common_(LocalRoot local, addr rest, addr *ret)
+{
+	addr s, mi, h, d, m, y, z;
+
+	if (! consp_getcons(rest, &s, &rest))
+		goto error;
+	if (! consp_getcons(rest, &mi, &rest))
+		goto error;
+	if (! consp_getcons(rest, &h, &rest))
+		goto error;
+	if (! consp_getcons(rest, &d, &rest))
+		goto error;
+	if (! consp_getcons(rest, &m, &rest))
+		goto error;
+	if (! consp_getcons(rest, &y, &rest))
+		goto error;
+	if (! consp_getcons(rest, &z, &rest))
+		z = Unbound;
+	if (consp(rest))
+		goto error;
+	return encode_universal_time_call_(local, ret, s, mi, h, d, m, y, z);
+
+error:
+	return fmte_("Invalid argument ENCODE-UNIVERSAL-TIME.", NULL);
+}
+
+
+/*
+ *  get-decoded-time
+ */
+int get_decoded_time_common_(LocalRoot local,
+		addr *rsecond, addr *rminute, addr *rhour,
+		addr *rdate, addr *rmonth, addr *ryear,
+		addr *rweek, addr *rdaylight, addr *rzone)
+{
+	struct universal_time_struct u;
+
+	Return(get_decoded_time_call_(local, &u));
+	*rsecond = u.second;
+	*rminute = u.minute;
+	*rhour = u.hour;
+	*rdate = u.date;
+	*rmonth = u.month;
+	*ryear = u.year;
+	*rweek = u.week;
+	*rdaylight = u.daylight_p;
+	*rzone = u.zone;
+
+	return 0;
+}
+
+
 
 /*
  *  apropos-list
@@ -281,42 +366,42 @@ static int room_output_common_(Execute ptr, addr stream)
 	size = get_heap_size();
 	object = get_heap_object();
 	pos = intsizeh(size);
-	Return(format_stream(ptr, stream, "Heap Size:~20T~A~40T[byte]~%", pos, NULL));
+	Return(format_stream_(ptr, stream, "Heap Size:~20T~A~40T[byte]~%", pos, NULL));
 	pos = intsizeh(object);
-	Return(format_stream(ptr, stream, "Object memory:~20T~A~40T[byte]~%", pos, NULL));
+	Return(format_stream_(ptr, stream, "Object memory:~20T~A~40T[byte]~%", pos, NULL));
 	pos = intsizeh(get_heap_count());
-	Return(format_stream(ptr, stream, "Object count:~20T~A~40T[object]~%", pos, NULL));
+	Return(format_stream_(ptr, stream, "Object count:~20T~A~40T[object]~%", pos, NULL));
 	pos = intsizeh(get_heap_gc_count());
-	Return(format_stream(ptr, stream, "GC count:~20T~A~40T[times]~%", pos, NULL));
+	Return(format_stream_(ptr, stream, "GC count:~20T~A~40T[times]~%", pos, NULL));
 
 	/* free space */
 	space = size - object;
 	pos = intsizeh(space);
-	Return(format_stream(ptr, stream, "Free space:~20T~A~40T[byte]~%", pos, NULL));
+	Return(format_stream_(ptr, stream, "Free space:~20T~A~40T[byte]~%", pos, NULL));
 
 	/* percent */
 	percent = (space >> 16) * 100 / (size >> 16);
 	pos = intsizeh(percent);
-	Return(format_stream(ptr, stream, "Free percent:~20T~A~40T[percent]~%", pos, NULL));
+	Return(format_stream_(ptr, stream, "Free percent:~20T~A~40T[percent]~%", pos, NULL));
 
 	return 0;
 }
 
 static int room_default_common_(Execute ptr, addr stream)
 {
-	Return(format_stream(ptr, stream, "Room default output.~%", NULL));
+	Return(format_stream_(ptr, stream, "Room default output.~%", NULL));
 	return room_output_common_(ptr, stream);
 }
 
 static int room_minimal_common_(Execute ptr, addr stream)
 {
-	Return(format_stream(ptr, stream, "Room minimal output.~%", NULL));
+	Return(format_stream_(ptr, stream, "Room minimal output.~%", NULL));
 	return room_output_common_(ptr, stream);
 }
 
 static int room_maximal_common_(Execute ptr, addr stream)
 {
-	Return(format_stream(ptr, stream, "Room maximal output.~%", NULL));
+	Return(format_stream_(ptr, stream, "Room maximal output.~%", NULL));
 	return room_output_common_(ptr, stream);
 }
 
@@ -471,7 +556,7 @@ static int dribble_message_begin_(Execute ptr, addr file)
 	Return(pathname_designer_heap_(ptr, file, &name));
 	Return(standard_output_stream_(ptr, &stream));
 	str = "~&;; DRIBBLE begin to write ~S.~%";
-	return format_stream(ptr, stream, str, name, NULL);
+	return format_stream_(ptr, stream, str, name, NULL);
 }
 
 static int dribble_message_end_(Execute ptr, addr file)
@@ -482,7 +567,7 @@ static int dribble_message_end_(Execute ptr, addr file)
 	Return(pathname_designer_heap_(ptr, file, &name));
 	Return(standard_output_stream_(ptr, &stream));
 	str = "~&;; DRIBBLE end to write ~S.~%";
-	return format_stream(ptr, stream, str, name, NULL);
+	return format_stream_(ptr, stream, str, name, NULL);
 }
 
 static int dribble_set_stream_(addr file)

@@ -2455,7 +2455,7 @@ static int write_pretty_print_(Execute ptr, addr stream, addr pos)
 	addr dispatch;
 
 	Return(pprint_dispatch_print_(ptr, &dispatch));
-	Return(find_function_print_dispatch(ptr, pos, dispatch, &dispatch));
+	Return(find_function_print_dispatch_(ptr, pos, dispatch, &dispatch));
 	if (dispatch == Nil)
 		return write_default_print_(ptr, stream, pos);
 	else

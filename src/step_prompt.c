@@ -167,7 +167,7 @@ int execute_step_code(Execute ptr, addr expr)
 	addr io, control;
 
 	Return(debug_io_stream_(ptr, &io));
-	Return(format_stream(ptr, io, "~&STEP: ~S~%", expr, NULL));
+	Return(format_stream_(ptr, io, "~&STEP: ~S~%", expr, NULL));
 
 	push_control(ptr, &control);
 	(void)step_prompt_query_call_(ptr, io);

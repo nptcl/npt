@@ -218,7 +218,7 @@ static int fmtargs_abort_(fmtprint print,
 /*
  *  Error
  */
-static int format_call_Error(fmtprint print, struct format_operator *str)
+static int format_call_Error_(fmtprint print, struct format_operator *str)
 {
 	return fmtprop_abort_(print, str,
 			"Cannot execute format operator [Error].", NULL);
@@ -228,7 +228,7 @@ static int format_call_Error(fmtprint print, struct format_operator *str)
 /*
  *  End
  */
-static int format_call_End(fmtprint print, struct format_operator *str)
+static int format_call_End_(fmtprint print, struct format_operator *str)
 {
 	return fmtprop_abort_(print, str,
 			"Cannot execute format operator [End].", NULL);
@@ -238,7 +238,7 @@ static int format_call_End(fmtprint print, struct format_operator *str)
 /*
  *  Format
  */
-static int format_call_Format(fmtprint print, struct format_operator *str)
+static int format_call_Format_(fmtprint print, struct format_operator *str)
 {
 	return fmtprop_abort_(print, str,
 			"Cannot execute format operator [Format].", NULL);
@@ -248,7 +248,7 @@ static int format_call_Format(fmtprint print, struct format_operator *str)
 /*
  *  Output
  */
-static int format_call_Output(fmtprint print, struct format_operator *str)
+static int format_call_Output_(fmtprint print, struct format_operator *str)
 {
 	int delete_space;
 	struct format_argument *arg;
@@ -323,7 +323,7 @@ static int format_write_margin_(fmtprint print, addr string,
 	return 0;
 }
 
-static int format_call_print(fmtprint print, addr pos, int colon, int atsign,
+static int format_call_print_(fmtprint print, addr pos, int colon, int atsign,
 		fixnum mincol, fixnum colinc, fixnum minpad, unicode padchar,
 		int prin1p)
 {
@@ -348,7 +348,7 @@ static int format_call_print(fmtprint print, addr pos, int colon, int atsign,
 	return format_write_margin_(print, pos, atsign, mincol, colinc, minpad, padchar);
 }
 
-static int format_call_Aesthetic(fmtprint print, struct format_operator *str)
+static int format_call_Aesthetic_(fmtprint print, struct format_operator *str)
 {
 	addr pos;
 	fixnum mincol, colinc, minpad;
@@ -374,11 +374,11 @@ static int format_call_Aesthetic(fmtprint print, struct format_operator *str)
 
 	/* output */
 	Return(fmtprint_pop_(print, str, &pos));
-	return format_call_print(print, pos, str->colon, str->atsign,
+	return format_call_print_(print, pos, str->colon, str->atsign,
 			mincol, colinc, minpad, padchar, 0);
 }
 
-static int format_call_Standard(fmtprint print, struct format_operator *str)
+static int format_call_Standard_(fmtprint print, struct format_operator *str)
 {
 	addr pos;
 	fixnum mincol, colinc, minpad;
@@ -404,7 +404,7 @@ static int format_call_Standard(fmtprint print, struct format_operator *str)
 
 	/* output */
 	Return(fmtprint_pop_(print, str, &pos));
-	return format_call_print(print, pos, str->colon, str->atsign,
+	return format_call_print_(print, pos, str->colon, str->atsign,
 			mincol, colinc, minpad, padchar, 1);
 }
 
@@ -412,7 +412,7 @@ static int format_call_Standard(fmtprint print, struct format_operator *str)
 /*
  *  Binary, Octal, Decimal, Hexadecimal
  */
-static int format_radix_parameter(fmtprint print, struct format_operator *str,
+static int format_radix_parameter_(fmtprint print, struct format_operator *str,
 		unsigned radix, fixnum mincol, unicode padchar, fixnum range, unicode comma)
 {
 	int minusp;
@@ -426,7 +426,7 @@ static int format_radix_parameter(fmtprint print, struct format_operator *str,
 
 	Return(fmtprint_pop_(print, str, &pos));
 	if (! integerp(pos))
-		return format_call_print(print, pos, 0, 1, mincol, 1, 0, padchar, 0);
+		return format_call_print_(print, pos, 0, 1, mincol, 1, 0, padchar, 0);
 
 	/* integer */
 	Return(fmtprint_stream_(print, &stream));
@@ -479,7 +479,7 @@ static int format_radix_integer_call_(fmtprint print,
 				"The parameter must be greate than 1.", NULL);
 	}
 
-	return format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
+	return format_radix_parameter_(print, str, radix, mincol, padchar, range, comma);
 }
 
 static int format_radix_integer_(fmtprint print,
@@ -495,19 +495,19 @@ static int format_radix_integer_(fmtprint print,
 	return pop_control_(ptr, control);
 }
 
-static int format_call_Binary(fmtprint print, struct format_operator *str)
+static int format_call_Binary_(fmtprint print, struct format_operator *str)
 {
 	return format_radix_integer_(print, str, 2);
 }
-static int format_call_Octal(fmtprint print, struct format_operator *str)
+static int format_call_Octal_(fmtprint print, struct format_operator *str)
 {
 	return format_radix_integer_(print, str, 8);
 }
-static int format_call_Decimal(fmtprint print, struct format_operator *str)
+static int format_call_Decimal_(fmtprint print, struct format_operator *str)
 {
 	return format_radix_integer_(print, str, 10);
 }
-static int format_call_Hexadecimal(fmtprint print, struct format_operator *str)
+static int format_call_Hexadecimal_(fmtprint print, struct format_operator *str)
 {
 	return format_radix_integer_(print, str, 16);
 }
@@ -554,10 +554,10 @@ static int format_call_Radix_call_(fmtprint print, struct format_operator *str)
 				"The parameter must be greater than 1.", NULL);
 	}
 
-	return format_radix_parameter(print, str, radix, mincol, padchar, range, comma);
+	return format_radix_parameter_(print, str, radix, mincol, padchar, range, comma);
 }
 
-static int format_call_Radix(fmtprint print, struct format_operator *str)
+static int format_call_Radix_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
 	addr control;
@@ -632,7 +632,7 @@ static int format_call_RadixText_call_(fmtprint print, struct format_operator *s
 		return format_call_RadixText_english_(print, str, pos);
 }
 
-static int format_call_RadixText(fmtprint print, struct format_operator *str)
+static int format_call_RadixText_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
 	addr control;
@@ -648,7 +648,7 @@ static int format_call_RadixText(fmtprint print, struct format_operator *str)
 /*
  *  Plural
  */
-static int format_call_Plural(fmtprint print, struct format_operator *str)
+static int format_call_Plural_(fmtprint print, struct format_operator *str)
 {
 	addr pos;
 
@@ -695,7 +695,7 @@ static int format_call_Character_atsign_(fmtprint print, addr pos)
 	return fmtprint_string_(print, pos);
 }
 
-static int format_call_Character(fmtprint print, struct format_operator *str)
+static int format_call_Character_(fmtprint print, struct format_operator *str)
 {
 	addr pos, name;
 
@@ -943,7 +943,7 @@ static int format_call_Fixed_call_(fmtprint print, struct format_operator *str)
 	return 0;
 }
 
-static int format_call_Fixed(fmtprint print, struct format_operator *str)
+static int format_call_Fixed_(fmtprint print, struct format_operator *str)
 {
 	addr control;
 	Execute ptr;
@@ -1154,7 +1154,7 @@ static int format_call_Exponential_call_(fmtprint print, struct format_operator 
 	return 0;
 }
 
-static int format_call_Exponential(fmtprint print, struct format_operator *str)
+static int format_call_Exponential_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
 	addr control;
@@ -1328,7 +1328,7 @@ static int format_call_General_call_(fmtprint print, struct format_operator *str
 	return 0;
 }
 
-static int format_call_General(fmtprint print, struct format_operator *str)
+static int format_call_General_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
 	addr control;
@@ -1421,7 +1421,7 @@ static int format_monetary_ratio_(fmtprint print, fmtfloat ff, addr pos)
 
 static int format_monetary_default_(fmtprint print, fmtfloat ff, addr pos)
 {
-	return format_call_print(print, pos, 0, 1, ff->w, 1, 0, ' ', 0);
+	return format_call_print_(print, pos, 0, 1, ff->w, 1, 0, ' ', 0);
 }
 
 static int format_monetary_float_(fmtprint print,
@@ -1498,7 +1498,7 @@ static int format_call_Monetary_call_(fmtprint print, struct format_operator *st
 	return 0;
 }
 
-static int format_call_Monetary(fmtprint print, struct format_operator *str)
+static int format_call_Monetary_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
 	addr control;
@@ -1514,7 +1514,7 @@ static int format_call_Monetary(fmtprint print, struct format_operator *str)
 /*
  *  Newline
  */
-static int format_call_Newline(fmtprint print, struct format_operator *str)
+static int format_call_Newline_(fmtprint print, struct format_operator *str)
 {
 	addr stream;
 	fixnum i, size;
@@ -1538,7 +1538,7 @@ static int format_call_Newline(fmtprint print, struct format_operator *str)
 /*
  *  FreshLine
  */
-static int format_call_FreshLine(fmtprint print, struct format_operator *str)
+static int format_call_FreshLine_(fmtprint print, struct format_operator *str)
 {
 	addr stream;
 	fixnum i, size;
@@ -1565,7 +1565,7 @@ static int format_call_FreshLine(fmtprint print, struct format_operator *str)
 /*
  *  Page
  */
-static int format_call_Page(fmtprint print, struct format_operator *str)
+static int format_call_Page_(fmtprint print, struct format_operator *str)
 {
 	addr stream;
 	fixnum i, size;
@@ -1589,7 +1589,7 @@ static int format_call_Page(fmtprint print, struct format_operator *str)
 /*
  *  Tilde
  */
-static int format_call_Tilde(fmtprint print, struct format_operator *str)
+static int format_call_Tilde_(fmtprint print, struct format_operator *str)
 {
 	fixnum size;
 
@@ -1607,7 +1607,7 @@ static int format_call_Tilde(fmtprint print, struct format_operator *str)
 /*
  *  IgnoredNewline
  */
-static int format_call_IgnoredNewline(fmtprint print, struct format_operator *str)
+static int format_call_IgnoredNewline_(fmtprint print, struct format_operator *str)
 {
 	/*
 	 * ~\n   -> delete space
@@ -1636,7 +1636,7 @@ static int format_call_IgnoredNewline(fmtprint print, struct format_operator *st
 /*
  *  Tabulate
  */
-static int format_call_Tabulate(fmtprint print, struct format_operator *str)
+static int format_call_Tabulate_(fmtprint print, struct format_operator *str)
 {
 	addr stream;
 	fixnum column, colinc, now;
@@ -1683,7 +1683,7 @@ static int format_call_Tabulate(fmtprint print, struct format_operator *str)
 /*
  *  GoTo
  */
-static int format_call_GoTo(fmtprint print, struct format_operator *str)
+static int format_call_GoTo_(fmtprint print, struct format_operator *str)
 {
 	fixnum count;
 
@@ -1740,13 +1740,13 @@ static int format_call_Recursive_call_(fmtprint print,
 
 	ptr = print->ptr;
 	Return(fmtprint_stream_(print, &stream));
-	Return(format_execute(ptr, stream, format, args, ret));
+	Return(format_execute_(ptr, stream, format, args, ret));
 	Return(string_stream_local_(ptr->local, stream, &pos));
 	clear_output_string_stream(stream);
 	return fmtprint_string_(print, pos);
 }
 
-static int format_call_Recursive_function(fmtprint print,
+static int format_call_Recursive_function_(fmtprint print,
 		struct format_operator *str, addr format)
 {
 	addr args;
@@ -1769,8 +1769,8 @@ static int format_call_Recursive_function(fmtprint print,
 	return 0;
 }
 
-static int fmtcall(fmtprint print, int *loop);
-static int format_call_Recursive_format(fmtprint print, addr format)
+static int fmtcall_(fmtprint print, int *loop);
+static int format_call_Recursive_format_(fmtprint print, addr format)
 {
 	addr backup_format;
 	size_t backup_now;
@@ -1782,7 +1782,7 @@ static int format_call_Recursive_format(fmtprint print, addr format)
 	print->format = format;
 	print->now = 0;
 	fmtprint_format_forward(print);
-	Return(fmtcall(print, NULL));
+	Return(fmtcall_(print, NULL));
 	print->loop = 1;
 	/* rollback */
 	print->format = backup_format;
@@ -1791,21 +1791,21 @@ static int format_call_Recursive_format(fmtprint print, addr format)
 	return 0;
 }
 
-static int format_call_Recursive_atsign(fmtprint print,
+static int format_call_Recursive_atsign_(fmtprint print,
 		struct format_operator *str, addr format)
 {
 	if (functionp(format))
-		return format_call_Recursive_function(print, str, format);
+		return format_call_Recursive_function_(print, str, format);
 	if (formatp(format))
-		return format_call_Recursive_format(print, format);
+		return format_call_Recursive_format_(print, format);
 	if (stringp(format)) {
 		Return(format_parse_local_(print->local, &format, format));
-		return format_call_Recursive_format(print, format);
+		return format_call_Recursive_format_(print, format);
 	}
 	return fmtprop_abort_(print, str, "Invalid control-string ~S.", format, NULL);
 }
 
-static int format_call_Recursive(fmtprint print, struct format_operator *str)
+static int format_call_Recursive_(fmtprint print, struct format_operator *str)
 {
 	addr format, args;
 
@@ -1813,7 +1813,7 @@ static int format_call_Recursive(fmtprint print, struct format_operator *str)
 	Check(str->colon, "Invalid argument [colon].");
 	if (str->atsign) {
 		Return(fmtprint_pop_(print, str, &format));
-		return format_call_Recursive_atsign(print, str, format);
+		return format_call_Recursive_atsign_(print, str, format);
 	}
 	else {
 		Return(fmtprint_pop_(print, str, &format));
@@ -1826,7 +1826,7 @@ static int format_call_Recursive(fmtprint print, struct format_operator *str)
 /*
  *  ConditionalNewline
  */
-static int format_call_ConditionalNewline(fmtprint print, struct format_operator *str)
+static int format_call_ConditionalNewline_(fmtprint print, struct format_operator *str)
 {
 	addr stream;
 	Execute ptr;
@@ -1869,7 +1869,7 @@ static int format_call_Write_call_(fmtprint print, struct format_operator *str)
 	return 0;
 }
 
-static int format_call_Write(fmtprint print, struct format_operator *str)
+static int format_call_Write_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
 	addr control;
@@ -1885,7 +1885,7 @@ static int format_call_Write(fmtprint print, struct format_operator *str)
 /*
  *  Indent
  */
-static int format_call_Indent(fmtprint print, struct format_operator *str)
+static int format_call_Indent_(fmtprint print, struct format_operator *str)
 {
 	fixnum n;
 
@@ -1900,7 +1900,7 @@ static int format_call_Indent(fmtprint print, struct format_operator *str)
 /*
  *  Case
  */
-static int format_call_Case(fmtprint print, struct format_operator *str)
+static int format_call_Case_(fmtprint print, struct format_operator *str)
 {
 	enum fmtcase case1, case2;
 	size_t now;
@@ -1933,7 +1933,7 @@ static int format_call_Case(fmtprint print, struct format_operator *str)
 	print->conversion = case2;
 	print->now += format_bytesize(0);
 	/* call */
-	Return(fmtcall(print, NULL));
+	Return(fmtcall_(print, NULL));
 	/* rollback */
 	print->conversion = case1;
 	print->now = now;
@@ -1950,7 +1950,7 @@ static size_t *format_condition_array(struct format_operator *str)
 	return (size_t *)format_getargs(str, (str->colon || str->atsign)? 0: 1);
 }
 
-static int format_condition_execute(
+static int format_condition_execute_(
 		fmtprint print, struct format_operator *str, size_t clause)
 {
 	size_t now;
@@ -1959,7 +1959,7 @@ static int format_condition_execute(
 	now = print->now;
 	print->now += clause;
 	/* call */
-	Return(fmtcall(print, NULL));
+	Return(fmtcall_(print, NULL));
 	print->loop = 1;
 	/* rollback */
 	print->now = now;
@@ -1967,7 +1967,7 @@ static int format_condition_execute(
 	return 0;
 }
 
-static int format_condition_index(fmtprint print,
+static int format_condition_index_(fmtprint print,
 		struct format_operator *str, fixnum index, int ignore)
 {
 	size_t *array, pos, size;
@@ -1979,15 +1979,15 @@ static int format_condition_index(fmtprint print,
 	pos = (size_t)index;
 	if (size <= pos)
 		goto clause_else;
-	return format_condition_execute(print, str, array[pos]);
+	return format_condition_execute_(print, str, array[pos]);
 
 clause_else:
 	if (str->option_check == 0)
 		return 0;
-	return format_condition_execute(print, str, array[size - 1]);
+	return format_condition_execute_(print, str, array[size - 1]);
 }
 
-static int format_condition_select(fmtprint print, struct format_operator *str)
+static int format_condition_select_(fmtprint print, struct format_operator *str)
 {
 	int check, ignore;
 	addr pos;
@@ -2013,31 +2013,31 @@ static int format_condition_select(fmtprint print, struct format_operator *str)
 	}
 
 	/* print */
-	return format_condition_index(print, str, index, ignore);
+	return format_condition_index_(print, str, index, ignore);
 }
 
-static int format_condition_boolean(fmtprint print, struct format_operator *str)
+static int format_condition_boolean_(fmtprint print, struct format_operator *str)
 {
 	addr pos;
 
 	Check(0 < str->args_size, "size error");
 	Return(fmtprint_pop_(print, str, &pos));
-	return format_condition_index(print, str, (pos != Nil), 0);
+	return format_condition_index_(print, str, (pos != Nil), 0);
 }
 
-static int format_condition_true(fmtprint print, struct format_operator *str)
+static int format_condition_true_(fmtprint print, struct format_operator *str)
 {
 	addr pos;
 
 	Check(0 < str->args_size, "size error");
 	Return(fmtprint_peek_(print, str, &pos));
 	if (pos != Nil)
-		return format_condition_index(print, str, 0, 0);
+		return format_condition_index_(print, str, 0, 0);
 	Return(fmtprint_pop_(print, str, &pos));
 	return 0; /* do nothing */
 }
 
-static int format_call_Condition(fmtprint print, struct format_operator *str)
+static int format_call_Condition_(fmtprint print, struct format_operator *str)
 {
 	/*
 	 *  ~[		select
@@ -2047,11 +2047,11 @@ static int format_call_Condition(fmtprint print, struct format_operator *str)
 	 */
 	Check(str->colon && str->atsign, "Invalid arguemnt [colon && atsing].");
 	if (str->colon)
-		return format_condition_boolean(print, str);
+		return format_condition_boolean_(print, str);
 	else if (str->atsign)
-		return format_condition_true(print, str);
+		return format_condition_true_(print, str);
 	else
-		return format_condition_select(print, str);
+		return format_condition_select_(print, str);
 }
 
 
@@ -2073,10 +2073,10 @@ static int format_call_Iteration_exit(
 	return 0;
 }
 
-static int format_call_Iteration_list(fmtprint print,
+static int format_call_Iteration_list_(fmtprint print,
 		struct format_operator *str, int forcep)
 {
-	int intp, check, result;
+	int intp, check, escape;
 	addr pos, stream, root;
 	fixnum index, i;
 	struct fmtstack args;
@@ -2103,13 +2103,13 @@ static int format_call_Iteration_list(fmtprint print,
 	}
 
 	/* loop */
-	result = 0;
+	escape = 0;
 	for (i = 0; print->loop; i++) {
 		if (format_call_Iteration_exit(intp, i, index, args.front, &forcep))
 			break;
 		print->now = now;
-		if (fmtcall(print, NULL)) {
-			result = 1;
+		if (fmtcall_(print, NULL)) {
+			escape = 1;
 			goto finish;
 		}
 	}
@@ -2120,10 +2120,10 @@ finish:
 		Return(setroot_pretty_stream_(stream, root));
 	}
 
-	return result;
+	return escape;
 }
 
-static int format_call_Iteration_rest(fmtprint print,
+static int format_call_Iteration_rest_(fmtprint print,
 		struct format_operator *str, int forcep)
 {
 	int intp;
@@ -2138,16 +2138,16 @@ static int format_call_Iteration_rest(fmtprint print,
 		if (format_call_Iteration_exit(intp, i, index, rest->front, &forcep))
 			break;
 		print->now = now;
-		Return(fmtcall(print, NULL));
+		Return(fmtcall_(print, NULL));
 	}
 
 	return 0;
 }
 
-static int format_call_Iteration_listargs(fmtprint print,
+static int format_call_Iteration_listargs_(fmtprint print,
 		struct format_operator *str, int forcep)
 {
-	int intp, check, result, loop_check;
+	int intp, check, escape, loop_check;
 	fixnum index, i;
 	addr stream, root, car, cdr;
 	struct fmtstack args;
@@ -2168,7 +2168,7 @@ static int format_call_Iteration_listargs(fmtprint print,
 
 	/* loop */
 	now = print->now;
-	result = 0;
+	escape = 0;
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, cdr, &forcep))
 			break;
@@ -2182,8 +2182,8 @@ static int format_call_Iteration_listargs(fmtprint print,
 		if (check) {
 			Return(setroot_pretty_stream_(stream, car));
 		}
-		if (fmtcall(print, &loop_check)) {
-			result = 1;
+		if (fmtcall_(print, &loop_check)) {
+			escape = 1;
 			goto finish;
 		}
 		if (loop_check)
@@ -2197,13 +2197,13 @@ finish:
 		Return(setroot_pretty_stream_(stream, root));
 	}
 
-	return result;
+	return escape;
 }
 
-static int format_call_Iteration_restargs(fmtprint print,
+static int format_call_Iteration_restargs_(fmtprint print,
 		struct format_operator *str, int forcep)
 {
-	int intp, check, result, loop_check;
+	int intp, check, escape, loop_check;
 	addr stream, pos, root;
 	fixnum index, i;
 	struct fmtstack *rest, args;
@@ -2236,11 +2236,11 @@ static int format_call_Iteration_restargs(fmtprint print,
 		if (check) {
 			Return(setroot_pretty_stream_(stream, pos));
 		}
-		result = fmtcall(print, &loop_check);
+		escape = fmtcall_(print, &loop_check);
 		if (check) {
 			Return(setroot_pretty_stream_(stream, root));
 		}
-		if (result)
+		if (escape)
 			return 1;
 		if (loop_check)
 			break;
@@ -2250,21 +2250,21 @@ static int format_call_Iteration_restargs(fmtprint print,
 	return 0;
 }
 
-static int format_call_Iteration_function(fmtprint print, struct format_operator *str)
+static int format_call_Iteration_function_(fmtprint print, struct format_operator *str)
 {
 	if (str->colon && str->atsign)
-		return format_call_Iteration_restargs(print, str, str->close_colon);
+		return format_call_Iteration_restargs_(print, str, str->close_colon);
 	else if (str->colon)
-		return format_call_Iteration_listargs(print, str, str->close_colon);
+		return format_call_Iteration_listargs_(print, str, str->close_colon);
 	else if (str->atsign)
-		return format_call_Iteration_rest(print, str, str->close_colon);
+		return format_call_Iteration_rest_(print, str, str->close_colon);
 	else
-		return format_call_Iteration_list(print, str, str->close_colon);
+		return format_call_Iteration_list_(print, str, str->close_colon);
 }
 
-static int format_call_Iteration_call(fmtprint print, struct format_operator *str)
+static int format_call_Iteration_call_(fmtprint print, struct format_operator *str)
 {
-	int result;
+	int escape;
 	struct fmtstack *rest;
 	size_t now;
 
@@ -2273,20 +2273,20 @@ static int format_call_Iteration_call(fmtprint print, struct format_operator *st
 	rest = print->rest;
 	/* execute */
 	print->now += format_bytesize(1);
-	result = format_call_Iteration_function(print, str);
+	escape = format_call_Iteration_function_(print, str);
 	/* rollback */
 	print->now = now;
 	print->rest = rest;
 	print->loop = 1;
 
-	return result;
+	return escape;
 }
 
 /* empty */
-static int format_call_Iteration2_list(fmtprint print,
+static int format_call_Iteration2_list_(fmtprint print,
 		struct format_operator *str, addr format)
 {
-	int intp, forcep, result, check;
+	int intp, forcep, escape, check;
 	addr pos, stream, root;
 	fixnum index, i;
 	struct fmtstack args;
@@ -2312,12 +2312,12 @@ static int format_call_Iteration2_list(fmtprint print,
 	}
 
 	/* loop */
-	result = 0;
+	escape = 0;
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, args.front, &forcep))
 			break;
-		if (format_call_Recursive_function(print, str, format)) {
-			result = 1;
+		if (format_call_Recursive_function_(print, str, format)) {
+			escape = 1;
 			goto finish;
 		}
 	}
@@ -2328,10 +2328,10 @@ finish:
 		Return(setroot_pretty_stream_(stream, root));
 	}
 
-	return result;
+	return escape;
 }
 
-static int format_call_Iteration2_rest(fmtprint print,
+static int format_call_Iteration2_rest_(fmtprint print,
 		struct format_operator *str, addr format)
 {
 	int intp, forcep;
@@ -2344,16 +2344,16 @@ static int format_call_Iteration2_rest(fmtprint print,
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, rest->front, &forcep))
 			break;
-		Return(format_call_Recursive_function(print, str, format));
+		Return(format_call_Recursive_function_(print, str, format));
 	}
 
 	return 0;
 }
 
-static int format_call_Iteration2_listargs(fmtprint print,
+static int format_call_Iteration2_listargs_(fmtprint print,
 		struct format_operator *str, addr format)
 {
-	int intp, forcep, result, check;
+	int intp, forcep, escape, check;
 	fixnum index, i;
 	addr stream, root, car, cdr;
 	struct fmtstack args;
@@ -2373,7 +2373,7 @@ static int format_call_Iteration2_listargs(fmtprint print,
 
 	/* loop */
 	forcep = str->close_colon;
-	result = 0;
+	escape = 0;
 	for (i = 0; ; i++) {
 		if (format_call_Iteration_exit(intp, i, index, cdr, &forcep))
 			break;
@@ -2387,7 +2387,7 @@ static int format_call_Iteration2_listargs(fmtprint print,
 			Return(setroot_pretty_stream_(stream, car));
 		}
 		if (format_call_Recursive_call_(print, format, car, &car)) {
-			result = 1;
+			escape = 1;
 			goto finish;
 		}
 	}
@@ -2398,13 +2398,13 @@ finish:
 		Return(setroot_pretty_stream_(stream, root));
 	}
 
-	return result;
+	return escape;
 }
 
-static int format_call_Iteration2_restargs(fmtprint print,
+static int format_call_Iteration2_restargs_(fmtprint print,
 		struct format_operator *str, addr format)
 {
-	int intp, forcep, check, result;
+	int intp, forcep, check, escape;
 	addr stream, pos, root;
 	fixnum index, i;
 	struct fmtstack *rest, args;
@@ -2435,46 +2435,46 @@ static int format_call_Iteration2_restargs(fmtprint print,
 		if (check) {
 			Return(setroot_pretty_stream_(stream, pos));
 		}
-		result = format_call_Recursive_call_(print, format, pos, &pos);
+		escape = format_call_Recursive_call_(print, format, pos, &pos);
 		if (check) {
 			Return(setroot_pretty_stream_(stream, root));
 		}
-		if (result)
+		if (escape)
 			return 1;
 	}
 
 	return 0;
 }
 
-static int format_call_Iteration2_call(
+static int format_call_Iteration2_call_(
 		fmtprint print, struct format_operator *str, addr format)
 {
 	if (str->colon && str->atsign)
-		return format_call_Iteration2_restargs(print, str, format);
+		return format_call_Iteration2_restargs_(print, str, format);
 	else if (str->colon)
-		return format_call_Iteration2_listargs(print, str, format);
+		return format_call_Iteration2_listargs_(print, str, format);
 	else if (str->atsign)
-		return format_call_Iteration2_rest(print, str, format);
+		return format_call_Iteration2_rest_(print, str, format);
 	else
-		return format_call_Iteration2_list(print, str, format);
+		return format_call_Iteration2_list_(print, str, format);
 }
 
-static int format_call_Iteration2_function(
+static int format_call_Iteration2_function_(
 		fmtprint print, struct format_operator *str, addr format)
 {
 	struct fmtstack *rest;
 
 	rest = print->rest;
-	Return(format_call_Iteration2_call(print, str, format));
+	Return(format_call_Iteration2_call_(print, str, format));
 	print->rest = rest;
 
 	return 0;
 }
 
-static int format_call_Iteration2_format(
+static int format_call_Iteration2_format_(
 		fmtprint print, struct format_operator *str, addr format)
 {
-	int result;
+	int escape;
 	addr backup_format;
 	struct fmtstack *backup_rest;
 	size_t backup_now;
@@ -2487,34 +2487,34 @@ static int format_call_Iteration2_format(
 	print->format = format;
 	fmtprint_format_forward(print);
 	/* call */
-	result = format_call_Iteration_function(print, str);
+	escape = format_call_Iteration_function_(print, str);
 	/* rollback */
 	print->format = backup_format;
 	print->now = backup_now;
 	print->rest = backup_rest;
 	print->loop = 1;
 
-	return result;
+	return escape;
 }
 
-static int format_call_Iteration2(fmtprint print, struct format_operator *str)
+static int format_call_Iteration2_(fmtprint print, struct format_operator *str)
 {
 	addr format;
 
 	/* first */
 	Return(fmtprint_pop_(print, str, &format));
 	if (functionp(format))
-		return format_call_Iteration2_function(print, str, format);
+		return format_call_Iteration2_function_(print, str, format);
 	if (formatp(format))
-		return format_call_Iteration2_format(print, str, format);
+		return format_call_Iteration2_format_(print, str, format);
 	if (stringp(format)) {
 		Return(format_parse_local_(print->ptr->local, &format, format));
-		return format_call_Iteration2_format(print, str, format);
+		return format_call_Iteration2_format_(print, str, format);
 	}
 	return fmtprop_abort_(print, str, "Invalid control-string ~S.", format, NULL);
 }
 
-static int format_call_Iteration(fmtprint print, struct format_operator *str)
+static int format_call_Iteration_(fmtprint print, struct format_operator *str)
 {
 	/*
 	 *  "~{"		"~{ ~S ~S~}" '(a 1 b 2 c 3)
@@ -2522,19 +2522,19 @@ static int format_call_Iteration(fmtprint print, struct format_operator *str)
 	 *  "~@{"		"~{ ~S ~S~}" 'a '1 'b '2 'c '3
 	 *  "~:@{"		"~{ ~S ~S~}" '(a 1) '(b 2) '(c 3)
 	 */
-	int result;
-	unsigned escape;
+	int escape;
+	unsigned print_escape;
 
 	Check(1 < str->args_size, "size error");
-	escape = print->escape;
+	print_escape = print->escape;
 	print->escape = 1;
 	if (str->option_check)
-		result = format_call_Iteration2(print, str);
+		escape = format_call_Iteration2_(print, str);
 	else
-		result = format_call_Iteration_call(print, str);
-	print->escape = escape;
+		escape = format_call_Iteration_call_(print, str);
+	print->escape = print_escape;
 
-	return result;
+	return escape;
 }
 
 
@@ -2558,7 +2558,7 @@ static size_t *format_justification_array(struct format_operator *str)
 	return (size_t *)format_getargs(str, 4);
 }
 
-static int format_call_Justification_vector1(struct format_justification *just)
+static int format_call_Justification_vector1_(struct format_justification *just)
 {
 	LocalRoot local;
 	addr vector, pos;
@@ -2574,7 +2574,7 @@ static int format_call_Justification_vector1(struct format_justification *just)
 	return 0;
 }
 
-static int format_call_Justificaion_separator(
+static int format_call_Justificaion_separator_(
 		fmtprint print, struct format_operator *str,
 		size_t *rcount, size_t *rwidth)
 {
@@ -2613,7 +2613,7 @@ static int format_call_Justificaion_separator(
 	return 0;
 }
 
-static int format_call_Justificaion_fmtcall(fmtprint print,
+static int format_call_Justificaion_fmtcall_(fmtprint print,
 		size_t *count, size_t *width)
 {
 	enum FormatType type;
@@ -2632,7 +2632,7 @@ static int format_call_Justificaion_fmtcall(fmtprint print,
 			break;
 		/* ~:; */
 		if (type == FormatType_ClauseSeparator) {
-			Return(format_call_Justificaion_separator(print, str, count, width));
+			Return(format_call_Justificaion_separator_(print, str, count, width));
 			break;
 		}
 		/* delete-space */
@@ -2654,7 +2654,7 @@ static int format_call_Justificaion_fmtcall(fmtprint print,
 	return 0;
 }
 
-static int format_call_Justificaion_call(struct format_justification *just,
+static int format_call_Justificaion_call_(struct format_justification *just,
 		size_t now, addr *ret, size_t *count, size_t *width)
 {
 	addr stream;
@@ -2677,7 +2677,7 @@ static int format_call_Justificaion_call(struct format_justification *just,
 
 	Return(fmtprint_stream_(print, &stream));
 	loop.stream = stream;
-	Return(format_call_Justificaion_fmtcall(&loop, count, width));
+	Return(format_call_Justificaion_fmtcall_(&loop, count, width));
 	if (loop.loop) {
 		print->loop = 1;
 		Return(string_stream_local_(local, stream, ret));
@@ -2691,25 +2691,25 @@ static int format_call_Justificaion_call(struct format_justification *just,
 	return 0;
 }
 
-static int format_call_Justificaion_prefix(
+static int format_call_Justificaion_prefix_(
 		struct format_justification *just, size_t now, addr *ret)
 {
 	size_t count, width;
 
-	Return(format_call_Justificaion_call(just, now, ret, &count, &width));
+	Return(format_call_Justificaion_call_(just, now, ret, &count, &width));
 	just->count = count;
 	just->width = width;
 
 	return 0;
 }
 
-static int format_call_Justificaion_clause(
+static int format_call_Justificaion_clause_(
 		struct format_justification *just, size_t now, addr *ret)
 {
-	return format_call_Justificaion_call(just, now, ret, NULL, NULL);
+	return format_call_Justificaion_call_(just, now, ret, NULL, NULL);
 }
 
-static int format_call_Justification_vector2(struct format_justification *just)
+static int format_call_Justification_vector2_(struct format_justification *just)
 {
 	LocalRoot local;
 	fmtprint print;
@@ -2725,7 +2725,7 @@ static int format_call_Justification_vector2(struct format_justification *just)
 	allsize = 0;
 	now = print->now;
 	for (i = 0; i < size; i++) {
-		Return(format_call_Justificaion_clause(just, now + array[i], &pos));
+		Return(format_call_Justificaion_clause_(just, now + array[i], &pos));
 		if (print->loop == 0) {
 			just->size = i;
 			break;
@@ -2742,7 +2742,7 @@ static int format_call_Justification_vector2(struct format_justification *just)
 	return 0;
 }
 
-static int format_call_Justification_vector(struct format_justification *just)
+static int format_call_Justification_vector_(struct format_justification *just)
 {
 	size_t *array, size;
 
@@ -2756,9 +2756,9 @@ static int format_call_Justification_vector(struct format_justification *just)
 	just->array = array;
 	just->size = size;
 	if (size)
-		Return(format_call_Justification_vector2(just));
+		Return(format_call_Justification_vector2_(just));
 	if (just->size == 0)
-		return format_call_Justification_vector1(just);
+		return format_call_Justification_vector1_(just);
 
 	return 0;
 }
@@ -2833,7 +2833,7 @@ static int format_call_Justification_output_(struct format_justification *just)
 
 static int format_call_Justification1_(struct format_justification *just)
 {
-	Return(format_call_Justification_vector(just));
+	Return(format_call_Justification_vector_(just));
 	format_call_Justification_count(just);
 	return format_call_Justification_output_(just);
 }
@@ -2853,13 +2853,13 @@ static int format_call_Justification2_(struct format_justification *just)
 	just->array = array;
 	just->size = size;
 	/* execute first */
-	Return(format_call_Justificaion_prefix(just, now + print->now, &prefix));
+	Return(format_call_Justificaion_prefix_(just, now + print->now, &prefix));
 	if (print->loop) {
-		Return(format_call_Justification_vector(just));
+		Return(format_call_Justification_vector_(just));
 	}
 	else {
 		just->size = 0;
-		Return(format_call_Justification_vector1(just));
+		Return(format_call_Justification_vector1_(just));
 	}
 	format_call_Justification_count(just);
 	/* terminal */
@@ -2872,7 +2872,7 @@ static int format_call_Justification2_(struct format_justification *just)
 	return format_call_Justification_output_(just);
 }
 
-static int format_call_Justification(fmtprint print, struct format_operator *str)
+static int format_call_Justification_(fmtprint print, struct format_operator *str)
 {
 	struct format_justification just;
 	fixnum mincol, colinc, minpad;
@@ -3026,7 +3026,7 @@ static void format_pretty_heap(addr *ret, addr stream, struct fmtstack *rest)
 	*ret = pos;
 }
 
-static int format_logicalblock2(Execute ptr)
+static int format_logicalblock2_(Execute ptr)
 {
 	addr pos, stream;
 	struct fmtprint_struct print;
@@ -3036,7 +3036,7 @@ static int format_logicalblock2(Execute ptr)
 	getstream_format_pretty(pos, &stream);
 	Return(check_pretty_stream_(ptr, stream));
 	read_format_pretty(pos, &print, &rest);
-	return fmtcall(&print, NULL);
+	return fmtcall_(&print, NULL);
 }
 
 static int format_logicalblock1_call_(Execute ptr, addr pretty, addr stream)
@@ -3048,7 +3048,7 @@ static int format_logicalblock1_call_(Execute ptr, addr pretty, addr stream)
 	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 
-static int format_logicalblock1(Execute ptr)
+static int format_logicalblock1_(Execute ptr)
 {
 	addr pretty, stream, control;
 
@@ -3217,7 +3217,7 @@ static int format_call_LogicalBlock_call_(fmtprint print, struct format_operator
 		return format_call_LogicalBlock_call2_(print, str);
 }
 
-static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)
+static int format_call_LogicalBlock_(fmtprint print, struct format_operator *str)
 {
 	Execute ptr;
 	addr control;
@@ -3233,7 +3233,7 @@ static int format_call_LogicalBlock(fmtprint print, struct format_operator *str)
 /*
  *  EscapeUpward
  */
-static int format_call_EscapeUpward(fmtprint print, struct format_operator *str)
+static int format_call_EscapeUpward_(fmtprint print, struct format_operator *str)
 {
 	int ex1, ex2, ex3;
 	fixnum v1, v2, v3;
@@ -3287,7 +3287,7 @@ break_outside:
 /*
  *  ClauseSeparator
  */
-static int format_call_ClauseSeparator(fmtprint print, struct format_operator *str)
+static int format_call_ClauseSeparator_(fmtprint print, struct format_operator *str)
 {
 	return fmtprop_abort_(print, str, "Invalid ~~; operator.", NULL);
 }
@@ -3296,7 +3296,7 @@ static int format_call_ClauseSeparator(fmtprint print, struct format_operator *s
 /*
  *  CallFunction
  */
-static int format_call_CallFunction_object(fmtprint print,
+static int format_call_CallFunction_object_(fmtprint print,
 		struct format_operator *str, size_t index, addr *ret)
 {
 	fixnum value;
@@ -3347,7 +3347,7 @@ static int format_call_CallFunction_call_(fmtprint print,
 	return intern_package_(package, name, ret, NULL);
 }
 
-static int format_call_CallFunction(fmtprint print, struct format_operator *str)
+static int format_call_CallFunction_(fmtprint print, struct format_operator *str)
 {
 	addr pos, root;
 	LocalRoot local;
@@ -3367,7 +3367,7 @@ static int format_call_CallFunction(fmtprint print, struct format_operator *str)
 	/* arguments */
 	size = str->args_size;
 	for (i = 0; i < size; i++) {
-		Return(format_call_CallFunction_object(print, str, i, &pos));
+		Return(format_call_CallFunction_object_(print, str, i, &pos));
 		copyheap(&pos, pos);
 		cons_local(local, &root, pos, root);
 	}
@@ -3391,7 +3391,7 @@ static int fmtcall_end(fmtprint print, enum FormatType type)
 		|| type == FormatType_ClauseSeparator;
 }
 
-static int fmtcall(fmtprint print, int *loop)
+static int fmtcall_(fmtprint print, int *loop)
 {
 	enum FormatType type;
 	addr stream, backup_string;
@@ -3425,7 +3425,7 @@ static int fmtcall(fmtprint print, int *loop)
 	return 0;
 }
 
-static int format_execute_call(Execute ptr,
+static int format_execute_call_(Execute ptr,
 		addr stream, addr format, struct fmtstack *args)
 {
 	int check;
@@ -3435,10 +3435,10 @@ static int format_execute_call(Execute ptr,
 	print.rest = args;
 	fmtprint_format_forward(&print);
 
-	return fmtcall(&print, &check);
+	return fmtcall_(&print, &check);
 }
 
-static int format_execute_format(Execute ptr,
+static int format_execute_format_(Execute ptr,
 		addr stream, addr format, addr args, addr *ret)
 {
 	struct fmtstack stack;
@@ -3449,34 +3449,34 @@ static int format_execute_format(Execute ptr,
 	stack.root = args;
 	stack.front = args;
 	stack.index = 0;
-	Return(format_execute_call(ptr, stream, format, &stack));
+	Return(format_execute_call_(ptr, stream, format, &stack));
 	*ret = stack.front;
 
 	return 0;
 }
 
-static int format_execute_function(Execute ptr,
+static int format_execute_function_(Execute ptr,
 		addr stream, addr format, addr args, addr *ret)
 {
 	cons_local(ptr->local, &args, stream, args);
 	return apply1_control_(ptr, ret, format, args);
 }
 
-static int format_execute_type(Execute ptr,
+static int format_execute_type_(Execute ptr,
 		addr stream, addr format, addr args, addr *ret)
 {
 	if (functionp(format))
-		return format_execute_function(ptr, stream, format, args, ret);
+		return format_execute_function_(ptr, stream, format, args, ret);
 	if (formatp(format))
-		return format_execute_format(ptr, stream, format, args, ret);
+		return format_execute_format_(ptr, stream, format, args, ret);
 	if (stringp(format)) {
 		Return(format_parse_local_(ptr->local, &format, format));
-		return format_execute_format(ptr, stream, format, args, ret);
+		return format_execute_format_(ptr, stream, format, args, ret);
 	}
 	return fmte_("Invalid control-string ~S.", format, NULL);
 }
 
-int format_execute(Execute ptr, addr stream, addr format, addr args, addr *ret)
+int format_execute_(Execute ptr, addr stream, addr format, addr args, addr *ret)
 {
 	LocalRoot local;
 	LocalStack stack;
@@ -3484,7 +3484,7 @@ int format_execute(Execute ptr, addr stream, addr format, addr args, addr *ret)
 	local = ptr->local;
 	push_local(local, &stack);
 	gchold_pushva_force_local(local, stream, format, args, NULL);
-	Return(format_execute_type(ptr, stream, format, args, &args));
+	Return(format_execute_type_(ptr, stream, format, args, &args));
 	rollback_local(local, stack);
 	Return(exitpoint_stream_(stream));
 	copyheap(ret, args);
@@ -3496,7 +3496,7 @@ int format_execute(Execute ptr, addr stream, addr format, addr args, addr *ret)
 /*
  *  initialize
  */
-#define SetFormatCallTable(x) (FormatCallTable[FormatType_##x] = format_call_##x)
+#define SetFormatCallTable(x) (FormatCallTable[FormatType_##x] = format_call_##x##_)
 void init_format_function(void)
 {
 	cleartype(FormatCallTable);
@@ -3539,7 +3539,7 @@ void init_format_function(void)
 	SetFormatCallTable(CallFunction);
 
 	/* LogicalBlock */
-	SetPointerType(empty, format_logicalblock1);
-	SetPointerType(empty, format_logicalblock2);
+	SetPointerType_(empty, format_logicalblock1);
+	SetPointerType_(empty, format_logicalblock2);
 }
 

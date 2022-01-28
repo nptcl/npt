@@ -184,7 +184,7 @@ static void save_core_result(Execute ptr)
 
 	GetConst(SYSTEM_SAVECORE_VALUE, &pos);
 	GetValueSymbol(pos, &pos);
-	format_stdout(ptr, "~&Core file: ~A~%", pos, NULL);
+	format_stdout_(ptr, "~&Core file: ~A~%", pos, NULL);
 }
 
 static void open_corefile(Execute ptr, filestream fm)

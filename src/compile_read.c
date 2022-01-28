@@ -119,12 +119,12 @@ error:
 /*
  *  system
  */
-static int faslread_error(Execute ptr, addr stream, addr *ret)
+static int faslread_error_(Execute ptr, addr stream, addr *ret)
 {
 	return fmte_("fasl read error.", NULL);
 }
 
-static int faslread_unbound(Execute ptr, addr stream, addr *ret)
+static int faslread_unbound_(Execute ptr, addr stream, addr *ret)
 {
 	return Result(ret, Unbound);
 }
@@ -133,7 +133,7 @@ static int faslread_unbound(Execute ptr, addr stream, addr *ret)
 /*
  *  code
  */
-static int faslread_code_operator(Execute ptr, addr stream, addr *ret)
+static int faslread_code_operator_(Execute ptr, addr stream, addr *ret)
 {
 	enum FaslCode type;
 	constindex index;
@@ -146,13 +146,13 @@ static int faslread_code_operator(Execute ptr, addr stream, addr *ret)
 	GetConstant(index, &car);
 
 	/* result */
-	Return(faslread_value(ptr, stream, &cdr));
+	Return(faslread_value_(ptr, stream, &cdr));
 	cons_heap(ret, car, cdr);
 
 	return 0;
 }
 
-static int faslread_value_code(Execute ptr, addr stream, addr *ret)
+static int faslread_value_code_(Execute ptr, addr stream, addr *ret)
 {
 	addr vector, pos;
 	size_t size, i;
@@ -164,7 +164,7 @@ static int faslread_value_code(Execute ptr, addr stream, addr *ret)
 	size = head.size;
 	vector4_heap(&vector, size);
 	for (i = 0; i < size; i++) {
-		Return(faslread_code_operator(ptr, stream, &pos));
+		Return(faslread_code_operator_(ptr, stream, &pos));
 		SetArrayA4(vector, i, pos);
 	}
 
@@ -182,7 +182,7 @@ static int faslread_value_code(Execute ptr, addr stream, addr *ret)
 typedef int (*faslread_calltype)(Execute, addr, addr *);
 static faslread_calltype FaslRead_Table[FaslCode_value];
 
-int faslread_value(Execute ptr, addr stream, addr *ret)
+int faslread_value_(Execute ptr, addr stream, addr *ret)
 {
 	enum FaslCode type;
 	faslread_calltype call;
@@ -200,39 +200,39 @@ int faslread_value(Execute ptr, addr stream, addr *ret)
  */
 void init_compile_read(void)
 {
-	FaslRead_Table[FaslCode_error] = faslread_error;
-	FaslRead_Table[FaslCode_unbound] = faslread_unbound;
-	FaslRead_Table[FaslCode_clos] = faslread_value_clos;
-	FaslRead_Table[FaslCode_code] = faslread_value_code;
-	FaslRead_Table[FaslCode_nil] = faslread_value_nil;
-	FaslRead_Table[FaslCode_t] = faslread_value_t;
-	FaslRead_Table[FaslCode_type] = faslread_value_type;
-	FaslRead_Table[FaslCode_cons] = faslread_value_cons;
-	FaslRead_Table[FaslCode_array] = faslread_value_array;
-	FaslRead_Table[FaslCode_vector2] = faslread_value_vector2;
-	FaslRead_Table[FaslCode_vector4] = faslread_value_vector4;
+	FaslRead_Table[FaslCode_error] = faslread_error_;
+	FaslRead_Table[FaslCode_unbound] = faslread_unbound_;
+	FaslRead_Table[FaslCode_clos] = faslread_value_clos_;
+	FaslRead_Table[FaslCode_code] = faslread_value_code_;
+	FaslRead_Table[FaslCode_nil] = faslread_value_nil_;
+	FaslRead_Table[FaslCode_t] = faslread_value_t_;
+	FaslRead_Table[FaslCode_type] = faslread_value_type_;
+	FaslRead_Table[FaslCode_cons] = faslread_value_cons_;
+	FaslRead_Table[FaslCode_array] = faslread_value_array_;
+	FaslRead_Table[FaslCode_vector2] = faslread_value_vector2_;
+	FaslRead_Table[FaslCode_vector4] = faslread_value_vector4_;
 #ifdef LISP_ARCH_64BIT
-	FaslRead_Table[FaslCode_vector8] = faslread_value_vector8;
+	FaslRead_Table[FaslCode_vector8] = faslread_value_vector8_;
 #endif
-	FaslRead_Table[FaslCode_character] = faslread_value_character;
-	FaslRead_Table[FaslCode_string] = faslread_value_string;
-	FaslRead_Table[FaslCode_hashtable] = faslread_value_hashtable;
-	FaslRead_Table[FaslCode_gensym] = faslread_value_gensym;
-	FaslRead_Table[FaslCode_symbol] = faslread_value_symbol;
-	FaslRead_Table[FaslCode_fixnum] = faslread_value_fixnum;
-	FaslRead_Table[FaslCode_bignum] = faslread_value_bignum;
-	FaslRead_Table[FaslCode_ratio] = faslread_value_ratio;
-	FaslRead_Table[FaslCode_single_float] = faslread_value_single_float;
-	FaslRead_Table[FaslCode_double_float] = faslread_value_double_float;
-	FaslRead_Table[FaslCode_long_float] = faslread_value_long_float;
-	FaslRead_Table[FaslCode_complex] = faslread_value_complex;
-	FaslRead_Table[FaslCode_callname] = faslread_value_callname;
-	FaslRead_Table[FaslCode_index] = faslread_value_index;
-	FaslRead_Table[FaslCode_package] = faslread_value_package;
-	FaslRead_Table[FaslCode_random_state] = faslread_value_random_state;
-	FaslRead_Table[FaslCode_pathname] = faslread_value_pathname;
-	FaslRead_Table[FaslCode_quote] = faslread_value_quote;
-	FaslRead_Table[FaslCode_bitvector] = faslread_value_bitvector;
-	FaslRead_Table[FaslCode_load] = faslread_value_load_time_value;
+	FaslRead_Table[FaslCode_character] = faslread_value_character_;
+	FaslRead_Table[FaslCode_string] = faslread_value_string_;
+	FaslRead_Table[FaslCode_hashtable] = faslread_value_hashtable_;
+	FaslRead_Table[FaslCode_gensym] = faslread_value_gensym_;
+	FaslRead_Table[FaslCode_symbol] = faslread_value_symbol_;
+	FaslRead_Table[FaslCode_fixnum] = faslread_value_fixnum_;
+	FaslRead_Table[FaslCode_bignum] = faslread_value_bignum_;
+	FaslRead_Table[FaslCode_ratio] = faslread_value_ratio_;
+	FaslRead_Table[FaslCode_single_float] = faslread_value_single_float_;
+	FaslRead_Table[FaslCode_double_float] = faslread_value_double_float_;
+	FaslRead_Table[FaslCode_long_float] = faslread_value_long_float_;
+	FaslRead_Table[FaslCode_complex] = faslread_value_complex_;
+	FaslRead_Table[FaslCode_callname] = faslread_value_callname_;
+	FaslRead_Table[FaslCode_index] = faslread_value_index_;
+	FaslRead_Table[FaslCode_package] = faslread_value_package_;
+	FaslRead_Table[FaslCode_random_state] = faslread_value_random_state_;
+	FaslRead_Table[FaslCode_pathname] = faslread_value_pathname_;
+	FaslRead_Table[FaslCode_quote] = faslread_value_quote_;
+	FaslRead_Table[FaslCode_bitvector] = faslread_value_bitvector_;
+	FaslRead_Table[FaslCode_load] = faslread_value_load_time_value_;
 }
 

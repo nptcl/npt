@@ -117,7 +117,7 @@ static void code_value_heap(addr *ret, enum CodeValueType type, CodeValue x)
 	}
 }
 
-static int faslwrite_value_operator(Execute ptr, addr stream, pointer id, CodeValue x)
+static int faslwrite_value_operator_(Execute ptr, addr stream, pointer id, CodeValue x)
 {
 	enum CodeValueType type;
 	enum FaslCode code;
@@ -129,10 +129,10 @@ static int faslwrite_value_operator(Execute ptr, addr stream, pointer id, CodeVa
 	code = GetCompileWrite(id);
 	/* write */
 	Return(faslwrite_type_(stream, code));
-	return faslwrite_value(ptr, stream, value);
+	return faslwrite_value_(ptr, stream, value);
 }
 
-static int faslwrite_value_code(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_code_(Execute ptr, addr stream, addr pos)
 {
 	struct code_struct *str;
 	struct code_value *sys, *bind;
@@ -150,7 +150,7 @@ static int faslwrite_value_code(Execute ptr, addr stream, addr pos)
 	size = str->size;
 	for (i = 0; i < size; i++) {
 		bind = sys + i;
-		Return(faslwrite_value_operator(ptr, stream, bind->id, bind->value));
+		Return(faslwrite_value_operator_(ptr, stream, bind->id, bind->value));
 	}
 
 	return 0;
@@ -163,7 +163,7 @@ static int faslwrite_value_code(Execute ptr, addr stream, addr pos)
 typedef int (*faslwrite_callvalue)(Execute, addr, addr);
 static faslwrite_callvalue FaslWrite_Value[LISPTYPE_COMPILE];
 
-int faslwrite_value(Execute ptr, addr stream, addr pos)
+int faslwrite_value_(Execute ptr, addr stream, addr pos)
 {
 	enum LISPTYPE type;
 	faslwrite_callvalue call;
@@ -189,32 +189,32 @@ int faslwrite_value(Execute ptr, addr stream, addr pos)
  */
 void init_compile_write(void)
 {
-	FaslWrite_Value[LISPTYPE_NIL] = faslwrite_value_nil;
-	FaslWrite_Value[LISPTYPE_T] = faslwrite_value_t;
-	FaslWrite_Value[LISPTYPE_TYPE] = faslwrite_value_type;
-	FaslWrite_Value[LISPTYPE_CLOS] = faslwrite_value_clos;
-	FaslWrite_Value[LISPTYPE_CONS] = faslwrite_value_cons;
-	FaslWrite_Value[LISPTYPE_ARRAY] = faslwrite_value_array;
-	FaslWrite_Value[LISPTYPE_VECTOR] = faslwrite_value_vector;
-	FaslWrite_Value[LISPTYPE_CHARACTER] = faslwrite_value_character;
-	FaslWrite_Value[LISPTYPE_STRING] = faslwrite_value_string;
-	FaslWrite_Value[LISPTYPE_HASHTABLE] = faslwrite_value_hashtable;
-	FaslWrite_Value[LISPTYPE_SYMBOL] = faslwrite_value_symbol;
-	FaslWrite_Value[LISPTYPE_FIXNUM] = faslwrite_value_fixnum;
-	FaslWrite_Value[LISPTYPE_BIGNUM] = faslwrite_value_bignum;
-	FaslWrite_Value[LISPTYPE_RATIO] = faslwrite_value_ratio;
-	FaslWrite_Value[LISPTYPE_SINGLE_FLOAT] = faslwrite_value_single_float;
-	FaslWrite_Value[LISPTYPE_DOUBLE_FLOAT] = faslwrite_value_double_float;
-	FaslWrite_Value[LISPTYPE_LONG_FLOAT] = faslwrite_value_long_float;
-	FaslWrite_Value[LISPTYPE_COMPLEX] = faslwrite_value_complex;
-	FaslWrite_Value[LISPTYPE_CODE] = faslwrite_value_code;
-	FaslWrite_Value[LISPTYPE_CALLNAME] = faslwrite_value_callname;
-	FaslWrite_Value[LISPTYPE_INDEX] = faslwrite_value_index;
-	FaslWrite_Value[LISPTYPE_PACKAGE] = faslwrite_value_package;
-	FaslWrite_Value[LISPTYPE_RANDOM_STATE] = faslwrite_value_random_state;
-	FaslWrite_Value[LISPTYPE_PATHNAME] = faslwrite_value_pathname;
-	FaslWrite_Value[LISPTYPE_QUOTE] = faslwrite_value_quote;
-	FaslWrite_Value[LISPTYPE_BITVECTOR] = faslwrite_value_bitvector;
-	FaslWrite_Value[LISPTYPE_LOAD_TIME_VALUE] = faslwrite_value_load_time_value;
+	FaslWrite_Value[LISPTYPE_NIL] = faslwrite_value_nil_;
+	FaslWrite_Value[LISPTYPE_T] = faslwrite_value_t_;
+	FaslWrite_Value[LISPTYPE_TYPE] = faslwrite_value_type_;
+	FaslWrite_Value[LISPTYPE_CLOS] = faslwrite_value_clos_;
+	FaslWrite_Value[LISPTYPE_CONS] = faslwrite_value_cons_;
+	FaslWrite_Value[LISPTYPE_ARRAY] = faslwrite_value_array_;
+	FaslWrite_Value[LISPTYPE_VECTOR] = faslwrite_value_vector_;
+	FaslWrite_Value[LISPTYPE_CHARACTER] = faslwrite_value_character_;
+	FaslWrite_Value[LISPTYPE_STRING] = faslwrite_value_string_;
+	FaslWrite_Value[LISPTYPE_HASHTABLE] = faslwrite_value_hashtable_;
+	FaslWrite_Value[LISPTYPE_SYMBOL] = faslwrite_value_symbol_;
+	FaslWrite_Value[LISPTYPE_FIXNUM] = faslwrite_value_fixnum_;
+	FaslWrite_Value[LISPTYPE_BIGNUM] = faslwrite_value_bignum_;
+	FaslWrite_Value[LISPTYPE_RATIO] = faslwrite_value_ratio_;
+	FaslWrite_Value[LISPTYPE_SINGLE_FLOAT] = faslwrite_value_single_float_;
+	FaslWrite_Value[LISPTYPE_DOUBLE_FLOAT] = faslwrite_value_double_float_;
+	FaslWrite_Value[LISPTYPE_LONG_FLOAT] = faslwrite_value_long_float_;
+	FaslWrite_Value[LISPTYPE_COMPLEX] = faslwrite_value_complex_;
+	FaslWrite_Value[LISPTYPE_CODE] = faslwrite_value_code_;
+	FaslWrite_Value[LISPTYPE_CALLNAME] = faslwrite_value_callname_;
+	FaslWrite_Value[LISPTYPE_INDEX] = faslwrite_value_index_;
+	FaslWrite_Value[LISPTYPE_PACKAGE] = faslwrite_value_package_;
+	FaslWrite_Value[LISPTYPE_RANDOM_STATE] = faslwrite_value_random_state_;
+	FaslWrite_Value[LISPTYPE_PATHNAME] = faslwrite_value_pathname_;
+	FaslWrite_Value[LISPTYPE_QUOTE] = faslwrite_value_quote_;
+	FaslWrite_Value[LISPTYPE_BITVECTOR] = faslwrite_value_bitvector_;
+	FaslWrite_Value[LISPTYPE_LOAD_TIME_VALUE] = faslwrite_value_load_time_value_;
 }
 

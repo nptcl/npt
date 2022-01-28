@@ -156,7 +156,7 @@ static int eval_load_fasl_call_(Execute ptr, addr file, int closep)
 	int escape;
 
 	gchold_push_local(ptr->local, file);
-	escape = eval_compile_load(ptr, file);
+	escape = eval_compile_load_(ptr, file);
 	if (! closep)
 		return escape;
 

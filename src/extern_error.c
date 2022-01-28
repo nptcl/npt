@@ -49,7 +49,7 @@ static void lisp_abort_call(addr format, addr list)
 	}
 	/* output */
 	check = fresh_line_stream_(stream, NULL);
-	check |= format_stream_lisp(ptr, stream, format, list);
+	check |= format_stream_lisp_(ptr, stream, format, list);
 	if (check) {
 		lisp_abortf("lisp_abort: format error.");
 		return;

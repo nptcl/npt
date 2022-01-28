@@ -248,18 +248,18 @@ loop:
 	Return(list_export_unintern_package_(package, symbol, &list));
 	localhold_set(hold, 0, list);
 	Return(query_io_stream_(ptr, &stream));
-	Return(format_stream(ptr, stream,
+	Return(format_stream_(ptr, stream,
 				"~2&Select making shadowing-symbols.~2%~5T~S~2%",
 				list, NULL));
 	strvect_char_heap(&pos, "Input symbol: ");
 	Return(prompt_for_stream_(ptr, T, pos, &pos));
 	if (! find_list_eq_unsafe(pos, list)) {
-		Return(format_stream(ptr, stream,
+		Return(format_stream_(ptr, stream,
 					"~%ERROR: Invalid input ~S.~%Please input again.~2%",
 					pos, NULL));
 		goto loop;
 	}
-	Return(format_stream(ptr, stream, "~%Select ~S symbol.~2%", pos, NULL));
+	Return(format_stream_(ptr, stream, "~%Select ~S symbol.~2%", pos, NULL));
 
 	/* result */
 	list_heap(&list, pos, NULL);

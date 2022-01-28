@@ -41,7 +41,7 @@ static int restart_shadow_report_use_package_(
 	if (type == PACKAGE_TYPE_NIL)
 		pos = name;
 
-	return format_string(ptr, ret, "Make the symbol ~S shadowing.", pos, NULL);
+	return format_string_(ptr, ret, "Make the symbol ~S shadowing.", pos, NULL);
 }
 
 static int restart_shadow_use_package_(Execute ptr, addr pg, addr name, addr *ret)

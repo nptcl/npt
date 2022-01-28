@@ -45,7 +45,7 @@ static void defun_copy_pprint_dispatch(void)
 /* (defmacro formatter (string) ...) -> function */
 static int function_formatter(Execute ptr, addr var, addr env)
 {
-	Return(formatter_common(ptr->local, var, env, &var));
+	Return(formatter_common_(ptr->local, var, env, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -110,7 +110,7 @@ static void defun_pprint_dispatch(void)
 static int function_pprint_fill(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign)
 {
-	Return(pprint_fill_common(ptr, stream, pos, colon));
+	Return(pprint_fill_common_(ptr, stream, pos, colon));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -140,7 +140,7 @@ static void defun_pprint_fill(void)
 static int function_pprint_linear(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign)
 {
-	Return(pprint_linear_common(ptr, stream, pos, colon));
+	Return(pprint_linear_common_(ptr, stream, pos, colon));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -170,7 +170,7 @@ static void defun_pprint_linear(void)
 static int function_pprint_tabular(Execute ptr,
 		addr stream, addr pos, addr colon, addr atsign, addr tabsize)
 {
-	Return(pprint_tabular_common(ptr, stream, pos, colon, tabsize));
+	Return(pprint_tabular_common_(ptr, stream, pos, colon, tabsize));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -213,7 +213,7 @@ static void defun_pprint_tabular(void)
  */
 static int function_pprint_indent(Execute ptr, addr rel, addr n, addr stream)
 {
-	Return(pprint_indent_common(ptr, rel, n, stream));
+	Return(pprint_indent_common_(ptr, rel, n, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -254,7 +254,7 @@ static void defun_pprint_indent(void)
  */
 static int function_pprint_logical_block(Execute ptr, addr form, addr env)
 {
-	Return(pprint_logical_block_common(form, env, &form));
+	Return(pprint_logical_block_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -279,7 +279,7 @@ static void defmacro_pprint_logical_block(void)
  */
 static int function_pprint_newline(Execute ptr, addr kind, addr stream)
 {
-	Return(pprint_newline_common(ptr, kind, stream));
+	Return(pprint_newline_common_(ptr, kind, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -320,7 +320,7 @@ static void defun_pprint_newline(void)
 static int function_pprint_tab(Execute ptr,
 		addr kind, addr column, addr colinc, addr stream)
 {
-	Return(pprint_tab_common(ptr, kind, column, colinc, stream));
+	Return(pprint_tab_common_(ptr, kind, column, colinc, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -362,7 +362,7 @@ static void defun_pprint_tab(void)
  */
 static int function_print_unreadable_object(Execute ptr, addr form, addr env)
 {
-	Return(print_unreadable_object_common(form, env, &form));
+	Return(print_unreadable_object_common_(form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -390,7 +390,7 @@ static void defmacro_print_unreadable_object(void)
 static int function_set_pprint_dispatch(Execute ptr,
 		addr spec, addr call, addr priority, addr table)
 {
-	Return(set_pprint_dispatch_common(ptr, spec, call, priority, table));
+	Return(set_pprint_dispatch_common_(ptr, spec, call, priority, table));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -448,7 +448,7 @@ static void defun_set_pprint_dispatch(void)
  */
 static int function_write(Execute ptr, addr var, addr args)
 {
-	Return(write_common(ptr, var, args));
+	Return(write_common_(ptr, var, args));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -512,7 +512,7 @@ static void defun_write(void)
  */
 static int function_prin1(Execute ptr, addr var, addr stream)
 {
-	Return(prin1_common(ptr, var, stream));
+	Return(prin1_common_(ptr, var, stream));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -538,7 +538,7 @@ static void defun_prin1(void)
  */
 static int function_princ(Execute ptr, addr var, addr stream)
 {
-	Return(princ_common(ptr, var, stream));
+	Return(princ_common_(ptr, var, stream));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -564,7 +564,7 @@ static void defun_princ(void)
  */
 static int function_print(Execute ptr, addr var, addr stream)
 {
-	Return(print_common(ptr, var, stream));
+	Return(print_common_(ptr, var, stream));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -590,7 +590,7 @@ static void defun_print(void)
  */
 static int function_pprint(Execute ptr, addr var, addr stream)
 {
-	Return(pprint_common(ptr, var, stream));
+	Return(pprint_common_(ptr, var, stream));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -643,7 +643,7 @@ static void defun_pprint(void)
  */
 static int function_write_to_string(Execute ptr, addr var, addr args)
 {
-	Return(write_to_string_common(ptr, var, args, &var));
+	Return(write_to_string_common_(ptr, var, args, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -667,7 +667,7 @@ static void defun_write_to_string(void)
 /* (defun prin1-to-string (object) ...) -> string */
 static int function_prin1_to_string(Execute ptr, addr var)
 {
-	Return(prin1_to_string_common(ptr, var, &var));
+	Return(prin1_to_string_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -691,7 +691,7 @@ static void defun_prin1_to_string(void)
 /* (defun princ-to-string (object) ...) -> string */
 static int function_princ_to_string(Execute ptr, addr var)
 {
-	Return(princ_to_string_common(ptr, var, &var));
+	Return(princ_to_string_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -980,7 +980,7 @@ static void defun_print_not_readable_object(void)
  */
 static int function_format(Execute ptr, addr var, addr format, addr args)
 {
-	Return(format_lisp(ptr, var, format, args, &args));
+	Return(format_lisp_(ptr, var, format, args, &args));
 	setresult_control(ptr, var == Nil? args: Nil);
 	return 0;
 }

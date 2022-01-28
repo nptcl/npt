@@ -37,7 +37,7 @@ static int restart_shadow_export_package_(Execute ptr,
 	GetConst(COMMON_SHADOW, &pos);
 	restart_heap(&restart, pos);
 	/* report */
-	Return(format_string(ptr, &pos,
+	Return(format_string_(ptr, &pos,
 				"Keep ~S accessible. (shadowing ~S)",
 				symbol2, symbol1, NULL));
 	setreport_restart(restart, pos);
@@ -62,7 +62,7 @@ static int restart_unintern_export_package_(Execute ptr,
 	GetConst(COMMON_UNINTERN, &pos);
 	restart_heap(&restart, pos);
 	/* report */
-	Return(format_string(ptr, &pos,
+	Return(format_string_(ptr, &pos,
 				"Make ~S accessible. (unintern ~S)",
 				symbol1, symbol2, NULL));
 	setreport_restart(restart, pos);

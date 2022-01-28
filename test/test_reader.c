@@ -2255,19 +2255,19 @@ static int test_read_stream(void)
 
 	ptr = Execute_Thread;
 	open_input_char_stream(&stream, "");
-	result = read_stream(ptr, stream, &check, &pos);
+	result = read_stream_(ptr, stream, &check, &pos);
 	test(result == 0, "read_stream1");
 	test(check, "read_stream2");
 
 	open_input_char_stream(&stream, "100");
-	result = read_stream(ptr, stream, &check, &pos);
+	result = read_stream_(ptr, stream, &check, &pos);
 	test(result == 0, "read_stream3");
 	test(check == 0, "read_stream4");
 	GetFixnum(pos, &value);
 	test(value == 100, "read_stream5");
 
 	open_input_char_stream(&stream, "  100 -200");
-	result = read_stream(ptr, stream, &check, &pos);
+	result = read_stream_(ptr, stream, &check, &pos);
 	test(result == 0, "read_stream6");
 	test(check == 0, "read_stream7");
 	GetFixnum(pos, &value);
@@ -2277,13 +2277,13 @@ static int test_read_stream(void)
 	test(u == '-', "read_stream9");
 	unread_char_stream(stream, u);
 
-	result = read_stream(ptr, stream, &check, &pos);
+	result = read_stream_(ptr, stream, &check, &pos);
 	test(result == 0, "read_stream10");
 	test(check == 0, "read_stream11");
 	GetFixnum(pos, &value);
 	test(value == -200, "read_stream12");
 
-	result = read_stream(ptr, stream, &check, &pos);
+	result = read_stream_(ptr, stream, &check, &pos);
 	test(result == 0, "read_stream13");
 	test(check, "read_stream14");
 
@@ -2300,19 +2300,19 @@ static int test_read_preserving(void)
 
 	ptr = Execute_Thread;
 	open_input_char_stream(&stream, "");
-	result = read_preserving(ptr, stream, &check, &pos);
+	result = read_preserving_(ptr, stream, &check, &pos);
 	test(result == 0, "read_preserving1");
 	test(check, "read_preserving2");
 
 	open_input_char_stream(&stream, "100");
-	result = read_preserving(ptr, stream, &check, &pos);
+	result = read_preserving_(ptr, stream, &check, &pos);
 	test(result == 0, "read_preserving3");
 	test(check == 0, "read_preserving4");
 	GetFixnum(pos, &value);
 	test(value == 100, "read_preserving5");
 
 	open_input_char_stream(&stream, "  100 -200");
-	result = read_preserving(ptr, stream, &check, &pos);
+	result = read_preserving_(ptr, stream, &check, &pos);
 	test(result == 0, "read_preserving6");
 	test(check == 0, "read_preserving7");
 	GetFixnum(pos, &value);
@@ -2322,13 +2322,13 @@ static int test_read_preserving(void)
 	test(u == ' ', "read_preserving9");
 	unread_char_stream(stream, u);
 
-	result = read_preserving(ptr, stream, &check, &pos);
+	result = read_preserving_(ptr, stream, &check, &pos);
 	test(result == 0, "read_preserving10");
 	test(check == 0, "read_preserving11");
 	GetFixnum(pos, &value);
 	test(value == -200, "read_preserving12");
 
-	result = read_preserving(ptr, stream, &check, &pos);
+	result = read_preserving_(ptr, stream, &check, &pos);
 	test(result == 0, "read_preserving13");
 	test(check, "read_preserving14");
 

@@ -13,12 +13,12 @@ enum ReadTable_Result {
 
 #define readtable_typetable_ _n(readtable_typetable_)
 #define readtable_result_ _n(readtable_result_)
-#define readtable_novalue _n(readtable_novalue)
-#define read_call _n(read_call)
-#define read_stream _n(read_stream)
-#define read_preserving _n(read_preserving)
-#define read_recursive _n(read_recursive)
-#define read_from_string _n(read_from_string)
+#define readtable_novalue_ _n(readtable_novalue_)
+#define read_call_ _n(read_call_)
+#define read_stream_ _n(read_stream_)
+#define read_preserving_ _n(read_preserving_)
+#define read_recursive_ _n(read_recursive_)
+#define read_from_string_ _n(read_from_string_)
 #define readstring_debug _n(readstring_debug)
 #define readr_debug _n(readr_debug)
 #define init_reader _n(init_reader)
@@ -27,12 +27,12 @@ enum ReadTable_Result {
 int readtable_typetable_(addr pos, unicode c, enum ReadTable_Type *ret);
 int readtable_result_(Execute ptr,
 		addr *token, addr stream, addr table, enum ReadTable_Result *ret);
-int readtable_novalue(Execute ptr, int *result, addr *ret, addr stream, addr table);
-int read_call(Execute ptr, addr stream, int *result, addr *ret);
-int read_stream(Execute ptr, addr stream, int *result, addr *ret);
-int read_preserving(Execute ptr, addr stream, int *result, addr *ret);
-int read_recursive(Execute ptr, addr stream, int *result, addr *ret);
-int read_from_string(Execute ptr, int *result, addr *ret, addr pos);
+int readtable_novalue_(Execute ptr, int *result, addr *ret, addr stream, addr table);
+int read_call_(Execute ptr, addr stream, int *result, addr *ret);
+int read_stream_(Execute ptr, addr stream, int *result, addr *ret);
+int read_preserving_(Execute ptr, addr stream, int *result, addr *ret);
+int read_recursive_(Execute ptr, addr stream, int *result, addr *ret);
+int read_from_string_(Execute ptr, int *result, addr *ret, addr pos);
 int readstring_debug(addr *ret, const char *code);
 addr readr_debug(const char *code);
 

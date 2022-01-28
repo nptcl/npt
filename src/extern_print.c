@@ -26,7 +26,7 @@ static int lisp_format_call_(addr stream, addr format, addr args)
 	lisp_push_control(&control);
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, stream, format, args, NULL);
-	Return(format_lisp(ptr, stream, format, args, &args));
+	Return(format_lisp_(ptr, stream, format, args, &args));
 	localhold_end(hold);
 
 	return lisp_pop_control_(control);
@@ -177,7 +177,7 @@ static int lisp_format_string_call_(addr format, addr args, addr *ret)
 	lisp_push_control(&control);
 	hold = LocalHold_local(ptr);
 	localhold_pushva_force(hold, format, args, NULL);
-	Return(format_lisp(ptr, Nil, format, args, ret));
+	Return(format_lisp_(ptr, Nil, format, args, ret));
 	localhold_end(hold);
 
 	return lisp_pop_control_(control);

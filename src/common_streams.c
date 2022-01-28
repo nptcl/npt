@@ -224,7 +224,7 @@ static void defun_read_byte(void)
  */
 static int function_write_byte(Execute ptr, addr value, addr stream)
 {
-	Return(write_byte_common(ptr, value, stream));
+	Return(write_byte_common_(ptr, value, stream));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -267,7 +267,7 @@ static void defun_write_byte(void)
 static int function_peek_char(Execute ptr, addr type, addr stream,
 		addr errorp, addr value, addr recp)
 {
-	Return(peek_char_common(ptr, type, stream, errorp, value, recp, &type));
+	Return(peek_char_common_(ptr, type, stream, errorp, value, recp, &type));
 	setresult_control(ptr, type);
 	return 0;
 }
@@ -312,7 +312,7 @@ static void defun_peek_char(void)
 static int function_read_char(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp)
 {
-	Return(read_char_common(ptr, stream, errorp, value, recp, &stream));
+	Return(read_char_common_(ptr, stream, errorp, value, recp, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -343,7 +343,7 @@ static void defun_read_char(void)
 static int function_read_char_no_hang(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp)
 {
-	Return(read_char_no_hang_common(ptr, stream, errorp, value, recp, &stream));
+	Return(read_char_no_hang_common_(ptr, stream, errorp, value, recp, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -367,7 +367,7 @@ static void defun_read_char_no_hang(void)
 /* (defun terpri (&optional stream) ...) -> null */
 static int function_terpri(Execute ptr, addr stream)
 {
-	Return(terpri_common(ptr, stream));
+	Return(terpri_common_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -401,7 +401,7 @@ static void defun_terpri(void)
 /* (defun fresh-line (&optional stream) ...) -> boolean */
 static int function_fresh_line(Execute ptr, addr stream)
 {
-	Return(fresh_line_common(ptr, stream, &stream));
+	Return(fresh_line_common_(ptr, stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -435,7 +435,7 @@ static void defun_fresh_line(void)
 /* (defun unread-char (character &optional stream) ...) -> null */
 static int function_unread_char(Execute ptr, addr pos, addr stream)
 {
-	Return(unread_char_common(ptr, pos, stream));
+	Return(unread_char_common_(ptr, pos, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -470,7 +470,7 @@ static void defun_unread_char(void)
 /* (defun write-char (character &optional stream) ...) -> character */
 static int function_write_char(Execute ptr, addr pos, addr stream)
 {
-	Return(write_char_common(ptr, pos, stream));
+	Return(write_char_common_(ptr, pos, stream));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -514,7 +514,7 @@ static void defun_write_char(void)
 static int function_read_line(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp)
 {
-	Return(read_line_common(ptr, stream, errorp, value, recp, &stream, &errorp));
+	Return(read_line_common_(ptr, stream, errorp, value, recp, &stream, &errorp));
 	setvalues_control(ptr, stream, errorp, NULL);
 	return 0;
 }
@@ -550,7 +550,7 @@ static void defun_read_line(void)
 /* (defun write-string (string &optional stream &key start end) ...) -> string */
 static int function_write_string(Execute ptr, addr string, addr rest)
 {
-	Return(write_string_common(ptr, string, rest));
+	Return(write_string_common_(ptr, string, rest));
 	setresult_control(ptr, string);
 	return 0;
 }
@@ -574,7 +574,7 @@ static void defun_write_string(void)
 /* (defun write-line (string &optional stream &key start end) ...) -> string */
 static int function_write_line(Execute ptr, addr string, addr rest)
 {
-	Return(write_line_common(ptr, string, rest));
+	Return(write_line_common_(ptr, string, rest));
 	setresult_control(ptr, string);
 	return 0;
 }
@@ -604,7 +604,7 @@ static void defun_write_line(void)
  */
 static int function_read_sequence(Execute ptr, addr var, addr stream, addr rest)
 {
-	Return(read_sequence_common(var, stream, rest, &var));
+	Return(read_sequence_common_(var, stream, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -644,7 +644,7 @@ static void defun_read_sequence(void)
 /* (defun write-sequence (sequence stream &key start end) ...) -> sequence */
 static int function_write_sequence(Execute ptr, addr var, addr stream, addr rest)
 {
-	Return(write_sequence_common(ptr->local, var, stream, rest));
+	Return(write_sequence_common_(ptr->local, var, stream, rest));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -725,7 +725,7 @@ static void defun_file_length(void)
  */
 static int function_file_position(Execute ptr, addr stream, addr pos)
 {
-	Return(file_position_common(ptr, stream, pos, &stream));
+	Return(file_position_common_(ptr, stream, pos, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -771,7 +771,7 @@ static void defun_file_position(void)
  */
 static int function_file_string_length(Execute ptr, addr stream, addr pos)
 {
-	Return(file_string_length_common(stream, pos, &stream));
+	Return(file_string_length_common_(stream, pos, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -894,7 +894,7 @@ static void defun_stream_external_format(void)
 /* (defmacro with-open-file ((stream filespec &rest options) ...) -> result */
 static int function_with_open_file(Execute ptr, addr form, addr env)
 {
-	Return(with_open_file_common(form, &form));
+	Return(with_open_file_common_(form, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -916,7 +916,7 @@ static void defmacro_with_open_file(void)
 /* (defun close (stream &key abort) ...) -> result */
 static int function_close(Execute ptr, addr pos, addr rest)
 {
-	Return(close_common(ptr, pos, rest, &pos));
+	Return(close_common_(ptr, pos, rest, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -954,7 +954,7 @@ static void defun_close(void)
 /* (defmacro with-open-stream ((var stream) decl* form*) ...) -> result */
 static int function_with_open_stream(Execute ptr, addr form, addr env)
 {
-	Return(with_open_stream_common(form, &form));
+	Return(with_open_stream_common_(form, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -976,7 +976,7 @@ static void defun_with_open_stream(void)
 /* (defun listen (input-stream) ...) -> boolean */
 static int function_listen(Execute ptr, addr stream)
 {
-	Return(listen_common(ptr, stream, &stream));
+	Return(listen_common_(ptr, stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -1010,7 +1010,7 @@ static void defun_listen(void)
 /* (defun clear-input (&optional input-stream) ...) -> null */
 static int function_clear_input(Execute ptr, addr stream)
 {
-	Return(clear_input_common(ptr, stream));
+	Return(clear_input_common_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1605,7 +1605,7 @@ static void defun_concatenated_stream_streams(void)
  */
 static int function_make_string_input_stream(Execute ptr, addr var, addr x, addr y)
 {
-	Return(make_string_input_stream_common(var, x, y, &var));
+	Return(make_string_input_stream_common_(var, x, y, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1644,7 +1644,7 @@ static void defun_make_string_input_stream(void)
 /* (defun make-string-output-stream (&key element-type) ...) -> string-stream */
 static int function_make_string_output_stream(Execute ptr, addr rest)
 {
-	Return(make_string_output_stream_common(ptr, rest, &rest));
+	Return(make_string_output_stream_common_(ptr, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -1682,7 +1682,7 @@ static void defun_make_string_output_stream(void)
 /* (defun get-output-stream-string (string-stream) ...) -> simple-string */
 static int function_get_output_stream_string(Execute ptr, addr var)
 {
-	Return(get_output_stream_string_common(ptr, var, &var));
+	Return(get_output_stream_string_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1722,7 +1722,7 @@ static void defun_get_output_stream_string(void)
  */
 static int function_with_input_from_string(Execute ptr, addr form, addr env)
 {
-	Return(with_input_from_string_common(form, &form));
+	Return(with_input_from_string_common_(form, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1746,7 +1746,7 @@ static void defmacro_with_input_from_string(void)
  */
 static int function_with_output_to_string(Execute ptr, addr form, addr env)
 {
-	Return(with_output_to_string_common(form, &form));
+	Return(with_output_to_string_common_(form, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

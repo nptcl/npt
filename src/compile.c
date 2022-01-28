@@ -162,7 +162,7 @@ static int with_compilation_unit_call_(Execute ptr, addr call)
 	return funcall_control_(ptr, call, NULL);
 }
 
-static int function_finalize_delay_warning(Execute ptr)
+static int function_finalize_delay_warning_(Execute ptr)
 {
 	addr list, x;
 
@@ -192,7 +192,7 @@ static int with_compilation_unit_special_(Execute ptr, addr call)
 	push_control(ptr, &control);
 	save_execute_control(ptr, &save);
 	normal_throw_control(ptr);
-	if (function_finalize_delay_warning(ptr))
+	if (function_finalize_delay_warning_(ptr))
 		goto escape;
 	restore_execute_control(ptr, save);
 escape:

@@ -144,7 +144,7 @@ static int find_print_dispatch_p_(LocalRoot local, addr a, addr b, int *ret)
 		return less_real_(local, a, b, ret);
 }
 
-static int find_print_dispatch(Execute ptr, addr var, addr list, addr *ret)
+static int find_print_dispatch_(Execute ptr, addr var, addr list, addr *ret)
 {
 	int check;
 	addr pos, type, value, a, b;
@@ -168,9 +168,9 @@ static int find_print_dispatch(Execute ptr, addr var, addr list, addr *ret)
 	return Result(ret, value);
 }
 
-int find_function_print_dispatch(Execute ptr, addr var, addr table, addr *ret)
+int find_function_print_dispatch_(Execute ptr, addr var, addr table, addr *ret)
 {
-	Return(find_print_dispatch(ptr, var, table, &var));
+	Return(find_print_dispatch_(ptr, var, table, &var));
 	if (var != Nil)
 		GetFunctionPrintTable(var, &var);
 
@@ -261,7 +261,7 @@ int pprint_dispatch_common_(Execute ptr, addr var, addr table, addr *x, addr *y)
 		GetValueSymbol(table, &table);
 	}
 	CheckType(table, LISPTYPE_PRINT_DISPATCH);
-	Return(find_print_dispatch(ptr, var, table, &var));
+	Return(find_print_dispatch_(ptr, var, table, &var));
 	if (var != Nil) {
 		GetFunctionPrintTable(var, x);
 		*y = T;

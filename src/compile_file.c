@@ -39,7 +39,7 @@ int eval_compile_p(Execute ptr)
 	return (pos != Nil) && (pos != Unbound);
 }
 
-int eval_compile_file(Execute ptr, addr pos)
+int eval_compile_file_(Execute ptr, addr pos)
 {
 	addr stream;
 
@@ -47,7 +47,7 @@ int eval_compile_file(Execute ptr, addr pos)
 	GetConst(SYSTEM_COMPILE_OUTPUT, &stream);
 	Return(getspecialcheck_local_(ptr, stream, &stream));
 
-	return faslwrite_value(ptr, stream, pos);
+	return faslwrite_value_(ptr, stream, pos);
 }
 
 

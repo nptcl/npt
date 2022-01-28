@@ -242,7 +242,7 @@ int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
 	}
 	else {
 		Return_getcons(args, &format, &args);
-		Return(format_string_lisp(ptr, format, args, &format));
+		Return(format_string_lisp_(ptr, format, args, &format));
 	}
 
 	hold = LocalHold_local_push(ptr, format);

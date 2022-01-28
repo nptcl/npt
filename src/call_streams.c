@@ -51,7 +51,7 @@ int read_byte_common_(Execute ptr,
 /*
  *  write-byte
  */
-int write_byte_common(Execute ptr, addr value, addr stream)
+int write_byte_common_(Execute ptr, addr value, addr stream)
 {
 	Return(write_byte_stream_(stream, value));
 	return exitpoint_stream_(stream);
@@ -61,7 +61,7 @@ int write_byte_common(Execute ptr, addr value, addr stream)
 /*
  *  peek-char
  */
-int peek_char_common(Execute ptr, addr type, addr stream,
+int peek_char_common_(Execute ptr, addr type, addr stream,
 		addr errorp, addr value, addr recp, addr *ret)
 {
 	if (type == Unbound)
@@ -88,7 +88,7 @@ static int call_end_of_file_recursive_(Execute ptr, addr pos, int recp)
 	return call_end_of_file_(ptr, pos);
 }
 
-int read_char_common(Execute ptr,
+int read_char_common_(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp, addr *ret)
 {
 	int check;
@@ -121,7 +121,7 @@ int read_char_common(Execute ptr,
 /*
  *  read-char-no-hang
  */
-int read_char_no_hang_common(Execute ptr,
+int read_char_no_hang_common_(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp, addr *ret)
 {
 	int hang, check;
@@ -156,7 +156,7 @@ int read_char_no_hang_common(Execute ptr,
 /*
  *  terpri
  */
-int terpri_common(Execute ptr, addr stream)
+int terpri_common_(Execute ptr, addr stream)
 {
 	if (stream == Unbound) {
 		Return(standard_output_stream_(ptr, &stream));
@@ -169,7 +169,7 @@ int terpri_common(Execute ptr, addr stream)
 /*
  *  fresh-line
  */
-int fresh_line_common(Execute ptr, addr stream, addr *ret)
+int fresh_line_common_(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 
@@ -186,7 +186,7 @@ int fresh_line_common(Execute ptr, addr stream, addr *ret)
 /*
  *  unread-char
  */
-int unread_char_common(Execute ptr, addr pos, addr stream)
+int unread_char_common_(Execute ptr, addr pos, addr stream)
 {
 	unicode c;
 
@@ -201,7 +201,7 @@ int unread_char_common(Execute ptr, addr pos, addr stream)
 /*
  *  write-char
  */
-int write_char_common(Execute ptr, addr pos, addr stream)
+int write_char_common_(Execute ptr, addr pos, addr stream)
 {
 	unicode c;
 
@@ -215,7 +215,7 @@ int write_char_common(Execute ptr, addr pos, addr stream)
 /*
  *  read-line
  */
-int read_line_common(Execute ptr,
+int read_line_common_(Execute ptr,
 		addr stream, addr errorp, addr value, addr recp,
 		addr *ret, addr *sec)
 {
@@ -241,7 +241,7 @@ int read_line_common(Execute ptr,
 /*
  *  write-string
  */
-int write_string_common(Execute ptr, addr string, addr rest)
+int write_string_common_(Execute ptr, addr string, addr rest)
 {
 	Return(write_string_stream(ptr, string, rest, &string));
 	return exitpoint_stream_(string);
@@ -251,7 +251,7 @@ int write_string_common(Execute ptr, addr string, addr rest)
 /*
  *  write-line
  */
-int write_line_common(Execute ptr, addr string, addr rest)
+int write_line_common_(Execute ptr, addr string, addr rest)
 {
 	Return(write_string_stream(ptr, string, rest, &string));
 	Return(terpri_stream_(string));
@@ -262,7 +262,7 @@ int write_line_common(Execute ptr, addr string, addr rest)
 /*
  *  read-sequence
  */
-int read_sequence_common(addr var, addr stream, addr rest, addr *ret)
+int read_sequence_common_(addr var, addr stream, addr rest, addr *ret)
 {
 	size_t start, end;
 
@@ -275,7 +275,7 @@ int read_sequence_common(addr var, addr stream, addr rest, addr *ret)
 /*
  *  write-sequence
  */
-int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest)
+int write_sequence_common_(LocalRoot local, addr var, addr stream, addr rest)
 {
 	size_t start, end;
 
@@ -289,7 +289,7 @@ int write_sequence_common(LocalRoot local, addr var, addr stream, addr rest)
 /*
  *  file-position
  */
-int file_position_common(Execute ptr, addr stream, addr pos, addr *ret)
+int file_position_common_(Execute ptr, addr stream, addr pos, addr *ret)
 {
 	int check;
 	addr value;
@@ -330,7 +330,7 @@ return_result:
 /*
  *  file-string-length
  */
-int file_string_length_common(addr stream, addr pos, addr *ret)
+int file_string_length_common_(addr stream, addr pos, addr *ret)
 {
 	int check;
 	unicode c;
@@ -570,7 +570,7 @@ int open_common_(Execute ptr, addr pos, addr rest, addr *ret)
 /*
  *  with-open-file
  */
-int with_open_file_common(addr form, addr *ret)
+int with_open_file_common_(addr form, addr *ret)
 {
 	/* (let ((var (open file . args)))
 	 *   ,@decl
@@ -628,7 +628,7 @@ error:
 /*
  *  close
  */
-int close_common(Execute ptr, addr pos, addr rest, addr *ret)
+int close_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	addr abort;
 
@@ -646,7 +646,7 @@ int close_common(Execute ptr, addr pos, addr rest, addr *ret)
 /*
  *  with-open-stream
  */
-int with_open_stream_common(addr form, addr *ret)
+int with_open_stream_common_(addr form, addr *ret)
 {
 	/* `(let ((,var ,stream))
 	 *   ,@decl
@@ -701,7 +701,7 @@ error:
 /*
  *  listen
  */
-int listen_common(Execute ptr, addr stream, addr *ret)
+int listen_common_(Execute ptr, addr stream, addr *ret)
 {
 	int check;
 
@@ -717,7 +717,7 @@ int listen_common(Execute ptr, addr stream, addr *ret)
 /*
  *  clear-input
  */
-int clear_input_common(Execute ptr, addr stream)
+int clear_input_common_(Execute ptr, addr stream)
 {
 	if (stream == Unbound) {
 		Return(standard_input_stream_(ptr, &stream));
@@ -765,7 +765,7 @@ int clear_output_common_(Execute ptr, addr stream)
 /*
  *  make-string-input-stream
  */
-int make_string_input_stream_common(addr var, addr x, addr y, addr *ret)
+int make_string_input_stream_common_(addr var, addr x, addr y, addr *ret)
 {
 	size_t start, end;
 
@@ -780,7 +780,7 @@ int make_string_input_stream_common(addr var, addr x, addr y, addr *ret)
 /*
  *  make-string-output-stream
  */
-int make_string_output_stream_common(Execute ptr, addr rest, addr *ret)
+int make_string_output_stream_common_(Execute ptr, addr rest, addr *ret)
 {
 	int check;
 	addr type, pos;
@@ -801,7 +801,7 @@ int make_string_output_stream_common(Execute ptr, addr rest, addr *ret)
 /*
  * get-output-stream-string
  */
-int get_output_stream_string_common(Execute ptr, addr var, addr *ret)
+int get_output_stream_string_common_(Execute ptr, addr var, addr *ret)
 {
 	addr type;
 
@@ -934,7 +934,7 @@ static int with_input_from_string_key_(addr list, addr *start, addr *end, addr *
 	return 0;
 }
 
-int with_input_from_string_common(addr form, addr *ret)
+int with_input_from_string_common_(addr form, addr *ret)
 {
 	addr args, body, var, string, start, end, index;
 
@@ -1045,7 +1045,7 @@ static int with_output_to_string_extend_common_(addr *ret,
 	return 0;
 }
 
-int with_output_to_string_common(addr form, addr *ret)
+int with_output_to_string_common_(addr form, addr *ret)
 {
 	addr args, var, string, body;
 

@@ -18,7 +18,7 @@
 #define copy_default_readtable_ _n(copy_default_readtable_)
 #define make_dispatch_macro_character_ _n(make_dispatch_macro_character_)
 #define get_default_dispatch_macro_ _n(get_default_dispatch_macro_)
-#define macro_character_execute _n(macro_character_execute)
+#define macro_character_execute_ _n(macro_character_execute_)
 #define get_dispatch_macro_character_ _n(get_dispatch_macro_character_)
 #define rem_dispatch_macro_character_ _n(rem_dispatch_macro_character_)
 #define set_dispatch_macro_character_ _n(set_dispatch_macro_character_)
@@ -109,7 +109,7 @@ int copy_readtable_heap_(addr from, addr *ret);
 int copy_default_readtable_(addr pos);
 int make_dispatch_macro_character_(addr pos, addr character, int nonterm);
 int get_default_dispatch_macro_(addr code1, addr code2, addr *ret);
-int macro_character_execute(Execute ptr, int *result, addr *ret,
+int macro_character_execute_(Execute ptr, int *result, addr *ret,
 		unicode c, addr stream, addr table);
 int get_dispatch_macro_character_(addr pos, unicode u1, unicode u2, addr *ret);
 int rem_dispatch_macro_character_(addr pos, unicode u1, unicode u2);

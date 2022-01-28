@@ -28,10 +28,10 @@
 /*
  *  t
  */
-static int method_describe_object_t(Execute ptr,
+static int method_describe_object_t_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream(ptr, stream, "Lisp Object: ~S~%", pos, NULL);
+	format_stream_(ptr, stream, "Lisp Object: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -40,10 +40,10 @@ static int method_describe_object_t(Execute ptr,
 /*
  *  class
  */
-static int method_describe_object_class(Execute ptr,
+static int method_describe_object_class_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream(ptr, stream, "Class: ~S~%", pos, NULL);
+	format_stream_(ptr, stream, "Class: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -52,10 +52,10 @@ static int method_describe_object_class(Execute ptr,
 /*
  *  standard-object
  */
-static int method_describe_object_standard_object(Execute ptr,
+static int method_describe_object_standard_object_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream(ptr, stream, "Instance: ~S~%", pos, NULL);
+	format_stream_(ptr, stream, "Instance: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -64,10 +64,10 @@ static int method_describe_object_standard_object(Execute ptr,
 /*
  *  structure-object
  */
-static int method_describe_object_structure_object(Execute ptr,
+static int method_describe_object_structure_object_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream(ptr, stream, "Structure: ~S~%", pos, NULL);
+	format_stream_(ptr, stream, "Structure: ~S~%", pos, NULL);
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -221,10 +221,10 @@ int inspect_common_(Execute ptr, addr object)
  */
 void init_environment_describe(void)
 {
-	SetPointerType(var4, method_describe_object_t);
-	SetPointerType(var4, method_describe_object_class);
-	SetPointerType(var4, method_describe_object_standard_object);
-	SetPointerType(var4, method_describe_object_structure_object);
+	SetPointerType_(var4, method_describe_object_t);
+	SetPointerType_(var4, method_describe_object_class);
+	SetPointerType_(var4, method_describe_object_standard_object);
+	SetPointerType_(var4, method_describe_object_structure_object);
 }
 
 #define DefMethod_DescribeObject(ptr, name, gen, p, c) { \

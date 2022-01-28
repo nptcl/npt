@@ -44,7 +44,7 @@ static int make_hash_table_symbol_common(addr pos, enum HASHTABLE_TEST *ret)
 	return 1;
 }
 
-static int make_hash_table_test_common(addr rest, enum HASHTABLE_TEST *ret)
+static int make_hash_table_test_common_(addr rest, enum HASHTABLE_TEST *ret)
 {
 	addr pos, check;
 
@@ -71,7 +71,7 @@ error:
 	return fmte_("Invalid hash-hable-test ~S.", pos, NULL);
 }
 
-static int make_hash_table_size_common(addr rest, size_t *ret)
+static int make_hash_table_size_common_(addr rest, size_t *ret)
 {
 	addr pos;
 
@@ -91,7 +91,7 @@ static int make_hash_table_size_common(addr rest, size_t *ret)
 	return 0;
 }
 
-static int make_hash_table_rehash_size_common(addr rest,
+static int make_hash_table_rehash_size_common_(addr rest,
 		int *floatp, double_float *rehashf, size_t *rehashi)
 {
 	addr pos;
@@ -137,7 +137,7 @@ static int make_hash_table_rehash_size_common(addr rest,
 	return 0;
 }
 
-static int make_hash_table_rehash_threshold_common(addr rest, double_float *ret)
+static int make_hash_table_rehash_threshold_common_(addr rest, double_float *ret)
 {
 	addr pos;
 	double_float value;
@@ -158,17 +158,17 @@ static int make_hash_table_rehash_threshold_common(addr rest, double_float *ret)
 	return 0;
 }
 
-int make_hash_table_common(addr rest, addr *ret)
+int make_hash_table_common_(addr rest, addr *ret)
 {
 	enum HASHTABLE_TEST test;
 	int floatp;
 	size_t size, rehashi;
 	double_float rehashf, threshold;
 
-	Return(make_hash_table_test_common(rest, &test));
-	Return(make_hash_table_size_common(rest, &size));
-	Return(make_hash_table_rehash_size_common(rest, &floatp, &rehashf, &rehashi));
-	Return(make_hash_table_rehash_threshold_common(rest, &threshold));
+	Return(make_hash_table_test_common_(rest, &test));
+	Return(make_hash_table_size_common_(rest, &size));
+	Return(make_hash_table_rehash_size_common_(rest, &floatp, &rehashf, &rehashi));
+	Return(make_hash_table_rehash_threshold_common_(rest, &threshold));
 
 	if (floatp)
 		hashtable_full_heap(ret, test, size, rehashf, threshold);
@@ -193,7 +193,7 @@ void hash_table_count_common(addr var, addr *ret)
 /*
  *  hash-table-rehash-size
  */
-int hash_table_rehash_size_common(addr var, addr *ret)
+int hash_table_rehash_size_common_(addr var, addr *ret)
 {
 	double_float valuef;
 	size_t valuei;
@@ -309,7 +309,7 @@ int remhash_common_(addr key, addr table, addr *ret)
 /*
  *  maphash
  */
-static int maphash_execute_common(Execute ptr, addr call, addr key, addr value)
+static int maphash_execute_common_(Execute ptr, addr call, addr key, addr value)
 {
 	addr control;
 
@@ -318,7 +318,7 @@ static int maphash_execute_common(Execute ptr, addr call, addr key, addr value)
 	return pop_control_(ptr, control);
 }
 
-int maphash_common(Execute ptr, addr call, addr table)
+int maphash_common_(Execute ptr, addr call, addr table)
 {
 	addr cons, key, value;
 	size_t i, size;
@@ -330,7 +330,7 @@ int maphash_common(Execute ptr, addr call, addr table)
 		while (cons != Nil) {
 			GetCons(cons, &key, &cons);
 			GetCons(key, &key, &value);
-			Return(maphash_execute_common(ptr, call, key, value));
+			Return(maphash_execute_common_(ptr, call, key, value));
 		}
 	}
 
@@ -381,7 +381,7 @@ static int with_hash_table_iterator_expand_common_(Execute ptr,
 	return 0;
 }
 
-int with_hash_table_iterator_common(Execute ptr, addr form, addr env, addr *ret)
+int with_hash_table_iterator_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, table, check;
 

@@ -381,7 +381,7 @@ static int macro_character_call_call_(Execute ptr, LocalHold hold,
 	return 0;
 }
 
-static int macro_character_call(Execute ptr, int *result, addr *ret,
+static int macro_character_call_(Execute ptr, int *result, addr *ret,
 		addr call, addr stream, addr code)
 {
 	addr control;
@@ -396,7 +396,7 @@ static int macro_character_call(Execute ptr, int *result, addr *ret,
 	return 0;
 }
 
-int macro_character_execute(Execute ptr, int *result, addr *ret,
+int macro_character_execute_(Execute ptr, int *result, addr *ret,
 		unicode c, addr stream, addr table)
 {
 	addr call, code;
@@ -417,7 +417,7 @@ int macro_character_execute(Execute ptr, int *result, addr *ret,
 		goto error;
 	*result = 0;
 
-	Return(macro_character_call(ptr, result, ret, call, stream, code));
+	Return(macro_character_call_(ptr, result, ret, call, stream, code));
 	localhold_end(hold);
 	return 0;
 

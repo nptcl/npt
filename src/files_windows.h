@@ -603,7 +603,7 @@ static int ensure_directories_exist_run_files(Execute ptr,
 		result = T;
 		/* verbose */
 		if (verbose) {
-			Return(format_stdout(ptr, "~&Creating directory: ~S~%", temp, NULL));
+			Return(format_stdout_(ptr, "~&Creating directory: ~S~%", temp, NULL));
 		}
 		/* continue */
 		rollback_local(local, stack);

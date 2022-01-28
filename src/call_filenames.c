@@ -189,7 +189,7 @@ static int load_logical_pathname_read_(Execute ptr,
 
 	list = Nil;
 	for (;;) {
-		Return(read_stream(ptr, stream, &result, &pos));
+		Return(read_stream_(ptr, stream, &result, &pos));
 		if (result)
 			break;
 		cons_heap(&list, pos, list);

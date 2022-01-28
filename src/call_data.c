@@ -1154,7 +1154,7 @@ static int ccase_string_common_(Execute ptr,
 	hold = LocalHold_array(ptr, 2);
 	localhold_set(hold, 0, stream);
 	localhold_set(hold, 1, list);
-	Return(format_stream(ptr, stream, "The value of ~A, ~~A, is not ", place, NULL));
+	Return(format_stream_(ptr, stream, "The value of ~A, ~~A, is not ", place, NULL));
 	/* loop */
 	for (first = 1; args != Nil; ) {
 		Return_getcons(args, &pos, &args);
@@ -1283,10 +1283,10 @@ static int ccase_expand_common_(Execute ptr,
 	localhold_pushva(hold, a, b, g, w, r, NULL);
 
 	Return_getcar(g, &g);
-	Return(format_string(ptr, &str1,
+	Return(format_string_(ptr, &str1,
 				"Retry ccase with new value ~A.", place, NULL));
 	localhold_push(hold, str1);
-	Return(format_string(ptr, &str2,
+	Return(format_string_(ptr, &str2,
 				"Input ~A> ", place, NULL));
 	localhold_push(hold, str2);
 	Return(ccase_string_common_(ptr, &str3, &type, place, args));
@@ -1594,10 +1594,10 @@ static int ctypecase_expand_common_(Execute ptr,
 	localhold_pushva(hold, a, b, g, w, r, NULL);
 
 	Return_getcar(g, &g);
-	Return(format_string(ptr, &str1,
+	Return(format_string_(ptr, &str1,
 				"Retry ctypecase with new value ~A.", place, NULL));
 	localhold_push(hold, str1);
-	Return(format_string(ptr, &str2,
+	Return(format_string_(ptr, &str2,
 				"Input ~A> ", place, NULL));
 	localhold_push(hold, str2);
 	Return(ctypecase_string_common_(ptr, &type, args));

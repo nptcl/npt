@@ -192,7 +192,7 @@ static int method_print_object_simple_condition_format_(Execute ptr,
 
 	Return(ClosCheckConst_(pos, CLOSNAME_FORMAT_CONTROL, &control));
 	Return(ClosCheckConst_(pos, CLOSNAME_FORMAT_ARGUMENTS, &arguments));
-	return format_stream_lisp(ptr, stream, control, arguments);
+	return format_stream_lisp_(ptr, stream, control, arguments);
 }
 
 static int method_print_object_simple_condition_(Execute ptr,
