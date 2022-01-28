@@ -72,7 +72,7 @@ static void defun_symbol_macro_expander(void)
 /* (defun defconstant (symbol value document) ...) -> symbol */
 static int syscall_defconstant(Execute ptr, addr symbol, addr value, addr doc)
 {
-	Return(defconstant_syscode(symbol, value, doc));
+	Return(defconstant_syscode_(symbol, value, doc));
 	setresult_control(ptr, symbol);
 	return 0;
 }
@@ -380,7 +380,7 @@ static void defun_next_package_iterator(void)
  */
 static int syscall_defpackage(Execute ptr, addr var, addr rest)
 {
-	Return(defpackage_syscode(ptr, var, rest, &var));
+	Return(defpackage_syscode_(ptr, var, rest, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -426,7 +426,7 @@ static void defun_defpackage(void)
 /* (defun do-symbols (function package) ...) -> nil */
 static int syscall_do_symbols(Execute ptr, addr call, addr package)
 {
-	Return(do_symbols_syscode(ptr, call, package));
+	Return(do_symbols_syscode_(ptr, call, package));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -450,7 +450,7 @@ static void defun_do_symbols(void)
 /* (defun do-external-symbols (function package) ...) -> nil */
 static int syscall_do_external_symbols(Execute ptr, addr call, addr package)
 {
-	Return(do_external_symbols_syscode(ptr, call, package));
+	Return(do_external_symbols_syscode_(ptr, call, package));
 	setvalues_nil_control(ptr);
 	return 0;
 }
@@ -736,7 +736,7 @@ static void defun_make_extend_output_stream(void)
 /* (defun prompt-for (type &rest args) ...) -> t */
 static int syscall_prompt_for(Execute ptr, addr type, addr args)
 {
-	Return(prompt_for_syscode(ptr, type, args, &type));
+	Return(prompt_for_syscode_(ptr, type, args, &type));
 	setresult_control(ptr, type);
 	return 0;
 }
@@ -772,7 +772,7 @@ static void defun_prompt_for(void)
 static int syscall_print_unreadable_call(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body)
 {
-	Return(print_unreadable_call_syscode(ptr, stream, pos, type, identity, body));
+	Return(print_unreadable_call_syscode_(ptr, stream, pos, type, identity, body));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -807,7 +807,7 @@ static void defun_print_unreadable_call(void)
 /* (defun write-default (stream object) ...) -> t */
 static int syscall_write_default(Execute ptr, addr stream, addr var)
 {
-	Return(write_default_syscode(ptr, stream, var, &var));
+	Return(write_default_syscode_(ptr, stream, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -951,7 +951,7 @@ static void defun_ensure_structure(void)
  */
 static int syscall_structure_constructor(Execute ptr, addr symbol, addr rest)
 {
-	Return(structure_constructor_syscode(ptr, symbol, rest, &rest));
+	Return(structure_constructor_syscode_(ptr, symbol, rest, &rest));
 	setresult_control(ptr, rest);
 	return 0;
 }
@@ -987,7 +987,7 @@ static void defun_structure_constructor(void)
 /* (defun loop-bind (tree type value) ...) -> tree */
 static int syscall_loop_bind(Execute ptr, addr a, addr b, addr c)
 {
-	Return(loop_bind_syscode(ptr, a, b, c, &a));
+	Return(loop_bind_syscode_(ptr, a, b, c, &a));
 	setresult_control(ptr, a);
 	return 0;
 }
@@ -1067,7 +1067,7 @@ static void defun_make_pprint_stream(void)
 /* (defun pprint-gensym (stream-pretty) ...) -> symbol */
 static int syscall_pprint_gensym(Execute ptr, addr stream)
 {
-	Return(pprint_gensym_syscode(stream, &stream));
+	Return(pprint_gensym_syscode_(stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -1101,7 +1101,7 @@ static void defun_pprint_gensym(void)
 /* (defun pprint-exit (stream-pretty) ...) -> null */
 static int syscall_pprint_exit(Execute ptr, addr stream)
 {
-	Return(pprint_exit_syscode(ptr, stream));
+	Return(pprint_exit_syscode_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1135,7 +1135,7 @@ static void defun_pprint_exit(void)
 /* (defun pprint-pop (stream-pretty) ...) -> t */
 static int syscall_pprint_pop(Execute ptr, addr stream)
 {
-	Return(pprint_pop_syscode(ptr, stream, &stream));
+	Return(pprint_pop_syscode_(ptr, stream, &stream));
 	setresult_control(ptr, stream);
 	return 0;
 }
@@ -1169,7 +1169,7 @@ static void defun_pprint_pop(void)
 /* (defun pprint-check (stream-pretty) ...) -> nil */
 static int syscall_pprint_check(Execute ptr, addr stream)
 {
-	Return(pprint_check_syscode(ptr, stream));
+	Return(pprint_check_syscode_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1203,7 +1203,7 @@ static void defun_pprint_check(void)
 /* (defun pprint-close (stream-pretty) ...) -> nil */
 static int syscall_pprint_close(Execute ptr, addr stream)
 {
-	Return(pprint_close_syscode(ptr, stream));
+	Return(pprint_close_syscode_(ptr, stream));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1237,7 +1237,7 @@ static void defun_pprint_close(void)
 /* (defun pprint-pretty (stream-pretty) ...) -> nil */
 static int syscall_pprint_pretty(Execute ptr, addr stream, addr call)
 {
-	Return(pprint_pretty_syscode(ptr, stream, call));
+	Return(pprint_pretty_syscode_(ptr, stream, call));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -1447,7 +1447,7 @@ static void defun_with_compilation_unit(void)
 /* (defun set-slots (instance slots values) ...) -> t */
 static int syscall_set_slots(Execute ptr, addr var, addr slots, addr values)
 {
-	Return(set_slots_syscode(var, slots, values));
+	Return(set_slots_syscode_(var, slots, values));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1482,7 +1482,7 @@ static void defun_set_slots(void)
 /* (defun intern-eql-specializer (instance slots values) ...) -> t */
 static int syscall_intern_eql_specializer(Execute ptr, addr var)
 {
-	Return(intern_eql_specializer_syscode(var, &var));
+	Return(intern_eql_specializer_syscode_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

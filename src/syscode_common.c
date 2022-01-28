@@ -47,7 +47,7 @@
 #include "typedef.h"
 
 /* defconstant */
-int defconstant_syscode(addr symbol, addr value, addr doc)
+int defconstant_syscode_(addr symbol, addr value, addr doc)
 {
 	addr check;
 
@@ -148,21 +148,21 @@ int next_package_iterator_syscode_(Execute ptr, addr pos,
 
 
 /* defpackage */
-int defpackage_syscode(Execute ptr, addr var, addr rest, addr *ret)
+int defpackage_syscode_(Execute ptr, addr var, addr rest, addr *ret)
 {
 	return defpackage_execute_(ptr, var, rest, ret);
 }
 
 
 /* do-symbols */
-int do_symbols_syscode(Execute ptr, addr call, addr package)
+int do_symbols_syscode_(Execute ptr, addr call, addr package)
 {
 	return do_symbols_package_(ptr, call, package);
 }
 
 
 /* do-external-symbols */
-int do_external_symbols_syscode(Execute ptr, addr call, addr package)
+int do_external_symbols_syscode_(Execute ptr, addr call, addr package)
 {
 	return do_external_symbols_package_(ptr, call, package);
 }
@@ -232,7 +232,7 @@ void make_extend_output_stream_syscode(addr var, addr rest, addr *ret)
 
 
 /* prompt-for */
-int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
+int prompt_for_syscode_(Execute ptr, addr type, addr args, addr *ret)
 {
 	addr format;
 	LocalHold hold;
@@ -255,7 +255,7 @@ int prompt_for_syscode(Execute ptr, addr type, addr args, addr *ret)
 
 
 /* print-unreadable-call */
-int print_unreadable_call_syscode(Execute ptr,
+int print_unreadable_call_syscode_(Execute ptr,
 		addr stream, addr pos, addr type, addr identity, addr body)
 {
 	int check1, check2;
@@ -279,7 +279,7 @@ static int write_default_syscode_call_(Execute ptr, addr stream, addr var, addr 
 	return Result(ret, var);
 }
 
-int write_default_syscode(Execute ptr, addr stream, addr var, addr *ret)
+int write_default_syscode_(Execute ptr, addr stream, addr var, addr *ret)
 {
 	addr control;
 
@@ -321,16 +321,16 @@ int ensure_structure_syscode_(Execute ptr, addr name, addr slots, addr rest)
 
 
 /* structure-constructor */
-int structure_constructor_syscode(Execute ptr, addr symbol, addr rest, addr *ret)
+int structure_constructor_syscode_(Execute ptr, addr symbol, addr rest, addr *ret)
 {
 	return structure_constructor_common_(ptr, symbol, rest, ret);
 }
 
 
 /* loop-bind */
-int loop_bind_syscode(Execute ptr, addr a, addr b, addr c, addr *ret)
+int loop_bind_syscode_(Execute ptr, addr a, addr b, addr c, addr *ret)
 {
-	return loop_bind_common(ptr, a, b, c, ret);
+	return loop_bind_common_(ptr, a, b, c, ret);
 }
 
 
@@ -343,7 +343,7 @@ int make_pprint_stream_syscode_(Execute ptr, addr *ret,
 
 
 /* pprint-gensym */
-int pprint_gensym_syscode(addr stream, addr *ret)
+int pprint_gensym_syscode_(addr stream, addr *ret)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return gensym_pretty_stream_(stream, ret);
@@ -351,7 +351,7 @@ int pprint_gensym_syscode(addr stream, addr *ret)
 
 
 /* pprint-exit */
-int pprint_exit_syscode(Execute ptr, addr stream)
+int pprint_exit_syscode_(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return pprint_exit_common_(ptr, stream);
@@ -359,7 +359,7 @@ int pprint_exit_syscode(Execute ptr, addr stream)
 
 
 /* pprint-pop */
-int pprint_pop_syscode(Execute ptr, addr stream, addr *ret)
+int pprint_pop_syscode_(Execute ptr, addr stream, addr *ret)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return pprint_pop_common_(ptr, stream, ret);
@@ -367,7 +367,7 @@ int pprint_pop_syscode(Execute ptr, addr stream, addr *ret)
 
 
 /* pprint-check */
-int pprint_check_syscode(Execute ptr, addr stream)
+int pprint_check_syscode_(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return check_pretty_stream_(ptr, stream);
@@ -375,7 +375,7 @@ int pprint_check_syscode(Execute ptr, addr stream)
 
 
 /* pprint-close */
-int pprint_close_syscode(Execute ptr, addr stream)
+int pprint_close_syscode_(Execute ptr, addr stream)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return close_pretty_stream_(ptr, stream);
@@ -383,7 +383,7 @@ int pprint_close_syscode(Execute ptr, addr stream)
 
 
 /* pprint-pretty */
-int pprint_pretty_syscode(Execute ptr, addr stream, addr call)
+int pprint_pretty_syscode_(Execute ptr, addr stream, addr call)
 {
 	Check(! pretty_stream_p(stream), "type error");
 	return call_pretty_stream(ptr, stream, call);
@@ -425,14 +425,14 @@ int trace_del_syscode_(Execute ptr, addr var, addr *ret)
 
 
 /* set-slots */
-int set_slots_syscode(addr var, addr slots, addr values)
+int set_slots_syscode_(addr var, addr slots, addr values)
 {
-	return set_slots_syscall(var, slots, values);
+	return set_slots_syscall_(var, slots, values);
 }
 
 
 /* intern-eql-specializer */
-int intern_eql_specializer_syscode(addr var, addr *ret)
+int intern_eql_specializer_syscode_(addr var, addr *ret)
 {
 	return clos_intern_specializer_(var, ret);
 }

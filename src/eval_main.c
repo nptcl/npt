@@ -81,7 +81,7 @@ static void eval_loop_shift(Execute ptr, addr list)
 	setspecial_local(ptr, sym3, pos3);
 }
 
-int eval_loop_output(Execute ptr, addr stream)
+int eval_loop_output_(Execute ptr, addr stream)
 {
 	addr list, pos;
 
@@ -102,10 +102,10 @@ static int eval_loop_stream_call_(Execute ptr, addr stream, addr pos)
 {
 	eval_loop_minus(ptr, pos);
 	Return(eval_execute_partial_(ptr, pos));
-	return eval_loop_output(ptr, stream);
+	return eval_loop_output_(ptr, stream);
 }
 
-static int eval_loop_stream(Execute ptr, addr stream, addr pos)
+static int eval_loop_stream_(Execute ptr, addr stream, addr pos)
 {
 	addr control;
 
@@ -151,7 +151,7 @@ struct eval_loop_struct {
 	int *ret, eof;
 };
 
-static int eval_loop_execute(Execute ptr, void *voidp)
+static int eval_loop_execute_(Execute ptr, void *voidp)
 {
 	int check, *ret;
 	addr pos, stream;
@@ -178,14 +178,14 @@ static int eval_loop_execute(Execute ptr, void *voidp)
 
 	/* execute */
 	if (check) {
-		Return(eval_loop_stream(ptr, stream, pos));
+		Return(eval_loop_stream_(ptr, stream, pos));
 	}
 
 	/* normal */
 	return 0;
 }
 
-static int eval_loop_restart(Execute ptr, addr stream,
+static int eval_loop_restart_(Execute ptr, addr stream,
 		eval_loop_calltype call, int *ret, int *eof)
 {
 	addr control, restart;
@@ -197,7 +197,7 @@ static int eval_loop_restart(Execute ptr, addr stream,
 	str.ret = ret;
 	str.eof = 0;
 	eval_main_restart_abort(&restart);
-	(void)restart0_control(ptr, restart, eval_loop_execute, (void *)&str);
+	(void)restart0_control_(ptr, restart, eval_loop_execute_, (void *)&str);
 	*eof = str.eof;
 	return pop_control_(ptr, control);
 }
@@ -209,7 +209,7 @@ int eval_custom_loop_(Execute ptr, addr stream, eval_loop_calltype call, int *re
 	eval_loop_variable(ptr);
 	exit = 0;
 	for (;;) {
-		Return(eval_loop_restart(ptr, stream, call, &exit, &eof));
+		Return(eval_loop_restart_(ptr, stream, call, &exit, &eof));
 		if (exit)
 			break;
 	}
@@ -299,7 +299,7 @@ int eval_main_string_(Execute ptr, addr eval)
 
 	push_control(ptr, &control);
 	eval_main_restart_abort(&restart);
-	(void)restart1_control(ptr, restart, evalcall_string_result_, eval);
+	(void)restart1_control_(ptr, restart, evalcall_string_result_, eval);
 	return pop_control_(ptr, control);
 }
 
@@ -313,7 +313,7 @@ struct eval_main_load_struct {
 	int *ret;
 };
 
-static int eval_main_load_execute(Execute ptr, void *voidp)
+static int eval_main_load_execute_(Execute ptr, void *voidp)
 {
 	struct eval_main_load_struct *str;
 	str = (struct eval_main_load_struct *)voidp;
@@ -331,7 +331,7 @@ int eval_main_load_(Execute ptr, addr file, int exists, int *ret)
 	str.exists = exists;
 	str.ret = ret? ret: &check;
 	eval_main_restart_abort(&restart);
-	(void)restart0_control(ptr, restart, eval_main_load_execute, (void *)&str);
+	(void)restart0_control_(ptr, restart, eval_main_load_execute_, (void *)&str);
 	return pop_control_(ptr, control);
 }
 

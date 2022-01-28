@@ -42,7 +42,7 @@
 #include "typedef.h"
 
 /* hello */
-int hello_syscode(Execute ptr)
+int hello_syscode_(Execute ptr)
 {
 	addr stream;
 
@@ -94,7 +94,7 @@ void gc_syscode(addr rest)
 
 
 /* savecore */
-int savecore_syscode(Execute ptr, addr file)
+int savecore_syscode_(Execute ptr, addr file)
 {
 	Return(pathname_designer_local_(ptr, file, &file));
 	return savecore_execute_(ptr, file);
@@ -132,37 +132,41 @@ void array_specialized_p_syscode(addr var, addr *ret)
 
 
 /* simple-sort */
-int simple_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int simple_sort_syscode_(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 	return simple_sort_sequence_(ptr, pos, call, key);
 }
 
 
 /* bubble-sort */
-int bubble_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int bubble_sort_syscode_(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 	return bubble_sort_sequence_(ptr, pos, call, key);
 }
 
 
 /* quick-sort */
-int quick_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int quick_sort_syscode_(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 	return quick_sort_sequence_(ptr, pos, call, key);
 }
 
 
 /* merge-sort */
-int merge_sort_syscode(Execute ptr, addr pos, addr call, addr rest)
+int merge_sort_syscode_(Execute ptr, addr pos, addr call, addr rest)
 {
 	addr key;
-	if (GetKeyArgs(rest, KEYWORD_KEY, &key)) key = Nil;
+	if (GetKeyArgs(rest, KEYWORD_KEY, &key))
+		key = Nil;
 	return merge_sort_sequence_(ptr, pos, call, key);
 }
 
@@ -259,7 +263,7 @@ int large_number_syscode_(LocalRoot local, addr var, addr opt, addr *ret)
 
 
 /* make-character */
-int make_character_syscode(addr var, addr *ret)
+int make_character_syscode_(addr var, addr *ret)
 {
 	unicode c;
 
@@ -291,7 +295,7 @@ error:
 
 
 /* make-fixnum */
-int make_fixnum_syscode(addr var, addr *ret)
+int make_fixnum_syscode_(addr var, addr *ret)
 {
 	fixnum value;
 
@@ -311,7 +315,7 @@ int make_fixnum_syscode(addr var, addr *ret)
 
 
 /* make-bignum */
-int make_bignum_syscode(addr var, addr *ret)
+int make_bignum_syscode_(addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_FIXNUM:
@@ -351,7 +355,7 @@ static int make_ratio_force_(addr *ret, addr var)
 	return 0;
 }
 
-int make_ratio_syscode(addr numer, addr denom, addr *ret)
+int make_ratio_syscode_(addr numer, addr denom, addr *ret)
 {
 	int sign1, sign2;
 
@@ -443,7 +447,7 @@ int make_callname_syscode_(addr var, addr *ret)
 
 
 /* remove-file */
-int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
+int remove_file_syscode_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;
 	Return(remove_file_common_(ptr, var, (opt != Nil), &check));
@@ -452,7 +456,7 @@ int remove_file_syscode(Execute ptr, addr var, addr opt, addr *ret)
 
 
 /* remove-directory */
-int remove_directory_syscode(Execute ptr, addr var, addr opt, addr *ret)
+int remove_directory_syscode_(Execute ptr, addr var, addr opt, addr *ret)
 {
 	int check;
 	Return(remove_directory_common_(ptr, var, (opt != Nil), &check));
@@ -492,7 +496,7 @@ static int declare_parse_value_(addr symbol, OptimizeType *ret)
 	return fmte_("Invalid declare-parse argument ~S.", symbol, NULL);
 }
 
-int declare_parse_syscode(addr form, addr *ret)
+int declare_parse_syscode_(addr form, addr *ret)
 {
 	OptimizeType value;
 	addr symbol, check;
@@ -512,7 +516,7 @@ error:
 
 
 /* parse-type */
-int parse_type_syscode(Execute ptr, addr var, addr *ret)
+int parse_type_syscode_(Execute ptr, addr var, addr *ret)
 {
 	Return(parse_type_(ptr, &var, var, Nil));
 	Return(type_object_(&var, var));
@@ -789,7 +793,7 @@ int sysctl_syscode_(Execute ptr, addr var, addr args)
 #ifdef LISP_EXTENSION
 #include "ext_eval.h"
 #endif
-int extension_syscode(Execute ptr, addr var)
+int extension_syscode_(Execute ptr, addr var)
 {
 #ifdef LISP_EXTENSION
 	return lisps_eval_(ptr, var);

@@ -385,7 +385,7 @@ static int function_make_load_form_saving_slots(Execute ptr, addr var, addr rest
 		list = Unbound;
 	if (GetKeyArgs(rest, KEYWORD_ENVIRONMENT, &env))
 		env = Nil;
-	Return(make_load_form_saving_slots_common(ptr, var, list, env, &var, &list));
+	Return(make_load_form_saving_slots_common_(ptr, var, list, env, &var, &list));
 	setvalues_control(ptr, var, list, NULL);
 
 	return 0;
@@ -425,7 +425,7 @@ static void defun_make_load_form_saving_slots(void)
 /* (defmacro with-accessors ((entry*) instance declare* &body body) ...) -> t */
 static int function_with_accessors(Execute ptr, addr form, addr env)
 {
-	Return(with_accessors_common(ptr, form, env, &form));
+	Return(with_accessors_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -447,7 +447,7 @@ static void defmacro_with_accessors(void)
 /* (defmacro with-slots ((entry*) instance declare* &body form) ...) -> t */
 static int function_with_slots(Execute ptr, addr form, addr env)
 {
-	Return(with_slots_common(ptr, form, env, &form));
+	Return(with_slots_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -521,7 +521,7 @@ static void defmacro_defgeneric(void)
  */
 static int function_defmethod(Execute ptr, addr form, addr env)
 {
-	Return(defmethod_common(ptr, form, env, &form));
+	Return(defmethod_common_(ptr, form, env, &form));
 	setresult_control(ptr, form);
 	return 0;
 }

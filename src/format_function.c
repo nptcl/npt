@@ -3044,7 +3044,7 @@ static int format_logicalblock1_call_(Execute ptr, addr pretty, addr stream)
 	addr gensym;
 
 	Return(gensym_pretty_stream_(stream, &gensym));
-	(void)catch_clang(ptr, p_format_logicalblock2, gensym, pretty);
+	(void)catch_clang_(ptr, p_format_logicalblock2, gensym, pretty);
 	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 

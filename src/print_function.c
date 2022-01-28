@@ -46,7 +46,7 @@ static int pprint_logical_block_type_call_(Execute ptr, pointer type, addr strea
 	addr gensym;
 
 	Return(gensym_pretty_stream_(stream, &gensym));
-	(void)catch_clang(ptr, type, gensym, stream);
+	(void)catch_clang_(ptr, type, gensym, stream);
 	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 
@@ -178,7 +178,7 @@ static int pprint_logical_block_tabular_call_(Execute ptr, addr stream, addr con
 	addr gensym;
 
 	Return(gensym_pretty_stream_(stream, &gensym));
-	(void)catch_clang(ptr, p_pprint_logical_block_tabular_form, gensym, cons);
+	(void)catch_clang_(ptr, p_pprint_logical_block_tabular_form, gensym, cons);
 	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 
@@ -273,7 +273,7 @@ static int pprint_dispatch_vector1_call_(Execute ptr, addr stream, addr cons)
 	addr gensym;
 
 	Return(gensym_pretty_stream_(stream, &gensym));
-	(void)catch_clang(ptr, p_pprint_dispatch_vector2, gensym, cons);
+	(void)catch_clang_(ptr, p_pprint_dispatch_vector2, gensym, cons);
 	return close_pretty_stream_unwind_protect_(ptr, stream);
 }
 

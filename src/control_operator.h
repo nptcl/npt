@@ -31,14 +31,14 @@
 #define find_restart_control_ _n(find_restart_control_)
 #define find_restart_control_error_ _n(find_restart_control_error_)
 #define compute_restarts_control_ _n(compute_restarts_control_)
-#define restart_control _n(restart_control)
-#define restart0_control _n(restart0_control)
-#define restart1_control _n(restart1_control)
-#define restart1r_control _n(restart1r_control)
-#define restart2_control _n(restart2_control)
+#define restart_control_ _n(restart_control_)
+#define restart0_control_ _n(restart0_control_)
+#define restart1_control_ _n(restart1_control_)
+#define restart1r_control_ _n(restart1r_control_)
+#define restart2_control_ _n(restart2_control_)
 #define set_taginfo_control _n(set_taginfo_control)
 #define set_blockinfo_control _n(set_blockinfo_control)
-#define catch_clang _n(catch_clang)
+#define catch_clang_ _n(catch_clang_)
 #define stack_frame_stream_ _n(stack_frame_stream_)
 #define stack_frame_output_ _n(stack_frame_output_)
 
@@ -77,19 +77,19 @@ int find_restart_control_(Execute ptr,
 int find_restart_control_error_(Execute ptr, addr name, addr condition, addr *ret);
 int compute_restarts_control_(Execute ptr, addr condition, addr *ret);
 
-int restart_control(Execute ptr, int (*call)(Execute, void *), void *voidp);
-int restart0_control(Execute ptr, addr restart,
+int restart_control_(Execute ptr, int (*call)(Execute, void *), void *voidp);
+int restart0_control_(Execute ptr, addr restart,
 		int (*call)(Execute, void *), void *voidp);
-int restart1_control(Execute ptr, addr restart,
+int restart1_control_(Execute ptr, addr restart,
 		int (*call)(Execute, addr), addr v1);
-int restart1r_control(Execute ptr, addr restart,
+int restart1r_control_(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr *), addr v1, addr *ret);
-int restart2_control(Execute ptr, addr restart,
+int restart2_control_(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr), addr v1, addr v2);
 
 void set_taginfo_control(Execute ptr, addr list);
 void set_blockinfo_control(Execute ptr, addr pos);
-int catch_clang(Execute ptr, pointer call, addr tag, addr value);
+int catch_clang_(Execute ptr, pointer call, addr tag, addr value);
 
 int stack_frame_stream_(Execute ptr, addr stream);
 int stack_frame_output_(Execute ptr);

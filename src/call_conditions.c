@@ -554,7 +554,7 @@ static int break_restart_common_(Execute ptr, addr restart, addr format, addr ar
 	addr control;
 
 	push_control(ptr, &control);
-	(void)restart2_control(ptr, restart, break_invoke_common_, format, args);
+	(void)restart2_control_(ptr, restart, break_invoke_common_, format, args);
 	return pop_control_(ptr, control);
 }
 

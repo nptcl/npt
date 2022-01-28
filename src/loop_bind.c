@@ -202,7 +202,7 @@ static int loop_bind_recursive_(Execute ptr, addr pos, addr type, addr value, ad
 	return 0;
 }
 
-int loop_bind_common(Execute ptr, addr pos, addr type, addr value, addr *ret)
+int loop_bind_common_(Execute ptr, addr pos, addr type, addr value, addr *ret)
 {
 	LocalHold hold;
 

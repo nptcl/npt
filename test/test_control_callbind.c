@@ -20,11 +20,11 @@
 #include "type_table.h"
 
 /*
- *  call_compiled_function
+ *  call_compiled_function_
  */
 static int test_call_callbind_code(void)
 {
-	test(CallBindTable[CallBind_code] == call_callbind_code,
+	test(CallBindTable[CallBind_code] == call_callbind_code_,
 			"call_callbind_code1");
 	RETURN;
 }
@@ -48,12 +48,12 @@ static int test_call_callbind_any(void)
 	SetPointer(p_debug1, any, test_function_any);
 	setcompiled_any(pos, p_debug1);
 	test_function_value = 0;
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value, "call_callbind_any1");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	test_function_value = 0;
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value, "call_callbind_any2");
 
 	pop_control_(ptr, control);
@@ -73,7 +73,7 @@ static int test_call_callbind_empty(void)
 	SetPointer(p_debug1, empty, test_function_any);
 	setcompiled_empty(pos, p_debug1);
 	test_function_value = 0;
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value, "call_callbind_empty1");
 
 	pop_control_(ptr, control);
@@ -99,12 +99,12 @@ static int test_call_callbind_dynamic(void)
 	SetPointer(p_debug1, dynamic, test_function_dynamic);
 	setcompiled_dynamic(pos, p_debug1);
 	test_function_value = -1;
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 0, "call_callbind_dynamic1");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	test_function_value = -1;
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 2, "call_callbind_dynamic2");
 
 	pop_control_(ptr, control);
@@ -134,12 +134,12 @@ static int test_call_callbind_rest(void)
 	SetPointer(p_debug1, rest, test_function_rest);
 	setcompiled_rest(pos, p_debug1);
 	test_function_value = -1;
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 0, "call_callbind_rest1");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	test_function_value = -1;
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 2, "call_callbind_rest2");
 
 	pop_control_(ptr, control);
@@ -165,7 +165,7 @@ static int test_call_callbind_var1(void)
 	SetPointer(p_debug1, var1, test_function_var1);
 	setcompiled_var1(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), NULL);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 10, "call_callbind_var1-1");
 
 	pop_control_(ptr, control);
@@ -191,7 +191,7 @@ static int test_call_callbind_var2(void)
 	SetPointer(p_debug1, var2, test_function_var2);
 	setcompiled_var2(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 30, "call_callbind_var2-1");
 
 	pop_control_(ptr, control);
@@ -218,7 +218,7 @@ static int test_call_callbind_var3(void)
 	SetPointer(p_debug1, var3, test_function_var3);
 	setcompiled_var3(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 60, "call_callbind_var3-1");
 
 	pop_control_(ptr, control);
@@ -245,12 +245,12 @@ static int test_call_callbind_opt1(void)
 	setcompiled_opt1(pos, p_debug1);
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == -1, "call_callbind_opt1-1");
 
 	setargs_va_control(ptr, fixnumh(10), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 10, "call_callbind_opt1-2");
 
 	pop_control_(ptr, control);
@@ -282,17 +282,17 @@ static int test_call_callbind_opt2(void)
 	setcompiled_opt2(pos, p_debug1);
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == -1, "call_callbind_opt2-1");
 
 	setargs_va_control(ptr, fixnumh(10), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == -10, "call_callbind_opt2-2");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_value == 30, "call_callbind_opt2-3");
 
 	pop_control_(ptr, control);
@@ -337,25 +337,25 @@ static int test_call_callbind_opt3(void)
 	setcompiled_opt3(pos, p_debug1);
 	setargs_nil_control(ptr);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 0, "call_callbind_opt3-1");
 	test(test_function_value == 0, "call_callbind_opt3-2");
 
 	setargs_va_control(ptr, fixnumh(10), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 1, "call_callbind_opt3-3");
 	test(test_function_value == 10, "call_callbind_opt3-4");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 2, "call_callbind_opt3-5");
 	test(test_function_value == 30, "call_callbind_opt3-6");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 3, "call_callbind_opt3-7");
 	test(test_function_value == 60, "call_callbind_opt3-8");
 
@@ -391,13 +391,13 @@ static int test_call_callbind_var1opt1(void)
 	setcompiled_var1opt1(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 1, "call_callbind_var1opt1-1");
 	test(test_function_value == 10, "call_callbind_var1opt1-2");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 2, "call_callbind_var1opt1-3");
 	test(test_function_value == 30, "call_callbind_var1opt1-4");
 
@@ -434,13 +434,13 @@ static int test_call_callbind_var2opt1(void)
 	setcompiled_var2opt1(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 2, "call_callbind_var2opt1-1");
 	test(test_function_value == 30, "call_callbind_var2opt1-2");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 3, "call_callbind_var2opt1-3");
 	test(test_function_value == 60, "call_callbind_var2opt1-4");
 
@@ -481,19 +481,19 @@ static int test_call_callbind_var1opt2(void)
 	setcompiled_var1opt2(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 1, "call_callbind_var1opt2-1");
 	test(test_function_value == 10, "call_callbind_var1opt2-2");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 2, "call_callbind_var1opt2-3");
 	test(test_function_value == 30, "call_callbind_var1opt2-4");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 3, "call_callbind_var1opt2-5");
 	test(test_function_value == 60, "call_callbind_var1opt2-6");
 
@@ -531,13 +531,13 @@ static int test_call_callbind_var1rest(void)
 	setcompiled_var1rest(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 0, "call_callbind_var1rest1");
 	test(test_function_value == 10, "call_callbind_var1rest2");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 2, "call_callbind_var1rest3");
 	test(test_function_value == 60, "call_callbind_var1rest4");
 
@@ -575,13 +575,13 @@ static int test_call_callbind_var2rest(void)
 	setcompiled_var2rest(pos, p_debug1);
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 0, "call_callbind_var2rest1");
 	test(test_function_value == 30, "call_callbind_var2rest2");
 
 	setargs_va_control(ptr, fixnumh(10), fixnumh(20), fixnumh(30), NULL);
 	setvalues_nil_control(ptr);
-	call_compiled_function(ptr, pos);
+	call_compiled_function_(ptr, pos);
 	test(test_function_mode == 1, "call_callbind_var2rest3");
 	test(test_function_value == 60, "call_callbind_var2rest4");
 

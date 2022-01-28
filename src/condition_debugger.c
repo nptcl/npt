@@ -309,7 +309,7 @@ static int output_restarts_debugger(Execute ptr, addr io, addr list)
 static int eval_debugger_call_(Execute ptr, addr io, addr eval)
 {
 	Return(eval_execute_partial_(ptr, eval));
-	return eval_loop_output(ptr, io);
+	return eval_loop_output_(ptr, io);
 }
 
 static int eval_debugger(Execute ptr, addr io, addr eval)

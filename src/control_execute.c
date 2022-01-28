@@ -213,7 +213,7 @@ int execute_control_(Execute ptr, addr call)
 
 	/* compiled function */
 	if (StructFunction(call)->compiled)
-		return call_compiled_function(ptr, call);
+		return call_compiled_function_(ptr, call);
 
 	/* interpreted function */
 	GetCodeFunction(call, &value);
@@ -400,7 +400,7 @@ static int apply_no_control_(Execute ptr, addr call, addr list)
 	/* compiled function */
 	if (StructFunction(call)->compiled) {
 		Return(checkargs_control_(ptr, call, list));
-		return call_compiled_function(ptr, call);
+		return call_compiled_function_(ptr, call);
 	}
 
 	/* interpreted function */

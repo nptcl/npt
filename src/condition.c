@@ -176,7 +176,7 @@ int warning_restart_case_(Execute ptr, addr instance)
 		ptr = Execute_Thread;
 	push_control(ptr, &control);
 	warning_restart_make(&restart);
-	(void)restart1_control(ptr, restart, signal_function_, instance);
+	(void)restart1_control_(ptr, restart, signal_function_, instance);
 	return pop_control_(ptr, control);
 }
 

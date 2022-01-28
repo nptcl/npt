@@ -652,7 +652,7 @@ struct restart_call {
 	void *voidp;
 };
 
-static int restart_call_control(struct restart_call *str,
+static int restart_call_control_(struct restart_call *str,
 		int (*call)(struct restart_call *))
 {
 	Execute ptr;
@@ -679,9 +679,9 @@ static int restart_call_control(struct restart_call *str,
 }
 
 /* restart */
-int restart_control(Execute ptr, int (*call)(Execute, void *), void *voidp)
+int restart_control_(Execute ptr, int (*call)(Execute, void *), void *voidp)
 {
-	return restart0_control(ptr, NULL, call, voidp);
+	return restart0_control_(ptr, NULL, call, voidp);
 }
 
 /* restart0 */
@@ -690,7 +690,7 @@ static int restart0_control_adaptor(struct restart_call *str)
 	return (str->u.call_0)(str->ptr, str->voidp);
 }
 
-int restart0_control(Execute ptr, addr restart,
+int restart0_control_(Execute ptr, addr restart,
 		int (*call)(Execute, void *), void *voidp)
 {
 	struct restart_call str;
@@ -699,7 +699,7 @@ int restart0_control(Execute ptr, addr restart,
 	str.restart = restart;
 	str.u.call_0 = call;
 	str.voidp = voidp;
-	return restart_call_control(&str, restart0_control_adaptor);
+	return restart_call_control_(&str, restart0_control_adaptor);
 }
 
 /* restart1 */
@@ -708,7 +708,7 @@ static int restart1_control_adaptor(struct restart_call *str)
 	return (str->u.call_1)(str->ptr, str->args[0]);
 }
 
-int restart1_control(Execute ptr, addr restart,
+int restart1_control_(Execute ptr, addr restart,
 		int (*call)(Execute, addr), addr v1)
 {
 	struct restart_call str;
@@ -717,7 +717,7 @@ int restart1_control(Execute ptr, addr restart,
 	str.restart = restart;
 	str.u.call_1 = call;
 	str.args[0] = v1;
-	return restart_call_control(&str, restart1_control_adaptor);
+	return restart_call_control_(&str, restart1_control_adaptor);
 }
 
 /* restart1r */
@@ -726,7 +726,7 @@ static int restart1r_control_adaptor(struct restart_call *str)
 	return (str->u.call_1r)(str->ptr, str->args[0], str->ret);
 }
 
-int restart1r_control(Execute ptr, addr restart,
+int restart1r_control_(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr *), addr v1, addr *ret)
 {
 	struct restart_call str;
@@ -736,7 +736,7 @@ int restart1r_control(Execute ptr, addr restart,
 	str.u.call_1r = call;
 	str.args[0] = v1;
 	str.ret = ret;
-	return restart_call_control(&str, restart1r_control_adaptor);
+	return restart_call_control_(&str, restart1r_control_adaptor);
 }
 
 /* restart2 */
@@ -745,7 +745,7 @@ static int restart2_control_adaptor(struct restart_call *str)
 	return (str->u.call_2)(str->ptr, str->args[0], str->args[1]);
 }
 
-int restart2_control(Execute ptr, addr restart,
+int restart2_control_(Execute ptr, addr restart,
 		int (*call)(Execute, addr, addr), addr v1, addr v2)
 {
 	struct restart_call str;
@@ -755,7 +755,7 @@ int restart2_control(Execute ptr, addr restart,
 	str.u.call_2 = call;
 	str.args[0] = v1;
 	str.args[1] = v2;
-	return restart_call_control(&str, restart2_control_adaptor);
+	return restart_call_control_(&str, restart2_control_adaptor);
 }
 
 
@@ -795,7 +795,7 @@ void set_blockinfo_control(Execute ptr, addr pos)
 /*
  *  catch / throw
  */
-int catch_clang(Execute ptr, pointer call, addr tag, addr value)
+int catch_clang_(Execute ptr, pointer call, addr tag, addr value)
 {
 	addr pos, control;
 

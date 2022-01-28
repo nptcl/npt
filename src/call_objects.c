@@ -638,7 +638,7 @@ void setf_find_class_common(addr pos, addr name, addr env_ignore)
 /*
  *  with-accessors
  */
-static int with_accessors_arguments(addr args, addr g, addr *ret)
+static int with_accessors_arguments_(addr args, addr g, addr *ret)
 {
 	addr root, var, name, temp;
 
@@ -670,7 +670,7 @@ error:
 			"must be a (var name) form.", args, NULL);
 }
 
-int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
+int with_accessors_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,g ,expr))
 	 *    (declare (ignorable g))
@@ -693,7 +693,7 @@ int with_accessors_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
 	Return(make_gensym_(ptr, &g));
-	Return(with_accessors_arguments(var, g, &var));
+	Return(with_accessors_arguments_(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&expr, g, expr, NULL);
 	list_heap(&expr, expr, NULL);
@@ -712,7 +712,7 @@ error:
 /*
  *  with-slots
  */
-static int with_slots_arguments(addr args, addr g, addr *ret)
+static int with_slots_arguments_(addr args, addr g, addr *ret)
 {
 	addr slot, quote, root, var, name, temp;
 
@@ -751,7 +751,7 @@ error:
 			"a symbol or (var name) form.", args, NULL);
 }
 
-int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
+int with_slots_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	/* `(let ((,g ,expr))
 	 *    (declare (ignorable g))
@@ -774,7 +774,7 @@ int with_slots_common(Execute ptr, addr form, addr env, addr *ret)
 	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_SYMBOL_MACROLET, &symm);
 	Return(make_gensym_(ptr, &g));
-	Return(with_slots_arguments(var, g, &var));
+	Return(with_slots_arguments_(var, g, &var));
 	lista_heap(&symm, symm, var, args, NULL);
 	list_heap(&expr, g, expr, NULL);
 	list_heap(&expr, expr, NULL);
@@ -1163,7 +1163,7 @@ static int defmethod_parse_qualifiers(addr list, addr *qua, addr *args, addr *bo
 	return 0;
 }
 
-static int defmethod_parse_specializers(addr pos, addr *ret)
+static int defmethod_parse_specializers_(addr pos, addr *ret)
 {
 	addr list, var, type, root, quote;
 
@@ -1277,7 +1277,7 @@ static int defmethod_parse_function_(Execute ptr,
 	return 0;
 }
 
-int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
+int defmethod_common_(Execute ptr, addr form, addr env, addr *ret)
 {
 	addr args, name, qua, spec, lambda, list, quote;
 	addr key1, key2, key3, key4, key5;
@@ -1290,7 +1290,7 @@ int defmethod_common(Execute ptr, addr form, addr env, addr *ret)
 	if (defmethod_parse_qualifiers(args, &qua, &lambda, &args))
 		goto error;
 	Return(argument_method_heap_(ptr->local, &list, lambda));
-	Return(defmethod_parse_specializers(list, &spec));
+	Return(defmethod_parse_specializers_(list, &spec));
 	Return(defmethod_parse_function_(ptr, name, env, args, list, &args));
 
 	/* name qua lambda doc decl args */
@@ -1608,7 +1608,7 @@ static void make_load_form_saving_slots_list(addr var, addr *ret)
 	nreverse(ret, list);
 }
 
-int make_load_form_saving_slots_common(Execute ptr,
+int make_load_form_saving_slots_common_(Execute ptr,
 		addr var, addr list, addr env, addr *ret1, addr *ret2)
 {
 	/* (allocate-instance
@@ -1662,7 +1662,7 @@ int make_load_form_saving_slots_common(Execute ptr,
 	return 0;
 }
 
-int set_slots_syscall(addr var, addr slots, addr values)
+int set_slots_syscall_(addr var, addr slots, addr values)
 {
 	addr x, y, unbound;
 

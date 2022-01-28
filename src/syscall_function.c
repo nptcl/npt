@@ -38,7 +38,7 @@ static void defun_syscall_abort(void)
 /* (defun hello () ...) -> null */
 static int syscall_hello(Execute ptr)
 {
-	Return(hello_syscode(ptr));
+	Return(hello_syscode_(ptr));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -147,7 +147,7 @@ static void defun_gc(void)
 /* (defun savecore (pathname-designer) ...) -> null */
 static int syscall_savecore(Execute ptr, addr file)
 {
-	Return(savecore_syscode(ptr, file));
+	Return(savecore_syscode_(ptr, file));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -298,7 +298,7 @@ static void defun_array_specialized_p(void)
 /* (defun simple-sort (sequence call &key key) ...) -> sequence */
 static int syscall_simple_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return(simple_sort_syscode(ptr, pos, call, rest));
+	Return(simple_sort_syscode_(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -322,7 +322,7 @@ static void defun_simple_sort(void)
 /* (defun bubble-sort (sequence call &key key) ...) -> sequence */
 static int syscall_bubble_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return(bubble_sort_syscode(ptr, pos, call, rest));
+	Return(bubble_sort_syscode_(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -346,7 +346,7 @@ static void defun_bubble_sort(void)
 /* (defun quick-sort (sequence call &key key) ...) -> sequence */
 static int syscall_quick_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return(quick_sort_syscode(ptr, pos, call, rest));
+	Return(quick_sort_syscode_(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -370,7 +370,7 @@ static void defun_quick_sort(void)
 /* (defun merge-sort (sequence call &key key) ...) -> sequence */
 static int syscall_merge_sort(Execute ptr, addr pos, addr call, addr rest)
 {
-	Return(merge_sort_syscode(ptr, pos, call, rest));
+	Return(merge_sort_syscode_(ptr, pos, call, rest));
 	setresult_control(ptr, pos);
 	return 0;
 }
@@ -688,7 +688,7 @@ static void defun_large_number(void)
  */
 static int syscall_make_character(Execute ptr, addr var)
 {
-	Return(make_character_syscode(var, &var));
+	Return(make_character_syscode_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -724,7 +724,7 @@ static void defun_make_character(void)
 /* (defun make-fixnum (integer) ...) -> fixnum */
 static int syscall_make_fixnum(Execute ptr, addr var)
 {
-	Return(make_fixnum_syscode(var, &var));
+	Return(make_fixnum_syscode_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -758,7 +758,7 @@ static void defun_make_fixnum(void)
 /* (defun make-bignum (integer) ...) -> bignum */
 static int syscall_make_bignum(Execute ptr, addr var)
 {
-	Return(make_bignum_syscode(var, &var));
+	Return(make_bignum_syscode_(var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -792,7 +792,7 @@ static void defun_make_bignum(void)
 /* (defun make-ratio (numer denom) ...) -> ratio */
 static int syscall_make_ratio(Execute ptr, addr numer, addr denom)
 {
-	Return(make_ratio_syscode(numer, denom, &numer));
+	Return(make_ratio_syscode_(numer, denom, &numer));
 	setresult_control(ptr, numer);
 	return 0;
 }
@@ -1152,7 +1152,7 @@ static void defun_make_callname(void)
 /* (defun remove-file (pathname &optional (error t)) ...) -> boolean */
 static int syscall_remove_file(Execute ptr, addr var, addr opt)
 {
-	Return(remove_file_syscode(ptr, var, opt, &var));
+	Return(remove_file_syscode_(ptr, var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1176,7 +1176,7 @@ static void defun_remove_file(void)
 /* (defun remove-directory (pathname &optional (error t)) ...) -> boolean */
 static int syscall_remove_directory(Execute ptr, addr var, addr opt)
 {
-	Return(remove_directory_syscode(ptr, var, opt, &var));
+	Return(remove_directory_syscode_(ptr, var, opt, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1200,7 +1200,7 @@ static void defun_remove_directory(void)
 /* (defmacro declare-parse (symbol) ...) -> integer */
 static int syscall_declare_parse(Execute ptr, addr form, addr env)
 {
-	Return(declare_parse_syscode(form, &form));
+	Return(declare_parse_syscode_(form, &form));
 	setresult_control(ptr, form);
 	return 0;
 }
@@ -1222,7 +1222,7 @@ static void defmacro_declare_parse(void)
 /* (defun parse-type (object) ...) -> type */
 static int syscall_parse_type(Execute ptr, addr var)
 {
-	Return(parse_type_syscode(ptr, var, &var));
+	Return(parse_type_syscode_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1616,7 +1616,7 @@ static void defun_sysctl(void)
 /* (defun extension (t) ...) -> t */
 static int syscall_extension(Execute ptr, addr var)
 {
-	return extension_syscode(ptr, var);
+	return extension_syscode_(ptr, var);
 }
 
 static void type_syscall_extension(addr *ret)

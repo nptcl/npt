@@ -1012,7 +1012,7 @@ static int sleep_break_restart_call_(Execute ptr, addr restart, addr var, addr *
 	/* restart */
 	Return(push_sleep_object_(ptr));
 	*ret = Nil;
-	(void)restart1r_control(ptr, restart, sleep_execute_restart_, var, ret);
+	(void)restart1r_control_(ptr, restart, sleep_execute_restart_, var, ret);
 
 	/* unwind-protect */
 	push_control(ptr, &control);
