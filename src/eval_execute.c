@@ -26,6 +26,7 @@
 #include "step.h"
 #include "stream.h"
 #include "stream_common.h"
+#include "stream_function.h"
 #include "symbol.h"
 #include "type_value.h"
 #include "typedef.h"
@@ -460,6 +461,7 @@ static int eval_toplevel_print_char_(Execute ptr, addr pos, addr stream, const c
 	Return(print_ascii_stream_(stream, str));
 	Return(prin1_print_(ptr, stream, pos));
 	Return(terpri_stream_(stream));
+	Return(finish_output_stream_(stream));
 
 	return 0;
 }

@@ -17,6 +17,7 @@
 #include "print_write.h"
 #include "stream.h"
 #include "stream_common.h"
+#include "stream_function.h"
 #include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"
@@ -53,6 +54,7 @@ static int load_file_verbose_(Execute ptr, addr file,
 	Return(prin1_print_(ptr, stream, pos));
 	Return(print_ascii_stream_(stream, str2));
 	Return(terpri_stream_(stream));
+	Return(finish_output_stream_(stream));
 
 	return 0;
 }
