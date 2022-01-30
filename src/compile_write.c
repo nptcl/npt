@@ -143,11 +143,11 @@ static int faslwrite_value_code_(Execute ptr, addr stream, addr pos)
 	Return(faslwrite_type_(stream, FaslCode_code));
 	/* struct */
 	str = StructCode(pos);
-	Return(faslwrite_buffer_(stream, str, sizeoft(struct code_struct)));
-	/* code */
-	GetArrayCode(pos, Code_Array, &pos);
 	sys = str->sys;
 	size = str->size;
+	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	/* code */
+	GetArrayCode(pos, Code_Array, &pos);
 	for (i = 0; i < size; i++) {
 		bind = sys + i;
 		Return(faslwrite_value_operator_(ptr, stream, bind->id, bind->value));

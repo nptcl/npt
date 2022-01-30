@@ -12,6 +12,81 @@
 #include "execute.h"
 #include "typedef.h"
 
+/*
+ *  array-struct
+ */
+static int faslwrite_value_array_struct_(addr stream, const struct array_struct *str)
+{
+	byte v;
+	size_t size;
+
+	/* simple, adjustable, fillpointer, displaced */
+	v = str->simple
+		| (str->adjustable << 1U)
+		| (str->fillpointer << 2U)
+		| (str->displaced << 3U);
+	Return(faslwrite_byte_(stream, v));
+	/* type */
+	v = (byte)str->type;
+	Return(faslwrite_byte_(stream, v));
+	/* element */
+	v = (byte)str->element;
+	Return(faslwrite_byte_(stream, v));
+	/* bytesize */
+	v = (byte)str->bytesize;
+	Return(faslwrite_byte_(stream, v));
+	/* size */
+	size = str->size;
+	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	/* front */
+	size = str->front;
+	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	/* dimension */
+	size = str->dimension;
+	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	/* offset */
+	size = str->offset;
+	Return(faslwrite_buffer_(stream, &size, IdxSize));
+
+	return 0;
+}
+
+static int faslread_value_array_struct_(addr stream, struct array_struct *str)
+{
+	byte v;
+	size_t size;
+
+	/* simple, adjustable, fillpointer, displaced */
+	Return(faslread_byte_(stream, &v));
+	str->simple      = (v & 0x01) != 0;
+	str->adjustable  = ((v >> 1U) & 0x01) != 0;
+	str->fillpointer = ((v >> 2U) & 0x01) != 0;
+	str->displaced   = ((v >> 3U) & 0x01) != 0;
+	/* type */
+	Return(faslread_byte_(stream, &v));
+	str->type = (enum ARRAY_TYPE)v;
+	/* element */
+	Return(faslread_byte_(stream, &v));
+	str->element = (unsigned)v;
+	/* bytesize */
+	Return(faslread_byte_(stream, &v));
+	str->bytesize = (unsigned)v;
+	/* size */
+	Return(faslread_buffer_(stream, &size, IdxSize));
+	str->size = size;
+	/* front */
+	Return(faslread_buffer_(stream, &size, IdxSize));
+	str->front = size;
+	/* dimension */
+	Return(faslread_buffer_(stream, &size, IdxSize));
+	str->dimension = size;
+	/* offset */
+	Return(faslread_buffer_(stream, &size, IdxSize));
+	str->offset = size;
+
+	return 0;
+}
+
 
 /*
  *  array-t
@@ -268,7 +343,7 @@ static int faslwrite_value_array_displaced_(Execute ptr, addr stream, addr pos)
 	str.offset = 0;
 
 	/* write */
-	Return(faslwrite_buffer_(stream, &str, sizeoft(struct array_struct)));
+	Return(faslwrite_value_array_struct_(stream, &str));
 	Return(faslwrite_value_array_info_(ptr, stream, pos));
 	Return(faslwrite_value_array_body_(ptr, stream, pos));
 
@@ -280,7 +355,7 @@ static int faslwrite_value_array_normal_(Execute ptr, addr stream, addr pos)
 	struct array_struct *str;
 
 	str = ArrayInfoStruct(pos);
-	Return(faslwrite_buffer_(stream, str, sizeoft(struct array_struct)));
+	Return(faslwrite_value_array_struct_(stream, str));
 	Return(faslwrite_value_array_info_(ptr, stream, pos));
 	Return(faslwrite_value_array_body_(ptr, stream, pos));
 
@@ -311,7 +386,7 @@ int faslread_value_array_(Execute ptr, addr stream, addr *ret)
 
 	array_empty_heap(&pos);
 	str = ArrayInfoStruct(pos);
-	Return(faslread_buffer_(stream, str, sizeoft(struct array_struct)));
+	Return(faslread_value_array_struct_(stream, str));
 	Return(faslread_value_array_info_(ptr, stream, pos));
 	Return(faslread_value_array_body_(ptr, stream, pos));
 

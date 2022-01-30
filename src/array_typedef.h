@@ -42,7 +42,7 @@ struct array_struct {
 	unsigned adjustable : 1;
 	unsigned fillpointer : 1;
 	unsigned displaced : 1;
-	enum ARRAY_TYPE type : 5;  /* max 16 (signed) */
+	enum ARRAY_TYPE type : 8;  /* max 16 (signed) */
 	unsigned element : 8;
 	unsigned bytesize : 8; /* 8, 16, 32, 64 */
 	size_t size, front, dimension, offset;

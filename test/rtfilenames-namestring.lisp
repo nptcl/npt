@@ -33,6 +33,7 @@
       'lisp-system::windows))
   "D:\\usr\\local\\bin\\aaa.txt")
 
+#-ansi-c
 (deftest namestring.6
   (let ((x (open "Hello.txt" :direction :output :if-exists :supersede)))
     (prog1 (namestring x)
@@ -467,6 +468,7 @@
 (deftest-error parse-namestring.10
   (parse-namestring #p"Hello.txt" "test"))
 
+#-ansi-c
 (deftest parse-namestring.11
   (let ((x (open #p"_parse_namestring.txt" :direction :output
                  :if-exists :supersede :if-does-not-exist :create)))

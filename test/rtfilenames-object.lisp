@@ -14,12 +14,14 @@
     (pathname "aaa.txt"))
   #p"aaa.txt")
 
+#-ansi-c
 (deftest pathname.3
   (let ((x (open #p"_pathname-test.txt" :direction :output)))
     (prog1 (pathname x)
       (close x :abort t)))
   #p"_pathname-test.txt")
 
+#-ansi-c
 (deftest pathname.4
   (let ((x (open #p"_pathname-test.txt" :direction :output)))
     (close x :abort t)

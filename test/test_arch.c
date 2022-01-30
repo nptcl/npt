@@ -5,6 +5,7 @@
 
 #define TESTFILE "_debug.txt"
 
+#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
 static int test_write_file(const char *str)
 {
 	FILE *file;
@@ -19,6 +20,7 @@ static int test_write_file(const char *str)
 
 	return 0;
 }
+#endif
 
 #ifdef LISP_POSIX
 #include <fcntl.h>

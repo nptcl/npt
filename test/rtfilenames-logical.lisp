@@ -157,6 +157,7 @@
 
 (setf (logical-pathname-translations "TEST-OPEN1")
       '(("*.*.*" "")))
+#-ansi-c
 (deftest logical-pathname.5
   (let ((x (open (logical-pathname "test-open1:;hello.txt")
                  :direction :output :if-exists :supersede)))
@@ -165,6 +166,7 @@
       (close x :abort t)))
   #p"test-open1:;hello.txt")
 
+#-ansi-c
 (deftest logical-pathname.6
   (let ((x (open (logical-pathname "test-open1:;hello.txt")
                  :direction :output :if-exists :supersede)))
@@ -221,6 +223,7 @@
       (parse-namestring "/usr/local/hello.txt")))
   t)
 
+#-ansi-c
 (deftest translate-logical-pathname.4
   (let ((x (open (translate-logical-pathname "test-open1:;hello.txt")
                  :direction :output :if-exists :supersede)))
@@ -229,6 +232,7 @@
       (close x :abort t)))
   #p"hello.txt")
 
+#-ansi-c
 (deftest translate-logical-pathname.5
   (let ((x (open (translate-logical-pathname "test-open1:;hello.txt")
                  :direction :output :if-exists :supersede)))

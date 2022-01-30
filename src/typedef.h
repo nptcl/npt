@@ -3,14 +3,11 @@
 
 #include "define.h"
 #include "typedef_basic.h"
-#include "typedef_value.h"
 #include "typedef_integer.h"
+#include "typedef_typespec.h"
+#include "typedef_value.h"
 #include <stddef.h>
 #include <stdarg.h>
-
-/* object */
-typedef enum LISPTYPE LispType;
-typedef enum LISPDECL LispDecl;
 
 /* setjmp */
 typedef void (*lisp_abort_calltype)(void);

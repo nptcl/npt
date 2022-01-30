@@ -156,12 +156,10 @@ static int faslread_value_code_(Execute ptr, addr stream, addr *ret)
 {
 	addr vector, pos;
 	size_t size, i;
-	struct code_struct head;
 
 	/* struct */
-	Return(faslread_buffer_(stream, &head, sizeoft(head)));
+	Return(faslread_buffer_(stream, &size, IdxSize));
 	/* code */
-	size = head.size;
 	vector4_heap(&vector, size);
 	for (i = 0; i < size; i++) {
 		Return(faslread_code_operator_(ptr, stream, &pos));
