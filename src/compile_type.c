@@ -80,9 +80,9 @@ int faslwrite_value_type_(Execute ptr, addr stream, addr pos)
 
 	CheckType(pos, LISPTYPE_TYPE);
 	LenArrayType(pos, &size);
-	Return(faslwrite_type_(stream, FaslCode_type));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_type));
 	Return(faslwrite_byte_(stream, (byte)LowLispDecl(pos)));
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 
 	switch (RefLispDecl(pos)) {
 		case LISPDECL_CLOS:
@@ -96,11 +96,13 @@ int faslwrite_value_type_(Execute ptr, addr stream, addr pos)
 int faslread_value_type_(Execute ptr, addr stream, addr *ret)
 {
 	byte decl;
+	FaslStatus status;
 	addr pos;
 	size_t size;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_byte_(stream, &decl));
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	type_heap(&pos, (enum LISPDECL)decl, size);
 
 	switch (RefLispDecl(pos)) {
@@ -112,6 +114,7 @@ int faslread_value_type_(Execute ptr, addr stream, addr *ret)
 			Return(faslreadtype_object_(ptr, stream, pos, size));
 			break;
 	}
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }

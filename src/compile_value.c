@@ -72,18 +72,24 @@ int faslwrite_value_clos_(Execute ptr, addr stream, addr pos)
 
 	CheckType(pos, LISPTYPE_CLOS);
 	Return(get_index_load_table_(ptr, pos, &index));
-	Return(faslwrite_type_(stream, FaslCode_clos));
-	Return(faslwrite_buffer_(stream, &index, sizeoft(index)));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_clos));
+	Return(faslwrite_size_(stream, index));
 
 	return 0;
 }
 
 int faslread_value_clos_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	size_t index;
 
-	Return(faslread_buffer_(stream, &index, sizeoft(index)));
-	return execute_load_get_(ptr, index, ret);
+	Return(faslread_status_(stream, &status));
+	Return(faslread_size_(stream, &index));
+	Return(execute_load_get_(ptr, index, &pos));
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
 }
 
 
@@ -95,7 +101,7 @@ int faslwrite_value_cons_(Execute ptr, addr stream, addr pos)
 	addr car, cdr;
 
 	CheckType(pos, LISPTYPE_CONS);
-	Return(faslwrite_type_(stream, FaslCode_cons));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_cons));
 	GetCons(pos, &car, &cdr);
 	Return(faslwrite_value_(ptr, stream, car));
 	Return(faslwrite_value_(ptr, stream, cdr));
@@ -105,13 +111,16 @@ int faslwrite_value_cons_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_cons_(Execute ptr, addr stream, addr *ret)
 {
-	addr car, cdr;
+	FaslStatus status;
+	addr pos, car, cdr;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_value_(ptr, stream, &car));
 	Return(faslread_value_(ptr, stream, &cdr));
-	cons_heap(ret, car, cdr);
+	cons_heap(&pos, car, cdr);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -125,7 +134,7 @@ static int faslwrite_value_vector2_(Execute ptr, addr stream, addr pos)
 
 	Return(faslwrite_type_(stream, FaslCode_vector2));
 	LenArrayA2(pos, &size);
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	for (i = 0; i < size; i++) {
 		GetArrayA2(pos, i, &value);
 		Return(faslwrite_value_(ptr, stream, value));
@@ -141,7 +150,7 @@ static int faslwrite_value_vector4_(Execute ptr, addr stream, addr pos)
 
 	Return(faslwrite_type_(stream, FaslCode_vector4));
 	LenArrayA4(pos, &size);
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	for (i = 0; i < size; i++) {
 		GetArrayA4(pos, i, &value);
 		Return(faslwrite_value_(ptr, stream, value));
@@ -158,7 +167,7 @@ static int faslwrite_value_vector8_(Execute ptr, addr stream, addr pos)
 
 	Return(faslwrite_type_(stream, FaslCode_vector8));
 	LenArrayA8(pos, &size);
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	for (i = 0; i < size; i++) {
 		GetArrayA8(pos, i, &value);
 		Return(faslwrite_value_(ptr, stream, value));
@@ -192,7 +201,7 @@ int faslread_value_vector2_(Execute ptr, addr stream, addr *ret)
 	addr pos, value;
 	size_t size, i;
 
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	vector2_heap(&pos, size);
 	for (i = 0; i < size; i++) {
 		Return(faslread_value_(ptr, stream, &value));
@@ -207,7 +216,7 @@ int faslread_value_vector4_(Execute ptr, addr stream, addr *ret)
 	addr pos, value;
 	size_t size, i;
 
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	vector4_heap(&pos, size);
 	for (i = 0; i < size; i++) {
 		Return(faslread_value_(ptr, stream, &value));
@@ -223,7 +232,7 @@ int faslread_value_vector8_(Execute ptr, addr stream, addr *ret)
 	addr pos, value;
 	size_t size, i;
 
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	vector8_heap(&pos, size);
 	for (i = 0; i < size; i++) {
 		Return(faslread_value_(ptr, stream, &value));
@@ -273,7 +282,7 @@ int faslwrite_value_string_(Execute ptr, addr stream, addr pos)
 	Return(faslwrite_type_(stream, FaslCode_string));
 	strvect_posbodylen(pos, &data, &size);
 	/* write */
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	Return(faslwrite_buffer_(stream, data, sizeoft(unicode) * size));
 
 	return 0;
@@ -286,7 +295,7 @@ static int faslread_string_code_local_(LocalRoot local, addr stream, addr *ret)
 	size_t size;
 
 	Return(faslread_type_check_(stream, FaslCode_string));
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 
 	strvect_local(local, &pos, size);
 	GetStringUnicode(pos, &data);
@@ -301,7 +310,7 @@ int faslread_value_string_(Execute ptr, addr stream, addr *ret)
 	unicode *data;
 	size_t size;
 
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 
 	strvect_heap(&pos, size);
 	GetStringUnicode(pos, &data);
@@ -372,7 +381,7 @@ static int faslwrite_value_gensym_(Execute ptr, addr stream, addr pos)
 	Check(! gensymp(pos), "type error");
 	Return(get_index_load_table_(ptr, pos, &index));
 	Return(faslwrite_type_(stream, FaslCode_gensym));
-	Return(faslwrite_buffer_(stream, &index, sizeoft(index)));
+	Return(faslwrite_size_(stream, index));
 
 	return 0;
 }
@@ -381,7 +390,7 @@ int faslread_value_gensym_(Execute ptr, addr stream, addr *ret)
 {
 	size_t index;
 
-	Return(faslread_buffer_(stream, &index, sizeoft(index)));
+	Return(faslread_size_(stream, &index));
 	Return(execute_load_get_(ptr, index, ret));
 	Check(! gensymp(*ret), "type error");
 
@@ -467,7 +476,7 @@ int faslwrite_value_bignum_(Execute ptr, addr stream, addr pos)
 	Return(faslwrite_byte_(stream, (byte)sign));
 	/* size */
 	GetSizeBignum(pos, &size);
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	/* data */
 	GetDataBignum(pos, &data);
 	Return(faslwrite_buffer_(stream, data, sizeoft(bigtype) * size));
@@ -485,7 +494,7 @@ int faslread_value_bignum_(Execute ptr, addr stream, addr *ret)
 	/* sign */
 	Return(faslread_byte_(stream, &sign));
 	/* size */
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	/* data */
 	bignum_heap(&pos, (sign != 0), size);
 	SetSizeBignum(pos, size);
@@ -696,7 +705,7 @@ int faslwrite_value_index_(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_INDEX);
 	Return(faslwrite_type_(stream, FaslCode_index));
 	GetIndex(pos, &value);
-	Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
+	Return(faslwrite_size_(stream, value));
 
 	return 0;
 }
@@ -705,7 +714,7 @@ int faslread_value_index_(Execute ptr, addr stream, addr *ret)
 {
 	size_t value;
 
-	Return(faslread_buffer_(stream, &value, sizeoft(value)));
+	Return(faslread_size_(stream, &value));
 	index_heap(ret, value);
 
 	return 0;
@@ -901,7 +910,7 @@ int faslwrite_value_load_time_value_(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	get_index_load_time_value(pos, &index);
 	Return(faslwrite_type_(stream, FaslCode_load));
-	Return(faslwrite_buffer_(stream, &index, sizeoft(index)));
+	Return(faslwrite_size_(stream, index));
 
 	return 0;
 }
@@ -910,7 +919,7 @@ int faslread_value_load_time_value_(Execute ptr, addr stream, addr *ret)
 {
 	size_t index;
 
-	Return(faslread_buffer_(stream, &index, sizeoft(index)));
+	Return(faslread_size_(stream, &index));
 	return execute_load_get_(ptr, index, ret);
 }
 

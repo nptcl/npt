@@ -4,6 +4,7 @@
 #include "define.h"
 #include "typedef_basic.h"
 #include "typedef_integer.h"
+#include "typedef_object.h"
 #include "typedef_typespec.h"
 #include "typedef_value.h"
 #include <stddef.h>

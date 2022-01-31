@@ -98,12 +98,12 @@ int faslread_footer_(addr input, int *ret)
 {
 	byte buffer[8];
 
-	/* fill */
+	/* zero */
 	Return(faslread_buffer_(input, buffer, 8));
 	if (memcmp(buffer, "\x00\x00\x00\x00" "\x00\x00\x00\x00", 8) != 0)
 		goto error;
 
-	/* zero */
+	/* fill */
 	Return(faslread_buffer_(input, buffer, 8));
 	if (memcmp(buffer, "\xFF\xFF\xFF\xFF" "\xFF\xFF\xFF\xFF", 8) != 0)
 		goto error;
@@ -154,11 +154,13 @@ static int faslread_code_operator_(Execute ptr, addr stream, addr *ret)
 
 static int faslread_value_code_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr vector, pos;
 	size_t size, i;
 
-	/* struct */
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_status_(stream, &status));
+	Return(faslread_size_(stream, &size));
+
 	/* code */
 	vector4_heap(&vector, size);
 	for (i = 0; i < size; i++) {
@@ -166,8 +168,9 @@ static int faslread_value_code_(Execute ptr, addr stream, addr *ret)
 		SetArrayA4(vector, i, pos);
 	}
 
-	/* update */
+	/* object */
 	code_heap(&pos, vector);
+	faslread_status_update(pos, status);
 	update_code(pos);
 
 	return Result(ret, pos);

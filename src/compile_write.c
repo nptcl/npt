@@ -140,12 +140,12 @@ static int faslwrite_value_code_(Execute ptr, addr stream, addr pos)
 
 	Check(GetType(pos) != LISPTYPE_CODE, "type error.");
 	/* type */
-	Return(faslwrite_type_(stream, FaslCode_code));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_code));
 	/* struct */
 	str = StructCode(pos);
 	sys = str->sys;
 	size = str->size;
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	/* code */
 	GetArrayCode(pos, Code_Array, &pos);
 	for (i = 0; i < size; i++) {

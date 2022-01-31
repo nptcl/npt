@@ -25,9 +25,35 @@ int faslwrite_type_(addr stream, enum FaslCode code)
 	return write_unsigned8_stream_(stream, (byte)code);
 }
 
+int faslwrite_status_(addr stream, addr pos)
+{
+	byte status, user;
+
+	status = GetStatus(pos);
+	user = GetUser(pos);
+	status |= (1 << LISPSTATUS_READONLY);
+	Return(faslwrite_byte_(stream, status));
+	Return(faslwrite_byte_(stream, user));
+
+	return 0;
+}
+
+int faslwrite_type_status_(addr stream, addr pos, enum FaslCode code)
+{
+	Return(faslwrite_type_(stream, code));
+	Return(faslwrite_status_(stream, pos));
+
+	return 0;
+}
+
 int faslwrite_byte_(addr stream, byte value)
 {
 	return write_unsigned8_stream_(stream, value);
+}
+
+int faslwrite_size_(addr stream, size_t value)
+{
+	return faslwrite_buffer_(stream, &value, IdxSize);
 }
 
 
@@ -77,6 +103,28 @@ int faslread_type_check_(addr stream, enum FaslCode value)
 	return 0;
 }
 
+int faslread_status_(addr stream, FaslStatus *ret)
+{
+	byte status, user;
+
+	Return(faslread_byte_(stream, &status));
+	Return(faslread_byte_(stream, &user));
+	if (ret) {
+		ret->status = status;
+		ret->user = user;
+	}
+
+	return 0;
+}
+
+void faslread_status_update(addr pos, FaslStatus v)
+{
+	if (v.status | (1 << LISPSTATUS_READONLY)) {
+		SetStatusReadOnly(pos);
+	}
+	SetUser(pos, v.user);
+}
+
 int faslread_byte_(addr stream, byte *ret)
 {
 	int check;
@@ -88,5 +136,10 @@ int faslread_byte_(addr stream, byte *ret)
 	}
 
 	return 0;
+}
+
+int faslread_size_(addr stream, size_t *ret)
+{
+	return faslread_buffer_(stream, ret, IdxSize);
 }
 

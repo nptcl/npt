@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include "compile_faslcode.h"
+#include "typedef_object.h"
 
 typedef uint64_t size64;
 
@@ -252,6 +253,10 @@ int pipe_sequence(FILE *file, void *dst, size_t size)
 }
 int pipe_byte(FILE *file, uint8_t *ret)
 {
+	uint8_t v;
+
+	if (ret == NULL)
+		ret = &v;
 	if (read_byte(file, ret))
 		return 1;
 	if (write_byte(*ret))
@@ -261,6 +266,10 @@ int pipe_byte(FILE *file, uint8_t *ret)
 }
 int pipe_size(FILE *file, size64 *ret)
 {
+	size64 v;
+
+	if (ret == NULL)
+		ret = &v;
 	if (read_size(file, ret))
 		return 1;
 	if (write_size(*ret))
@@ -270,9 +279,28 @@ int pipe_size(FILE *file, size64 *ret)
 }
 int pipe_faslcode(FILE *file, enum FaslCode *ret)
 {
+	enum FaslCode v;
+
+	if (ret == NULL)
+		ret = &v;
 	if (read_faslcode(file, ret))
 		return 1;
 	if (write_faslcode(*ret))
+		return 1;
+
+	return 0;
+}
+int pipe_status(FILE *file)
+{
+	uint8_t s, u;
+
+	if (read_byte(file, &s))
+		return 1;
+	if (read_byte(file, &u))
+		return 1;
+	if (write_byte(s))
+		return 1;
+	if (write_byte(u))
 		return 1;
 
 	return 0;
@@ -311,6 +339,10 @@ int fasl_code(FILE *file)
 {
 	size64 size, i;
 
+	/* status */
+	if (pipe_status(file))
+		return 1;
+
 	/* size */
 	if (pipe_size(file, &size))
 		return 1;
@@ -328,11 +360,14 @@ int fasl_code(FILE *file)
 /* type */
 int fasl_type(FILE *file)
 {
-	uint8_t v;
 	size64 size, i;
 
+	/* status */
+	if (pipe_status(file))
+		return 1;
+
 	/* LispDecl */
-	if (pipe_byte(file, &v))
+	if (pipe_byte(file, NULL))
 		return 1;
 
 	/* size */
@@ -349,17 +384,27 @@ int fasl_type(FILE *file)
 }
 
 
-/* index */
-int fasl_index(FILE *file)
+/* clos */
+int fasl_clos(FILE *file)
 {
-	size64 v;
-	return pipe_size(file, &v);
+	/* status */
+	if (pipe_status(file))
+		return 1;
+
+	if (pipe_size(file, NULL))
+		return 1;
+
+	return 0;
 }
 
 
 /* cons */
 int fasl_cons(FILE *file)
 {
+	/* status */
+	if (pipe_status(file))
+		return 1;
+
 	/* car */
 	if (fasl_execute(file))
 		return 1;
@@ -372,34 +417,77 @@ int fasl_cons(FILE *file)
 
 
 /* array */
-int fasl_array(FILE *file)
+int fasl_array_struct(FILE *file, size64 *rdim)
 {
-	uint8_t v;
-	size_t size;
-
 	/* struct: bit */
-	if (pipe_byte(file, &v))
+	if (pipe_byte(file, NULL))
 		return 1;
 	/* struct: type */
-	if (pipe_byte(file, &v))
+	if (pipe_byte(file, NULL))
 		return 1;
 	/* struct: element */
-	if (pipe_byte(file, &v))
+	if (pipe_byte(file, NULL))
 		return 1;
 	/* struct: bytesize */
-	if (pipe_byte(file, &v))
+	if (pipe_byte(file, NULL))
 		return 1;
 	/* struct: size */
-	if (pipe_size(file, &size))
+	if (pipe_size(file, NULL))
 		return 1;
 	/* struct: front */
-	if (pipe_size(file, &size))
+	if (pipe_size(file, NULL))
 		return 1;
 	/* struct: dimension */
-	if (pipe_size(file, &size))
+	if (pipe_size(file, rdim))
 		return 1;
 	/* struct: offset */
-	if (pipe_size(file, &size))
+	if (pipe_size(file, NULL))
+		return 1;
+
+	return 0;
+}
+
+int fasl_array_dimension(FILE *file, size64 dim)
+{
+	size64 i;
+
+	for (i = 0; i < dim; i++) {
+		if (pipe_size(file, NULL))
+			return 1;
+	}
+
+	return 0;
+}
+
+int fasl_array_body(FILE *file)
+{
+	return 1; /* TODO */
+}
+
+int fasl_array(FILE *file)
+{
+	size64 dim;
+
+	/* status */
+	if (pipe_status(file))
+		return 1;
+
+	/* struct */
+	if (fasl_array_struct(file, &dim))
+		return 1;
+
+	/* type */
+	if (fasl_execute(file))
+		return 1;
+
+	/* dimension */
+	if (2 <= dim) {
+		if (fasl_array_dimension(file, dim))
+			return 1;
+	}
+
+	/* body */
+	if (fasl_array_body(file))
 		return 1;
 
 	return 0;
@@ -422,7 +510,7 @@ int fasl_switch(FILE *file, enum FaslCode code)
 			return fasl_type(file);
 
 		case FaslCode_clos:
-			return fasl_index(file);
+			return fasl_clos(file);
 
 		case FaslCode_cons:
 			return fasl_cons(file);

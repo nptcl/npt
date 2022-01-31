@@ -37,16 +37,16 @@ static int faslwrite_value_array_struct_(addr stream, const struct array_struct 
 	Return(faslwrite_byte_(stream, v));
 	/* size */
 	size = str->size;
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	/* front */
 	size = str->front;
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	/* dimension */
 	size = str->dimension;
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 	/* offset */
 	size = str->offset;
-	Return(faslwrite_buffer_(stream, &size, IdxSize));
+	Return(faslwrite_size_(stream, size));
 
 	return 0;
 }
@@ -72,16 +72,16 @@ static int faslread_value_array_struct_(addr stream, struct array_struct *str)
 	Return(faslread_byte_(stream, &v));
 	str->bytesize = (unsigned)v;
 	/* size */
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	str->size = size;
 	/* front */
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	str->front = size;
 	/* dimension */
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	str->dimension = size;
 	/* offset */
-	Return(faslread_buffer_(stream, &size, IdxSize));
+	Return(faslread_size_(stream, &size));
 	str->offset = size;
 
 	return 0;
@@ -367,7 +367,7 @@ int faslwrite_value_array_(Execute ptr, addr stream, addr pos)
 	struct array_struct *str;
 
 	CheckType(pos, LISPTYPE_ARRAY);
-	Return(faslwrite_type_(stream, FaslCode_array));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_array));
 	str = ArrayInfoStruct(pos);
 	if (str->displaced)
 		return faslwrite_value_array_displaced_(ptr, stream, pos);
@@ -381,14 +381,17 @@ int faslwrite_value_array_(Execute ptr, addr stream, addr pos)
  */
 int faslread_value_array_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos;
 	struct array_struct *str;
 
+	Return(faslread_status_(stream, &status));
 	array_empty_heap(&pos);
 	str = ArrayInfoStruct(pos);
 	Return(faslread_value_array_struct_(stream, str));
 	Return(faslread_value_array_info_(ptr, stream, pos));
 	Return(faslread_value_array_body_(ptr, stream, pos));
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
