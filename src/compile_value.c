@@ -132,7 +132,7 @@ static int faslwrite_value_vector2_(Execute ptr, addr stream, addr pos)
 	addr value;
 	size_t size, i;
 
-	Return(faslwrite_type_(stream, FaslCode_vector2));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_vector2));
 	LenArrayA2(pos, &size);
 	Return(faslwrite_size_(stream, size));
 	for (i = 0; i < size; i++) {
@@ -148,7 +148,7 @@ static int faslwrite_value_vector4_(Execute ptr, addr stream, addr pos)
 	addr value;
 	size_t size, i;
 
-	Return(faslwrite_type_(stream, FaslCode_vector4));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_vector4));
 	LenArrayA4(pos, &size);
 	Return(faslwrite_size_(stream, size));
 	for (i = 0; i < size; i++) {
@@ -165,7 +165,7 @@ static int faslwrite_value_vector8_(Execute ptr, addr stream, addr pos)
 	addr value;
 	size_t size, i;
 
-	Return(faslwrite_type_(stream, FaslCode_vector8));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_vector8));
 	LenArrayA8(pos, &size);
 	Return(faslwrite_size_(stream, size));
 	for (i = 0; i < size; i++) {
@@ -198,30 +198,36 @@ int faslwrite_value_vector_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_vector2_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos, value;
 	size_t size, i;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &size));
 	vector2_heap(&pos, size);
 	for (i = 0; i < size; i++) {
 		Return(faslread_value_(ptr, stream, &value));
 		SetArrayA2(pos, i, value);
 	}
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
 
 int faslread_value_vector4_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos, value;
 	size_t size, i;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &size));
 	vector4_heap(&pos, size);
 	for (i = 0; i < size; i++) {
 		Return(faslread_value_(ptr, stream, &value));
 		SetArrayA4(pos, i, value);
 	}
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -229,15 +235,18 @@ int faslread_value_vector4_(Execute ptr, addr stream, addr *ret)
 #ifdef LISP_ARCH_64BIT
 int faslread_value_vector8_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos, value;
 	size_t size, i;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &size));
 	vector8_heap(&pos, size);
 	for (i = 0; i < size; i++) {
 		Return(faslread_value_(ptr, stream, &value));
 		SetArrayA8(pos, i, value);
 	}
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -252,7 +261,7 @@ int faslwrite_value_character_(Execute ptr, addr stream, addr pos)
 	unicode value;
 
 	CheckType(pos, LISPTYPE_CHARACTER);
-	Return(faslwrite_type_(stream, FaslCode_character));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_character));
 	GetCharacter(pos, &value);
 	Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
 
@@ -261,12 +270,16 @@ int faslwrite_value_character_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_character_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	unicode value;
+	addr pos;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_buffer_(stream, &value, sizeoft(value)));
-	character_heap(ret, value);
+	character_heap(&pos, value);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -279,7 +292,7 @@ int faslwrite_value_string_(Execute ptr, addr stream, addr pos)
 	size_t size;
 
 	CheckType(pos, LISPTYPE_STRING);
-	Return(faslwrite_type_(stream, FaslCode_string));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_string));
 	strvect_posbodylen(pos, &data, &size);
 	/* write */
 	Return(faslwrite_size_(stream, size));
@@ -290,31 +303,37 @@ int faslwrite_value_string_(Execute ptr, addr stream, addr pos)
 
 static int faslread_string_code_local_(LocalRoot local, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos;
 	unicode *data;
 	size_t size;
 
 	Return(faslread_type_check_(stream, FaslCode_string));
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &size));
 
 	strvect_local(local, &pos, size);
 	GetStringUnicode(pos, &data);
 	Return(faslread_buffer_(stream, data, sizeoft(unicode) * size));
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
 
 int faslread_value_string_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos;
 	unicode *data;
 	size_t size;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &size));
 
 	strvect_heap(&pos, size);
 	GetStringUnicode(pos, &data);
 	Return(faslread_buffer_(stream, data, sizeoft(unicode) * size));
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -323,6 +342,55 @@ int faslread_value_string_(Execute ptr, addr stream, addr *ret)
 /*
  *  hashtable
  */
+static int faslwrite_value_hashtable_struct_(addr stream,
+		const struct StructHashtable *str)
+{
+	double_float dvalue;
+
+	Return(faslwrite_byte_(stream, (byte)str->resize_float_p));
+	Return(faslwrite_byte_(stream, (byte)str->expand_p));
+	Return(faslwrite_byte_(stream, (byte)str->test));
+	Return(faslwrite_size_(stream, str->count));
+	Return(faslwrite_size_(stream, str->size));
+	Return(faslwrite_size_(stream, str->limit));
+	Return(faslwrite_size_(stream, str->resize_integer));
+	dvalue = str->resize_float;
+	Return(faslwrite_buffer_(stream, &dvalue, sizeoft(dvalue)));
+	dvalue = str->threshold;
+	Return(faslwrite_buffer_(stream, &dvalue, sizeoft(dvalue)));
+
+	return 0;
+}
+
+static int faslread_value_hashtable_struct_(addr stream,
+		struct StructHashtable *str)
+{
+	byte v;
+	size_t size;
+	double_float dvalue;
+
+	Return(faslread_byte_(stream, &v));
+	str->resize_float_p = (v != 0);
+	Return(faslread_byte_(stream, &v));
+	str->expand_p = (v != 0);
+	Return(faslread_byte_(stream, &v));
+	str->test = (enum HASHTABLE_TEST)v;
+	Return(faslread_size_(stream, &size));
+	str->count = size;
+	Return(faslread_size_(stream, &size));
+	str->size = size;
+	Return(faslread_size_(stream, &size));
+	str->limit = size;
+	Return(faslread_size_(stream, &size));
+	str->resize_integer = size;
+	Return(faslread_buffer_(stream, &dvalue, sizeoft(dvalue)));
+	str->resize_float = dvalue;
+	Return(faslread_buffer_(stream, &dvalue, sizeoft(dvalue)));
+	str->threshold = dvalue;
+
+	return 0;
+}
+
 int faslwrite_value_hashtable_(Execute ptr, addr stream, addr pos)
 {
 	addr loop, key, value;
@@ -330,10 +398,10 @@ int faslwrite_value_hashtable_(Execute ptr, addr stream, addr pos)
 	size_t i;
 
 	CheckType(pos, LISPTYPE_HASHTABLE);
-	Return(faslwrite_type_(stream, FaslCode_hashtable));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_hashtable));
 	/* struct */
 	str = PtrStructHashtable(pos);
-	Return(faslwrite_buffer_(stream, str, sizeoft(struct StructHashtable)));
+	Return(faslwrite_value_hashtable_struct_(stream, str));
 	/* interator */
 	hash_iterator_heap(&loop, pos);
 	for (i = 0; next_hash_iterator(loop, &key, &value); i++) {
@@ -352,7 +420,7 @@ int faslread_value_hashtable_(Execute ptr, addr stream, addr *ret)
 	size_t size, i;
 
 	/* hashtable */
-	Return(faslread_buffer_(stream, &data, sizeoft(struct StructHashtable)));
+	Return(faslread_value_hashtable_struct_(stream, &data));
 	data.count = 0;
 	hashtable_size_heap(&pos, data.size);
 	str = PtrStructHashtable(pos);
@@ -380,7 +448,7 @@ static int faslwrite_value_gensym_(Execute ptr, addr stream, addr pos)
 
 	Check(! gensymp(pos), "type error");
 	Return(get_index_load_table_(ptr, pos, &index));
-	Return(faslwrite_type_(stream, FaslCode_gensym));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_gensym));
 	Return(faslwrite_size_(stream, index));
 
 	return 0;
@@ -388,13 +456,17 @@ static int faslwrite_value_gensym_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_gensym_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	size_t index;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &index));
-	Return(execute_load_get_(ptr, index, ret));
-	Check(! gensymp(*ret), "type error");
+	Return(execute_load_get_(ptr, index, &pos));
+	faslread_status_update(pos, status);
+	Check(! gensymp(pos), "type error");
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -442,7 +514,7 @@ int faslwrite_value_fixnum_(Execute ptr, addr stream, addr pos)
 	fixnum value;
 
 	CheckType(pos, LISPTYPE_FIXNUM);
-	Return(faslwrite_type_(stream, FaslCode_fixnum));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_fixnum));
 	GetFixnum(pos, &value);
 	Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
 
@@ -451,12 +523,16 @@ int faslwrite_value_fixnum_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_fixnum_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	fixnum value;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_buffer_(stream, &value, sizeoft(value)));
-	fixnum_heap(ret, value);
+	fixnum_heap(&pos, value);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -470,7 +546,7 @@ int faslwrite_value_bignum_(Execute ptr, addr stream, addr pos)
 	size_t size;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
-	Return(faslwrite_type_(stream, FaslCode_bignum));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_bignum));
 	/* sign */
 	GetSignBignum(pos, &sign);
 	Return(faslwrite_byte_(stream, (byte)sign));
@@ -487,19 +563,21 @@ int faslwrite_value_bignum_(Execute ptr, addr stream, addr pos)
 int faslread_value_bignum_(Execute ptr, addr stream, addr *ret)
 {
 	byte sign;
+	FaslStatus status;
 	addr pos;
 	fixed *data;
 	size_t size;
 
-	/* sign */
+	Return(faslread_status_(stream, &status));
 	Return(faslread_byte_(stream, &sign));
-	/* size */
 	Return(faslread_size_(stream, &size));
 	/* data */
 	bignum_heap(&pos, (sign != 0), size);
 	SetSizeBignum(pos, size);
 	GetDataBignum(pos, &data);
 	Return(faslread_buffer_(stream, data, sizeoft(bigtype) * size));
+	/* result */
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -513,9 +591,8 @@ int faslwrite_value_ratio_(Execute ptr, addr stream, addr pos)
 	int sign;
 	addr numer, denom;
 
-	/* sign */
 	CheckType(pos, LISPTYPE_RATIO);
-	Return(faslwrite_type_(stream, FaslCode_ratio));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_ratio));
 	/* sign */
 	GetSignRatio(pos, &sign);
 	Return(faslwrite_byte_(stream, (byte)sign));
@@ -530,10 +607,11 @@ int faslwrite_value_ratio_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_ratio_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	byte sign;
-	addr numer, denom;
+	addr pos, numer, denom;
 
-	/* sign */
+	Return(faslread_status_(stream, &status));
 	Return(faslread_byte_(stream, &sign));
 	/* numer */
 	Return(faslread_type_check_(stream, FaslCode_bignum));
@@ -541,10 +619,11 @@ int faslread_value_ratio_(Execute ptr, addr stream, addr *ret)
 	/* denom */
 	Return(faslread_type_check_(stream, FaslCode_bignum));
 	Return(faslread_value_bignum_(ptr, stream, &denom));
-
 	/* result */
-	make_ratio_heap(ret, (sign != 0), numer, denom);
-	return 0;
+	make_ratio_heap(&pos, (sign != 0), numer, denom);
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
 }
 
 
@@ -556,7 +635,7 @@ int faslwrite_value_single_float_(Execute ptr, addr stream, addr pos)
 	single_float value;
 
 	CheckType(pos, LISPTYPE_SINGLE_FLOAT);
-	Return(faslwrite_type_(stream, FaslCode_single_float));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_single_float));
 	GetSingleFloat(pos, &value);
 	Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
 
@@ -565,12 +644,16 @@ int faslwrite_value_single_float_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_single_float_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	single_float value;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_buffer_(stream, &value, sizeoft(value)));
-	single_float_heap(ret, value);
+	single_float_heap(&pos, value);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -582,7 +665,7 @@ int faslwrite_value_double_float_(Execute ptr, addr stream, addr pos)
 	double_float value;
 
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
-	Return(faslwrite_type_(stream, FaslCode_double_float));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_double_float));
 	GetDoubleFloat(pos, &value);
 	Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
 
@@ -591,12 +674,16 @@ int faslwrite_value_double_float_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_double_float_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	double_float value;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_buffer_(stream, &value, sizeoft(value)));
-	double_float_heap(ret, value);
+	double_float_heap(&pos, value);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -608,7 +695,7 @@ int faslwrite_value_long_float_(Execute ptr, addr stream, addr pos)
 	long_float value;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
-	Return(faslwrite_type_(stream, FaslCode_long_float));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_long_float));
 	GetLongFloat(pos, &value);
 	Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
 
@@ -617,12 +704,16 @@ int faslwrite_value_long_float_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_long_float_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	long_float value;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_buffer_(stream, &value, sizeoft(value)));
-	long_float_heap(ret, value);
+	long_float_heap(&pos, value);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 

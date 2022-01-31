@@ -31,7 +31,7 @@ int faslwrite_status_(addr stream, addr pos)
 
 	status = GetStatus(pos);
 	user = GetUser(pos);
-	status |= (1 << LISPSTATUS_READONLY);
+	status &= (1 << LISPSTATUS_READONLY);
 	Return(faslwrite_byte_(stream, status));
 	Return(faslwrite_byte_(stream, user));
 
@@ -119,7 +119,7 @@ int faslread_status_(addr stream, FaslStatus *ret)
 
 void faslread_status_update(addr pos, FaslStatus v)
 {
-	if (v.status | (1 << LISPSTATUS_READONLY)) {
+	if (v.status & (1 << LISPSTATUS_READONLY)) {
 		SetStatusReadOnly(pos);
 	}
 	SetUser(pos, v.user);

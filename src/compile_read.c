@@ -19,7 +19,7 @@ static int faslread_magic_(addr stream, int *ret)
 {
 	char a[16], b[16];
 
-	/* FASL0000 */
+	/* 0000FASL */
 	Return(faslread_buffer_(stream, a, 8));
 	if (memcmp(a, "\0\0\0\0FASL", 8) != 0)
 		goto error;
@@ -42,6 +42,7 @@ int faslread_header_(addr input, int *ret)
 {
 	int check;
 	byte buffer[64];
+	uint8_t x;
 	uint16_t v, a, b, c;
 
 	/* 0: magic number */
@@ -68,18 +69,33 @@ int faslread_header_(addr input, int *ret)
 		goto error;
 	if (a != LISP_VERSION_A || b != LISP_VERSION_B || c != LISP_VERSION_C)
 		goto error;
-	/* 24: arch */
-	Return(faslread_variable_(input, v, &check));
+	/* 24: CPU arch */
+	Return(faslread_variable_(input, x, &check));
 	if (check)
 		goto error;
-#ifdef LISP_64BIT
-	if (v != 1) {
+#ifdef LISP_ARCH_64BIT
+	if (x != 1) {
 		Debug("This fasl file is not 64bit arch.");
 		goto error;
 	}
 #else
-	if (v != 0) {
+	if (x != 0) {
 		Debug("This fasl file is not 32bit arch.");
+		goto error;
+	}
+#endif
+	/* 25: fixnum size */
+	Return(faslread_variable_(input, x, &check));
+	if (check)
+		goto error;
+#ifdef LISP_64BIT
+	if (x != 1) {
+		Debug("This fasl file is not 64bit fixnum.");
+		goto error;
+	}
+#else
+	if (x != 0) {
+		Debug("This fasl file is not 32bit fixnum.");
 		goto error;
 	}
 #endif

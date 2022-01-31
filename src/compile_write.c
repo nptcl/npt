@@ -45,11 +45,17 @@ int faslwrite_header_(addr stream)
 	Return(faslwrite_byte16_(stream, LISP_VERSION_A));
 	Return(faslwrite_byte16_(stream, LISP_VERSION_B));
 	Return(faslwrite_byte16_(stream, LISP_VERSION_C));
-	/* 24: arch */
-#ifdef LISP_64BIT
-	Return(faslwrite_byte16_(stream, 1));
+	/* 24: CPU arch */
+#ifdef LISP_ARCH_64BIT
+	Return(faslwrite_byte_(stream, 1));
 #else
-	Return(faslwrite_byte16_(stream, 0));
+	Return(faslwrite_byte_(stream, 0));
+#endif
+	/* 25: fixnum size */
+#ifdef LISP_64BIT
+	Return(faslwrite_byte_(stream, 1));
+#else
+	Return(faslwrite_byte_(stream, 0));
 #endif
 	/* 26: padding */
 	memset(buffer, 0xFF, 32);
