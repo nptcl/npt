@@ -128,13 +128,13 @@ void ratio_reduction_local(LocalRoot local,
 		addr *ret, int sign, addr numer, addr denom);
 
 void ratio_reduction_value_local(LocalRoot local, addr *ret,
-		int sign, bigtype numer, bigtype denom);
+		int sign, fixed numer, fixed denom);
 void ratio_reduction_value_heap(LocalRoot local, addr *ret,
-		int sign, bigtype numer, bigtype denom);
+		int sign, fixed numer, fixed denom);
 void ratio_noreduction_value_local(LocalRoot local, addr *ret,
-		int sign, bigtype numer, bigtype denom);
+		int sign, fixed numer, fixed denom);
 void ratio_noreduction_value_heap(addr *ret,
-		int sign, bigtype numer, bigtype denom);
+		int sign, fixed numer, fixed denom);
 
 void ratio_zero_alloc(LocalRoot local, addr *ret);
 void ratio_zero_local(LocalRoot local, addr *ret);

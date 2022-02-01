@@ -217,7 +217,7 @@ static int sxfixed_fixnum_(addr pos, int depth, fixed *ret)
 static int sxfixed_bignum_(addr pos, int depth, fixed *ret)
 {
 	int sign;
-	bigtype *data;
+	fixed *data;
 	size_t size, i;
 	fixed value;
 

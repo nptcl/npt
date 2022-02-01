@@ -79,14 +79,14 @@ struct bignuminfo {
 
 #ifdef BIGNUM_TYPE_64BIT
 #define alloc_bigdata(m,p,s)    \
-	alloc_body8((m), (p), LISPSYSTEM_BIGDATA, sizeofm(bigtype, (s)))
-#define PtrDataBignum(pos)      ((bigtype *)PtrBodyB8(pos))
+	alloc_body8((m), (p), LISPSYSTEM_BIGDATA, sizeofm(fixed, (s)))
+#define PtrDataBignum(pos)      ((fixed *)PtrBodyB8(pos))
 #endif
 
 #ifdef BIGNUM_TYPE_32BIT
 #define alloc_bigdata(m,p,s)    \
-	alloc_body4((m), (p), LISPSYSTEM_BIGDATA, sizeofm(bigtype, (s)))
-#define PtrDataBignum(pos)  ((bigtype *)PtrBodyB4(pos))
+	alloc_body4((m), (p), LISPSYSTEM_BIGDATA, sizeofm(fixed, (s)))
+#define PtrDataBignum(pos)  ((fixed *)PtrBodyB4(pos))
 #endif
 
 #define GetDataBignum(pos, data) { \
@@ -225,11 +225,11 @@ void diet_bignum(LocalRoot local, addr pos);
 void sizepress_bignum(addr left);
 void copy_bignum(LocalRoot local, addr left, addr right, int force);
 void copy_noexpand_bignum(addr left, addr right);
-void setvalue_bignum(addr left, int sign, bigtype value);
+void setvalue_bignum(addr left, int sign, fixed value);
 void setzero_bignum(addr left);
 int getbit_bignum(addr pos, size_t index);
-void incf_bignum(addr pos, bigtype value);
-void decf_bignum(addr pos, bigtype value);
+void incf_bignum(addr pos, fixed value);
+void decf_bignum(addr pos, fixed value);
 
 void bignum_throw_heap(addr pos, addr *ret);
 void bignum_throw_local(LocalRoot local, addr pos, addr *ret);
@@ -241,8 +241,6 @@ void fixnum_throw_alloc(LocalRoot local, addr pos, addr *ret);
 void castfixed(fixnum value, int *sign, fixed *result);
 void castfixed_fixnum(addr pos, int *sign, fixed *result);
 int castfixed_integer(addr value, int *sign, fixed *result);
-#define castbigtype castfixed
-#define castbigtype_integer castfixed_integer
 
 #endif
 

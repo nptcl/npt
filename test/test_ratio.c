@@ -942,24 +942,24 @@ static int test_minusp_ratio(void)
 /*
  *  cast float
  */
-static int test_hexfloat_bigtype_exponent(void)
+static int test_hexfloat_fixed_exponent(void)
 {
 	size_t a;
 
-	a = hexfloat_bigtype_exponent(0);
-	test(a == 0, "hexfloat_bigtype_exponent1");
-	a = hexfloat_bigtype_exponent(1);
-	test(a == 4, "hexfloat_bigtype_exponent2");
-	a = hexfloat_bigtype_exponent(0xF);
-	test(a == 4, "hexfloat_bigtype_exponent3");
-	a = hexfloat_bigtype_exponent(0x10);
-	test(a == 8, "hexfloat_bigtype_exponent4");
-	a = hexfloat_bigtype_exponent(0xFFFF);
-	test(a == 16, "hexfloat_bigtype_exponent5");
-	a = hexfloat_bigtype_exponent(0x1FFFF);
-	test(a == 20, "hexfloat_bigtype_exponent6");
-	a = hexfloat_bigtype_exponent(0xABCDEF);
-	test(a == 24, "hexfloat_bigtype_exponent7");
+	a = hexfloat_fixed_exponent(0);
+	test(a == 0, "hexfloat_fixed_exponent1");
+	a = hexfloat_fixed_exponent(1);
+	test(a == 4, "hexfloat_fixed_exponent2");
+	a = hexfloat_fixed_exponent(0xF);
+	test(a == 4, "hexfloat_fixed_exponent3");
+	a = hexfloat_fixed_exponent(0x10);
+	test(a == 8, "hexfloat_fixed_exponent4");
+	a = hexfloat_fixed_exponent(0xFFFF);
+	test(a == 16, "hexfloat_fixed_exponent5");
+	a = hexfloat_fixed_exponent(0x1FFFF);
+	test(a == 20, "hexfloat_fixed_exponent6");
+	a = hexfloat_fixed_exponent(0xABCDEF);
+	test(a == 24, "hexfloat_fixed_exponent7");
 
 	RETURN;
 }
@@ -970,7 +970,7 @@ static int test_hexfloat_exponent(void)
 	addr pos;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data;
+	fixed *data;
 	size_t a, b;
 
 	local = Local_Thread;
@@ -1036,40 +1036,40 @@ static int test_diff_exponent_ratio(void)
 	RETURN;
 }
 
-static int test_hexadecimal_bigtype(void)
+static int test_hexadecimal_fixed(void)
 {
 	char ptr[128], *ret;
 	size_t bit;
 
 	bit = 0;
-	ret = hexadecimal_bigtype(ptr, 4, 0, &bit);
+	ret = hexadecimal_fixed(ptr, 4, 0, &bit);
 	*ret = 0;
-	test(strcmp(ptr, "0") == 0, "hexadecimal_bigtype1");
+	test(strcmp(ptr, "0") == 0, "hexadecimal_fixed1");
 
 	bit = 4;
-	ret = hexadecimal_bigtype(ptr, 4, 0, &bit);
+	ret = hexadecimal_fixed(ptr, 4, 0, &bit);
 	*ret = 0;
-	test(strcmp(ptr, "0") == 0, "hexadecimal_bigtype2");
+	test(strcmp(ptr, "0") == 0, "hexadecimal_fixed2");
 
 	bit = 5;
-	ret = hexadecimal_bigtype(ptr, 4, 0, &bit);
+	ret = hexadecimal_fixed(ptr, 4, 0, &bit);
 	*ret = 0;
-	test(strcmp(ptr, "00") == 0, "hexadecimal_bigtype3");
+	test(strcmp(ptr, "00") == 0, "hexadecimal_fixed3");
 
 	bit = 16;
-	ret = hexadecimal_bigtype(ptr, 4, 0, &bit);
+	ret = hexadecimal_fixed(ptr, 4, 0, &bit);
 	*ret = 0;
-	test(strcmp(ptr, "0000") == 0, "hexadecimal_bigtype4");
+	test(strcmp(ptr, "0000") == 0, "hexadecimal_fixed4");
 
 	bit = 16;
-	ret = hexadecimal_bigtype(ptr, 4, 1, &bit);
+	ret = hexadecimal_fixed(ptr, 4, 1, &bit);
 	*ret = 0;
-	test(strcmp(ptr, "4.") == 0, "hexadecimal_bigtype5");
+	test(strcmp(ptr, "4.") == 0, "hexadecimal_fixed5");
 
 	bit = 16;
-	ret = hexadecimal_bigtype(ptr, 0x4E, 1, &bit);
+	ret = hexadecimal_fixed(ptr, 0x4E, 1, &bit);
 	*ret = 0;
-	test(strcmp(ptr, "4.E") == 0, "hexadecimal_bigtype6");
+	test(strcmp(ptr, "4.E") == 0, "hexadecimal_fixed6");
 
 	RETURN;
 }
@@ -1272,7 +1272,7 @@ static int equalstream(addr stream, const char *right)
 }
 
 static void test_ratio_alloc(LocalRoot local,
-		addr *ret, int sign, bigtype v1, bigtype v2)
+		addr *ret, int sign, fixed v1, fixed v2)
 {
 	addr numer, denom;
 	bignum_value_alloc(local, &numer, SignPlus, v1);
@@ -1346,10 +1346,10 @@ static int testcase_ratio(void)
 	TestBreak(test_plusp_ratio);
 	TestBreak(test_minusp_ratio);
 	/* cast float */
-	TestBreak(test_hexfloat_bigtype_exponent);
+	TestBreak(test_hexfloat_fixed_exponent);
 	TestBreak(test_hexfloat_exponent);
 	TestBreak(test_diff_exponent_ratio);
-	TestBreak(test_hexadecimal_bigtype);
+	TestBreak(test_hexadecimal_fixed);
 	TestBreak(test_hexadecimal_ratio);
 	TestBreak(test_float_string_ratio);
 	TestBreak(test_single_float_ratio);

@@ -1981,6 +1981,13 @@ lisp-system::subtypep-compound
 lisp-system::subtypep-force-number
 lisp-system::subtypep-normal
 
+;;  fpclassify
+lisp-system::fp-nan
+lisp-system::fp-infinite
+lisp-system::fp-normal
+lisp-system::fp-subnormal
+lisp-system::fp-zero
+
 ;; syscall_common.c
  lisp-system::define-symbol-macro
  lisp-system::symbol-macro-expander
@@ -2088,14 +2095,8 @@ lisp-system::subtypep-normal
 (lisp-system::memory-stream-p :export t)
 (lisp-system::byte-integer :export t)
 (lisp-system::sysctl :export t)
-(lisp-system::extension :export t)
 (lisp-system::terme :export t)
 (lisp-system::fpclassify :export t)
-(lisp-system::fp-nan :export t)
-(lisp-system::fp-infinite :export t)
-(lisp-system::fp-normal :export t)
-(lisp-system::fp-subnormal :export t)
-(lisp-system::fp-zero :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

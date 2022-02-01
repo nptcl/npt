@@ -15,33 +15,33 @@
 #define single_float_random float_random_32bit
 #define double_float_random double_random_32bit
 #define long_float_random long_random_32bit
-static bigtype random_full_bigtype(struct random_state *state)
+static fixed random_full_fixed(struct random_state *state)
 {
-	return (bigtype)random_number_32bit(state);
+	return (fixed)random_number_32bit(state);
 }
-static bigtype random_equal_bigtype(struct random_state *state, bigtype value)
+static fixed random_equal_fixed(struct random_state *state, fixed value)
 {
-	return (bigtype)random_equal_32bit(state, (uint32_t)value);
+	return (fixed)random_equal_32bit(state, (uint32_t)value);
 }
-static bigtype random_less_bigtype(struct random_state *state, bigtype value)
+static fixed random_less_fixed(struct random_state *state, fixed value)
 {
-	return (bigtype)random_less_32bit(state, (uint32_t)value);
+	return (fixed)random_less_32bit(state, (uint32_t)value);
 }
 #else
 #define single_float_random float_random_64bit
 #define double_float_random double_random_64bit
 #define long_float_random long_random_64bit
-static bigtype random_full_bigtype(struct random_state *state)
+static fixed random_full_fixed(struct random_state *state)
 {
-	return (bigtype)random_number_64bit(state);
+	return (fixed)random_number_64bit(state);
 }
-static bigtype random_equal_bigtype(struct random_state *state, bigtype value)
+static fixed random_equal_fixed(struct random_state *state, fixed value)
 {
-	return (bigtype)random_equal_64bit(state, (uint64_t)value);
+	return (fixed)random_equal_64bit(state, (uint64_t)value);
 }
-static bigtype random_less_bigtype(struct random_state *state, bigtype value)
+static fixed random_less_fixed(struct random_state *state, fixed value)
 {
-	return (bigtype)random_less_64bit(state, (uint64_t)value);
+	return (fixed)random_less_64bit(state, (uint64_t)value);
 }
 #endif
 
@@ -52,11 +52,11 @@ static bigtype random_less_bigtype(struct random_state *state, bigtype value)
 static void random_fixnum_common(struct random_state *state, addr pos, addr *ret)
 {
 	int ignore;
-	bigtype value;
+	fixed value;
 
 	castfixed_fixnum(pos, &ignore, &value);
 	Check(value <= 0, "Invalid fixnum value.");
-	value = random_less_bigtype(state, value);
+	value = random_less_fixed(state, value);
 	fixnum_heap(ret, (fixnum)value);
 }
 
@@ -67,11 +67,11 @@ static void random_fixnum_common(struct random_state *state, addr pos, addr *ret
 static void random_bignum1_common(LocalRoot local,
 		struct random_state *state, addr pos, addr *ret)
 {
-	bigtype value, *data;
+	fixed value, *data;
 	LocalStack stack;
 
 	GetDataBignum(pos, &data);
-	value = random_less_bigtype(state, data[0]);
+	value = random_less_fixed(state, data[0]);
 	push_local(local, &stack);
 	bignum_value_local(local, &pos, SignPlus, value);
 	bignum_result_heap(pos, ret);
@@ -80,19 +80,19 @@ static void random_bignum1_common(LocalRoot local,
 
 static int random_insertbuffer(LocalRoot local, struct random_state *state, addr pos)
 {
-	bigtype *data, v1, v2;
+	fixed *data, v1, v2;
 	size_t size, i, index;
 
 	GetSizeBignum(pos, &size);
 	GetDataBignum(pos, &data);
 	index = size - 1;
 	v1 = data[index];
-	v2 = random_equal_bigtype(state, v1);
+	v2 = random_equal_fixed(state, v1);
 	if (v1 == v2) {
 		for (i = 1; i < size; i++) {
 			index = size - i - 1;
 			v1 = data[index];
-			v2 = random_full_bigtype(state);
+			v2 = random_full_fixed(state);
 			if (v1 < v2)
 				return 1;
 			if (v1 > v2)
@@ -104,7 +104,7 @@ static int random_insertbuffer(LocalRoot local, struct random_state *state, addr
 tail:
 	data[index] = v2;
 	for (i = 0; i < index; i++)
-		data[i] = random_full_bigtype(state);
+		data[i] = random_full_fixed(state);
 
 	return 0;
 }

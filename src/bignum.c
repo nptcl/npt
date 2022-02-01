@@ -51,7 +51,7 @@ void shiftup_bignum_heap(addr *ret, addr left, size_t value)
 /*
  *  integer
  */
-static int castfixnum(int sign, bigtype value, fixnum *result)
+static int castfixnum(int sign, fixed value, fixnum *result)
 {
 	Check(sign != SignPlus && sign != SignMinus, "sign error");
 
@@ -100,7 +100,7 @@ int fixnum_cons_alloc(LocalRoot local, addr *ret, int sign, addr cons)
 #else
 int fixnum_cons_alloc(LocalRoot local, addr *ret, int sign, addr cons)
 {
-	bigtype value;
+	fixed value;
 	fixnum result;
 	addr root;
 	struct bigbuffer *str;
@@ -279,7 +279,7 @@ int integer_copysign_heap_(int sign, addr pos, addr *ret)
 #define HexToChar(x) (((x) < 10)? ('0' + (x)): ('A' - 10 + (x)))
 #define HEXCHAR_BIGTYPE_SIZE (BIGNUM_FULLBIT >> 2)
 
-static char *hexchar_bigtype(char *dst, bigtype v)
+static char *hexchar_fixed(char *dst, fixed v)
 {
 	int i, c;
 
@@ -295,7 +295,7 @@ static char *hexchar_bigtype(char *dst, bigtype v)
 static char *hexfraction_string(char *dst, addr pos, int frac, size_t *exponent)
 {
 	size_t i, size, tail;
-	bigtype *data;
+	fixed *data;
 
 	GetSizeBignum(pos, &size);
 	GetRootDataBignum(pos, &pos, &data);
@@ -307,11 +307,11 @@ static char *hexfraction_string(char *dst, addr pos, int frac, size_t *exponent)
 			break;
 		}
 		if (frac <= 0) {
-			dst = hexchar_bigtype(dst, data[tail]);
+			dst = hexchar_fixed(dst, data[tail]);
 			*exponent = tail * BIGNUM_FULLBIT;
 			break;
 		}
-		dst = hexchar_bigtype(dst, data[tail]);
+		dst = hexchar_fixed(dst, data[tail]);
 		frac -= BIGNUM_FULLBIT;
 	}
 
@@ -739,7 +739,7 @@ int bignum_long_float_heap_(LocalRoot local, long_float v, addr *rv, int *ret)
 int GetFixnum_bignum(addr pos, fixnum *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 
 	Check(GetType(pos) != LISPTYPE_BIGNUM, "type error");
 	if (RefSizeBignum(pos) != 1)

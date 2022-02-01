@@ -68,7 +68,7 @@ int getfixnum_ratio(addr pos, fixnum *ret)
 {
 	int sign;
 	addr denom;
-	bigtype value;
+	fixed value;
 
 	CheckType(pos, LISPTYPE_RATIO);
 	GetDenomRatio(pos, &denom);
@@ -98,7 +98,7 @@ int getfixnum_ratio(addr pos, fixnum *ret)
 int getfixed1_ratio(addr pos, int *sign, fixed *ret)
 {
 	addr denom;
-	bigtype value;
+	fixed value;
 
 	CheckType(pos, LISPTYPE_RATIO);
 	GetDenomRatio(pos, &denom);
@@ -119,8 +119,8 @@ int getfixed1_ratio(addr pos, int *sign, fixed *ret)
  */
 static void reduction_single(addr numer_root, addr denom_root)
 {
-	bigtype *numer, *denom;
-	bigtype a, b, n;
+	fixed *numer, *denom;
+	fixed a, b, n;
 
 	GetRootDataBignum(numer_root, &numer_root, &numer);
 	GetRootDataBignum(denom_root, &denom_root, &denom);
@@ -488,7 +488,7 @@ void make_ratio_reduction_local(LocalRoot local,
 }
 
 void ratio_reduction_value_local(LocalRoot local, addr *ret,
-		int sign, bigtype numer, bigtype denom)
+		int sign, fixed numer, fixed denom)
 {
 	addr num, den;
 
@@ -499,7 +499,7 @@ void ratio_reduction_value_local(LocalRoot local, addr *ret,
 }
 
 void ratio_reduction_value_heap(LocalRoot local, addr *ret,
-		int sign, bigtype numer, bigtype denom)
+		int sign, fixed numer, fixed denom)
 {
 	addr num, den;
 	LocalStack stack;
@@ -513,7 +513,7 @@ void ratio_reduction_value_heap(LocalRoot local, addr *ret,
 }
 
 void ratio_noreduction_value_local(LocalRoot local, addr *ret,
-		int sign, bigtype numer, bigtype denom)
+		int sign, fixed numer, fixed denom)
 {
 	addr num, den;
 
@@ -524,7 +524,7 @@ void ratio_noreduction_value_local(LocalRoot local, addr *ret,
 }
 
 void ratio_noreduction_value_heap(addr *ret,
-		int sign, bigtype numer, bigtype denom)
+		int sign, fixed numer, fixed denom)
 {
 	addr num, den;
 
@@ -709,7 +709,7 @@ void cast_fixnum_ratio_local(LocalRoot local, addr pos, addr *ret)
 {
 	int sign;
 	addr numer, denom;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	CheckType(pos, LISPTYPE_FIXNUM);
@@ -736,7 +736,7 @@ void cast_bignum_ratio_local(LocalRoot local, addr pos, addr *ret)
 /*
  *  cast float
  */
-static size_t hexfloat_bigtype_exponent(bigtype value)
+static size_t hexfloat_fixed_exponent(fixed value)
 {
 	size_t i;
 
@@ -750,17 +750,17 @@ static size_t hexfloat_bigtype_exponent(bigtype value)
 static size_t hexfloat_exponent(addr pos)
 {
 	size_t size;
-	bigtype *data;
+	fixed *data;
 
 	GetSizeBignum(pos, &size);
 	GetDataBignum(pos, &data);
 	Check(size == 0, "size error");
 	if (size == 1) {
-		size =  hexfloat_bigtype_exponent(data[0]);
+		size =  hexfloat_fixed_exponent(data[0]);
 	}
 	else {
 		size--;
-		size = size * BIGNUM_FULLBIT + hexfloat_bigtype_exponent(data[size]);
+		size = size * BIGNUM_FULLBIT + hexfloat_fixed_exponent(data[size]);
 	}
 	Check(size < 4UL, "size error");
 
@@ -791,7 +791,7 @@ static int diff_exponent_ratio_(size_t *size1, size_t *size2, addr pos)
 }
 
 #define HexToChar(x) (((x) < 10)? ('0' + (x)): ('A' - 10 + (x)))
-static char *hexadecimal_bigtype(char *ptr, bigtype v, int first, size_t *bit)
+static char *hexadecimal_fixed(char *ptr, fixed v, int first, size_t *bit)
 {
 	unsigned i, n, index, size;
 
@@ -820,14 +820,14 @@ static char *hexadecimal_bigtype(char *ptr, bigtype v, int first, size_t *bit)
 static char *hexadecimal_ratio(char *ptr, addr pos, size_t bit)
 {
 	size_t size, i, index;
-	bigtype *data;
+	fixed *data;
 
 	GetSizeBignum(pos, &size);
 	GetDataBignum(pos, &data);
 	Check(size == 0, "size error");
 	for (i = 0; i < size; i++) {
 		index = size - i - 1;
-		ptr = hexadecimal_bigtype(ptr, data[index], (i == 0), &bit);
+		ptr = hexadecimal_fixed(ptr, data[index], (i == 0), &bit);
 		if (bit == 0) break;
 	}
 

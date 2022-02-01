@@ -1318,14 +1318,8 @@ enum pointer_index {
 	p_defun_syscall_setf_memory_stream_p,
 	p_defun_syscall_byte_integer,
 	p_defun_syscall_sysctl,
-	p_defun_syscall_extension,
 	p_defun_syscall_terme,
 	p_defun_syscall_fpclassify,
-
-#ifdef LISP_EXTENSION
-#include "ext_include_pointer.h"
-#endif
-
 	/* size */
 	p_size
 };

@@ -24,8 +24,8 @@
 #define compare_dr_real_ _n(compare_dr_real_)
 #define compare_lr_real_ _n(compare_lr_real_)
 
-int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom);
-int equal_value_ratio(addr pos, int sign, bigtype numer, bigtype denom);
+int equal_value_nosign_ratio(addr pos, fixed numer, fixed denom);
+int equal_value_ratio(addr pos, int sign, fixed numer, fixed denom);
 int equal_fr_real(addr left, addr right);
 int equal_br_real(addr left, addr right);
 #define equal_rf_real(a,b) equal_fr_real((b),(a))

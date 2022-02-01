@@ -11,7 +11,7 @@
 #include "ratio_plus.h"
 #include "typedef.h"
 
-static int equal_rv_nosign(addr left, bigtype value)
+static int equal_rv_nosign(addr left, fixed value)
 {
 	addr check;
 
@@ -25,7 +25,7 @@ static int equal_rv_nosign(addr left, bigtype value)
 }
 
 static void multi_rv_result(LocalRoot local,
-		addr left, bigtype value, addr *rnumer, addr *rdenom)
+		addr left, fixed value, addr *rnumer, addr *rdenom)
 {
 	addr right, numer, denom;
 
@@ -45,7 +45,7 @@ static void multi_rv_result(LocalRoot local,
 }
 
 static void multi_rv_ratio(LocalRoot local,
-		int sign, addr left, bigtype value, addr *ret)
+		int sign, addr left, fixed value, addr *ret)
 {
 	addr numer, denom;
 
@@ -54,7 +54,7 @@ static void multi_rv_ratio(LocalRoot local,
 }
 
 static void multi_rv_local(LocalRoot local,
-		int sign, addr left, bigtype value, addr *ret)
+		int sign, addr left, fixed value, addr *ret)
 {
 	addr numer, denom;
 
@@ -63,7 +63,7 @@ static void multi_rv_local(LocalRoot local,
 }
 
 static void multi_rv_common(LocalRoot local,
-		int sign, addr left, bigtype value, addr *ret)
+		int sign, addr left, fixed value, addr *ret)
 {
 	LocalStack stack;
 	addr numer, denom;
@@ -77,7 +77,7 @@ static void multi_rv_common(LocalRoot local,
 void multi_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
@@ -119,7 +119,7 @@ void multi_rf_ratio_local(LocalRoot local, addr left, addr right, addr *ret)
 void multi_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
@@ -161,7 +161,7 @@ void multi_rf_real_local(LocalRoot local, addr left, addr right, addr *ret)
 void multi_rf_real_common(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
@@ -628,13 +628,13 @@ void multi_rr_real_common(LocalRoot local, addr left, addr right, addr *ret)
  *  division
  */
 static inline void inverse_value_ratio(LocalRoot local,
-		addr *ret, int sign, bigtype value)
+		addr *ret, int sign, fixed value)
 {
 	ratio_noreduction_value_local(local, ret, sign, 1, value);
 }
 
 static inline void inverse_value_local(LocalRoot local,
-		addr *ret, int sign, bigtype value)
+		addr *ret, int sign, fixed value)
 {
 	if (value == 1)
 		fixnum_local(local, ret, IsPlus(sign)? 1: -1);
@@ -642,7 +642,7 @@ static inline void inverse_value_local(LocalRoot local,
 		ratio_noreduction_value_local(local, ret, sign, 1, value);
 }
 
-static inline void inverse_value_common(addr *ret, int sign, bigtype value)
+static inline void inverse_value_common(addr *ret, int sign, fixed value)
 {
 	if (value == 1)
 		fixnum_heap(ret, IsPlus(sign)? 1: -1);
@@ -651,7 +651,7 @@ static inline void inverse_value_common(addr *ret, int sign, bigtype value)
 }
 
 static void div_rv_result(LocalRoot local,
-		addr left, bigtype value, addr *rnumer, addr *rdenom)
+		addr left, fixed value, addr *rnumer, addr *rdenom)
 {
 	addr right, numer, denom;
 
@@ -671,7 +671,7 @@ static void div_rv_result(LocalRoot local,
 }
 
 static void div_rv_ratio(LocalRoot local,
-		int sign, addr left, bigtype value, addr *ret)
+		int sign, addr left, fixed value, addr *ret)
 {
 	addr numer, denom;
 
@@ -680,7 +680,7 @@ static void div_rv_ratio(LocalRoot local,
 }
 
 static void div_rv_local(LocalRoot local,
-		int sign, addr left, bigtype value, addr *ret)
+		int sign, addr left, fixed value, addr *ret)
 {
 	addr numer, denom;
 
@@ -688,7 +688,7 @@ static void div_rv_local(LocalRoot local,
 	ratio_noreduction_local(local, ret, sign, numer, denom);
 }
 
-static void div_rv_common(LocalRoot local, int sign, addr left, bigtype value, addr *ret)
+static void div_rv_common(LocalRoot local, int sign, addr left, fixed value, addr *ret)
 {
 	LocalStack stack;
 	addr numer, denom;
@@ -702,7 +702,7 @@ static void div_rv_common(LocalRoot local, int sign, addr left, bigtype value, a
 int div_rf_ratio_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
@@ -744,7 +744,7 @@ int div_rf_ratio_local_(LocalRoot local, addr left, addr right, addr *ret)
 int div_rf_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
@@ -786,7 +786,7 @@ int div_rf_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 int div_rf_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_RATIO, "type left error");
@@ -879,7 +879,7 @@ static void ratio_sign_inverse_common(LocalRoot local, addr *ret, int sign, addr
 }
 
 static void div_vr_result(LocalRoot local,
-		bigtype value, addr right, addr *rnumer, addr *rdenom)
+		fixed value, addr right, addr *rnumer, addr *rdenom)
 {
 	addr left, numer, denom;
 
@@ -899,7 +899,7 @@ static void div_vr_result(LocalRoot local,
 }
 
 static void div_vr_ratio(LocalRoot local,
-		int sign, bigtype value, addr right, addr *ret)
+		int sign, fixed value, addr right, addr *ret)
 {
 	addr numer, denom;
 
@@ -908,7 +908,7 @@ static void div_vr_ratio(LocalRoot local,
 }
 
 static void div_vr_local(LocalRoot local,
-		int sign, bigtype value, addr right, addr *ret)
+		int sign, fixed value, addr right, addr *ret)
 {
 	addr numer, denom;
 
@@ -917,7 +917,7 @@ static void div_vr_local(LocalRoot local,
 }
 
 static void div_vr_common(LocalRoot local,
-		int sign, bigtype value, addr right, addr *ret)
+		int sign, fixed value, addr right, addr *ret)
 {
 	addr numer, denom;
 	LocalStack stack;
@@ -931,7 +931,7 @@ static void div_vr_common(LocalRoot local,
 int div_fr_ratio_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
@@ -973,7 +973,7 @@ int div_fr_ratio_local_(LocalRoot local, addr left, addr right, addr *ret)
 int div_fr_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
@@ -1015,7 +1015,7 @@ int div_fr_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 int div_fr_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
@@ -1655,7 +1655,7 @@ int div_rr_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 int div_ff_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value1, value2;
+	fixed value1, value2;
 	LocalStack stack;
 
 	Check(local == NULL, "local error");
@@ -1701,7 +1701,7 @@ int div_ff_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 int div_ff_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value1, value2;
+	fixed value1, value2;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
@@ -1744,7 +1744,7 @@ int div_ff_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 int div_fb_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value1;
+	fixed value1;
 	LocalStack stack;
 
 	Check(local == NULL, "local error");
@@ -1788,7 +1788,7 @@ int div_fb_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 int div_fb_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value1;
+	fixed value1;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
@@ -1829,7 +1829,7 @@ int div_fb_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 int div_bf_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value2;
+	fixed value2;
 	LocalStack stack;
 
 	Check(local == NULL, "local error");
@@ -1876,7 +1876,7 @@ int div_bf_real_common_(LocalRoot local, addr left, addr right, addr *ret)
 int div_bf_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign1, sign2;
-	bigtype value2;
+	fixed value2;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
@@ -2009,7 +2009,7 @@ int div_bb_real_local_(LocalRoot local, addr left, addr right, addr *ret)
 int inverse_fixnum_ratio_local_(LocalRoot local, addr pos, addr *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 
 	CheckType(pos, LISPTYPE_FIXNUM);
 	castfixed_fixnum(pos, &sign, &value);
@@ -2063,7 +2063,7 @@ int inverse_ratio_local_(LocalRoot local, addr pos, addr *ret)
 int inverse_fixnum_common_(addr left, addr *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 
 	castfixed_fixnum(left, &sign, &value);
 	if (value == 0) {

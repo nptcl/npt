@@ -54,7 +54,7 @@ int oddp_bignum(addr pos)
 int equal_fb_real(addr left, addr right)
 {
 	int sign1, sign2;
-	bigtype check1, check2;
+	fixed check1, check2;
 	fixnum value;
 	addr root;
 
@@ -77,7 +77,7 @@ int equal_bb_real(addr left, addr right)
 {
 	addr root;
 	size_t size1, size2;
-	bigtype check1, check2;
+	fixed check1, check2;
 
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
@@ -116,7 +116,7 @@ int equal_nosign_bignum(addr left, addr right)
 	return bigcmp(PtrDataBignum(left), PtrDataBignum(right), size1) == 0;
 }
 
-int equal_value_nosign_bignum(addr left, bigtype value)
+int equal_value_nosign_bignum(addr left, fixed value)
 {
 	if (RefSizeBignum(left) != 1)
 		return 0;
@@ -124,11 +124,11 @@ int equal_value_nosign_bignum(addr left, bigtype value)
 	return PtrDataBignum(left)[0] == value;
 }
 
-int equal_value_bignum(addr left, int sign1, bigtype value1)
+int equal_value_bignum(addr left, int sign1, fixed value1)
 {
 	int sign2;
 	addr root;
-	bigtype value2;
+	fixed value2;
 
 	if (RefSizeBignum(left) != 1)
 		return 0;
@@ -143,10 +143,10 @@ int equal_value_bignum(addr left, int sign1, bigtype value1)
 	return value1 == value2;
 }
 
-int equal_value2_nosign_bignum(addr left, bigtype high, bigtype low)
+int equal_value2_nosign_bignum(addr left, fixed high, fixed low)
 {
 	addr root;
-	bigtype *data;
+	fixed *data;
 
 	if (high == 0)
 		return equal_value_nosign_bignum(left, low);
@@ -157,11 +157,11 @@ int equal_value2_nosign_bignum(addr left, bigtype high, bigtype low)
 	return data[0] == low && data[1] == high;
 }
 
-int equal_value2_bignum(addr left, int sign1, bigtype high, bigtype low)
+int equal_value2_bignum(addr left, int sign1, fixed high, fixed low)
 {
 	int sign2;
 	addr root;
-	bigtype *data;
+	fixed *data;
 
 	if (high == 0)
 		return equal_value_bignum(left, sign1, low);
@@ -179,7 +179,7 @@ int equal_value2_bignum(addr left, int sign1, bigtype high, bigtype low)
 /*
  *  compare
  */
-static int compare_bigtype(int sign1, bigtype check1, int sign2, bigtype check2)
+static int compare_fixed(int sign1, fixed check1, int sign2, fixed check2)
 {
 	if (check1 == 0 && check2 == 0)
 		return 0;
@@ -204,7 +204,7 @@ static int compare_bigtype(int sign1, bigtype check1, int sign2, bigtype check2)
 int compare_value_bignum(fixnum left, addr right)
 {
 	int sign1, sign2;
-	bigtype check1, check2;
+	fixed check1, check2;
 
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
 	if (1 < RefSizeBignum(right))
@@ -215,7 +215,7 @@ int compare_value_bignum(fixnum left, addr right)
 	GetRootBignum(right, &right);
 	check2 = PtrDataBignum(right)[0];
 
-	return compare_bigtype(sign1, check1, sign2, check2);
+	return compare_fixed(sign1, check1, sign2, check2);
 }
 
 int compare_bignum_value(addr value, fixnum right)
@@ -226,7 +226,7 @@ int compare_bignum_value(addr value, fixnum right)
 int compare_fb_real(addr left, addr right)
 {
 	int sign1, sign2;
-	bigtype check1, check2;
+	fixed check1, check2;
 
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_BIGNUM, "type right error");
@@ -238,7 +238,7 @@ int compare_fb_real(addr left, addr right)
 	GetRootBignum(right, &right);
 	check2 = PtrDataBignum(right)[0];
 
-	return compare_bigtype(sign1, check1, sign2, check2);
+	return compare_fixed(sign1, check1, sign2, check2);
 }
 
 int compare_bf_real(addr left, addr right)
@@ -351,13 +351,13 @@ int fixnum_unsigned_byte_p(addr value, size_t size)
 	if (BIGNUM_FULLBIT <= size)
 		return 1;
 
-	return ((bigtype)check) < (1ULL << ((bigtype)size));
+	return ((fixed)check) < (1ULL << ((fixed)size));
 }
 
 int bignum_unsigned_byte_p(addr value, size_t size)
 {
 	addr root;
-	bigtype *data, left, right;
+	fixed *data, left, right;
 	size_t m, n;
 
 	Check(size == 0, "unsigned-byte error");
@@ -375,7 +375,7 @@ int bignum_unsigned_byte_p(addr value, size_t size)
 	GetRootDataBignum(value, &root, &data);
 	left = data[n];
 	m = size % BIGNUM_FULLBIT;
-	right = (bigtype)(1ULL << m);
+	right = (fixed)(1ULL << m);
 
 	return left < right;
 }
@@ -388,17 +388,17 @@ int fixnum_signed_byte_p(addr value, size_t size)
 	if (BIGNUM_FULLBIT <= size)
 		return 1;
 	GetFixnum(value, &check);
-	size = 1ULL << ((bigtype)(size - 1ULL));
+	size = 1ULL << ((fixed)(size - 1ULL));
 	if (0 <= check)
-		return ((bigtype)check) < size;
+		return ((fixed)check) < size;
 	else
-		return ((bigtype)-check) <= size;
+		return ((fixed)-check) <= size;
 }
 
 int bignum_signed_byte_p(addr value, size_t size)
 {
 	addr root;
-	bigtype *data, left, right;
+	fixed *data, left, right;
 	size_t m, n;
 
 	Check(size == 0, "signed-byte error");
@@ -420,7 +420,7 @@ int bignum_signed_byte_p(addr value, size_t size)
 	GetRootDataBignum(value, &root, &data);
 	left = data[n];
 	m = size % BIGNUM_FULLBIT;
-	right = (bigtype)(1ULL << m);
+	right = (fixed)(1ULL << m);
 	if (left < right)
 		return 1;
 	if (right < left)

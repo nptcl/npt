@@ -879,7 +879,7 @@ static int test_typep_fixnum(void)
 	test(typep_char(v, "fixnum"), "typep_fixnum7");
 	bignum_value_heap(&v, signminus_bignum, FIXNUM_UMIN + 1UL);
 	test(! typep_char(v, "fixnum"), "typep_fixnum8");
-	bignum_value_heap(&v, signplus_bignum, ((bigtype)FIXNUM_MAX) + 1UL);
+	bignum_value_heap(&v, signplus_bignum, ((fixed)FIXNUM_MAX) + 1UL);
 	test(! typep_char(v, "fixnum"), "typep_fixnum9");
 
 	bignum_value2_heap(&v, signplus_bignum, 1, 1);
@@ -911,7 +911,7 @@ static int test_typep_bignum(void)
 	test(! typep_char(v, "bignum"), "typep_bignum7");
 	bignum_value_heap(&v, signminus_bignum, FIXNUM_UMIN + 1UL);
 	test(typep_char(v, "bignum"), "typep_bignum8");
-	bignum_value_heap(&v, signplus_bignum, ((bigtype)FIXNUM_MAX) + 1UL);
+	bignum_value_heap(&v, signplus_bignum, ((fixed)FIXNUM_MAX) + 1UL);
 	test(typep_char(v, "bignum"), "typep_bignum9");
 
 	bignum_value2_heap(&v, signplus_bignum, 1, 1);

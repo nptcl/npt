@@ -29,7 +29,7 @@
 
 struct bigbuffer {
 	size_t count;
-	bigtype buffer[BIGCONS_SIZE];
+	fixed buffer[BIGCONS_SIZE];
 };
 
 struct bigcons_struct {

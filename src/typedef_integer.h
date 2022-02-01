@@ -31,8 +31,7 @@ typedef uint32_t fixed;
 #define PRIXF PRIX32
 #endif
 
-typedef fixed bigtype;
-#define FIXNUM_UMIN			((bigtype)FIXNUM_MIN)
+#define FIXNUM_UMIN			((fixed)FIXNUM_MIN)
 
 #endif
 

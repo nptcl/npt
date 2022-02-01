@@ -7,7 +7,7 @@
 #include "character.h"
 #include "condition.h"
 
-static void bigbuffer_local(LocalRoot local, addr *ret, bigtype value)
+static void bigbuffer_local(LocalRoot local, addr *ret, fixed value)
 {
 	addr pos;
 	struct bigbuffer *ptr;
@@ -52,7 +52,7 @@ void clear_bigcons(addr cons)
 }
 
 static void carrynext(LocalRoot local,
-		addr cons, addr root, size_t len, bigtype carry)
+		addr cons, addr root, size_t len, fixed carry)
 {
 	addr next;
 	struct bigbuffer *ptr;
@@ -80,9 +80,9 @@ static void carrynext(LocalRoot local,
 	}
 }
 
-static void plus_bigcons(LocalRoot local, addr cons, bigtype carry)
+static void plus_bigcons(LocalRoot local, addr cons, fixed carry)
 {
-	bigtype *buffer;
+	fixed *buffer;
 	addr root, prev, next;
 	size_t i, len;
 	struct bigbuffer *ptr;
@@ -110,9 +110,9 @@ static void plus_bigcons(LocalRoot local, addr cons, bigtype carry)
 	carrynext(local, cons, prev, len, carry);
 }
 
-static void multi_bigcons(LocalRoot local, addr cons, bigtype value)
+static void multi_bigcons(LocalRoot local, addr cons, fixed value)
 {
-	bigtype carry, *buffer;
+	fixed carry, *buffer;
 	addr root, prev, next;
 	size_t i, len;
 	struct bigbuffer *ptr;
@@ -152,12 +152,12 @@ void push_bigcons(LocalRoot local, addr cons, unsigned base, unsigned digit)
 		GetRootBigcons(cons, &root);
 		buffer = StructBigbuffer(root)->buffer;
 		if (buffer[0] == 0) {
-			buffer[0] = (bigtype)digit;
+			buffer[0] = (fixed)digit;
 			return;
 		}
 	}
-	multi_bigcons(local, cons, (bigtype)base);
-	plus_bigcons(local, cons, (bigtype)digit);
+	multi_bigcons(local, cons, (fixed)base);
+	plus_bigcons(local, cons, (fixed)digit);
 }
 
 static int getnumber(unsigned base, int c, unsigned *ret)

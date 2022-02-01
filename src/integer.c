@@ -475,7 +475,7 @@ int evenp_integer_(addr left, int *ret)
 void make_index_integer_alloc(LocalRoot local, addr *ret, size_t value)
 {
 	size_t i, count;
-	bigtype *data;
+	fixed *data;
 
 	if (value <= FIXNUM_MAX) {
 		fixnum_alloc(local, ret, (fixnum)value);
@@ -513,7 +513,7 @@ void make_indexmax_alloc(LocalRoot local, addr *ret)
 	bignum_value_alloc(local, ret, signplus_bignum, (fixed)SIZE_MAX);
 #else
 	size_t size, i, count;
-	bigtype *data;
+	fixed *data;
 
 	size = SIZE_MAX;
 	count = SIZE_MAX / BIGNUM_FULL;
@@ -559,7 +559,7 @@ static int getindex_integer_bignum(addr pos, size_t *ret)
 {
 	int sign;
 	size_t size, i, value;
-	bigtype *data;
+	fixed *data;
 
 	GetSignBignum(pos, &sign);
 	if (IsMinus(sign))
@@ -583,7 +583,7 @@ static int getindex_integer_bignum(addr pos, size_t *ret)
 static int getindex_integer_bignum(addr pos, size_t *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 	size_t size;
 
 	GetSignBignum(pos, &sign);
@@ -657,7 +657,7 @@ addr reference_index_integer_heap(size_t value)
 	return reference_index_integer_alloc(NULL, value);
 }
 
-static int cast_bigtype_index(bigtype value, size_t *ret)
+static int cast_fixed_index(fixed value, size_t *ret)
 {
 #if (BIGNUM_FULL < SIZE_MAX)
 	*ret = (size_t)value;
@@ -679,13 +679,13 @@ static int cast_fixnum_index_(addr pos, int *sign, size_t *value, int *ret)
 
 	CheckType(pos, LISPTYPE_FIXNUM);
 	castfixed_fixnum(pos, sign, &body);
-	*ret = cast_bigtype_index(body, value);
+	*ret = cast_fixed_index(body, value);
 	return 0;
 }
 
 static int cast_bignum_index_(addr pos, int *sign, size_t *value, int *ret)
 {
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
@@ -696,7 +696,7 @@ static int cast_bignum_index_(addr pos, int *sign, size_t *value, int *ret)
 		return 0;
 	}
 	GetDataBignum(pos, &data);
-	*ret = cast_bigtype_index(data[0], value);
+	*ret = cast_fixed_index(data[0], value);
 	return 0;
 }
 

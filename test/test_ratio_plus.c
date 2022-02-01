@@ -25,7 +25,7 @@ static int test_sign_reverse_ratio_inplace(void)
 }
 
 static void test_ratio_alloc(LocalRoot local,
-		addr *ret, int sign, bigtype v1, bigtype v2)
+		addr *ret, int sign, fixed v1, fixed v2)
 {
 	addr numer, denom;
 	bignum_value_alloc(local, &numer, SignPlus, v1);

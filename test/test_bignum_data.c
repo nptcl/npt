@@ -9,7 +9,7 @@
  */
 static int test_multinumber1(void)
 {
-	bigtype a, b;
+	fixed a, b;
 
 	a = 10; b = 0;
 	multinumber(&a, &b);
@@ -36,7 +36,7 @@ static int test_multinumber1(void)
 
 static int test_multinumber2(void)
 {
-	bigtype a, b;
+	fixed a, b;
 
 	a = 4; b = 8;
 	multinumber(&a, &b);
@@ -108,7 +108,7 @@ static int test_multinumber2(void)
 
 static int test_plusnumber(void)
 {
-	bigtype a, b;
+	fixed a, b;
 
 	a = 10; b = 20;
 	plusnumber(&a, &b);
@@ -184,7 +184,7 @@ static int test_plusnumber(void)
 
 static int test_plusnumber3(void)
 {
-	bigtype a, b, r;
+	fixed a, b, r;
 
 	r = 0xFF; a = 10; b = 20;
 	plusnumber3(&r, a, &b);
@@ -260,7 +260,7 @@ static int test_plusnumber3(void)
 
 static int test_pluscarry(void)
 {
-	bigtype a, b, c;
+	fixed a, b, c;
 
 	a = 10, b = 20, c = 0;
 	pluscarry(&a, b, &c);
@@ -360,7 +360,7 @@ static int test_pluscarry(void)
 
 static int test_pluscarry4(void)
 {
-	bigtype r, a, b, c;
+	fixed r, a, b, c;
 
 	r = 0xAA;
 	a = 10, b = 20, c = 0;
@@ -473,7 +473,7 @@ static int test_pluscarry4(void)
 
 static int test_multicarry(void)
 {
-	bigtype a, b, c;
+	fixed a, b, c;
 
 	a = 0x0F; b = 0x02; c = 0;
 	multicarry(&a, b, &c);
@@ -566,7 +566,7 @@ static int test_multicarry(void)
 
 static int test_multicarry_bigdata(void)
 {
-	bigtype a, b, c;
+	fixed a, b, c;
 
 	a = 0x0F; b = 0x02; c = 0;
 	multicarry_bigdata(&a, b, &c);
@@ -583,7 +583,7 @@ static int test_multicarry_bigdata(void)
 
 static int test_multicarry4(void)
 {
-	bigtype r, c;
+	fixed r, c;
 
 	r = c = 10;
 	multicarry4(&r, 20ULL, 30ULL, &c);
@@ -603,7 +603,7 @@ static int test_equal_bigdata(void)
 	addr left, right, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -638,7 +638,7 @@ static int test_compare_bigdata(void)
 	addr left, right, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -701,7 +701,7 @@ static int test_compare_bigdata(void)
  */
 static int test_minusnumber(void)
 {
-	bigtype a, b;
+	fixed a, b;
 
 	a = 10; b = 4;
 	minusnumber(&a, &b);
@@ -723,7 +723,7 @@ static int test_minusnumber(void)
 
 static int test_minusnumber3(void)
 {
-	bigtype r, a, b;
+	fixed r, a, b;
 
 	r = 0xAA; a = 10; b = 4;
 	minusnumber3(&r, a, &b);
@@ -745,7 +745,7 @@ static int test_minusnumber3(void)
 
 static int test_minuscarry(void)
 {
-	bigtype a, b, c;
+	fixed a, b, c;
 
 	a = 33; b = 20; c = 0;
 	minuscarry(&a, b, &c);
@@ -792,7 +792,7 @@ static int test_minuscarry(void)
 
 static int test_minuscarry4(void)
 {
-	bigtype r, a, b, c;
+	fixed r, a, b, c;
 
 	r = 0xAA; a = 33; b = 20; c = 0;
 	minuscarry4(&r, a, b, &c);
@@ -840,7 +840,7 @@ static int test_minuscarry4(void)
 static int test_TailCopy(void)
 {
 	size_t i;
-	bigtype array[20], data[20];
+	fixed array[20], data[20];
 
 	for (i = 0; i < 20; i++) {
 		array[i] = 0x10 + i;
@@ -864,7 +864,7 @@ static int test_setplusvalue_bigdata(void)
 	addr set, left, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -955,7 +955,7 @@ static int test_setminusvalue_bigdata(void)
 	addr set, left, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -1066,7 +1066,7 @@ static int test_plusloop(void)
 	addr set, left, right, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data, *data1, *data2;
+	fixed *data, *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -1134,7 +1134,7 @@ static int test_plus_bigdata_alloc(void)
 	addr pos, left, right, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data, *data1, *data2;
+	fixed *data, *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -1178,7 +1178,7 @@ static int test_letplus_noexpand_bigdata(void)
 	addr left, right, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -1229,7 +1229,7 @@ static int test_minus_bigdata_alloc(void)
 	addr pos, left, right, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data, *data1, *data2;
+	fixed *data, *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -1313,7 +1313,7 @@ static int test_minuscheck_bigdata_alloc(void)
 {
 	int check;
 	addr left, right, root;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -1374,7 +1374,7 @@ static int test_minuscheck_bigdata_alloc(void)
 static int test_setminus_noexpand(void)
 {
 	addr left, right, root;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -1534,7 +1534,7 @@ static int test_setmultivalue_bigdata(void)
 	addr pos, left, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -1576,7 +1576,7 @@ static int test_setmulti_bigdata(void)
 	addr pos, left, right, root;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype *data, *data1, *data2;
+	fixed *data, *data1, *data2;
 	size_t size;
 
 	local = Local_Thread;
@@ -1652,10 +1652,10 @@ static int test_multi_bigdata_alloc(void)
  *  division
  */
 static int divhalftest(
-		bigtype a1, bigtype a2, bigtype b,
-		bigtype q1, bigtype q2, bigtype r)
+		fixed a1, fixed a2, fixed b,
+		fixed q1, fixed q2, fixed r)
 {
-	bigtype c;
+	fixed c;
 	divhalf(&a1, &a2, b, &c);
 	return a1 == q1 && a2 == q2 && c == r;
 }
@@ -1683,7 +1683,7 @@ static int test_divhalf(void)
 
 static int test_getshiftvalue(void)
 {
-	bigtype a, b;
+	fixed a, b;
 
 	a = 1;
 	test(getshiftvalue(&a) == BIGNUM_FULLBIT - 1, "getshiftvalue1");
@@ -1702,10 +1702,10 @@ static int test_getshiftvalue(void)
 }
 
 static int divfulltest(
-		bigtype a1, bigtype a2, bigtype b,
-		bigtype q1, bigtype q2, bigtype r)
+		fixed a1, fixed a2, fixed b,
+		fixed q1, fixed q2, fixed r)
 {
-	bigtype c;
+	fixed c;
 	divfull(&a1, &a2, b, &c);
 	/*
 	   printf("%16lx\n", a1);
@@ -1788,10 +1788,10 @@ static int test_divfull(void)
 }
 
 static int divdoubletest(
-		bigtype a1, bigtype a2, bigtype b,
-		bigtype q1, bigtype q2, bigtype r)
+		fixed a1, fixed a2, fixed b,
+		fixed q1, fixed q2, fixed r)
 {
-	bigtype c;
+	fixed c;
 	divdouble(&a1, &a2, b, &c);
 	/*
 	   printf("%16lx\n", a1);
@@ -2169,7 +2169,7 @@ static int test_divdouble(void)
 static int test_divdouble_all(void)
 {
 #ifdef BIGNUM_CODE_8BIT
-	bigtype a1, a2, b, c, a, r, q;
+	fixed a1, a2, b, c, a, r, q;
 
 	for (a = 0; a <= 0xFFFF; a++) {
 		for (b = 1; b <= 0xFF; b++) {
@@ -2198,7 +2198,7 @@ static int test_divdouble_all(void)
 
 static int test_divcarry4_half(void)
 {
-	bigtype r, a, b, c;
+	fixed r, a, b, c;
 
 	a = 100;
 	b = 6;
@@ -2238,7 +2238,7 @@ static int test_divcarry4_half(void)
 
 static int test_divcarry4_full(void)
 {
-	bigtype r, a, b, c;
+	fixed r, a, b, c;
 
 	a = 100;
 	b = 30;
@@ -2906,7 +2906,7 @@ static int test_letdiv_half_bigdata(void)
 	addr pos, cons, check;
 	LocalRoot local;
 	LocalStack stack;
-	bigtype m;
+	fixed m;
 
 	local = Local_Thread;
 	push_local(local, &stack);

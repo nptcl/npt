@@ -1613,38 +1613,6 @@ static void defun_sysctl(void)
 }
 
 
-/* (defun extension (t) ...) -> t */
-static int syscall_extension(Execute ptr, addr var)
-{
-	return extension_syscode_(ptr, var);
-}
-
-static void type_syscall_extension(addr *ret)
-{
-	addr args, values;
-
-	GetTypeTable(&args, T);
-	typeargs_var1(&args, args);
-	GetTypeValues(&values, T);
-	type_compiled_heap(args, values, ret);
-}
-
-static void defun_extension(void)
-{
-	addr symbol, pos, type;
-
-	/* function */
-	GetConst(SYSTEM_EXTENSION, &symbol);
-	compiled_system(&pos, symbol);
-	setcompiled_var1(pos, p_defun_syscall_extension);
-	SetFunctionSymbol(symbol, pos);
-	/* type */
-	type_syscall_extension(&type);
-	settype_function(pos, type);
-	settype_function_symbol(symbol, type);
-}
-
-
 /* (defun terme (object &rest args) ...) -> (values &rest t) */
 static int syscall_terme(Execute ptr, addr var, addr args)
 {
@@ -1764,7 +1732,6 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var2, setf_memory_stream_p);
 	SetPointerSysCall(defun, dynamic, byte_integer);
 	SetPointerSysCall(defun, var1dynamic, sysctl);
-	SetPointerSysCall(defun, var1, extension);
 	SetPointerSysCall(defun, var1dynamic, terme);
 	SetPointerSysCall(defun, var1, fpclassify);
 }
@@ -1825,7 +1792,6 @@ void build_syscall_function(void)
 	defun_setf_memory_stream_p();
 	defun_byte_integer();
 	defun_sysctl();
-	defun_extension();
 	defun_terme();
 	defun_fpclassify();
 }

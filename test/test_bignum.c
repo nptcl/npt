@@ -41,7 +41,7 @@ static int test_realloc_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root, check;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -119,7 +119,7 @@ static int test_bignum_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -177,7 +177,7 @@ static int test_bignum_copy_nosign_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, right, root;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -210,7 +210,7 @@ static int test_bignum_copy_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, right, root;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -243,7 +243,7 @@ static int test_bignum_value_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -267,7 +267,7 @@ static int test_bignum_value2_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -292,7 +292,7 @@ static int test_bignum_zero_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -316,7 +316,7 @@ static int test_bignum_fixnum_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -341,7 +341,7 @@ static int test_bignum_fixnum_value_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -388,7 +388,7 @@ static int test_getfixed_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data, check;
+	fixed *data, check;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -420,7 +420,7 @@ static int test_reffixed_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -448,7 +448,7 @@ static int test_setfixed_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	local = Local_Thread;
@@ -505,7 +505,7 @@ static int test_sizepress_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -630,7 +630,7 @@ static int test_copy_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr left, right, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -665,7 +665,7 @@ static int test_copy_noexpand_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr left, right, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -700,7 +700,7 @@ static int test_setvalue_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -723,7 +723,7 @@ static int test_setzero_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -746,7 +746,7 @@ static int test_getbit_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -957,7 +957,7 @@ static int test_shiftup_bignum_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, check, cons;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -1009,7 +1009,7 @@ static int test_carryvalue_alloc(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -1117,7 +1117,7 @@ static int test_integer_fixed_alloc(void)
 	test(GetType(pos) == LISPTYPE_FIXNUM, "integer_fixed_alloc1");
 	test(RefFixnum(pos) == -10, "integer_fixed_alloc2");
 
-	integer_fixed_alloc(local, &pos, SignPlus, 1ULL + (bigtype)FIXNUM_MAX);
+	integer_fixed_alloc(local, &pos, SignPlus, 1ULL + (fixed)FIXNUM_MAX);
 	test(GetType(pos) == LISPTYPE_BIGNUM, "integer_fixed_alloc3");
 
 	rollback_local(local, stack);
@@ -1198,7 +1198,7 @@ static int test_HexToChar(void)
 	RETURN;
 }
 
-static int test_hexchar_bigtype(void)
+static int test_hexchar_fixed(void)
 {
 	char data[100], check[100], *ptr;
 	size_t size, i;
@@ -1215,18 +1215,18 @@ static int test_hexchar_bigtype(void)
 #endif
 	memset(data, 0xAA, 100);
 	memset(check, 0xAA, 100);
-	ptr = hexchar_bigtype(data, 0);
-	test(ptr == data + size, "hexchar_bigtype1");
+	ptr = hexchar_fixed(data, 0);
+	test(ptr == data + size, "hexchar_fixed1");
 	for (i = 0; i < size; i++) check[i] = '0';
-	test(memcmp(data, check, 100) == 0, "hexchar_bigtype2");
+	test(memcmp(data, check, 100) == 0, "hexchar_fixed2");
 
 	memset(data, 0xAA, 100);
 	memset(check, 0xAA, 100);
-	ptr = hexchar_bigtype(data, 0xAB);
+	ptr = hexchar_fixed(data, 0xAB);
 	for (i = 0; i < size; i++) check[i] = '0';
 	check[size - 2] = 'A';
 	check[size - 1] = 'B';
-	test(memcmp(data, check, 100) == 0, "hexchar_bigtype3");
+	test(memcmp(data, check, 100) == 0, "hexchar_fixed3");
 
 	RETURN;
 }
@@ -1793,7 +1793,7 @@ static int test_plusp_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -1824,7 +1824,7 @@ static int test_minusp_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -1855,7 +1855,7 @@ static int test_zerop_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2017,7 +2017,7 @@ static int test_equal_fb_real(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr left, right, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2067,7 +2067,7 @@ static int test_equal_bb_real(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr left, right, root;
-	bigtype *data1, *data2;
+	fixed *data1, *data2;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2151,25 +2151,25 @@ static int test_equal_nosign_bignum(void)
 	RETURN;
 }
 
-static int test_compare_bigtype(void)
+static int test_compare_fixed(void)
 {
-	test(compare_bigtype(SignPlus, 0, SignMinus, 0) == 0, "compare_bigtype1");
-	test(compare_bigtype(SignPlus, 0, SignPlus, 0) == 0, "compare_bigtype2");
+	test(compare_fixed(SignPlus, 0, SignMinus, 0) == 0, "compare_fixed1");
+	test(compare_fixed(SignPlus, 0, SignPlus, 0) == 0, "compare_fixed2");
 
-	test(compare_bigtype(SignPlus, 1, SignPlus, 1) == 0, "compare_bigtype3");
-	test(compare_bigtype(SignMinus, 1, SignMinus, 1) == 0, "compare_bigtype4");
-	test(compare_bigtype(SignPlus, 1, SignMinus, 1) > 0, "compare_bigtype5");
-	test(compare_bigtype(SignMinus, 1, SignPlus, 1) < 0, "compare_bigtype6");
+	test(compare_fixed(SignPlus, 1, SignPlus, 1) == 0, "compare_fixed3");
+	test(compare_fixed(SignMinus, 1, SignMinus, 1) == 0, "compare_fixed4");
+	test(compare_fixed(SignPlus, 1, SignMinus, 1) > 0, "compare_fixed5");
+	test(compare_fixed(SignMinus, 1, SignPlus, 1) < 0, "compare_fixed6");
 
-	test(compare_bigtype(SignPlus, 10, SignPlus, 20) < 0, "compare_bigtype7");
-	test(compare_bigtype(SignMinus, 10, SignPlus, 20) < 0, "compare_bigtype8");
-	test(compare_bigtype(SignPlus, 10, SignMinus, 20) > 0, "compare_bigtype9");
-	test(compare_bigtype(SignMinus, 10, SignMinus, 20) > 0, "compare_bigtype10");
+	test(compare_fixed(SignPlus, 10, SignPlus, 20) < 0, "compare_fixed7");
+	test(compare_fixed(SignMinus, 10, SignPlus, 20) < 0, "compare_fixed8");
+	test(compare_fixed(SignPlus, 10, SignMinus, 20) > 0, "compare_fixed9");
+	test(compare_fixed(SignMinus, 10, SignMinus, 20) > 0, "compare_fixed10");
 
-	test(compare_bigtype(SignPlus, 30, SignPlus, 20) > 0, "compare_bigtype11");
-	test(compare_bigtype(SignMinus, 30, SignPlus, 20) < 0, "compare_bigtype12");
-	test(compare_bigtype(SignPlus, 30, SignMinus, 20) > 0, "compare_bigtype13");
-	test(compare_bigtype(SignMinus, 30, SignMinus, 20) < 0, "compare_bigtype14");
+	test(compare_fixed(SignPlus, 30, SignPlus, 20) > 0, "compare_fixed11");
+	test(compare_fixed(SignMinus, 30, SignPlus, 20) < 0, "compare_fixed12");
+	test(compare_fixed(SignPlus, 30, SignMinus, 20) > 0, "compare_fixed13");
+	test(compare_fixed(SignMinus, 30, SignMinus, 20) < 0, "compare_fixed14");
 
 	RETURN;
 }
@@ -2179,7 +2179,7 @@ static int test_compare_value_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr right, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2210,7 +2210,7 @@ static int test_compare_bignum_value(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr left, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2241,7 +2241,7 @@ static int test_compare_fb_real(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr left, right, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2274,7 +2274,7 @@ static int test_compare_bf_real(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr left, right, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2366,7 +2366,7 @@ static int test_equal_value_nosign_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2398,7 +2398,7 @@ static int test_equal_value_bignum(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -2923,7 +2923,7 @@ static int test_GetFixnum_bignum(void)
 	test(GetFixnum_bignum(pos, &value) == 0, "GetFixnum_bignum6");
 	test(value == FIXNUM_MAX, "GetFixnum_bignum7");
 
-	bignum_value_local(local, &pos, SignPlus, ((bigtype)FIXNUM_MAX) + 1UL);
+	bignum_value_local(local, &pos, SignPlus, ((fixed)FIXNUM_MAX) + 1UL);
 	test(GetFixnum_bignum(pos, &value), "GetFixnum_bignum8");
 
 	bignum_value_local(local, &pos, SignMinus, FIXNUM_UMIN);
@@ -2977,7 +2977,7 @@ static int test_plusvalue(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -3016,7 +3016,7 @@ static int test_minusvalue(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -3057,7 +3057,7 @@ static int test_minusvalue(void)
 static int test_plus_vv_bignum_local(void)
 {
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -3108,7 +3108,7 @@ static int test_plus_vv_bignum_local(void)
 static int test_plus_vv_real_local(void)
 {
 	addr pos;
-	bigtype *data;
+	fixed *data;
 	LocalRoot local;
 	LocalStack stack;
 
@@ -3158,7 +3158,7 @@ static int test_plus_vv_real_local(void)
 static int test_plus_vv_real_common(void)
 {
 	addr pos;
-	bigtype *data;
+	fixed *data;
 
 	plus_vv_real_common(10, 20, &pos);
 	test(GetType(pos) == LISPTYPE_FIXNUM, "plus_vv_real_common1");
@@ -3405,7 +3405,7 @@ static int test_plusfixnum_bignum_local(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -3439,7 +3439,7 @@ static int test_plusfixnum_real_local(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -3473,7 +3473,7 @@ static int test_plusfixnum_real_common(void)
 	LocalRoot local;
 	LocalStack stack;
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -3978,7 +3978,7 @@ static int test_minus_vv_bignum_local(void)
 
 	minus_vv_bignum_local(local, FIXNUM_MAX, -1, &pos);
 	test(bignump(pos), "minus_vv_bignum_local6");
-	test(equal_value_bignum(pos, SignPlus, ((bigtype)FIXNUM_MAX) + 1UL),
+	test(equal_value_bignum(pos, SignPlus, ((fixed)FIXNUM_MAX) + 1UL),
 			"minus_vv_bignum_local7");
 
 	minus_vv_bignum_local(local, FIXNUM_MIN, 1, &pos);
@@ -3988,12 +3988,12 @@ static int test_minus_vv_bignum_local(void)
 
 	minus_vv_bignum_local(local, FIXNUM_MIN, FIXNUM_MAX, &pos);
 	test(bignump(pos), "minus_vv_bignum_local10");
-	test(equal_value_bignum(pos, SignMinus, FIXNUM_UMIN + (bigtype)FIXNUM_MAX),
+	test(equal_value_bignum(pos, SignMinus, FIXNUM_UMIN + (fixed)FIXNUM_MAX),
 			"minus_vv_bignum_local11");
 
 	minus_vv_bignum_local(local, FIXNUM_MAX, FIXNUM_MIN, &pos);
 	test(bignump(pos), "minus_vv_bignum_local12");
-	test(equal_value_bignum(pos, SignPlus, FIXNUM_UMIN + (bigtype)FIXNUM_MAX),
+	test(equal_value_bignum(pos, SignPlus, FIXNUM_UMIN + (fixed)FIXNUM_MAX),
 			"minus_vv_bignum_local13");
 
 	rollback_local(local, stack);
@@ -4022,7 +4022,7 @@ static int test_minus_vv_real_local(void)
 
 	minus_vv_real_local(local, FIXNUM_MAX, -1, &pos);
 	test(bignump(pos), "minus_vv_real_local6");
-	test(equal_value_bignum(pos, SignPlus, ((bigtype)FIXNUM_MAX) + 1UL),
+	test(equal_value_bignum(pos, SignPlus, ((fixed)FIXNUM_MAX) + 1UL),
 			"minus_vv_real_local7");
 
 	minus_vv_real_local(local, FIXNUM_MIN, 1, &pos);
@@ -4032,12 +4032,12 @@ static int test_minus_vv_real_local(void)
 
 	minus_vv_real_local(local, FIXNUM_MIN, FIXNUM_MAX, &pos);
 	test(bignump(pos), "minus_vv_real_local10");
-	test(equal_value_bignum(pos, SignMinus, FIXNUM_UMIN + (bigtype)FIXNUM_MAX),
+	test(equal_value_bignum(pos, SignMinus, FIXNUM_UMIN + (fixed)FIXNUM_MAX),
 			"minus_vv_real_local11");
 
 	minus_vv_real_local(local, FIXNUM_MAX, FIXNUM_MIN, &pos);
 	test(bignump(pos), "minus_vv_real_local12");
-	test(equal_value_bignum(pos, SignPlus, FIXNUM_UMIN + (bigtype)FIXNUM_MAX),
+	test(equal_value_bignum(pos, SignPlus, FIXNUM_UMIN + (fixed)FIXNUM_MAX),
 			"minus_vv_real_local13");
 
 	rollback_local(local, stack);
@@ -4060,7 +4060,7 @@ static int test_minus_vv_real_common(void)
 
 	minus_vv_real_common(FIXNUM_MAX, -1, &pos);
 	test(bignump(pos), "minus_vv_real_common6");
-	test(equal_value_bignum(pos, SignPlus, ((bigtype)FIXNUM_MAX) + 1UL),
+	test(equal_value_bignum(pos, SignPlus, ((fixed)FIXNUM_MAX) + 1UL),
 			"minus_vv_real_common7");
 
 	minus_vv_real_common(FIXNUM_MIN, 1, &pos);
@@ -4070,12 +4070,12 @@ static int test_minus_vv_real_common(void)
 
 	minus_vv_real_common(FIXNUM_MIN, FIXNUM_MAX, &pos);
 	test(bignump(pos), "minus_vv_real_common10");
-	test(equal_value_bignum(pos, SignMinus, FIXNUM_UMIN + (bigtype)FIXNUM_MAX),
+	test(equal_value_bignum(pos, SignMinus, FIXNUM_UMIN + (fixed)FIXNUM_MAX),
 			"minus_vv_real_common11");
 
 	minus_vv_real_common(FIXNUM_MAX, FIXNUM_MIN, &pos);
 	test(bignump(pos), "minus_vv_real_common12");
-	test(equal_value_bignum(pos, SignPlus, FIXNUM_UMIN + (bigtype)FIXNUM_MAX),
+	test(equal_value_bignum(pos, SignPlus, FIXNUM_UMIN + (fixed)FIXNUM_MAX),
 			"minus_vv_real_common13");
 
 	RETURN;
@@ -5761,7 +5761,7 @@ static int testcase_bignum(void)
 	TestBreak(test_integer_copy_alloc);
 	/* float */
 	TestBreak(test_HexToChar);
-	TestBreak(test_hexchar_bigtype);
+	TestBreak(test_hexchar_fixed);
 	TestBreak(test_hexfraction_string);
 	TestBreak(test_expchar_make_float);
 	TestBreak(test_make_float_string);
@@ -5791,7 +5791,7 @@ static int testcase_bignum(void)
 	TestBreak(test_equal_fb_real);
 	TestBreak(test_equal_bb_real);
 	TestBreak(test_equal_nosign_bignum);
-	TestBreak(test_compare_bigtype);
+	TestBreak(test_compare_fixed);
 	TestBreak(test_compare_value_bignum);
 	TestBreak(test_compare_bignum_value);
 	TestBreak(test_compare_fb_real);

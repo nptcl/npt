@@ -83,25 +83,25 @@ void bytespec_mask_init(struct bytespec_mask *ptr, addr pos)
 	ptr->end = ptr->posend / BIGNUM_FULLBIT;
 }
 
-static bigtype bytespec_mask_start(size_t pos)
+static fixed bytespec_mask_start(size_t pos)
 {
 	size_t index;
 
 	index = pos % BIGNUM_FULLBIT;
 	if (index == BIGNUM_FULLBIT - 1ULL)
-		return ((bigtype)1ULL) << (BIGNUM_FULLBIT - 1ULL);
+		return ((fixed)1ULL) << (BIGNUM_FULLBIT - 1ULL);
 	else
 		return ~((1ULL << index) - 1ULL);
 }
 
-static bigtype bytespec_mask_end(size_t pos)
+static fixed bytespec_mask_end(size_t pos)
 {
 	return ~(bytespec_mask_start(pos));
 }
 
-bigtype bytespec_mask_get(struct bytespec_mask *ptr)
+fixed bytespec_mask_get(struct bytespec_mask *ptr)
 {
-	bigtype v1, v2;
+	fixed v1, v2;
 	size_t index, start, end, size, pos;
 
 	index = ptr->index++;

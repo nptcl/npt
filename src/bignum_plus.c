@@ -6,17 +6,17 @@
 #include "memory.h"
 #include "typedef.h"
 
-static void carryvalue_alloc(LocalRoot local, addr *ret, int sign, bigtype value)
+static void carryvalue_alloc(LocalRoot local, addr *ret, int sign, fixed value)
 {
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	Check(sign != SignPlus && sign != SignMinus, "sign error");
 	alloc_bignum(local, &pos, 2);
 	SetSignBignum(pos, sign);
 	SetSizeBignum(pos, 2);
 	GetRootDataBignum(pos, &root, &data);
-	data[0] = (bigtype)value;
+	data[0] = (fixed)value;
 	data[1] = 1;
 	*ret = pos;
 }
@@ -24,7 +24,7 @@ static void carryvalue_alloc(LocalRoot local, addr *ret, int sign, bigtype value
 /*****************************************************************************
   plus
  *****************************************************************************/
-static void plusvalue(LocalRoot local, addr left, bigtype value, addr *ret)
+static void plusvalue(LocalRoot local, addr left, fixed value, addr *ret)
 {
 	int sign;
 	size_t size;
@@ -41,7 +41,7 @@ static void plusvalue(LocalRoot local, addr left, bigtype value, addr *ret)
 	}
 }
 
-static void minusvalue(LocalRoot local, addr left, bigtype value, addr *ret)
+static void minusvalue(LocalRoot local, addr left, fixed value, addr *ret)
 {
 	int sign;
 	size_t size;
@@ -66,7 +66,7 @@ static inline void plus_vv_bignum_local(LocalRoot local,
 		fixnum v1, fixnum v2, addr *ret)
 {
 	int sign;
-	bigtype fixed1, fixed2;
+	fixed fixed1, fixed2;
 
 	if (plus_vv_overflow(v1, v2)) {
 		castfixed(v1, &sign, &fixed1);
@@ -86,7 +86,7 @@ static inline void plus_vv_bignum_local(LocalRoot local,
 static inline void plus_vv_real_alloc(LocalRoot local, fixnum v1, fixnum v2, addr *ret)
 {
 	int sign;
-	bigtype fixed1, fixed2;
+	fixed fixed1, fixed2;
 
 	if (plus_vv_overflow(v1, v2)) {
 		castfixed(v1, &sign, &fixed1);
@@ -222,7 +222,7 @@ static inline void plusfixnum_bignum_local(LocalRoot local,
 		addr left, fixnum right, addr *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	castfixed(right, &sign, &value);
@@ -530,7 +530,7 @@ void sigrev_bignum_inplace(addr pos)
 void sigrev_fixnum_bignum_local(LocalRoot local, addr left, addr *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type error");
@@ -579,7 +579,7 @@ static void inline sigrev_bignum_integer_alloc(LocalRoot local, addr left, addr 
 {
 	int sign;
 	addr root;
-	bigtype *data, value;
+	fixed *data, value;
 
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type error");
 	GetSignBignum(left, &sign);
@@ -625,7 +625,7 @@ static inline void minus_vv_bignum_local(LocalRoot local,
 		fixnum v1, fixnum v2, addr *ret)
 {
 	int sign;
-	bigtype fixed1, fixed2;
+	fixed fixed1, fixed2;
 
 	if (minus_vv_overflow(v1, v2)) {
 		castfixed(v2, &sign, &fixed2);
@@ -642,7 +642,7 @@ static inline void minus_vv_real_alloc(LocalRoot local,
 		fixnum v1, fixnum v2, addr *ret)
 {
 	int sign;
-	bigtype fixed1, fixed2;
+	fixed fixed1, fixed2;
 
 	if (minus_vv_overflow(v1, v2)) {
 		castfixed(v2, &sign, &fixed2);
@@ -718,7 +718,7 @@ static inline void minusfixnum_local(LocalRoot local,
 		addr left, fixnum right, addr *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	castfixed(right, &sign, &value);

@@ -40,9 +40,6 @@ enum LISPTYPE {
 	LISPTYPE_BYTESPEC,
 	LISPTYPE_FORMAT,
 	LISPTYPE_LOAD_TIME_VALUE,
-#ifdef LISP_EXTENSION
-#include "ext_include_type.h"
-#endif
 	LISPTYPE_COMPILE, /* for faslwrite */
 
 	LISPSYSTEM_CONSTANT,

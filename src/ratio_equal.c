@@ -11,7 +11,7 @@
 #include "real_equal.h"
 #include "typedef.h"
 
-int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom)
+int equal_value_nosign_ratio(addr pos, fixed numer, fixed denom)
 {
 	addr pos1, pos2;
 
@@ -22,7 +22,7 @@ int equal_value_nosign_ratio(addr pos, bigtype numer, bigtype denom)
 		&& equal_value_nosign_bignum(pos2, denom);
 }
 
-int equal_value_ratio(addr pos, int sign, bigtype numer, bigtype denom)
+int equal_value_ratio(addr pos, int sign, fixed numer, fixed denom)
 {
 	CheckType(pos, LISPTYPE_RATIO);
 	return (RefSignRatio(pos) == sign)
@@ -33,7 +33,7 @@ int equal_fr_real(addr left, addr right)
 {
 	int sign;
 	addr pos;
-	bigtype value;
+	fixed value;
 
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
@@ -267,9 +267,9 @@ int equal_rl_real_(LocalRoot local, addr left, addr right, int *ret)
 	return Result(ret, check);
 }
 
-static int compare_bigtype_bignum(bigtype left, addr right)
+static int compare_fixed_bignum(fixed left, addr right)
 {
-	bigtype value;
+	fixed value;
 
 	if (1 < RefSizeBignum(right))
 		return -1;
@@ -283,7 +283,7 @@ static int compare_bigtype_bignum(bigtype left, addr right)
 	return 0;
 }
 
-static int compare_bigtype_ratio_nosign(LocalRoot local, bigtype left, addr right)
+static int compare_fixed_ratio_nosign(LocalRoot local, fixed left, addr right)
 {
 	int result;
 	addr numer, pos;
@@ -294,7 +294,7 @@ static int compare_bigtype_ratio_nosign(LocalRoot local, bigtype left, addr righ
 	GetNumerRatio(right, &numer);
 	GetDenomRatio(right, &right);
 	if (equal_value_nosign_bignum(right, 1))
-		return compare_bigtype_bignum(left, numer);
+		return compare_fixed_bignum(left, numer);
 
 	/* compare */
 	push_local(local, &stack);
@@ -312,7 +312,7 @@ static int compare_bigtype_ratio_nosign(LocalRoot local, bigtype left, addr righ
 int compare_fr_real(LocalRoot local, addr left, addr right)
 {
 	int sign1, sign2, result;
-	bigtype value;
+	fixed value;
 
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
 	Check(GetType(right) != LISPTYPE_RATIO, "type right error");
@@ -332,7 +332,7 @@ int compare_fr_real(LocalRoot local, addr left, addr right)
 		return 1;
 	if (IsMinus(sign1) && IsPlus(sign2))
 		return -1;
-	result = compare_bigtype_ratio_nosign(local, value, right);
+	result = compare_fixed_ratio_nosign(local, value, right);
 
 	return IsPlus(sign1)? result: -result;
 }

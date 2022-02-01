@@ -23,7 +23,7 @@ union boole_fixnumfixed {
 struct boole_struct {
 	unsigned sign : 1;
 	unsigned carry : 1;
-	bigtype *data, v, temp;
+	fixed *data, v, temp;
 	size_t size, index;
 	addr pos;
 };
@@ -39,7 +39,7 @@ static void boole_struct_fixnum(struct boole_struct *ptr, addr pos)
 	ptr->sign = sign;
 	ptr->carry = sign;
 	ptr->data = &(ptr->temp);
-	ptr->v = sign? ~((bigtype)0): 0;
+	ptr->v = sign? ~((fixed)0): 0;
 	ptr->size = 1;
 	ptr->index = 0;
 	ptr->pos = pos;
@@ -49,7 +49,7 @@ static void boole_struct_bignum(struct boole_struct *ptr, addr pos)
 {
 	int check;
 	unsigned sign;
-	bigtype *data;
+	fixed *data;
 	size_t size;
 
 	CheckType(pos, LISPTYPE_BIGNUM);
@@ -61,7 +61,7 @@ static void boole_struct_bignum(struct boole_struct *ptr, addr pos)
 	ptr->carry = sign;
 	ptr->data = data;
 	ptr->temp = 0;
-	ptr->v = sign? ~((bigtype)0): 0;
+	ptr->v = sign? ~((fixed)0): 0;
 	ptr->size = size;
 	ptr->index = 0;
 	ptr->pos = pos;
@@ -88,10 +88,10 @@ static int boole_struct_integer_(struct boole_struct *ptr, addr pos)
 static int boole_struct_sign(
 		struct boole_struct *a,
 		struct boole_struct *b,
-		bigtype (*call)(bigtype, bigtype))
+		fixed (*call)(fixed, fixed))
 {
-	bigtype v1 = a->sign? a->v: 0;
-	bigtype v2 = b->sign? b->v: 0;
+	fixed v1 = a->sign? a->v: 0;
+	fixed v2 = b->sign? b->v: 0;
 	return (*call)(v1, v2)? SignMinus: SignPlus;
 }
 
@@ -99,7 +99,7 @@ static void boole_struct_alloc(LocalRoot local,
 		struct boole_struct *a,
 		struct boole_struct *b,
 		struct boole_struct *c,
-		bigtype (*call)(bigtype, bigtype))
+		fixed (*call)(fixed, fixed))
 {
 	int sign;
 	size_t size;
@@ -113,9 +113,9 @@ static void boole_struct_alloc(LocalRoot local,
 	boole_struct_bignum(c, pos);
 }
 
-static bigtype boole_struct_get(struct boole_struct *ptr)
+static fixed boole_struct_get(struct boole_struct *ptr)
 {
-	bigtype v;
+	fixed v;
 
 	/* out of range */
 	if (ptr->size <= ptr->index)
@@ -135,7 +135,7 @@ static bigtype boole_struct_get(struct boole_struct *ptr)
 	return (~v) + 1ULL;
 }
 
-static void boole_struct_set(struct boole_struct *ptr, bigtype v)
+static void boole_struct_set(struct boole_struct *ptr, fixed v)
 {
 	Check(ptr->size <= ptr->index, "size error");
 	ptr->data[ptr->index++] = v;
@@ -144,7 +144,7 @@ static void boole_struct_set(struct boole_struct *ptr, bigtype v)
 static void boole_struct_result(struct boole_struct *ptr)
 {
 	addr pos;
-	bigtype v;
+	fixed v;
 	size_t size, i;
 	struct boole_struct boole1, boole2;
 
@@ -169,9 +169,9 @@ static void boole_call2_common(
 		struct boole_struct *boole1,
 		struct boole_struct *boole2,
 		struct boole_struct *boole3,
-		bigtype (*call)(bigtype, bigtype))
+		fixed (*call)(fixed, fixed))
 {
-	bigtype x, y;
+	fixed x, y;
 	size_t i, size;
 
 	size = boole3->size;
@@ -183,7 +183,7 @@ static void boole_call2_common(
 }
 
 static int boole_call_bignum_(LocalRoot local, addr a, addr b, addr *ret,
-		bigtype (*call)(bigtype, bigtype))
+		fixed (*call)(fixed, fixed))
 {
 	struct boole_struct boole1, boole2, boole3;
 	LocalStack stack;
@@ -201,7 +201,7 @@ static int boole_call_bignum_(LocalRoot local, addr a, addr b, addr *ret,
 }
 
 static void boole_call_fixnum(LocalRoot local, addr a, addr b, addr *ret,
-		bigtype (*call)(bigtype, bigtype))
+		fixed (*call)(fixed, fixed))
 {
 	union boole_fixnumfixed x, y;
 
@@ -224,7 +224,7 @@ static int boole_fixnum_p(addr a, addr b)
 }
 
 static int boole_call_common_(LocalRoot local, addr a, addr b, addr *ret,
-		bigtype (*call)(bigtype, bigtype))
+		fixed (*call)(fixed, fixed))
 {
 	if (boole_fixnum_p(a, b)) {
 		boole_call_fixnum(local, a, b, ret, call);
@@ -264,7 +264,7 @@ static int logcall_common_(LocalRoot local, addr args, addr *ret,
 /*
  *  logand
  */
-static bigtype boole_call_and(bigtype a, bigtype b)
+static fixed boole_call_and(fixed a, fixed b)
 {
 	return a & b;
 }
@@ -283,7 +283,7 @@ int logand_common_(LocalRoot local, addr args, addr *ret)
 /*
  *  logandc1
  */
-static bigtype boole_call_andc1(bigtype a, bigtype b)
+static fixed boole_call_andc1(fixed a, fixed b)
 {
 	return (~a) & b;
 }
@@ -299,7 +299,7 @@ int logandc1_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  logandc2
  */
-static bigtype boole_call_andc2(bigtype a, bigtype b)
+static fixed boole_call_andc2(fixed a, fixed b)
 {
 	return a & (~b);
 }
@@ -315,7 +315,7 @@ int logandc2_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  logeqv
  */
-static bigtype boole_call_eqv(bigtype a, bigtype b)
+static fixed boole_call_eqv(fixed a, fixed b)
 {
 	return ~(a ^ b);
 }
@@ -334,7 +334,7 @@ int logeqv_common_(LocalRoot local, addr args, addr *ret)
 /*
  *  logior
  */
-static bigtype boole_call_ior(bigtype a, bigtype b)
+static fixed boole_call_ior(fixed a, fixed b)
 {
 	return a | b;
 }
@@ -353,7 +353,7 @@ int logior_common_(LocalRoot local, addr args, addr *ret)
 /*
  *  lognand
  */
-static bigtype boole_call_nand(bigtype a, bigtype b)
+static fixed boole_call_nand(fixed a, fixed b)
 {
 	return ~(a & b);
 }
@@ -369,7 +369,7 @@ int lognand_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  lognor
  */
-static bigtype boole_call_nor(bigtype a, bigtype b)
+static fixed boole_call_nor(fixed a, fixed b)
 {
 	return ~(a | b);
 }
@@ -406,7 +406,7 @@ static int boole_c2_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  logorc1
  */
-static bigtype boole_call_orc1(bigtype a, bigtype b)
+static fixed boole_call_orc1(fixed a, fixed b)
 {
 	return (~a) | b;
 }
@@ -422,7 +422,7 @@ int logorc1_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  logorc2
  */
-static bigtype boole_call_orc2(bigtype a, bigtype b)
+static fixed boole_call_orc2(fixed a, fixed b)
 {
 	return a | (~b);
 }
@@ -438,7 +438,7 @@ int logorc2_common_(LocalRoot local, addr a, addr b, addr *ret)
 /*
  *  logxor
  */
-static bigtype boole_call_xor(bigtype a, bigtype b)
+static fixed boole_call_xor(fixed a, fixed b)
 {
 	return a ^ b;
 }
@@ -516,7 +516,7 @@ static int logbitp_fixnum(addr index, addr pos)
 static int logbitp_plus(addr pos, size_t size)
 {
 	size_t m, n;
-	bigtype *data;
+	fixed *data;
 
 	n = size / BIGNUM_FULLBIT;
 	m = size % BIGNUM_FULLBIT;
@@ -527,7 +527,7 @@ static int logbitp_plus(addr pos, size_t size)
 static int logbitp_minus(addr pos, size_t size)
 {
 	size_t m, n, i;
-	bigtype *data, v, carry;
+	fixed *data, v, carry;
 
 	n = size / BIGNUM_FULLBIT;
 	m = size % BIGNUM_FULLBIT;
@@ -583,7 +583,7 @@ int logbitp_common_(addr index, addr pos, int *ret)
 /*
  *  logcount
  */
-static size_t logcount_bigtype(bigtype v, unsigned sign)
+static size_t logcount_fixed(fixed v, unsigned sign)
 {
 	size_t count;
 
@@ -603,13 +603,13 @@ static size_t logcount_fixnum(addr pos)
 
 	CheckType(pos, LISPTYPE_FIXNUM);
 	GetFixnum(pos, &(u.sign));
-	return logcount_bigtype(u.unsign, u.sign < 0);
+	return logcount_fixed(u.unsign, u.sign < 0);
 }
 
 static size_t logcount_bignum(addr pos)
 {
 	unsigned sign;
-	bigtype v;
+	fixed v;
 	size_t i, size, count;
 	struct boole_struct boole;
 
@@ -619,7 +619,7 @@ static size_t logcount_bignum(addr pos)
 	count = 0;
 	for (i = 0; i < size; i++) {
 		v = boole_struct_get(&boole);
-		count += logcount_bigtype(v, sign);
+		count += logcount_fixed(v, sign);
 	}
 
 	return count;
@@ -647,7 +647,7 @@ int logcount_common_(addr pos, size_t *ret)
 int logtest_common_(LocalRoot local, addr a, addr b, int *ret)
 {
 	struct boole_struct boole1, boole2;
-	bigtype x, y;
+	fixed x, y;
 	size_t size, i;
 
 	Return(boole_struct_integer_(&boole1, a));
@@ -729,7 +729,7 @@ static void deposit_field_copy(
 		struct bytespec_mask *mask,
 		size_t size)
 {
-	bigtype v1, v2, m1, m2;
+	fixed v1, v2, m1, m2;
 	size_t i;
 
 	for (i = 0; i < size; i++) {
@@ -773,7 +773,7 @@ int deposit_field_common_(LocalRoot local, addr *ret, addr a, addr spec, addr b)
 struct dpb_struct {
 	struct boole_struct boole;
 	size_t size, start, index, bit;
-	bigtype carry;
+	fixed carry;
 };
 
 static int dbp_struct_integer_(struct dpb_struct *ptr, addr pos, size_t shift)
@@ -811,9 +811,9 @@ static size_t dpb_maxsize(
 	return size1;
 }
 
-static bigtype dpb_struct_get(struct dpb_struct *ptr)
+static fixed dpb_struct_get(struct dpb_struct *ptr)
 {
-	bigtype v, carry;
+	fixed v, carry;
 	size_t index, bit;
 
 	index = ptr->index++;
@@ -845,7 +845,7 @@ static void dpb_copy(
 		struct bytespec_mask *mask,
 		size_t size)
 {
-	bigtype v1, v2, m1, m2;
+	fixed v1, v2, m1, m2;
 	size_t i;
 
 	for (i = 0; i < size; i++) {
@@ -890,12 +890,12 @@ int dpb_common_(LocalRoot local, addr *ret, addr a, addr spec, addr b)
 struct ldb_struct {
 	struct boole_struct boole;
 	size_t size, count, shift, start;
-	bigtype carry;
+	fixed carry;
 };
 
 static void boole_struct_front(struct boole_struct *ptr, size_t front)
 {
-	bigtype *data;
+	fixed *data;
 
 	/* out of range */
 	if (ptr->size <= ptr->index) {
@@ -979,9 +979,9 @@ static void ldb_struct_alloc(LocalRoot local, size_t count, addr *ret)
 	*ret = pos;
 }
 
-static bigtype ldb_struct_get(struct ldb_struct *ptr)
+static fixed ldb_struct_get(struct ldb_struct *ptr)
 {
-	bigtype v1, v2, v;
+	fixed v1, v2, v;
 	size_t shift;
 
 	v1 = ptr->carry;
@@ -1000,7 +1000,7 @@ int ldb_common_(LocalRoot local, addr *ret, addr spec, addr pos)
 	LocalStack stack;
 	struct ldb_struct str;
 	size_t size, count, i;
-	bigtype *data, v, m;
+	fixed *data, v, m;
 
 	CheckLocalType(local, spec, LISPTYPE_BYTESPEC);
 	Return(ldb_struct_integer_(&str, pos, spec));
@@ -1091,7 +1091,7 @@ int ldb_test_common_(addr spec, addr pos, int *ret)
 {
 	struct ldb_struct str;
 	size_t size, count, i;
-	bigtype v, m;
+	fixed v, m;
 
 	CheckType(spec, LISPTYPE_BYTESPEC);
 	Return(ldb_struct_integer_(&str, pos, spec));
@@ -1145,8 +1145,8 @@ static void mask_field_copy(
 		addr pos,
 		size_t size)
 {
-	bigtype v, m;
-	bigtype *data;
+	fixed v, m;
+	fixed *data;
 	size_t i;
 
 	GetDataBignum(pos, &data);

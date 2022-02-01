@@ -37,7 +37,7 @@ void multi_ff_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 {
 	int sign;
 	fixnum value1, value2, value;
-	bigtype fixed1;
+	fixed fixed1;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_FIXNUM, "type left error");
@@ -309,7 +309,7 @@ void multi_bb_bignum_local(LocalRoot local, addr left, addr right, addr *ret)
 	addr root;
 	int sign1, sign2;
 	size_t size1, size2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
@@ -365,7 +365,7 @@ void multi_bb_real_local(LocalRoot local, addr left, addr right, addr *ret)
 	addr root;
 	int sign1, sign2;
 	size_t size1, size2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
@@ -421,7 +421,7 @@ void multi_bb_real_common(LocalRoot local, addr left, addr right, addr *ret)
 	addr root;
 	int sign1, sign2;
 	size_t size1, size2;
-	bigtype value;
+	fixed value;
 	LocalStack stack;
 
 	Check(local == NULL, "local error");
@@ -479,7 +479,7 @@ void multi_bb_nosign_bignum_local(LocalRoot local, addr left, addr right, addr *
 {
 	addr root;
 	size_t size1, size2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
@@ -525,7 +525,7 @@ void multi_bb_nosign_real_local(LocalRoot local, addr left, addr right, addr *re
 {
 	addr root;
 	size_t size1, size2;
-	bigtype value;
+	fixed value;
 
 	Check(local == NULL, "local error");
 	Check(GetType(left) != LISPTYPE_BIGNUM, "type left error");
@@ -571,7 +571,7 @@ void multi_bb_nosign_real_common(LocalRoot local, addr left, addr right, addr *r
 {
 	addr root;
 	size_t size1, size2;
-	bigtype value;
+	fixed value;
 	LocalStack stack;
 
 	Check(local == NULL, "local error");

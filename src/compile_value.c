@@ -555,7 +555,7 @@ int faslwrite_value_bignum_(Execute ptr, addr stream, addr pos)
 	Return(faslwrite_size_(stream, size));
 	/* data */
 	GetDataBignum(pos, &data);
-	Return(faslwrite_buffer_(stream, data, sizeoft(bigtype) * size));
+	Return(faslwrite_buffer_(stream, data, sizeoft(fixed) * size));
 
 	return 0;
 }
@@ -575,7 +575,7 @@ int faslread_value_bignum_(Execute ptr, addr stream, addr *ret)
 	bignum_heap(&pos, (sign != 0), size);
 	SetSizeBignum(pos, size);
 	GetDataBignum(pos, &data);
-	Return(faslread_buffer_(stream, data, sizeoft(bigtype) * size));
+	Return(faslread_buffer_(stream, data, sizeoft(fixed) * size));
 	/* result */
 	faslread_status_update(pos, status);
 

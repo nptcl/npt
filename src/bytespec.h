@@ -35,7 +35,7 @@ struct bytespec_mask {
 	size_t start, end;
 };
 void bytespec_mask_init(struct bytespec_mask *ptr, addr pos);
-bigtype bytespec_mask_get(struct bytespec_mask *ptr);
+fixed bytespec_mask_get(struct bytespec_mask *ptr);
 size_t bytespec_mask_getsize(struct bytespec_mask *ptr);
 
 #endif

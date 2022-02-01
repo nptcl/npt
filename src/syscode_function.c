@@ -789,20 +789,6 @@ int sysctl_syscode_(Execute ptr, addr var, addr args)
 }
 
 
-/* extension */
-#ifdef LISP_EXTENSION
-#include "ext_eval.h"
-#endif
-int extension_syscode_(Execute ptr, addr var)
-{
-#ifdef LISP_EXTENSION
-	return lisps_eval_(ptr, var);
-#else
-	return fmte_("The implementation is not supported.", NULL);
-#endif
-}
-
-
 /* terme */
 int terme_syscode_(Execute ptr, addr var, addr args)
 {

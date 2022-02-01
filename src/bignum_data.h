@@ -99,16 +99,16 @@
 #define BIGCONS_SIZE        3
 #endif
 
-/* bigtype */
+/* fixed */
 #define PRIxB				PRIxF
 #define plussign_bignum(x)	((x)->sign == 0)
 #define minussign_bignum(x)	((x)->sign != 0)
 
 /* copy operator */
-#define bigcpy(x,y,z) memcpy((x), (y), sizeoft(bigtype) * (z))
-#define bigmove(x,y,z) memmove((x), (y), sizeoft(bigtype) * (z))
-#define bigset(x,y,z) memset((x), (y), sizeoft(bigtype) * (z))
-#define bigcmp(x,y,z) memcmp((x), (y), sizeoft(bigtype) * (z))
+#define bigcpy(x,y,z) memcpy((x), (y), sizeoft(fixed) * (z))
+#define bigmove(x,y,z) memmove((x), (y), sizeoft(fixed) * (z))
+#define bigset(x,y,z) memset((x), (y), sizeoft(fixed) * (z))
+#define bigcmp(x,y,z) memcmp((x), (y), sizeoft(fixed) * (z))
 
 #ifdef BIGNUM_CODE_8BIT
 #define CUTB(x)				(BIGNUM_FULL & (x))
@@ -133,8 +133,8 @@
 /*****************************************************************************
   declaration
  *****************************************************************************/
-void plusnumber_bigdata(bigtype *result, bigtype *carry);
-void multicarry_bigdata(bigtype *result, bigtype value, bigtype *carry);
+void plusnumber_bigdata(fixed *result, fixed *carry);
+void multicarry_bigdata(fixed *result, fixed value, fixed *carry);
 int equal_bigdata(addr left, addr right);
 int compare_bigdata(addr left, addr right);
 
@@ -151,7 +151,7 @@ int minuscheck_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
 int letminus_noexpand_bigdata(addr left, addr right);
 void multicarry_fixnum(LocalRoot local, fixnum left, fixnum right, addr *ret);
 void multicarry_bignum(LocalRoot local, fixnum left, fixnum right, addr *ret);
-void setmultivalue_bigdata(addr pos, addr left, bigtype right);
+void setmultivalue_bigdata(addr pos, addr left, fixed right);
 void setmulti_bigdata(addr pos, addr left, addr right);
 void multi_bigdata_alloc(LocalRoot local, addr left, addr right, addr *ret);
 
@@ -166,7 +166,7 @@ void shiftup_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
 void shiftdown_bigdata_alloc(LocalRoot local, addr *ret, addr left, size_t value);
 void shiftdown_minus_bigdata(LocalRoot local, addr *ret, addr left, size_t value);
 
-bigtype letdiv_half_bigdata(addr left, bigtype right);
+fixed letdiv_half_bigdata(addr left, fixed right);
 
 #endif
 

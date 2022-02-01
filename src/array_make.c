@@ -721,7 +721,7 @@ error:
 static int array_initial_unsigned64_(addr pos, addr value)
 {
 	fixnum init;
-	bigtype bigv;
+	fixed bigv;
 	size_t size;
 
 	if (! integerp(value))
@@ -756,7 +756,7 @@ error:
 static int array_initial_unsigned32_(addr pos, addr value)
 {
 	fixnum init;
-	bigtype bigv;
+	fixed bigv;
 	size_t size;
 
 	if (! integerp(value))

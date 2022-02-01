@@ -87,7 +87,7 @@
 
 (deftest most-positive-short-float-constant.3
   (fpclassify most-positive-short-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest most-positive-short-float-constant.4
   (values
@@ -111,7 +111,7 @@
 
 (deftest least-positive-short-float-constant.3
   (fpclassify least-positive-short-float)
-  lisp-system:fp-subnormal 1)
+  lisp-system::fp-subnormal 1)
 
 (deftest least-positive-short-float-constant.4
   (values
@@ -134,7 +134,7 @@
 
 (deftest least-positive-normalized-short-float-constant.3
   (fpclassify least-positive-normalized-short-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest least-positive-normalized-short-float-constant.4
   (values
@@ -158,7 +158,7 @@
 
 (deftest most-positive-single-float-constant.3
   (fpclassify most-positive-single-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest most-positive-single-float-constant.4
   (values
@@ -182,7 +182,7 @@
 
 (deftest least-positive-single-float-constant.3
   (fpclassify least-positive-single-float)
-  lisp-system:fp-subnormal 1)
+  lisp-system::fp-subnormal 1)
 
 (deftest least-positive-single-float-constant.4
   (values
@@ -205,7 +205,7 @@
 
 (deftest least-positive-normalized-single-float-constant.3
   (fpclassify least-positive-normalized-single-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest least-positive-normalized-single-float-constant.4
   (values
@@ -229,7 +229,7 @@
 
 (deftest most-positive-double-float-constant.3
   (fpclassify most-positive-double-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest most-positive-double-float-constant.4
   (values
@@ -253,7 +253,7 @@
 
 (deftest least-positive-double-float-constant.3
   (fpclassify least-positive-double-float)
-  lisp-system:fp-subnormal 1)
+  lisp-system::fp-subnormal 1)
 
 (deftest least-positive-double-float-constant.4
   (values
@@ -276,7 +276,7 @@
 
 (deftest least-positive-normalized-double-float-constant.3
   (fpclassify least-positive-normalized-double-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest least-positive-normalized-double-float-constant.4
   (values
@@ -300,7 +300,7 @@
 
 (deftest most-positive-long-float-constant.3
   (fpclassify most-positive-long-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest most-positive-long-float-constant.4
   (values
@@ -324,7 +324,7 @@
 
 (deftest least-positive-long-float-constant.3
   (fpclassify least-positive-long-float)
-  lisp-system:fp-subnormal 1)
+  lisp-system::fp-subnormal 1)
 
 (deftest least-positive-long-float-constant.4
   (values
@@ -347,7 +347,7 @@
 
 (deftest least-positive-normalized-long-float-constant.3
   (fpclassify least-positive-normalized-long-float)
-  lisp-system:fp-normal 1)
+  lisp-system::fp-normal 1)
 
 (deftest least-positive-normalized-long-float-constant.4
   (values
@@ -371,7 +371,7 @@
 
 (deftest most-negative-short-float-constant.3
   (fpclassify most-negative-short-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest most-negative-short-float-constant.4
   (values
@@ -395,7 +395,7 @@
 
 (deftest least-negative-short-float-constant.3
   (fpclassify least-negative-short-float)
-  lisp-system:fp-subnormal -1)
+  lisp-system::fp-subnormal -1)
 
 (deftest least-negative-short-float-constant.4
   (values
@@ -418,7 +418,7 @@
 
 (deftest least-negative-normalized-short-float-constant.3
   (fpclassify least-negative-normalized-short-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest least-negative-normalized-short-float-constant.4
   (values
@@ -442,7 +442,7 @@
 
 (deftest most-negative-single-float-constant.3
   (fpclassify most-negative-single-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest most-negative-single-float-constant.4
   (values
@@ -466,7 +466,7 @@
 
 (deftest least-negative-single-float-constant.3
   (fpclassify least-negative-single-float)
-  lisp-system:fp-subnormal -1)
+  lisp-system::fp-subnormal -1)
 
 (deftest least-negative-single-float-constant.4
   (values
@@ -489,7 +489,7 @@
 
 (deftest least-negative-normalized-single-float-constant.3
   (fpclassify least-negative-normalized-single-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest least-negative-normalized-single-float-constant.4
   (values
@@ -513,7 +513,7 @@
 
 (deftest most-negative-double-float-constant.3
   (fpclassify most-negative-double-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest most-negative-double-float-constant.4
   (values
@@ -537,7 +537,7 @@
 
 (deftest least-negative-double-float-constant.3
   (fpclassify least-negative-double-float)
-  lisp-system:fp-subnormal -1)
+  lisp-system::fp-subnormal -1)
 
 (deftest least-negative-double-float-cnostant.4
   (values
@@ -560,7 +560,7 @@
 
 (deftest least-negative-normalized-double-float-constant.3
   (fpclassify least-negative-normalized-double-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest least-negative-normalized-double-float-constant.4
   (values
@@ -584,7 +584,7 @@
 
 (deftest most-negative-long-float-constant.3
   (fpclassify most-negative-long-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest most-negative-long-float-constant.4
   (values
@@ -608,7 +608,7 @@
 
 (deftest least-negative-long-float-constant.3
   (fpclassify least-negative-long-float)
-  lisp-system:fp-subnormal -1)
+  lisp-system::fp-subnormal -1)
 
 (deftest least-negative-long-float-cnostant.4
   (values
@@ -631,7 +631,7 @@
 
 (deftest least-negative-normalized-long-float-constant.3
   (fpclassify least-negative-normalized-long-float)
-  lisp-system:fp-normal -1)
+  lisp-system::fp-normal -1)
 
 (deftest least-negative-normalized-long-float-cnostant.4
   (values

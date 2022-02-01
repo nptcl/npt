@@ -69,7 +69,7 @@ static void english_char(english input, char c)
 	english_string(input, value);
 }
 
-static void name_table_1(const char **a, const char **b, bigtype v)
+static void name_table_1(const char **a, const char **b, fixed v)
 {
 	static const char *table[][2] = {
 		{ NULL,       ""   },  /* 0 */
@@ -88,7 +88,7 @@ static void name_table_1(const char **a, const char **b, bigtype v)
 	*b = table[v][1];
 }
 
-static void name_table_10(const char **a, const char **b, bigtype v)
+static void name_table_10(const char **a, const char **b, fixed v)
 {
 	static const char *table[][2] = {
 		{ NULL,           ""   },  /* 0 */
@@ -107,7 +107,7 @@ static void name_table_10(const char **a, const char **b, bigtype v)
 	*b = table[v][1];
 }
 
-static void name_table_100(const char **a, const char **b, bigtype v)
+static void name_table_100(const char **a, const char **b, fixed v)
 {
 	static const char *table[][2] = {
 		{ NULL,           ""   },  /* 0 */
@@ -256,7 +256,7 @@ static void number_name_index(english input, fixnum quot)
 	}
 }
 
-static const char *radix_table_20(bigtype value, int cardinal)
+static const char *radix_table_20(fixed value, int cardinal)
 {
 	static const char *table[][2] = {
 		{ "zero",      "zeroth"      },
@@ -284,7 +284,7 @@ static const char *radix_table_20(bigtype value, int cardinal)
 	return table[value][cardinal == 0];
 }
 
-static const char *radix_table_100(bigtype value, int cardinal)
+static const char *radix_table_100(fixed value, int cardinal)
 {
 	static const char *table[][2] = {
 		{ NULL,      NULL         },
@@ -321,7 +321,7 @@ static void push_radix_list(english input, addr pos)
 	push_radix(input, pos);
 }
 
-static void push_radix_20(english input, bigtype value)
+static void push_radix_20(english input, fixed value)
 {
 	const char *ptr;
 
@@ -329,10 +329,10 @@ static void push_radix_20(english input, bigtype value)
 	push_radix_char(input, ptr);
 }
 
-static void push_radix_100(english input, bigtype c)
+static void push_radix_100(english input, fixed c)
 {
 	const char *ptr;
-	bigtype a, b;
+	fixed a, b;
 
 	Check(100 <= c, "value error");
 	if (c < 20) {
@@ -386,7 +386,7 @@ static void number_name_cardinal(english input)
 static void english_execute_loop(english input)
 {
 	addr pos;
-	bigtype b, c;
+	fixed b, c;
 
 	pos = input->pos;
 	c = letdiv_half_bigdata(pos, 100);
@@ -491,7 +491,7 @@ int english_integer_(LocalRoot local, addr stream, addr pos, int cardinal)
 {
 	int sign;
 	addr copy;
-	bigtype value;
+	fixed value;
 	LocalStack stack;
 
 	Check(local == NULL, "local error");

@@ -57,7 +57,6 @@
 #define memory_stream_p_syscode _n(memory_stream_p_syscode)
 #define setf_memory_stream_p_syscode_ _n(setf_memory_stream_p_syscode_)
 #define sysctl_syscode_ _n(sysctl_syscode_)
-#define extension_syscode_ _n(extension_syscode_)
 #define terme_syscode_ _n(terme_syscode_)
 #define fpclassify_syscode _n(fpclassify_syscode)
 
@@ -114,7 +113,6 @@ int byte_integer_syscode_(addr list, addr *ret);
 void memory_stream_p_syscode(addr var, addr *ret);
 int setf_memory_stream_p_syscode_(addr var, addr value);
 int sysctl_syscode_(Execute ptr, addr var, addr args);
-int extension_syscode_(Execute ptr, addr var);
 int terme_syscode_(Execute ptr, addr var, addr args);
 void fpclassify_syscode(addr var, addr *rtype, addr *rsign);
 

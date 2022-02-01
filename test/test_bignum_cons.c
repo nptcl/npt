@@ -8,7 +8,7 @@
 struct bbuffer_struct {
 	addr next;
 	size_t count;
-	bigtype *buffer;
+	fixed *buffer;
 };
 static struct bbuffer_struct bbuffer(addr pos)
 {
@@ -49,7 +49,7 @@ static int test_bigbuffer_local(void)
 struct bcons_struct {
 	size_t count, bcount;
 	addr root, bnext;
-	bigtype *bbuffer;
+	fixed *bbuffer;
 };
 static struct bcons_struct bcons(addr pos)
 {
@@ -160,7 +160,7 @@ static addr cons_root_next(addr pos)
 	GetNextBigbuffer(cons_root(pos), &pos);
 	return pos;
 }
-static bigtype *cons_root_buffer(addr pos)
+static fixed *cons_root_buffer(addr pos)
 {
 	return StructBigbuffer(cons_root(pos))->buffer;
 }
@@ -173,7 +173,7 @@ static void set_cons_root_next_count(addr pos, size_t count)
 {
 	StructBigbuffer(cons_root_next(pos))->count = count;
 }
-static bigtype *cons_root_next_buffer(addr pos)
+static fixed *cons_root_next_buffer(addr pos)
 {
 	return StructBigbuffer(cons_root_next(pos))->buffer;
 }

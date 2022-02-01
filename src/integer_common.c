@@ -69,7 +69,7 @@ int string_nosign_comma_integer_(LocalRoot local, addr *ret, addr pos,
 /*
  *  integer-length
  */
-static size_t integer_length_bigtype(bigtype value)
+static size_t integer_length_fixed(fixed value)
 {
 	size_t size;
 
@@ -79,30 +79,30 @@ static size_t integer_length_bigtype(bigtype value)
 	return size;
 }
 
-static size_t inverse_length_bigtype(bigtype value)
+static size_t inverse_length_fixed(fixed value)
 {
 	if (value <= 1)
 		return 0;
 	else
-		return integer_length_bigtype(value - 1);
+		return integer_length_fixed(value - 1);
 }
 
 static void integer_length_fixnum(addr pos, size_t *ret)
 {
 	int sign;
-	bigtype value;
+	fixed value;
 
 	castfixed_fixnum(pos, &sign, &value);
 	if (IsPlus(sign))
-		*ret = integer_length_bigtype(value);
+		*ret = integer_length_fixed(value);
 	else
-		*ret = inverse_length_bigtype(value);
+		*ret = inverse_length_fixed(value);
 }
 
 static size_t integer_length_bigdata(addr pos)
 {
 	size_t size, size1, size2;
-	bigtype *data;
+	fixed *data;
 
 	GetSizeBignum(pos, &size);
 	GetDataBignum(pos, &data);
@@ -110,7 +110,7 @@ static size_t integer_length_bigdata(addr pos)
 		return 0;
 	size--;
 	size1 = size * BIGNUM_FULLBIT;
-	size2 = integer_length_bigtype(data[size]);
+	size2 = integer_length_fixed(data[size]);
 
 	return size1 + size2;
 }
@@ -118,7 +118,7 @@ static size_t integer_length_bigdata(addr pos)
 static int check_length_bignum(addr pos)
 {
 	int sign;
-	bigtype *data;
+	fixed *data;
 	size_t size, i;
 
 	GetSignBignum(pos, &sign);

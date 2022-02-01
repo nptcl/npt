@@ -229,7 +229,7 @@ int arrayvalue_get_unsigned64_(struct array_value *str, addr x)
 {
 	int check;
 	fixnum init;
-	bigtype bigv;
+	fixed bigv;
 	size_t size;
 
 	if (! integerp(x))
@@ -261,7 +261,7 @@ int arrayvalue_get_unsigned32_(struct array_value *str, addr x)
 {
 	int check;
 	fixnum init;
-	bigtype bigv;
+	fixed bigv;
 	size_t size;
 
 	if (! integerp(x))

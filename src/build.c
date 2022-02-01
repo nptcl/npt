@@ -59,10 +59,6 @@
 #include "type.h"
 #include "type_table.h"
 
-#ifdef LISP_EXTENSION
-#include "ext_main.h"
-#endif
-
 #define DEFAULT_MEMORY		(320UL * 1024UL * 1024UL)
 #define DEFAULT_STACK		(160UL * 1024UL * 1024UL)
 
@@ -105,9 +101,6 @@ void initlisp(void)
 	init_syscall();
 	init_terme();
 	init_type();
-#ifdef LISP_EXTENSION
-	lisps_init_extension();
-#endif
 }
 
 static void clearlisp_force(void)
@@ -316,10 +309,6 @@ static void set_features(void)
 	push_features("THREAD");
 #endif
 #endif
-
-#ifdef LISP_EXTENSION
-	push_features("EXTENSION");
-#endif
 }
 
 static void set_pretty_printing(void)
@@ -357,9 +346,6 @@ void buildlisp(Execute ptr)
 	build_rt();
 	set_features();
 	set_pretty_printing();
-#ifdef LISP_EXTENSION
-	lisps_build_extension(ptr);
-#endif
 	gcexec(GcMode_Full);
 }
 

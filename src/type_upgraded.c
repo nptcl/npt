@@ -70,7 +70,7 @@ int upgraded_array0_equal(addr left, addr right)
 	return 1;
 }
 
-static int upgraded_array_unsigned(bigtype value)
+static int upgraded_array_unsigned(fixed value)
 {
 	if (value <= UINT8_MAX) return 8;
 	if (value <= UINT16_MAX) return 16;
@@ -82,7 +82,7 @@ static int upgraded_array_unsigned(bigtype value)
 #endif
 }
 
-static int upgraded_array_signed(int sign, bigtype value)
+static int upgraded_array_signed(int sign, fixed value)
 {
 	if (IsPlus(sign)) {
 		if (value <= INT8_MAX) return 8;
@@ -93,11 +93,11 @@ static int upgraded_array_signed(int sign, bigtype value)
 #endif
 	}
 	else {
-		if (value <= ((bigtype)INT8_MAX) + 1UL) return 8;
-		if (value <= ((bigtype)INT16_MAX) + 1UL) return 16;
-		if (value <= ((bigtype)INT32_MAX) + 1UL) return 32;
+		if (value <= ((fixed)INT8_MAX) + 1UL) return 8;
+		if (value <= ((fixed)INT16_MAX) + 1UL) return 16;
+		if (value <= ((fixed)INT32_MAX) + 1UL) return 32;
 #ifdef LISP_64BIT
-		if (value <= ((bigtype)INT64_MAX) + 1ULL) return 64;
+		if (value <= ((fixed)INT64_MAX) + 1ULL) return 64;
 #endif
 	}
 	return 0;
@@ -107,7 +107,7 @@ static enum ARRAY_TYPE upgraded_array_integer(addr type, int *size)
 {
 	int sign1, sign2, size1, size2;
 	addr left1, left2, right1, right2;
-	bigtype value1, value2;
+	fixed value1, value2;
 
 	/* asterisk check */
 	GetArrayType(type, 0, &left1);

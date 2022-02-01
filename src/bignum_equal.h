@@ -43,10 +43,10 @@ int equal_bb_real(addr left, addr right);
 int equal_nosign_bignum(addr left, addr right);
 int equal_fb_real(addr left, addr right);
 #define equal_bf_real(a,b) equal_fb_real((b), (a))
-int equal_value_nosign_bignum(addr left, bigtype value);
-int equal_value_bignum(addr left, int sign1, bigtype value);
-int equal_value2_nosign_bignum(addr left, bigtype high, bigtype low);
-int equal_value2_bignum(addr left, int sign1, bigtype high, bigtype low);
+int equal_value_nosign_bignum(addr left, fixed value);
+int equal_value_bignum(addr left, int sign1, fixed value);
+int equal_value2_nosign_bignum(addr left, fixed high, fixed low);
+int equal_value2_bignum(addr left, int sign1, fixed high, fixed low);
 
 int compare_value_bignum(fixnum left, addr right);
 int compare_bignum_value(addr value, fixnum right);

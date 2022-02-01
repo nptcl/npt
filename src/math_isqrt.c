@@ -11,7 +11,7 @@
 
 static void isqrt_shiftup(addr pos, unsigned shift)
 {
-	bigtype *data, x, carry;
+	fixed *data, x, carry;
 	size_t size, i;
 
 	GetSizeBignum(pos, &size);
@@ -31,21 +31,21 @@ static void isqrt_shiftup(addr pos, unsigned shift)
 
 static void isqrt_letbit2(addr pos, unsigned a, unsigned b)
 {
-	bigtype *data;
+	fixed *data;
 	GetDataBignum(pos, &data);
 	data[0] |= (a << 1) | b;
 }
 
 static void isqrt_letbit1(addr pos, unsigned a)
 {
-	bigtype *data;
+	fixed *data;
 	GetDataBignum(pos, &data);
 	data[0] |= a;
 }
 
 static void isqrt_letbit1_remove(addr pos)
 {
-	bigtype *data;
+	fixed *data;
 	GetDataBignum(pos, &data);
 	data[0] >>= 1;
 	data[0] <<= 1;
@@ -84,18 +84,18 @@ static void isqrt_loop(addr var, size_t size, addr x, addr y, addr z)
 static int isqrt_buffer_(addr var, addr x, addr y, addr z)
 {
 	unsigned a, b;
-	bigtype value;
+	fixed value;
 	size_t size;
 
 	Return(integer_length_value_(var, &size));
 	Check(size == 0, "size error");
 	if (size % 2) {
-		value = (bigtype)getbit_bignum(var, --size);
+		value = (fixed)getbit_bignum(var, --size);
 	}
 	else {
 		a = getbit_bignum(var, --size);
 		b = getbit_bignum(var, --size);
-		value = (bigtype)((a << 1) | b);
+		value = (fixed)((a << 1) | b);
 	}
 	setvalue_bignum(x, SignPlus, 1);
 	setvalue_bignum(y, SignPlus, 2); /* #b10 */

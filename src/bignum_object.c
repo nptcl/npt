@@ -144,7 +144,7 @@ void bignum_alloc(LocalRoot local, addr *ret, int sign, size_t size)
 
 static void bigconscopy(addr root, addr cons)
 {
-	bigtype *data;
+	fixed *data;
 	struct bigbuffer *str;
 	size_t i, count;
 
@@ -215,7 +215,7 @@ void bignum_value_alloc(LocalRoot local, addr *ret, int sign, fixed value)
 void bignum_value2_alloc(LocalRoot local, addr *ret, int sign, fixed high, fixed low)
 {
 	addr pos, root;
-	bigtype *data;
+	fixed *data;
 
 	if (high == 0) {
 		bignum_value_alloc(local, ret, sign, low);
@@ -246,7 +246,7 @@ void bignum_fixnum_alloc(LocalRoot local, addr *ret, addr pos)
 void bignum_fixnum_value_alloc(LocalRoot local, addr *ret, fixnum value)
 {
 	int sign;
-	bigtype result;
+	fixed result;
 	castfixed(value, &sign, &result);
 	bignum_value_alloc(local, ret, sign, result);
 }
@@ -396,7 +396,7 @@ void diet_bignum(LocalRoot local, addr pos)
 void sizepress_bignum(addr left)
 {
 	size_t size, i;
-	bigtype *data;
+	fixed *data;
 	struct bignuminfo *ptr;
 
 	ptr = StructBignum(left);
@@ -472,7 +472,7 @@ void copy_noexpand_bignum(addr left, addr right)
 	SetSizeBignum(left, size);
 }
 
-void setvalue_bignum(addr left, int sign, bigtype value)
+void setvalue_bignum(addr left, int sign, fixed value)
 {
 	Check(sign != SignPlus && sign != SignMinus, "sign error");
 	SetSignBignum(left, sign);
@@ -489,7 +489,7 @@ void setzero_bignum(addr left)
 int getbit_bignum(addr pos, size_t index)
 {
 	size_t count, front;
-	bigtype value;
+	fixed value;
 
 	Check(GetType(pos) != LISPTYPE_BIGNUM, "type error");
 	count = index / BIGNUM_FULLBIT;
@@ -500,14 +500,14 @@ int getbit_bignum(addr pos, size_t index)
 	return ((1ULL << front) & value)? 1: 0;
 }
 
-void incf_bignum(addr pos, bigtype value)
+void incf_bignum(addr pos, fixed value)
 {
 	int sign;
 	GetSignBignum(pos, &sign);
 	setplusvalue_bigdata(pos, pos, SignPlus, value);
 }
 
-void decf_bignum(addr pos, bigtype value)
+void decf_bignum(addr pos, fixed value)
 {
 	int sign;
 	GetSignBignum(pos, &sign);
@@ -521,7 +521,7 @@ void decf_bignum(addr pos, bigtype value)
 void bignum_result_alloc(LocalRoot local, addr pos, addr *ret)
 {
 	addr root;
-	bigtype *data, value;
+	fixed *data, value;
 
 	Check(GetType(pos) != LISPTYPE_BIGNUM, "type error");
 	if (RefSizeBignum(pos) != 1) {

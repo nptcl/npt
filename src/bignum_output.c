@@ -91,14 +91,14 @@ int output_nosign_index_(addr stream, size_t n, unsigned base, int upperp)
 int output_nosign_fixnum_(addr stream, fixnum value, unsigned base, int upperp)
 {
 	int sign;
-	bigtype m, n;
+	fixed m, n;
 	char buffer[FIXNUM_BUFFER_SIZE], *ptr, chara;
 
 	/* zero */
 	if (value == 0)
 		return write_char_stream_(stream, '0');
 
-	/* fixnum -> bigtype */
+	/* fixnum -> fixed */
 	castfixed(value, &sign, &n);
 
 	/* loop */
@@ -172,7 +172,7 @@ int output_nosign_bignum_(LocalRoot local,
 {
 	unicode u;
 	addr queue, error_character;
-	bigtype rem;
+	fixed rem;
 	size_t size;
 	LocalStack stack;
 
@@ -189,7 +189,7 @@ int output_nosign_bignum_(LocalRoot local,
 	charqueue_local(local, &queue, size);
 	bignum_copy_local(local, &pos, pos);
 	do {
-		rem = letdiv_half_bigdata(pos, (bigtype)base);
+		rem = letdiv_half_bigdata(pos, (fixed)base);
 		if (getchar_digit((unsigned)rem, upperp, &u)) {
 			character_heap(&error_character, u);
 			return fmte_("Invalid digit character ~S.", error_character, NULL);
@@ -211,7 +211,7 @@ int output_nosign_comma_fixnum_(LocalRoot local,
 		size_t range, unicode comma)
 {
 	int sign;
-	bigtype m, n;
+	fixed m, n;
 	unicode buffer[FIXNUM_BUFFER_DOUBLE_SIZE], *ptr, chara;
 	size_t index;
 
@@ -220,7 +220,7 @@ int output_nosign_comma_fixnum_(LocalRoot local,
 	if (value == 0)
 		return write_char_stream_(stream, '0');
 
-	/* fixnum -> bigtype */
+	/* fixnum -> fixed */
 	castfixed(value, &sign, &n);
 
 	/* loop */
@@ -247,7 +247,7 @@ int output_nosign_comma_bignum_(LocalRoot local,
 {
 	unicode u;
 	addr queue, error_character;
-	bigtype rem;
+	fixed rem;
 	size_t size, index;
 	LocalStack stack;
 
@@ -266,7 +266,7 @@ int output_nosign_comma_bignum_(LocalRoot local,
 	bignum_copy_local(local, &pos, pos);
 	index = 0;
 	do {
-		rem = letdiv_half_bigdata(pos, (bigtype)base);
+		rem = letdiv_half_bigdata(pos, (fixed)base);
 		if (getchar_digit((unsigned)rem, upperp, &u)) {
 			character_heap(&error_character, u);
 			return fmte_("Invalid digit character ~S.", error_character, NULL);

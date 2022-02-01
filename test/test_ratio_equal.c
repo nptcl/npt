@@ -572,12 +572,12 @@ static int test_equal_rl_real(void)
 	RETURN;
 }
 
-static int test_compare_bigtype_bignum(void)
+static int test_compare_fixed_bignum(void)
 {
 	LocalRoot local;
 	LocalStack stack;
 	addr pos;
-	bigtype *data;
+	fixed *data;
 
 	local = Local_Thread;
 	push_local(local, &stack);
@@ -587,18 +587,18 @@ static int test_compare_bigtype_bignum(void)
 	data[0] = 10;
 	data[1] = 0;
 	SetSizeBignum(pos, 2);
-	test(compare_bigtype_bignum(20, pos) < 0, "compare_bigtype_bignum1");
+	test(compare_fixed_bignum(20, pos) < 0, "compare_fixed_bignum1");
 	bignum_value_local(local, &pos, SignMinus, 10);
-	test(compare_bigtype_bignum(20, pos) > 0, "compare_bigtype_bignum2");
-	test(compare_bigtype_bignum(5, pos) < 0, "compare_bigtype_bignum3");
-	test(compare_bigtype_bignum(10, pos) == 0, "compare_bigtype_bignum4");
+	test(compare_fixed_bignum(20, pos) > 0, "compare_fixed_bignum2");
+	test(compare_fixed_bignum(5, pos) < 0, "compare_fixed_bignum3");
+	test(compare_fixed_bignum(10, pos) == 0, "compare_fixed_bignum4");
 
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_compare_bigtype_ratio_nosign(void)
+static int test_compare_fixed_ratio_nosign(void)
 {
 	int check;
 	LocalRoot local;
@@ -612,34 +612,34 @@ static int test_compare_bigtype_ratio_nosign(void)
 	bignum_value_local(local, &numer, SignPlus, 51);
 	bignum_value_local(local, &denom, SignPlus, 10);
 	make_ratio_reduction_local(local, &pos, SignMinus, numer, denom);
-	check = compare_bigtype_ratio_nosign(local, 0, pos);
-	test(check < 0, "compare_bigtype_ratio_nosign1");
+	check = compare_fixed_ratio_nosign(local, 0, pos);
+	test(check < 0, "compare_fixed_ratio_nosign1");
 
 	bignum_value_local(local, &numer, SignPlus, 0);
 	bignum_value_local(local, &denom, SignPlus, 1);
 	make_ratio_reduction_local(local, &pos, SignMinus, numer, denom);
-	check = compare_bigtype_ratio_nosign(local, 0, pos);
-	test(check == 0, "compare_bigtype_ratio_nosign2");
-	check = compare_bigtype_ratio_nosign(local, 10, pos);
-	test(check > 0, "compare_bigtype_ratio_nosign3");
+	check = compare_fixed_ratio_nosign(local, 0, pos);
+	test(check == 0, "compare_fixed_ratio_nosign2");
+	check = compare_fixed_ratio_nosign(local, 10, pos);
+	test(check > 0, "compare_fixed_ratio_nosign3");
 
 	bignum_value_local(local, &numer, SignPlus, 51);
 	bignum_value_local(local, &denom, SignPlus, 10);
 	ratio_reduction_nocopy_local(local, &pos, SignPlus, numer, denom);
-	check = compare_bigtype_ratio_nosign(local, 4, pos);
-	test(check < 0, "compare_bigtype_ratio_nosign4");
-	check = compare_bigtype_ratio_nosign(local, 5, pos);
-	test(check < 0, "compare_bigtype_ratio_nosign5");
-	check = compare_bigtype_ratio_nosign(local, 6, pos);
-	test(check > 0, "compare_bigtype_ratio_nosign6");
+	check = compare_fixed_ratio_nosign(local, 4, pos);
+	test(check < 0, "compare_fixed_ratio_nosign4");
+	check = compare_fixed_ratio_nosign(local, 5, pos);
+	test(check < 0, "compare_fixed_ratio_nosign5");
+	check = compare_fixed_ratio_nosign(local, 6, pos);
+	test(check > 0, "compare_fixed_ratio_nosign6");
 
 	SetSignRatio(pos, SignMinus);
-	check = compare_bigtype_ratio_nosign(local, 4, pos);
-	test(check < 0, "compare_bigtype_ratio_nosign7");
-	check = compare_bigtype_ratio_nosign(local, 5, pos);
-	test(check < 0, "compare_bigtype_ratio_nosign8");
-	check = compare_bigtype_ratio_nosign(local, 6, pos);
-	test(check > 0, "compare_bigtype_ratio_nosign9");
+	check = compare_fixed_ratio_nosign(local, 4, pos);
+	test(check < 0, "compare_fixed_ratio_nosign7");
+	check = compare_fixed_ratio_nosign(local, 5, pos);
+	test(check < 0, "compare_fixed_ratio_nosign8");
+	check = compare_fixed_ratio_nosign(local, 6, pos);
+	test(check > 0, "compare_fixed_ratio_nosign9");
 
 	rollback_local(local, stack);
 
@@ -1215,8 +1215,8 @@ static int testcase_ratio_equal(void)
 	TestBreak(test_equal_rs_real);
 	TestBreak(test_equal_rd_real);
 	TestBreak(test_equal_rl_real);
-	TestBreak(test_compare_bigtype_bignum);
-	TestBreak(test_compare_bigtype_ratio_nosign);
+	TestBreak(test_compare_fixed_bignum);
+	TestBreak(test_compare_fixed_ratio_nosign);
 	TestBreak(test_compare_fr_real);
 	TestBreak(test_compare_rf_real);
 	TestBreak(test_compare_bigdata_ratio_nosign);

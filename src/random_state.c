@@ -467,7 +467,7 @@ int random_state_integer_(addr pos, addr *ret)
 static int random_state_set_value_(LocalRoot local, addr pos, addr value)
 {
 	addr spec, ignore;
-	bigtype *data;
+	fixed *data;
 	struct random_state *str;
 	size_t size, i;
 
