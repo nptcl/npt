@@ -4,6 +4,7 @@
 #include <string.h>
 #include "compile_faslcode.h"
 #include "typedef_object.h"
+#include "version.h"
 
 typedef uint32_t unicode;
 typedef uint64_t size64;
@@ -145,7 +146,7 @@ int write_byte(uint8_t v)
 {
 	if (Output == NULL)
 		return 0;
-	return fputc((int)v, Output) != 1;
+	return fputc((int)v, Output) < 0;
 }
 int write_byte2(uint16_t v)
 {
@@ -328,7 +329,7 @@ int fasl_value(FILE *file);
 /* code */
 int fasl_code_operator_p(enum FaslCode code)
 {
-	return FaslCode_nop <= code && code < FaslCode_size;
+	return FaslCode_value < code && code < FaslCode_size;
 }
 
 int fasl_code_operator(FILE *file)
@@ -339,7 +340,7 @@ int fasl_code_operator(FILE *file)
 	if (pipe_faslcode(file, &code))
 		return 1;
 	if (! fasl_code_operator_p(code)) {
-		fprintf(stderr, "Invalid faslcode, %d.\n", (int)code);
+		fprintf(stderr, "Invalid code-operator, %d.\n", (int)code);
 		return 1;
 	}
 
@@ -713,6 +714,114 @@ int fasl_long_float(FILE *file)
 }
 
 
+/* complex */
+int fasl_complex(FILE *file)
+{
+	return pipe_status(file)
+		|| pipe_byte(file, NULL)  /* type */
+		|| fasl_value(file)       /* real */
+		|| fasl_value(file);      /* imag */
+}
+
+
+/* callname */
+int fasl_callname(FILE *file)
+{
+	return pipe_status(file)
+		|| pipe_byte(file, NULL)
+		|| fasl_value(file);
+}
+
+
+/* index */
+int fasl_index(FILE *file)
+{
+	return pipe_status(file)
+		|| pipe_size(file, NULL);
+}
+
+
+/* package */
+int fasl_package(FILE *file)
+{
+	return fasl_value(file);
+}
+
+
+/* random-state */
+int fasl_random_state(FILE *file)
+{
+	uint8_t data[16];  /* 128bit */
+	return pipe_status(file)
+		|| pipe_sequence(file, data, 16);
+}
+
+
+/* pathname */
+int fasl_pathname(FILE *file)
+{
+	return pipe_status(file)
+		|| pipe_byte(file, NULL)
+		|| fasl_value(file)   /* host */
+		|| fasl_value(file)   /* device */
+		|| fasl_value(file)   /* directory */
+		|| fasl_value(file)   /* name */
+		|| fasl_value(file)   /* type */
+		|| fasl_value(file);  /* version */
+}
+
+
+/* quote */
+int fasl_quote(FILE *file)
+{
+	return pipe_status(file)
+		|| pipe_byte(file, NULL)  /* type */
+		|| fasl_value(file)       /* value */
+		|| fasl_value(file);      /* print */
+}
+
+
+/* bitvector */
+int fasl_bitvector_loop(FILE *file, size64 fixed)
+{
+	uint32_t v32;
+	uint64_t v64;
+	size64 i;
+
+	if (Fixnum64) {
+		for (i = 0; i < fixed; i++) {
+			if (pipe_sequence(file, &v64, sizeof(v64)))
+				return 1;
+		}
+	}
+	else {
+		for (i = 0; i < fixed; i++) {
+			if (pipe_sequence(file, &v32, sizeof(v32)))
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
+int fasl_bitvector(FILE *file)
+{
+	size64 fixed;
+	return pipe_status(file)
+		|| pipe_size(file, NULL)    /* bitsize */
+		|| pipe_size(file, &fixed)  /* fixedsize */
+		|| fasl_bitvector_loop(file, fixed);
+}
+
+
+/* load-time-value */
+int fasl_load(FILE *file)
+{
+	return pipe_status(file)
+		|| pipe_size(file, NULL);
+}
+
+
 /* switch */
 int fasl_switch(FILE *file, enum FaslCode code)
 {
@@ -776,23 +885,38 @@ int fasl_switch(FILE *file, enum FaslCode code)
 			return fasl_long_float(file);
 
 		case FaslCode_complex:
+			return fasl_complex(file);
+
 		case FaslCode_callname:
+			return fasl_callname(file);
+
 		case FaslCode_index:
+			return fasl_index(file);
+
 		case FaslCode_package:
+			return fasl_package(file);
+
 		case FaslCode_random_state:
+			return fasl_random_state(file);
+
 		case FaslCode_pathname:
+			return fasl_pathname(file);
+
 		case FaslCode_quote:
+			return fasl_quote(file);
+
 		case FaslCode_bitvector:
+			return fasl_bitvector(file);
+
 		case FaslCode_load:
-		case FaslCode_value:
-			return 1; /* TODO */
+			return fasl_load(file);
 
 		case FaslCode_break:
 			break;
 
 		case FaslCode_error:
 		default:
-			fprintf(stderr, "Invalid FaslCode.\n");
+			fprintf(stderr, "Invalid FaslCode, %d.\n", (int)code);
 			return 1;
 	}
 
@@ -800,6 +924,22 @@ int fasl_switch(FILE *file, enum FaslCode code)
 }
 
 int fasl_value(FILE *file)
+{
+	enum FaslCode code;
+
+	if (read_faslcode(file, &code)) {
+		fprintf(stderr, "EOF error.\n");
+		return 1;
+	}
+	if (write_faslcode(code))
+		return 1;
+	if (fasl_switch(file, code))
+		return 1;
+
+	return 0;
+}
+
+int fasl_execute(FILE *file)
 {
 	enum FaslCode code;
 
@@ -834,13 +974,13 @@ int fasl_value(FILE *file)
  *  [0x1A] Padding  : 6byte
  *  [0x20] body...
  */
-uint8_t LispName[8];
-uint16_t Endian;
-uint16_t VersionA;
-uint16_t VersionB;
-uint16_t VersionC;
-uint8_t Arch;
-uint8_t Fixnum;
+uint8_t Head_LispName[8];
+uint16_t Head_Endian;
+uint16_t Head_VersionA;
+uint16_t Head_VersionB;
+uint16_t Head_VersionC;
+uint8_t Head_Arch;
+uint8_t Head_Fixnum;
 int Initialize;
 
 int read_header_magic(FILE *file)
@@ -864,10 +1004,10 @@ int read_header_lispname(FILE *file)
 	if (read_sequence(file, data, 8))
 		return 1;
 	if (Initialize == 0) {
-		memcpy(LispName, data, 8);
+		memcpy(Head_LispName, data, 8);
 		return 0;
 	}
-	if (memcmp(data, LispName, 8) != 0) {
+	if (memcmp(data, Head_LispName, 8) != 0) {
 		fprintf(stderr, "LispName error.\n");
 		return 1;
 	}
@@ -885,11 +1025,11 @@ int read_header_endian(FILE *file)
 	if (read_sequence(file, u.b, 2))
 		return 1;
 	if (Initialize == 0) {
-		memcpy(&Endian, u.b, 2);
-		BigEndian = (u.b[0] != 0);
+		memcpy(&Head_Endian, u.b, 2);
+		BigEndian = (u.b[1] != 0);
 		return 0;
 	}
-	if (memcmp(u.b, &Endian, 2) != 0) {
+	if (memcmp(u.b, &Head_Endian, 2) != 0) {
 		fprintf(stderr, "Endian error.\n");
 		return 1;
 	}
@@ -922,11 +1062,11 @@ int read_header_arch(FILE *file)
 	if (read_byte(file, &v))
 		return 1;
 	if (Initialize == 0) {
-		Arch = v;
+		Head_Arch = v;
 		Arch64 = (int)v;
 		return 0;
 	}
-	if (Arch != v) {
+	if (Head_Arch != v) {
 		fprintf(stderr, "Arch error.\n");
 		return 1;
 	}
@@ -941,11 +1081,11 @@ int read_header_fixnum(FILE *file)
 	if (read_byte(file, &v))
 		return 1;
 	if (Initialize == 0) {
-		Fixnum = v;
+		Head_Fixnum = v;
 		Fixnum64 = (int)v;
 		return 0;
 	}
-	if (Fixnum != v) {
+	if (Head_Fixnum != v) {
 		fprintf(stderr, "Fixnum error.\n");
 		return 1;
 	}
@@ -965,14 +1105,14 @@ int write_header(void)
 		return 0;
 
 	return write_sequence("\0\0\0\0FASL", 8)  /* Magic */
-		|| write_sequence(LispName, 8)        /* Name */
-		|| write_byte2(Endian)                /* Endian */
-		|| write_byte2(VersionA)              /* VersionA */
-		|| write_byte2(VersionB)              /* VersionB */
-		|| write_byte2(VersionC)              /* VersionC */
-		|| write_byte(Arch)                   /* Arch */
-		|| write_byte(Fixnum)                 /* Fixnum */
-		|| write_times(0x00, 6);              /* Padding */
+		|| write_sequence(Head_LispName, 8)   /* Name */
+		|| write_byte2(Head_Endian)           /* Endian */
+		|| write_byte2(Head_VersionA)         /* VersionA */
+		|| write_byte2(Head_VersionB)         /* VersionB */
+		|| write_byte2(Head_VersionC)         /* VersionC */
+		|| write_byte(Head_Arch)              /* Arch */
+		|| write_byte(Head_Fixnum)            /* Fixnum */
+		|| write_times(0xFF, 6);              /* Padding */
 }
 
 int read_header(FILE *file)
@@ -980,9 +1120,9 @@ int read_header(FILE *file)
 	return read_header_magic(file)
 		|| read_header_lispname(file)
 		|| read_header_endian(file)
-		|| read_header_version(file, &VersionA)
-		|| read_header_version(file, &VersionB)
-		|| read_header_version(file, &VersionC)
+		|| read_header_version(file, &Head_VersionA)
+		|| read_header_version(file, &Head_VersionB)
+		|| read_header_version(file, &Head_VersionC)
 		|| read_header_arch(file)
 		|| read_header_fixnum(file)
 		|| read_header_padding(file)
@@ -1011,16 +1151,16 @@ int read_footer(FILE *file)
 int read_input(FILE *file, const char *str)
 {
 	if (read_header(file)) {
-		fprintf(stderr, "Invalid file header, %s.", str);
+		fprintf(stderr, "Invalid file header, %s.\n", str);
 		return 1;
 	}
 	Initialize = 1;
-	if (fasl_value(file)) {
-		fprintf(stderr, "Fasl read error, %s.", str);
+	if (fasl_execute(file)) {
+		fprintf(stderr, "Fasl read error, %s.\n", str);
 		return 1;
 	}
 	if (read_footer(file)) {
-		fprintf(stderr, "Invalid file footer, %s.", str);
+		fprintf(stderr, "Invalid file footer, %s.\n", str);
 		return 1;
 	}
 
@@ -1046,12 +1186,12 @@ int main_pipe_file(const char *str)
 
 	file = fopen(str, "rb");
 	if (file == NULL) {
-		fprintf(stderr, "Cannot open file, %s.", str);
+		fprintf(stderr, "Cannot open file, %s.\n", str);
 		return 1;
 	}
 	check = read_input(file, str);
 	if (fclose(file)) {
-		fprintf(stderr, "Close error, %s.", str);
+		fprintf(stderr, "Close error, %s.\n", str);
 		return 1;
 	}
 
@@ -1115,13 +1255,27 @@ int main_stdout(int i)
 	return main_output(i);
 }
 
+int main_help(void)
+{
+	printf("faslcat -- concatenate fasl files for %s.\n", Lispname);
+	printf("\n");
+	printf("Usage: faslcat [-h] [-c] [-f OUTPUT] [--] [INPUT ...]\n");
+	printf("  -h      Help\n");
+	printf("  -c      Do not write output file. (check only)\n");
+	printf("  -f      Output file.\n");
+	printf("\n");
+	printf("Example:\n");
+	printf("  faslcat < input.fasl > output.fasl\n");
+	printf("  faslcat -f output.fasl input.fasl\n");
+	printf("  faslcat -f output.fasl x.fasl y.fasl z.fasl\n");
+
+	return 0;
+}
+
 int main(int argc, char *argv[])
 {
 	int i;
 	char *str;
-
-	fprintf(stderr, "TODO\n");
-	return 1;
 
 	Initialize = 0;
 	BigEndian = 0;
@@ -1137,7 +1291,17 @@ int main(int argc, char *argv[])
 	Option_input = 0;
 	Option_stdin = 0;
 	Option_fp = NULL;
-	i = 2;
+
+	/* help */
+	if (argc == 2) {
+		if (strcmp(argv[1], "-h") == 0)
+			return main_help();
+		if (strcmp(argv[1], "--help") == 0)
+			return main_help();
+	}
+
+	/* arguments */
+	i = 1;
 loop:
 	if (argc <= i)
 		goto finish;

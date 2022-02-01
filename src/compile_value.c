@@ -726,7 +726,7 @@ int faslwrite_value_complex_(Execute ptr, addr stream, addr pos)
 	addr value;
 
 	CheckType(pos, LISPTYPE_COMPLEX);
-	Return(faslwrite_type_(stream, FaslCode_complex));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_complex));
 	/* type */
 	type = GetTypeComplex(pos);
 	Return(faslwrite_byte_(stream, (byte)type));
@@ -742,9 +742,11 @@ int faslwrite_value_complex_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_complex_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	byte type;
 	addr real, imag, pos;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_byte_(stream, &type));
 	Return(faslread_value_(ptr, stream, &real));
 	Return(faslread_value_(ptr, stream, &imag));
@@ -752,6 +754,7 @@ int faslread_value_complex_(Execute ptr, addr stream, addr *ret)
 	make_complex_unsafe(NULL, &pos, (enum ComplexType)type);
 	SetRealComplex(pos, real);
 	SetImagComplex(pos, imag);
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -766,23 +769,28 @@ int faslwrite_value_callname_(Execute ptr, addr stream, addr pos)
 	addr value;
 
 	CheckType(pos, LISPTYPE_CALLNAME);
-	Return(faslwrite_type_(stream, FaslCode_callname));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_callname));
 	GetCallNameType(pos, &type);
 	GetCallName(pos, &value);
 	Return(faslwrite_byte_(stream, (byte)type));
-	return faslwrite_value_(ptr, stream, value);
+	Return(faslwrite_value_(ptr, stream, value));
+
+	return 0;
 }
 
 int faslread_value_callname_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	byte type;
-	addr value;
+	addr value, pos;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_byte_(stream, &type));
 	Return(faslread_value_(ptr, stream, &value));
-	callname_heap(ret, value, (CallNameType)type);
+	callname_heap(&pos, value, (CallNameType)type);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -794,7 +802,7 @@ int faslwrite_value_index_(Execute ptr, addr stream, addr pos)
 	size_t value;
 
 	CheckType(pos, LISPTYPE_INDEX);
-	Return(faslwrite_type_(stream, FaslCode_index));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_index));
 	GetIndex(pos, &value);
 	Return(faslwrite_size_(stream, value));
 
@@ -803,12 +811,16 @@ int faslwrite_value_index_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_index_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	size_t value;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &value));
-	index_heap(ret, value);
+	index_heap(&pos, value);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -847,7 +859,7 @@ int faslwrite_value_random_state_(Execute ptr, addr stream, addr pos)
 	struct random_state *str;
 
 	CheckType(pos, LISPTYPE_RANDOM_STATE);
-	Return(faslwrite_type_(stream, FaslCode_random_state));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_random_state));
 	str = struct_random_state(pos);
 	Return(faslwrite_buffer_(stream, str, sizeoft(struct random_state)));
 
@@ -856,12 +868,15 @@ int faslwrite_value_random_state_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_random_state_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos;
 	struct random_state *str;
 
+	Return(faslread_status_(stream, &status));
 	random_state_heap(&pos);
 	str = struct_random_state(pos);
 	Return(faslread_buffer_(stream, str, sizeoft(struct random_state)));
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -876,7 +891,7 @@ int faslwrite_value_pathname_(Execute ptr, addr stream, addr pos)
 	addr value;
 
 	CheckType(pos, LISPTYPE_PATHNAME);
-	Return(faslwrite_type_(stream, FaslCode_pathname));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_pathname));
 	/* type */
 	GetLogicalPathname(pos, &type);
 	Return(faslwrite_byte_(stream, (byte)type));
@@ -899,10 +914,12 @@ int faslwrite_value_pathname_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_pathname_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	byte type;
 	addr pos, value;
 
 	/* type */
+	Return(faslread_status_(stream, &status));
 	Return(faslread_byte_(stream, &type));
 	make_pathname_alloc(NULL, &pos, (int)type);
 	/* array */
@@ -918,6 +935,7 @@ int faslread_value_pathname_(Execute ptr, addr stream, addr *ret)
 	SetTypePathname(pos, value);
 	Return(faslread_value_(ptr, stream, &value));
 	SetVersionPathname(pos, value);
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -932,7 +950,7 @@ int faslwrite_value_quote_(Execute ptr, addr stream, addr pos)
 	addr value;
 
 	CheckType(pos, LISPTYPE_QUOTE);
-	Return(faslwrite_type_(stream, FaslCode_quote));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_quote));
 	/* type */
 	GetQuoteType(pos, &type);
 	Return(faslwrite_byte_(stream, (byte)type));
@@ -948,15 +966,18 @@ int faslwrite_value_quote_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_quote_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	byte type;
-	addr value, print;
+	addr value, print, pos;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_byte_(stream, &type));
 	Return(faslread_value_(ptr, stream, &value));
 	Return(faslread_value_(ptr, stream, &print));
-	quote2_heap(ret, (enum QuoteType)type, value, print);
+	quote2_heap(&pos, (enum QuoteType)type, value, print);
+	faslread_status_update(pos, status);
 
-	return 0;
+	return Result(ret, pos);
 }
 
 
@@ -968,9 +989,10 @@ int faslwrite_value_bitvector_(Execute ptr, addr stream, addr pos)
 	struct bitmemory_struct *str;
 
 	CheckType(pos, LISPTYPE_BITVECTOR);
-	Return(faslwrite_type_(stream, FaslCode_bitvector));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_bitvector));
 	str = BitMemoryStruct(pos);
-	Return(faslwrite_buffer_(stream, str, sizeoft(struct bitmemory_struct)));
+	Return(faslwrite_size_(stream, str->bitsize));
+	Return(faslwrite_size_(stream, str->fixedsize));
 	Return(faslwrite_buffer_(stream, str->data, sizeoft(fixed) * str->fixedsize));
 
 	return 0;
@@ -978,14 +1000,18 @@ int faslwrite_value_bitvector_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_bitvector_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
 	addr pos;
 	struct bitmemory_struct *str, value;
 
-	Return(faslread_buffer_(stream, &value, sizeoft(struct bitmemory_struct)));
+	Return(faslread_status_(stream, &status));
+	Return(faslread_size_(stream, &(value.bitsize)));
+	Return(faslread_size_(stream, &(value.fixedsize)));
 	bitmemory_unsafe(NULL, &pos, value.bitsize);
 	str = BitMemoryStruct(pos);
 	*str = value;
 	Return(faslread_buffer_(stream, str->data, sizeoft(fixed) * str->fixedsize));
+	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
 }
@@ -1000,7 +1026,7 @@ int faslwrite_value_load_time_value_(Execute ptr, addr stream, addr pos)
 
 	CheckType(pos, LISPTYPE_LOAD_TIME_VALUE);
 	get_index_load_time_value(pos, &index);
-	Return(faslwrite_type_(stream, FaslCode_load));
+	Return(faslwrite_type_status_(stream, pos, FaslCode_load));
 	Return(faslwrite_size_(stream, index));
 
 	return 0;
@@ -1008,9 +1034,15 @@ int faslwrite_value_load_time_value_(Execute ptr, addr stream, addr pos)
 
 int faslread_value_load_time_value_(Execute ptr, addr stream, addr *ret)
 {
+	FaslStatus status;
+	addr pos;
 	size_t index;
 
+	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &index));
-	return execute_load_get_(ptr, index, ret);
+	Return(execute_load_get_(ptr, index, &pos));
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
 }
 
