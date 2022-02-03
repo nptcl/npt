@@ -279,6 +279,13 @@
   (eval '(pprint-newline :hello))
   type-error)
 
+(deftest pprint-newline-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (pprint-newline :linear t))
+    nil)
+  nil)
+
 
 ;;  :linear
 (deftest pprint-newline-linear.1
@@ -704,6 +711,13 @@
   (eval '(pprint-indent :hello 10))
   type-error)
 
+(deftest pprint-indent-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (pprint-indent :block 5 t))
+    nil)
+  nil)
+
 
 ;;
 ;;  Function PPRINT-TAB
@@ -894,6 +908,13 @@
 (deftest-error pprint-tab-error.3
   (eval '(pprint-tab :hello 10 5))
   type-error)
+
+(deftest pprint-tab-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (pprint-tab :line 10 5 t))
+    nil)
+  nil)
 
 
 ;;

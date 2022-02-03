@@ -203,3 +203,10 @@
       (describe x))
     (values)))
 
+(deftest describe-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (describe t t))
+    nil)
+  nil)
+

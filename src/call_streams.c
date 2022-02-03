@@ -161,6 +161,9 @@ int terpri_common_(Execute ptr, addr stream)
 	if (stream == Unbound) {
 		Return(standard_output_stream_(ptr, &stream));
 	}
+	else {
+		Return(output_stream_designer_(ptr, stream, &stream));
+	}
 	Return(terpri_stream_(stream));
 	return exitpoint_stream_(stream);
 }
@@ -175,6 +178,9 @@ int fresh_line_common_(Execute ptr, addr stream, addr *ret)
 
 	if (stream == Unbound) {
 		Return(standard_output_stream_(ptr, &stream));
+	}
+	else {
+		Return(output_stream_designer_(ptr, stream, &stream));
 	}
 	Return(fresh_line_stream_(stream, &check));
 	Return(exitpoint_stream_(stream));
@@ -192,6 +198,9 @@ int unread_char_common_(Execute ptr, addr pos, addr stream)
 
 	if (stream == Unbound) {
 		Return(standard_input_stream_(ptr, &stream));
+	}
+	else {
+		Return(input_stream_designer_(ptr, stream, &stream));
 	}
 	GetCharacter(pos, &c);
 	return unread_char_stream_(stream, c);
@@ -243,7 +252,7 @@ int read_line_common_(Execute ptr,
  */
 int write_string_common_(Execute ptr, addr string, addr rest)
 {
-	Return(write_string_stream(ptr, string, rest, &string));
+	Return(write_string_stream_(ptr, string, rest, &string));
 	return exitpoint_stream_(string);
 }
 
@@ -253,7 +262,7 @@ int write_string_common_(Execute ptr, addr string, addr rest)
  */
 int write_line_common_(Execute ptr, addr string, addr rest)
 {
-	Return(write_string_stream(ptr, string, rest, &string));
+	Return(write_string_stream_(ptr, string, rest, &string));
 	Return(terpri_stream_(string));
 	return exitpoint_stream_(string);
 }
@@ -268,7 +277,7 @@ int read_sequence_common_(addr var, addr stream, addr rest, addr *ret)
 
 	Return(length_sequence_(var, 0, &start));
 	Return(keyword_start_end_(start, rest, &start, &end));
-	return read_sequence_stream(ret, var, stream, start, end);
+	return read_sequence_stream_(ret, var, stream, start, end);
 }
 
 
@@ -281,7 +290,7 @@ int write_sequence_common_(LocalRoot local, addr var, addr stream, addr rest)
 
 	Return(length_sequence_(var, 0, &start));
 	Return(keyword_start_end_(start, rest, &start, &end));
-	Return(write_sequence_stream(local, var, stream, start, end));
+	Return(write_sequence_stream_(local, var, stream, start, end));
 	return exitpoint_stream_(stream);
 }
 

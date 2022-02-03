@@ -429,7 +429,7 @@ int read_line_stream_(Execute ptr, addr *ret, int *miss,
 /*
  *  write-string
  */
-int write_string_stream(Execute ptr, addr string, addr rest, addr *ret)
+int write_string_stream_(Execute ptr, addr string, addr rest, addr *ret)
 {
 	unicode c;
 	addr stream;
@@ -496,7 +496,7 @@ static int read_sequence_binary_(addr *ret,
 	return Result(ret, value);
 }
 
-int read_sequence_stream(addr *ret, addr seq, addr stream, size_t start, size_t end)
+int read_sequence_stream_(addr *ret, addr seq, addr stream, size_t start, size_t end)
 {
 	int check;
 
@@ -556,7 +556,7 @@ static int write_sequence_binary_(LocalRoot local,
 	return 0;
 }
 
-int write_sequence_stream(LocalRoot local,
+int write_sequence_stream_(LocalRoot local,
 		addr seq, addr stream, size_t start, size_t end)
 {
 	int check;

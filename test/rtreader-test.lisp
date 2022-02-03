@@ -267,6 +267,16 @@
       (format nil "~S ~S" (read is) (read is))))
   "#\\x #\\Space")
 
+(deftest read-degrade.1
+  (with-input-from-string (*terminal-io* "123")
+    (read t))
+  123)
+
+(deftest read-degrade.2
+  (with-input-from-string (*terminal-io* "123")
+    (read-preserving-whitespace t))
+  123)
+
 
 ;;
 ;;  Function READ-DELIMITED-LIST

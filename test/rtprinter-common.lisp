@@ -125,6 +125,16 @@
   (eval '(pprint-dispatch 10 20))
   type-error)
 
+(deftest pprint-dispatch-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (let ((v #(10 20 30)))
+        (funcall
+          (pprint-dispatch v)
+          t v)))
+    nil)
+  nil)
+
 
 ;;
 ;;  Standard Generic Function PRINT-OBJECT
@@ -222,6 +232,12 @@
       (print-unreadable-object (t stream)
         (princ "HELLO" stream))))
   print-not-readable)
+
+(deftest print-unreadable-object-degrade.1
+  (with-output-to-string (*terminal-io*)
+    (print-unreadable-object (t t)
+      (princ "HELLO" t)))
+  "#<HELLO>")
 
 
 ;;
@@ -377,6 +393,13 @@
   (eval '(prin1 10 20))
   type-error)
 
+(deftest print1-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (prin1 10 t))
+    nil)
+  nil)
+
 
 ;;
 ;;  Function PRINC
@@ -408,6 +431,13 @@
   (eval '(princ 10 20))
   type-error)
 
+(deftest princ-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (princ 10 t))
+    nil)
+  nil)
+
 
 ;;
 ;;  Function PRINT
@@ -438,6 +468,13 @@
 (deftest-error print-error.3
   (eval '(print 10 20))
   type-error)
+
+(deftest print-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (print 10 t))
+    nil)
+  nil)
 
 
 ;;
@@ -476,6 +513,13 @@
 (deftest-error pprint-error.3
   (eval '(pprint 10 20))
   type-error)
+
+(deftest pprint-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (pprint 10 t))
+    nil)
+  nil)
 
 
 ;;

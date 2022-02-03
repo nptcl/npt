@@ -102,6 +102,13 @@
   (eval '(pprint-fill 10))
   type-error)
 
+(deftest pprint-fill-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (pprint-fill t '(10 20 30)))
+    nil)
+  nil)
+
 
 ;;
 ;;  Function PPRINT-LINEAR
@@ -189,6 +196,13 @@
   (eval '(pprint-linear 10))
   type-error)
 
+(deftest pprint-linear-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (pprint-linear t '(10 20 30)))
+    nil)
+  nil)
+
 
 ;;
 ;;  Function PPRINT-TABULAR
@@ -261,6 +275,13 @@
 (deftest-error! pprint-tabular-error.3
   (eval '(pprint-tabular 10))
   type-error)
+
+(deftest pprint-tabular-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (pprint-tabular t '(10 20 30)))
+    nil)
+  nil)
 
 
 ;;

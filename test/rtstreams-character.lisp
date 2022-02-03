@@ -104,6 +104,11 @@
       (peek-char nil input-stream)))
   #\1 #\4 #\4)
 
+(deftest peek-char-degrade.1
+  (with-input-from-string (*terminal-io* "Hello")
+    (peek-char nil t))
+  #\H)
+
 
 ;;
 ;;  Function READ-CHAR
@@ -162,6 +167,11 @@
       (push c list)))
   (#\0 #\1 #\2 #\3))
 
+(deftest read-char-degrade.1
+  (with-input-from-string (*terminal-io* "Hello")
+    (read-char t))
+  #\H)
+
 
 ;;
 ;;  Function READ-CHAR-NO-HANG
@@ -215,6 +225,11 @@
 
 (deftest-error! read-char-no-hang-error.2
   (eval '(read-char-no-hang *standard-input* nil nil nil nil)))
+
+(deftest read-char-no-hang-degrade.1
+  (with-input-from-string (*terminal-io* "Hello")
+    (read-char-no-hang t))
+  #\H)
 
 
 ;;
@@ -274,6 +289,13 @@
       (write-string "more text" s))
     (concatenate 'string "some text" '(#\newline #\newline) "more text"))
   t)
+
+(deftest terpri-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (terpri t))
+    nil)
+  nil)
 
 
 ;;
@@ -429,6 +451,13 @@
     (concatenate 'string "some text" '(#\newline) "more text"))
   t)
 
+(deftest fresh-line-degrade.1
+  (progn
+    (with-output-to-string (*terminal-io*)
+      (fresh-line t))
+    nil)
+  nil)
+
 
 ;;
 ;;  Function UNREAD-CHAR
@@ -495,6 +524,12 @@
     (nreverse list))
   ((0 #\0) (2 #\1) (4 #\2)))
 
+(deftest unread-char-degrade.1
+  (with-input-from-string (*terminal-io* "Hello")
+    (read-char t)
+    (unread-char #\H t))
+  nil)
+
 
 ;;
 ;;  Function WRITE-CHAR
@@ -546,6 +581,11 @@
     (write-char #\Space s)
     (write-char #\b s))
   "a b")
+
+(deftest write-char-degrade.1
+  (with-output-to-string (*terminal-io*)
+    (write-char #\Z t))
+  "Z")
 
 
 ;;
@@ -721,6 +761,12 @@
       (stream (format nil "ABC~ADEF" #\u0D))
       (read-line stream))))
 
+(deftest read-line-degrade.1
+  (with-input-from-string (*terminal-io* "Hello")
+    (values
+      (read-line t)))
+  "Hello")
+
 
 ;;
 ;;  Function WRITE-STRING
@@ -833,6 +879,11 @@
 
 (deftest-error! write-string-error.11
   (eval '(write-string "Hello" *standard-output* :start 4 :end 3)))
+
+(deftest write-string-degrade.1
+  (with-output-to-string (*terminal-io*)
+    (write-string "Hello" t))
+  "Hello")
 
 
 ;;
@@ -981,4 +1032,11 @@
                   nil))
          (format nil "*test1~%*test2~%*"))
   t)
+
+(deftest write-line-degrade.1
+  (subseq
+    (with-output-to-string (*terminal-io*)
+      (write-line "Hello" t))
+    0 5)
+  "Hello")
 
