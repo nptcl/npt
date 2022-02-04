@@ -4,6 +4,7 @@
 #include "type_memory.h"
 #include "typedef.h"
 
+#define decl_function_p _n(decl_function_p)
 #define decl_character_p _n(decl_character_p)
 #define decl_float_p _n(decl_float_p)
 #define decl_range_p _n(decl_range_p)
@@ -19,6 +20,7 @@
 #define init_type _n(init_type)
 #define build_type _n(build_type)
 
+int decl_function_p(LispDecl type);
 int decl_character_p(LispDecl type);
 int decl_float_p(LispDecl type);
 int decl_range_p(LispDecl type);

@@ -16,7 +16,7 @@
 /*
  *  check
  */
-static int decl_function_p(LispDecl type)
+int decl_function_p(LispDecl type)
 {
 	return type == LISPDECL_FUNCTION
 		|| type == LISPDECL_COMPILED_FUNCTION;

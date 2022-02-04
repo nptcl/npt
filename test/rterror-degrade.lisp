@@ -164,3 +164,15 @@
   (scope-type-check-1 '(queue . 20))
   type-error)
 
+
+;;
+;;  typep function
+;;
+(defun type-function-1 (x)
+  (declare (type no-such-function-type x))
+  x)
+
+(deftest typep-function.1
+  (typep #'type-function-1 'function)
+  t)
+

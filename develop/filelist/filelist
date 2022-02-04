@@ -416,6 +416,7 @@ terme_values.c
 terme_write.c
 thread.c
 token.c
+type_call.c
 type_coerce.c
 type_constant.c
 type_copy.c

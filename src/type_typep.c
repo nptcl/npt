@@ -26,6 +26,7 @@
 #include "subtypep.h"
 #include "symbol.h"
 #include "type.h"
+#include "type_call.h"
 #include "type_delay.h"
 #include "type_parse.h"
 #include "type_table.h"
@@ -641,50 +642,6 @@ static int typep_readtable_(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_READTABLE);
 	return 0;
-}
-
-static int typep_function_check_(Execute ptr, addr value, addr right, int *ret)
-{
-	addr left;
-
-	gettype_function(value, &left);
-	if (left == Nil) {
-		if (compiled_function_p(value))
-			GetTypeTable(&left, CompiledFunction);
-		else
-			GetTypeTable(&left, Function);
-	}
-	return subtypep_check_(ptr, left, right, Nil, ret, NULL);
-}
-
-static int typep_function_(Execute ptr, addr value, addr type, int *ret)
-{
-	addr check;
-
-	GetArrayType(type, 2, &check);
-	if (check == Nil) {
-		*ret = 0;
-		return fmte_("The cons type (FUNCTION ? ?) don't accept.", NULL);
-	}
-	if (! functionp(value))
-		return Result(ret, 0);
-
-	return typep_function_check_(ptr, value, type, ret);
-}
-
-static int typep_compiled_function_(Execute ptr, addr value, addr type, int *ret)
-{
-	addr check;
-
-	GetArrayType(type, 2, &check);
-	if (check == Nil) {
-		*ret = 0;
-		return fmte_("The cons type (COMPILED-FUNCTION ? ?) don't accept.", NULL);
-	}
-	if (! compiled_function_p(value))
-		return Result(ret, 0);
-
-	return typep_function_check_(ptr, value, type, ret);
 }
 
 static int typep_pathname_(Execute ptr, addr value, addr type, int *ret)
