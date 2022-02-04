@@ -176,3 +176,22 @@
   (typep #'type-function-1 'function)
   t)
 
+
+;;
+;;  compile-file defconstant
+;;
+(deftest defconstant-compile.1
+  (with-open-stream (input (lisp-system:make-memory-io-stream))
+    (with-open-stream (output (lisp-system:make-memory-io-stream))
+      (with-open-file (s input :direction :output)
+        (format s "(defconstant defconstant-compile-1 10)~%")
+        (format s "(deftype defconstant-compile-2 ()~%")
+        (format s "  `(integer 0 ,defconstant-compile-1))~%")
+        (format s "(defstruct defconstant-compile-3~%")
+        (format s "  (defconstant-compile-4 0~%")
+        (format s "    :type defconstant-compile-2))~%"))
+      (file-position input :start)
+      (compile-file input :output-file output))
+    nil)
+  nil)
+

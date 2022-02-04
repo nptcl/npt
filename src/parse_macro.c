@@ -570,6 +570,7 @@ int macroexpand_(Execute ptr, addr *ret, addr form, addr env, int *result)
 }
 static int parse_macro_compile_symbol(addr pos)
 {
+	ParseMacroCompile(pos, DEFCONSTANT);
 	ParseMacroCompile(pos, DECLAIM);
 	ParseMacroCompile(pos, DEFCLASS);
 	ParseMacroCompile(pos, DEFINE_COMPILER_MACRO);

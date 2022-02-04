@@ -1,9 +1,9 @@
 ;;
 ;;  Error
 ;;
-(load #p"test/rterror-degrade.lisp")
 (load #p"test/rterror-lambda.lisp")
 (load #p"test/rterror-key.lisp")
+(load #p"test/rterror-degrade.lisp")
 
 
 ;;
