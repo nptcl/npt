@@ -29,7 +29,7 @@ static int prompt_for_input_call_(Execute ptr, addr io, addr *ret)
 
 	Return(finish_output_stream_(io));
 	Return(clear_input_stream_(io));
-	Return(read_common_(ptr, io, T, Nil, Nil, &value));
+	Return(read_error_prompt_(ptr, io, &value));
 
 	return Result(ret, value);
 }

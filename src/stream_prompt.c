@@ -41,7 +41,7 @@ static int close_Prompt(addr stream, addr *ret)
 	return Result(ret, T);
 }
 
-static int input_prompt_stream(addr stream, addr *ret)
+static int input_prompt_stream_(addr stream, addr *ret)
 {
 	addr pos, prompt, dribble;
 	Execute ptr;
@@ -72,7 +72,7 @@ static int read_char_prompt_line_(addr stream, unicode *c, int *ret)
 
 	GetInfoStream(stream, &string);
 	if (! open_stream_p(string)) {
-		Return(input_prompt_stream(stream, &pos));
+		Return(input_prompt_stream_(stream, &pos));
 		if (pos == Nil)
 			return Result(ret, 1); /* eof */
 		setvalue_input_string_stream(string, pos);
@@ -81,7 +81,7 @@ static int read_char_prompt_line_(addr stream, unicode *c, int *ret)
 		Return(read_char_stream_(string, c, &check));
 		if (! check)
 			break;
-		Return(input_prompt_stream(stream, &pos));
+		Return(input_prompt_stream_(stream, &pos));
 		if (pos == Nil)
 			return Result(ret, 1); /* eof */
 		setvalue_input_string_stream(string, pos);

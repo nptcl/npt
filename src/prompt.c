@@ -1,6 +1,8 @@
+#include "condition_define.h"
 #include "control_object.h"
 #include "heap.h"
 #include "prompt.h"
+#include "reader.h"
 #include "strvect.h"
 #include "symbol.h"
 #include "typedef.h"
@@ -69,5 +71,34 @@ void getmode_prompt(Execute ptr, PromptMode *ret)
 {
 	addr ignore;
 	get_prompt(ptr, &ignore, ret);
+}
+
+
+/*
+ *  read_prompt
+ */
+int read_prompt_(Execute ptr, addr stream, int *result, addr *ret)
+{
+	addr control, symbol;
+
+	/* *prompt-reading* */
+	GetConst(SYSTEM_PROMPT_READING, &symbol);
+
+	/* read-stream */
+	push_control(ptr, &control);
+	pushspecial_control(ptr, symbol, Nil);
+	(void)read_stream_(ptr, stream, result, ret);
+	return pop_control_(ptr, control);
+}
+
+int read_error_prompt_(Execute ptr, addr stream, addr *ret)
+{
+	int check;
+
+	Return(read_prompt_(ptr, stream, &check, ret));
+	if (check)
+		return call_end_of_file_(ptr, stream);
+
+	return 0;
 }
 

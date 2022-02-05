@@ -384,7 +384,7 @@ static int enter_debugger_call_(Execute ptr, addr io, addr list, int *ret)
 	size_t select, size;
 
 	Return(clear_input_stream_(io));
-	Return(read_stream_(ptr, io, &eof, &pos));
+	Return(read_prompt_(ptr, io, &eof, &pos));
 
 	/* :exit, EOF */
 	if (eof || enter_debugger_symbol_p(pos, "EXIT", 1)) {

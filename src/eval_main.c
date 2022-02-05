@@ -164,7 +164,7 @@ static int eval_loop_execute_(Execute ptr, void *voidp)
 	ret = str->ret;
 
 	/* read */
-	Return(read_stream_(ptr, stream, &check, &pos));
+	Return(read_prompt_(ptr, stream, &check, &pos));
 
 	/* EOF */
 	if (check) {
