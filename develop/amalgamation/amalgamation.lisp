@@ -43,15 +43,15 @@
 
 (defconstant +header-include+
   '("cmpl_c99.h" "cmpl_cpp.h" "cmpl_windows.h"
-    "console_ansi.h" "console_posix.h"
-    "file_ansi.h" "file_arch.h" "file_posix.h" "file_windows.h"
-    "files_ansi.h" "files_posix.h" "files_windows.h"
+    "console_ansi.h" "console_unix.h"
+    "file_ansi.h" "file_arch.h" "file_unix.h" "file_windows.h"
+    "files_ansi.h" "files_unix.h" "files_windows.h"
     "intern_const.h" "intern_count.h"
     "intern_symbol_32.h" "intern_symbol_64.h"
     "process_unix.h" "process_windows.h"
     "prompt_disable.h" "prompt_module.h" "prompt_terme.h"
     "term_ansic.h" "term_termios.h"
-    "thread_disable.h" "thread_posix.h" "thread_single.h" "thread_windows.h"))
+    "thread_disable.h" "thread_unix.h" "thread_single.h" "thread_windows.h"))
 
 (defparameter +lisp-header+
   '("define.h"

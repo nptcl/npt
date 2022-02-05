@@ -5,8 +5,8 @@
 #include <stddef.h>
 #include "typedef.h"
 
-#define read_posix _n(read_posix)
-#define readforce_posix _n(readforce_posix)
+#define read_unix _n(read_unix)
+#define readforce_unix _n(readforce_unix)
 #define read_windows _n(read_windows)
 #define readforce_windows _n(readforce_windows)
 #define multisafe_size _n(multisafe_size)
@@ -18,9 +18,9 @@
 #define getwidth_arch _n(getwidth_arch)
 
 /* readforce */
-#ifdef LISP_POSIX
-int read_posix(int file, void *pos, size_t size, size_t *ret);
-int readforce_posix(int file, void *pos, size_t size, size_t *ret);
+#ifdef LISP_UNIX
+int read_unix(int file, void *pos, size_t size, size_t *ret);
+int readforce_unix(int file, void *pos, size_t size, size_t *ret);
 #endif
 #ifdef LISP_WINDOWS
 #include <windows.h>

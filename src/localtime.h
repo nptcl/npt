@@ -13,8 +13,8 @@
 /* Windows */
 #define __STDC_WANT_LIB_EXT1__ 1
 #include <time.h>
-#elif defined(LISP_POSIX)
-/* Posix */
+#elif defined(LISP_UNIX)
+/* Unix */
 #define _BSD_SOURCE 1
 #include <time.h>
 #elif defined(__STDC_LIB_EXT1__)

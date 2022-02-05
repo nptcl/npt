@@ -116,7 +116,7 @@
 #define LISP_MODE "ANSI-C"
 #undef LISP_FREEBSD
 #undef LISP_LINUX
-#undef LISP_POSIX
+#undef LISP_UNIX
 #undef LISP_WINDOWS
 #ifdef LISP_THREAD
 #error Arch error, LISP_ANSIC do not allow LISP_THREAD.
@@ -126,7 +126,7 @@
 #elif defined(LISP_FREEBSD)
 /* FreeBSD */
 #define LISP_MODE "FreeBSD"
-#define LISP_POSIX
+#define LISP_UNIX
 #undef LISP_ANSIC
 #undef LISP_LINUX
 #undef LISP_WINDOWS
@@ -138,7 +138,7 @@
 #elif defined(LISP_LINUX)
 /* Linux */
 #define LISP_MODE "Linux"
-#define LISP_POSIX
+#define LISP_UNIX
 #undef LISP_ANSIC
 #undef LISP_FREEBSD
 #undef LISP_WINDOWS
@@ -153,7 +153,7 @@
 #undef LISP_ANSIC
 #undef LISP_FREEBSD
 #undef LISP_LINUX
-#undef LISP_POSIX
+#undef LISP_UNIX
 #undef LISP_ANSIC_WINDOWS
 #ifdef LISP_THREAD
 #define LISP_THREAD_WINDOWS
@@ -165,7 +165,7 @@
 #define LISP_ANSIC
 #undef LISP_FREEBSD
 #undef LISP_LINUX
-#undef LISP_POSIX
+#undef LISP_UNIX
 #undef LISP_WINDOWS
 #undef LISP_ANSIC_WINDOWS
 #ifdef LISP_THREAD
@@ -258,8 +258,8 @@
  *  Thread mode
  *    LISP_THREAD_SINGLE      -> add LISP_THREAD_DISABLE  [default]
  *    LISP_THREAD_REMOVE      -> add LISP_THREAD_DISABLE
- *    LISP_THREAD_FREEBSD     -> add LISP_THREAD_POSIX
- *    LISP_THREAD_LINUX       -> add LISP_THREAD_POSIX
+ *    LISP_THREAD_FREEBSD     -> add LISP_THREAD_UNIX
+ *    LISP_THREAD_LINUX       -> add LISP_THREAD_UNIX
  *    LISP_THREAD_WINDOWS     -> use Vista module
  */
 #undef LISP_THREAD_ENABLE
@@ -270,7 +270,7 @@
 #define LISP_THREAD_MODE     "single"
 #define LISP_THREAD_DISABLE
 #undef LISP_THREAD_REMOVE
-#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_UNIX
 #undef LISP_THREAD_FREEBSD
 #undef LISP_THREAD_LINUX
 #undef LISP_THREAD_WINDOWS
@@ -280,7 +280,7 @@
 #define LISP_THREAD_MODE     "remove"
 #define LISP_THREAD_DISABLE
 #undef LISP_THREAD_SINGLE
-#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_UNIX
 #undef LISP_THREAD_FREEBSD
 #undef LISP_THREAD_LINUX
 #undef LISP_THREAD_WINDOWS
@@ -288,14 +288,14 @@
 /* FreeBSD */
 #elif defined(LISP_THREAD_FREEBSD)
 #define LISP_THREAD_MODE     "FreeBSD"
-#define LISP_THREAD_POSIX
+#define LISP_THREAD_UNIX
 #undef LISP_THREAD_SINGLE
 #undef LISP_THREAD_REMOVE
 #undef LISP_THREAD_LINUX
 #undef LISP_THREAD_WINDOWS
 
 /* FreeBSD */
-#elif defined(LISP_THREAD_POSIX)
+#elif defined(LISP_THREAD_UNIX)
 #define LISP_THREAD_MODE     "FreeBSD"
 #define LISP_THREAD_FREEBSD
 #undef LISP_THREAD_SINGLE
@@ -306,7 +306,7 @@
 /* Linux */
 #elif defined(LISP_THREAD_LINUX)
 #define LISP_THREAD_MODE     "Linux"
-#define LISP_THREAD_POSIX
+#define LISP_THREAD_UNIX
 #undef LISP_THREAD_SINGLE
 #undef LISP_THREAD_REMOVE
 #undef LISP_THREAD_FREEBSD
@@ -316,7 +316,7 @@
 #elif defined(LISP_THREAD_WINDOWS)
 #undef LISP_THREAD_SINGLE
 #undef LISP_THREAD_REMOVE
-#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_UNIX
 #undef LISP_THREAD_FREEBSD
 #undef LISP_THREAD_LINUX
 #define LISP_THREAD_MODE     "Windows"
@@ -327,7 +327,7 @@
 #define LISP_THREAD_DISABLE
 #define LISP_THREAD_REMOVE
 #undef LISP_THREAD_SINGLE
-#undef LISP_THREAD_POSIX
+#undef LISP_THREAD_UNIX
 #undef LISP_THREAD_FREEBSD
 #undef LISP_THREAD_LINUX
 #undef LISP_THREAD_WINDOWS

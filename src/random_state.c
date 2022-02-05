@@ -30,7 +30,7 @@ struct random_state *struct_random_state(addr pos)
 	return PtrBodyRandomState(pos);
 }
 
-#if defined LISP_POSIX
+#if defined LISP_UNIX
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
@@ -77,7 +77,7 @@ static int read_device_urandom(struct md5encode *md5)
 		Debug("file " RANDOM_DEVICE " is not exist.");
 		return 1;
 	}
-	check = readforce_posix(file, (void *)buffer, RANDOM_DEVICE_SIZE, &size);
+	check = readforce_unix(file, (void *)buffer, RANDOM_DEVICE_SIZE, &size);
 	if (check) {
 		close(file);
 		Debug("read error");

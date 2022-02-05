@@ -42,7 +42,7 @@ static int parser_home_directory_p_pathname_(struct fileparse *pa, int *ret)
 	return Result(ret, c == '~');
 }
 
-#ifdef LISP_POSIX
+#ifdef LISP_UNIX
 #include <unistd.h>
 #include <sys/types.h>
 #include <pwd.h>

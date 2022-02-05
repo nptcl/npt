@@ -2,7 +2,7 @@
 #include "process_arch.h"
 #include "typedef.h"
 
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 #include "process_unix.h"
 #elif defined(LISP_WINDOWS)
 #include "process_windows.h"

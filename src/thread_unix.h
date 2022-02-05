@@ -2,9 +2,9 @@
 #include "execute.h"
 
 /*
- *  posix semaphore
+ *  Unix semaphore
  */
-int lispd_trylock_semposix(semposix *sem)
+int lispd_trylock_semunix(semunix *sem)
 {
 	int result;
 
@@ -17,7 +17,7 @@ int lispd_trylock_semposix(semposix *sem)
 	return 0;
 }
 
-int lispd_get_semposix(semposix *sem)
+int lispd_get_semunix(semunix *sem)
 {
 	int result;
 

@@ -20,9 +20,9 @@ int localtime_arch(struct tm *ret, const time_t *time)
 	return localtime_s(ret, time) != 0;
 }
 
-#elif defined(LISP_POSIX)
+#elif defined(LISP_UNIX)
 /*****************************************************************************
- *  Posix
+ *  Unix
  *****************************************************************************/
 #define _BSD_SOURCE 1
 #include <time.h>

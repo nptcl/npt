@@ -267,7 +267,7 @@ parse.c
 pathname_localp.c
 pathname_logical.c
 pathname_object.c
-pathname_posix.c
+pathname_unix.c
 pathname_table.c
 pathname_translate.c
 pathname_wildcard.c

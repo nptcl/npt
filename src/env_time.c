@@ -29,7 +29,7 @@
 #define ENCODE_UNIVERSAL_1900	693961
 #define ENCODE_UNIVERSAL_1970	719528
 
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 #define LISP_SLEEP_INTERVAL		1000000
 #define LISP_SLEEP_INTERVAL_F	1.0e6
 
@@ -614,7 +614,7 @@ int get_internal_real_time_common_(LocalRoot local, addr *ret)
 	return 0;
 }
 
-#elif defined(LISP_POSIX)
+#elif defined(LISP_UNIX)
 #include <sys/time.h>
 
 void get_internal_time_units_per_second(fixnum *ret)
@@ -668,7 +668,7 @@ void get_internal_run_time_common(addr *ret)
 /*
  *  sleep
  */
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 #include <unistd.h>
 
 #ifdef LISP_DEBUG
@@ -871,7 +871,7 @@ static int sleep_second_common(Execute ptr, fixnum value)
 }
 #endif
 
-#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
+#if defined(LISP_UNIX) || defined(LISP_WINDOWS)
 static int sleep_integer_common_(Execute ptr, addr var, int *ret)
 {
 	int check;
@@ -931,7 +931,7 @@ static int sleep_execute_diff_(Execute ptr, addr var, addr *ret)
 	return Result(ret, var);
 }
 
-#ifdef LISP_POSIX
+#ifdef LISP_UNIX
 static void sleep_signal_handler(int value)
 {
 	setatomic_sleep_object(Execute_Thread);
@@ -1061,7 +1061,7 @@ static int sleep_wait_common_(Execute ptr, addr var)
 }
 #endif
 
-#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
+#if defined(LISP_UNIX) || defined(LISP_WINDOWS)
 static int sleep_value_integer_(LocalRoot local, addr var, addr *ret)
 {
 	addr right;
@@ -1162,7 +1162,7 @@ static int sleep_value_common_(LocalRoot local, addr var, addr *ret)
 
 int sleep_common_(Execute ptr, addr var)
 {
-#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
+#if defined(LISP_UNIX) || defined(LISP_WINDOWS)
 	Return(sleep_value_common_(ptr->local, var, &var));
 	return sleep_wait_common_(ptr, var);
 #else

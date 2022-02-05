@@ -87,9 +87,9 @@ void lispd_broadcast_condlite(condlite *x);
 
 
 /*
- *  posix
+ *  unix
  */
-#ifdef LISP_THREAD_POSIX
+#ifdef LISP_THREAD_UNIX
 /* mutex */
 #define lispd_make_mutexlite(mutex) \
 	pthread_mutex_init((mutex), NULL)
@@ -169,42 +169,42 @@ void lispd_broadcast_condlite(condlite *x);
 		lispd_threaderror(); \
 	}
 
-/* posix semaphore */
-#define make_semposix(x, v) { \
+/* Unix semaphore */
+#define make_semunix(x, v) { \
 	if (sem_init((x), 0, (v))) { \
 		Debug("sem_init error"); \
 		lispd_threaderror(); \
 	} \
 }
-#define destroy_semposix(x) { \
+#define destroy_semunix(x) { \
 	if (sem_destroy(x)) { \
 		Debug("sem_destroy error"); \
 		lispd_threaderror(); \
 	} \
 }
-#define lock_semposix(x) { \
+#define lock_semunix(x) { \
 	if (sem_wait(x)) { \
 		Debug("sem_destroy error"); \
 		lispd_threaderror(); \
 	} \
 }
-int lispd_trylock_semposix(semposix *sem);
-#define unlock_semposix(x) { \
+int lispd_trylock_semunix(semunix *sem);
+#define unlock_semunix(x) { \
 	if (sem_post(x)) { \
 		Debug("sem_post error"); \
 		lispd_threaderror(); \
 	} \
 }
-int lispd_get_semposix(semposix *sem);
+int lispd_get_semunix(semunix *sem);
 
 /* binary semaphore */
-#define lispd_make_binsem(x) make_semposix((x), 1);
-#define lispd_destroy_binsem destroy_semposix
-#define lispd_lock_binsem lock_semposix
-#define lispd_trylock_binsem lispd_trylock_semposix
+#define lispd_make_binsem(x) make_semunix((x), 1);
+#define lispd_destroy_binsem destroy_semunix
+#define lispd_lock_binsem lock_semunix
+#define lispd_trylock_binsem lispd_trylock_semunix
 #define lispd_unlock_binsem(x) { \
-	unlock_semposix(x); \
-	if (1 < lispd_get_semposix(x)) { \
+	unlock_semunix(x); \
+	if (1 < lispd_get_semunix(x)) { \
 		Debug("lispd_unlock_binsem error"); \
 		lispd_threaderror(); \
 	} \

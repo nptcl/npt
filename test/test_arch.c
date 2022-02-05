@@ -5,7 +5,7 @@
 
 #define TESTFILE "_debug.txt"
 
-#if defined(LISP_POSIX) || defined(LISP_WINDOWS)
+#if defined(LISP_UNIX) || defined(LISP_WINDOWS)
 static int test_write_file(const char *str)
 {
 	FILE *file;
@@ -22,43 +22,43 @@ static int test_write_file(const char *str)
 }
 #endif
 
-#ifdef LISP_POSIX
+#ifdef LISP_UNIX
 #include <fcntl.h>
 
-static int test_read_posix(void)
+static int test_read_unix(void)
 {
 	int check, file;
 	char mem[100];
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "read_posix.1");
+	test(check == 0, "read_unix.1");
 	file = open(TESTFILE, O_RDONLY);
-	test(0 <= file, "read_posix.2");
-	check = read_posix(file, mem, 6, &size);
+	test(0 <= file, "read_unix.2");
+	check = read_unix(file, mem, 6, &size);
 	close(file);
-	test(check == 0, "read_posix.3");
-	test(size == 6, "read_posix.4");
-	test(memcmp(mem, "HelloH", 6) == 0, "read_posix.5");
+	test(check == 0, "read_unix.3");
+	test(size == 6, "read_unix.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "read_unix.5");
 
 	RETURN;
 }
 
-static int test_readforce_posix(void)
+static int test_readforce_unix(void)
 {
 	int check, file;
 	char mem[100];
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "readforce_posix.1");
+	test(check == 0, "readforce_unix.1");
 	file = open(TESTFILE, O_RDONLY);
-	test(0 <= file, "readforce_posix.2");
-	check = readforce_posix(file, mem, 6, &size);
+	test(0 <= file, "readforce_unix.2");
+	check = readforce_unix(file, mem, 6, &size);
 	close(file);
-	test(check == 0, "readforce_posix.3");
-	test(size == 6, "readforce_posix.4");
-	test(memcmp(mem, "HelloH", 6) == 0, "readforce_posix.5");
+	test(check == 0, "readforce_unix.3");
+	test(size == 6, "readforce_unix.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "readforce_unix.5");
 
 	RETURN;
 }
@@ -155,9 +155,9 @@ int test_arch(void)
 {
 	DegradeTitle;
 
-#ifdef LISP_POSIX
-	TestBreak(test_read_posix);
-	TestBreak(test_readforce_posix);
+#ifdef LISP_UNIX
+	TestBreak(test_read_unix);
+	TestBreak(test_readforce_unix);
 #endif
 #ifdef LISP_WINDOWS
 	TestBreak(test_read_windows);

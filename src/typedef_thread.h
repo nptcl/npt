@@ -17,7 +17,7 @@ typedef int binsem;
 #endif
 
 /* pthread mode */
-#ifdef LISP_THREAD_POSIX
+#ifdef LISP_THREAD_UNIX
 #include <pthread.h>
 #include <semaphore.h>
 #include <errno.h>
@@ -25,8 +25,8 @@ typedef pthread_t threadhandle;
 typedef pthread_mutex_t mutexlite;
 typedef pthread_rwlock_t rwlocklite;
 typedef pthread_key_t threadlocal;
-typedef sem_t semposix;
-typedef semposix binsem;
+typedef sem_t semunix;
+typedef semunix binsem;
 typedef pthread_cond_t condlite;
 #endif
 

@@ -51,7 +51,7 @@ struct FileEncode {
 #if defined LISP_ANSIC
 #include <stdio.h>
 typedef FILE *file_type;
-#elif defined LISP_POSIX
+#elif defined LISP_UNIX
 typedef int file_type;
 #elif defined LISP_WINDOWS
 #include <windows.h>

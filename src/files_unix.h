@@ -1,5 +1,5 @@
 /*
- *  files-posix
+ *  files-unix
  */
 #include <dirent.h>
 #include <pwd.h>

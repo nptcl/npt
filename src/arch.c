@@ -9,11 +9,11 @@
 /*
  *  readforce arch
  */
-#ifdef LISP_POSIX
+#ifdef LISP_UNIX
 #include <unistd.h>
 
-/* Posix read */
-int read_posix(int file, void *pos, size_t size, size_t *ret)
+/* Unix read */
+int read_unix(int file, void *pos, size_t size, size_t *ret)
 {
 	ssize_t check;
 
@@ -31,7 +31,7 @@ int read_posix(int file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
+int readforce_unix(int file, void *ptr, size_t size, size_t *ret)
 {
 	ssize_t check;
 	size_t count, rsize, diff;
@@ -40,7 +40,7 @@ int readforce_posix(int file, void *ptr, size_t size, size_t *ret)
 	pos = (unsigned char *)ptr;
 	for (count = 0; count < size; count += rsize) {
 		diff = size - count;
-		check = read_posix(file, (void *)pos, diff, &rsize);
+		check = read_unix(file, (void *)pos, diff, &rsize);
 		/* Error */
 		if (check < 0) {
 			*ret = 0;
@@ -206,7 +206,7 @@ int getwidth_arch(unsigned *rx, unsigned *ry)
 	return 0;
 }
 
-#elif defined(LISP_POSIX)
+#elif defined(LISP_UNIX)
 #include <sys/ioctl.h>
 #include <unistd.h>
 

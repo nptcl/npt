@@ -21,10 +21,10 @@
 
 
 /*
- *  posix
+ *  Unix
  */
-#ifdef LISP_THREAD_POSIX
-#include "thread_posix.h"
+#ifdef LISP_THREAD_UNIX
+#include "thread_unix.h"
 #endif
 
 

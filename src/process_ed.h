@@ -5,7 +5,7 @@
 #include "execute.h"
 #include "typedef.h"
 
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 #define LISP_ED_PROCESS_DEFAULT  "vi"
 #elif defined(LISP_WINDOWS)
 #define LISP_ED_PROCESS_DEFAULT  "notepad.exe"

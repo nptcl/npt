@@ -9,9 +9,9 @@
 #include "file_ansi.h"
 #endif
 
-#ifdef LISP_POSIX
+#ifdef LISP_UNIX
 #undef FILEMEMORY_RESTRICT
-#include "file_posix.h"
+#include "file_unix.h"
 #endif
 
 #ifdef LISP_WINDOWS

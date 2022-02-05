@@ -32,7 +32,7 @@ void implementation_version_common(addr *ret)
 /*
  *  short-site-name
  */
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 #include <sys/utsname.h>
 int short_site_name_common_(addr *ret)
 {
@@ -83,7 +83,7 @@ int short_site_name_common_(addr *ret)
 /*
  *  long-site-name
  */
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 #include <sys/utsname.h>
 int long_site_name_common_(addr *ret)
 {
@@ -114,7 +114,7 @@ int machine_instance_common_(addr *ret)
 /*
  *  machine-type
  */
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 int machine_type_common_(addr *ret)
 {
 	struct utsname data;
@@ -166,7 +166,7 @@ int machine_type_common_(addr *ret)
 /*
  *  machine-version
  */
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 int machine_version_common_(addr *ret)
 {
 	return machine_type_common_(ret);
@@ -221,7 +221,7 @@ int machine_version_common_(addr *ret)
 /*
  *  software-type
  */
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 int software_type_common_(addr *ret)
 {
 	struct utsname data;
@@ -248,7 +248,7 @@ int software_type_common_(addr *ret)
 /*
  *  software-version
  */
-#if defined(LISP_POSIX)
+#if defined(LISP_UNIX)
 int software_version_common_(addr *ret)
 {
 	struct utsname data;

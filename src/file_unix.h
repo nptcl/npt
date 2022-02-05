@@ -1,9 +1,9 @@
 /*
- *  file-posix
+ *  file-unix
  *    UNIX file function
  */
-#ifndef __FILE_POSIX_HEADER__
-#define __FILE_POSIX_HEADER__
+#ifndef __FILE_UNIX_HEADER__
+#define __FILE_UNIX_HEADER__
 
 #include <errno.h>
 #include <fcntl.h>

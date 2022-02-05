@@ -45,7 +45,7 @@ static int run_process_list_utf8_(LocalRoot local, addr var, addr list, char ***
 	return Result(ret, array);
 }
 
-static int run_process_posix_(Execute ptr, addr var, addr args, addr *ret)
+static int run_process_unix_(Execute ptr, addr var, addr args, addr *ret)
 {
 	int status;
 	char *name;
@@ -80,6 +80,6 @@ int run_process_arch_(Execute ptr, addr instance, addr *ret)
 
 	Return(ClosGetConst_(instance, KEYWORD_PROGRAM, &var));
 	Return(ClosGetConst_(instance, KEYWORD_ARGS, &args));
-	return run_process_posix_(ptr, var, args, ret);
+	return run_process_unix_(ptr, var, args, ret);
 }
 
