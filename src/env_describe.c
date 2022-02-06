@@ -31,7 +31,7 @@
 static int method_describe_object_t_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream_(ptr, stream, "Lisp Object: ~S~%", pos, NULL);
+	Return(format_stream_(ptr, stream, "Lisp Object: ~S~%", pos, NULL));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -43,7 +43,7 @@ static int method_describe_object_t_(Execute ptr,
 static int method_describe_object_class_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream_(ptr, stream, "Class: ~S~%", pos, NULL);
+	Return(format_stream_(ptr, stream, "Class: ~S~%", pos, NULL));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -55,7 +55,7 @@ static int method_describe_object_class_(Execute ptr,
 static int method_describe_object_standard_object_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream_(ptr, stream, "Instance: ~S~%", pos, NULL);
+	Return(format_stream_(ptr, stream, "Instance: ~S~%", pos, NULL));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -67,7 +67,7 @@ static int method_describe_object_standard_object_(Execute ptr,
 static int method_describe_object_structure_object_(Execute ptr,
 		addr method, addr next, addr pos, addr stream)
 {
-	format_stream_(ptr, stream, "Structure: ~S~%", pos, NULL);
+	Return(format_stream_(ptr, stream, "Structure: ~S~%", pos, NULL));
 	setresult_control(ptr, Nil);
 	return 0;
 }
