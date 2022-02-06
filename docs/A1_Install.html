@@ -21,7 +21,7 @@
       padding-top: 50px;
       padding-bottom: 50px;
       hyphens: auto;
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       text-rendering: optimizeLegibility;
       font-kerning: normal;
     }
@@ -92,6 +92,7 @@
     pre code {
       padding: 0;
       overflow: visible;
+      overflow-wrap: normal;
     }
     .sourceCode {
      background-color: transparent;
@@ -163,7 +164,7 @@ $ cd npt</code></pre>
 <h1 id="compilation-by-script">1.2 Compilation by Script</h1>
 <p>Compilation scripts for FreeBSD and Linux are available.<br />
 To compile on FreeBSD, execute the following steps</p>
-<pre><code>$ ./bsd_release.sh</code></pre>
+<pre><code>$ ./freebsd_release.sh</code></pre>
 <p>To compile on Linux, install <code>gcc</code> and <code>gmake</code> beforehand.<br />
 Execute the following steps</p>
 <pre><code>$ ./linux_release.sh</code></pre>
@@ -194,7 +195,7 @@ $ make install</code></pre>
 Execute <code>make install</code> and the executable file <code>npt</code> is copied to <code>--prefix</code>.</p>
 <h1 id="installing-the-executable-file">1.5 Installing the Executable File</h1>
 <p>If you have scripted compilation, copy the executable file <code>npt</code> to the location of your choice and the installation is complete. For example</p>
-<pre><code>$ ./bsd_release.sh
+<pre><code>$ ./freebsd_release.sh
 ...
 $ cp -i npt /usr/local/bin/.</code></pre>
 <p>In the case of <code>configure</code>, <code>make install</code> copies <code>npt</code> to the location specified by <code>--prefix</code>.</p>

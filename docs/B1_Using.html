@@ -21,7 +21,7 @@
       padding-top: 50px;
       padding-bottom: 50px;
       hyphens: auto;
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       text-rendering: optimizeLegibility;
       font-kerning: normal;
     }
@@ -92,6 +92,7 @@
     pre code {
       padding: 0;
       overflow: visible;
+      overflow-wrap: normal;
     }
     .sourceCode {
      background-color: transparent;
@@ -380,7 +381,7 @@ $</code></pre>
 First, move it.</p>
 <pre><code>$ cd github/npt</code></pre>
 <p>Compile and generate an object file.<br />
-You can run the script <code>bsd_debug.sh</code> to generate the object file, but you should remember the compile option.<br />
+You can run the script <code>freebsd_debug.sh</code> to generate the object file, but you should remember the compile option.<br />
 In this case, we are going to do a manual compilation.</p>
 <pre><code>$ cc -c src/*.c</code></pre>
 <p>Create a <code>lisp.a</code> file.</p>

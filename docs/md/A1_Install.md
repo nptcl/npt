@@ -29,7 +29,7 @@ Compilation scripts for FreeBSD and Linux are available.
 To compile on FreeBSD, execute the following steps
 
 ```
-$ ./bsd_release.sh
+$ ./freebsd_release.sh
 ```
 
 To compile on Linux, install `gcc` and `gmake` beforehand.  
@@ -102,7 +102,7 @@ to the location of your choice and the installation is complete.
 For example
 
 ```
-$ ./bsd_release.sh
+$ ./freebsd_release.sh
 ...
 $ cp -i npt /usr/local/bin/.
 ```

@@ -207,7 +207,7 @@ because the source files are not only in `src`, but also in `test`.
 
 Normally, you'll rarely need this mode.
 If you want to compile it, consider using the `debug`
-specification such as `bsd_debug.sh`.
+specification such as `freebsd_debug.sh`.
 
 
 # 2.10 The maximum value of the function number

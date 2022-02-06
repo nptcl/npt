@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.bsd_stdin_release"
+file="build/Makefile.freebsd_stdin_release"
 
 checkerr()
 {

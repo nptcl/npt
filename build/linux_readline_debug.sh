@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.bsd_debug"
+file="build/Makefile.linux_readline_debug"
 
 checkerr()
 {

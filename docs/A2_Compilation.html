@@ -21,7 +21,7 @@
       padding-top: 50px;
       padding-bottom: 50px;
       hyphens: auto;
-      word-wrap: break-word;
+      overflow-wrap: break-word;
       text-rendering: optimizeLegibility;
       font-kerning: normal;
     }
@@ -92,6 +92,7 @@
     pre code {
       padding: 0;
       overflow: visible;
+      overflow-wrap: normal;
     }
     .sourceCode {
      background-color: transparent;
@@ -314,7 +315,7 @@ The compilation is done as follows</p>
 Although there is almost no difference between C compiler and C++ compiler, some parts of the code using <code>setjmp</code> are changed to <code>try / catch</code>.</p>
 <h1 id="degrade-mode">2.9 Degrade mode</h1>
 <p>Degrade mode is a mode for testing in C. Although this mode is activated by specifying <code>LISP_DEGRADE</code>, it is not possible to compile simply because the source files are not only in <code>src</code>, but also in <code>test</code>.</p>
-<p>Normally, you’ll rarely need this mode. If you want to compile it, consider using the <code>debug</code> specification such as <code>bsd_debug.sh</code>.</p>
+<p>Normally, you’ll rarely need this mode. If you want to compile it, consider using the <code>debug</code> specification such as <code>freebsd_debug.sh</code>.</p>
 <h1 id="the-maximum-value-of-the-function-number">2.10 The maximum value of the function number</h1>
 <p>The function number is a number to register the function pointer of C language. The number of function pointers that can be registered is 32 by default, but can be changed by specifying <code>LISP_POINTER_EXTEND</code>. The following is an example of how to change the number of function numbers to 128.</p>
 <pre><code>$ cc -DLISP_POINTER_EXTEND=128 src/*.c -lm</code></pre>

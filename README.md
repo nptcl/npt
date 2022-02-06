@@ -5,7 +5,7 @@ Npt is an ANSI Common Lisp Programming Language.
 # 1. Make (script)
 ## FreeBSD
 ```
-$ ./bsd_release.sh
+$ ./freebsd_release.sh
 ...
 $ ./npt
 *
@@ -80,13 +80,13 @@ $ ./npt.exe
 # 5. Using readline / editline
 ## FreeBSD (editline)
 - Script  
-  `$ ./build/bsd_edit_release.sh`
+  `$ ./build/freebsd_editline_release.sh`
 - Compile  
   `$ cc -O3 -o npt -DLISP_FREEBSD -DLISP_EDITLINE -lm -ledit src/*.c`
 
 ## Linux (readline)
 - Script  
-  `$ ./build/linux_read_release.sh`
+  `$ ./build/linux_readline_release.sh`
 - Compile  
   `$ cc -O3 -o npt -DLISP_LINUX -DLISP_READLINE -lm -lreadline src/*.c`
 

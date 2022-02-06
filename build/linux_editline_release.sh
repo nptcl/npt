@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.bsd_stdin_debug"
+file="build/Makefile.linux_editline_release"
 
 checkerr()
 {

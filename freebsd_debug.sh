@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.bsd_read_release"
+file="build/Makefile.freebsd_debug"
 
 checkerr()
 {

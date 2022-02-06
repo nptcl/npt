@@ -13,8 +13,7 @@ type="$1"
 checkerr "type error"
 
 case "$2" in
-bsd)     name="bsd";;
-freebsd) name="bsd";;
+freebsd) name="freebsd";;
 linux)   name="linux";;
 *) name="";;
 esac

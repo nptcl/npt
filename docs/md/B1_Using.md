@@ -267,7 +267,7 @@ $ cd github/npt
 ```
 
 Compile and generate an object file.  
-You can run the script `bsd_debug.sh` to generate the object file,
+You can run the script `freebsd_debug.sh` to generate the object file,
 but you should remember the compile option.  
 In this case, we are going to do a manual compilation.
 

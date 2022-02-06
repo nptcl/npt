@@ -9,8 +9,7 @@ checkerr()
 }
 
 case "$1" in
-bsd)     name="bsd";;
-freebsd) name="bsd";;
+freebsd) name="freebsd";;
 linux)   name="linux";;
 *) name="";;
 esac

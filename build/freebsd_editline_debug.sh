@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.bsd_terme_debug"
+file="build/Makefile.freebsd_editline_debug"
 
 checkerr()
 {

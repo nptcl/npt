@@ -1,5 +1,5 @@
 #!/bin/sh
-file="build/Makefile.linux_edit_release"
+file="build/Makefile.freebsd_debug32"
 
 checkerr()
 {
