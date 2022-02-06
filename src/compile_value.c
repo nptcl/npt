@@ -27,6 +27,7 @@
 #include "ratio.h"
 #include "scope_object.h"
 #include "stream.h"
+#include "strtype.h"
 #include "strvect.h"
 #include "symbol.h"
 #include "typedef.h"
@@ -261,9 +262,15 @@ int faslwrite_value_character_(Execute ptr, addr stream, addr pos)
 	unicode value;
 
 	CheckType(pos, LISPTYPE_CHARACTER);
-	Return(faslwrite_type_status_(stream, pos, FaslCode_character));
 	GetCharacter(pos, &value);
-	Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
+	if (value < 0x80) {
+		Return(faslwrite_type_status_(stream, pos, FaslCode_character7));
+		Return(faslwrite_byte_(stream, (byte)value));
+	}
+	else {
+		Return(faslwrite_type_status_(stream, pos, FaslCode_character));
+		Return(faslwrite_buffer_(stream, &value, sizeoft(value)));
+	}
 
 	return 0;
 }
@@ -282,11 +289,57 @@ int faslread_value_character_(Execute ptr, addr stream, addr *ret)
 	return Result(ret, pos);
 }
 
+int faslread_value_character7_(Execute ptr, addr stream, addr *ret)
+{
+	FaslStatus status;
+	byte value;
+	addr pos;
+
+	Return(faslread_status_(stream, &status));
+	Return(faslread_byte_(stream, &value));
+	character_heap(&pos, (unicode)value);
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
+}
+
 
 /*
  *  string
  */
-int faslwrite_value_string_(Execute ptr, addr stream, addr pos)
+static int faslwrite_value_string7_p(Execute ptr, addr pos)
+{
+	const unicode *data;
+	size_t size, i;
+
+	CheckType(pos, LISPTYPE_STRING);
+	strvect_posbodylen(pos, &data, &size);
+	for (i = 0; i < size; i++) {
+		if (0x80 <= data[i])
+			return 0;
+	}
+
+	return 1;
+}
+
+static int faslwrite_value_string7_(Execute ptr, addr stream, addr pos)
+{
+	const unicode *data;
+	size_t size, i;
+
+	CheckType(pos, LISPTYPE_STRING);
+	Return(faslwrite_type_status_(stream, pos, FaslCode_string7));
+	strvect_posbodylen(pos, &data, &size);
+	/* write */
+	Return(faslwrite_size_(stream, size));
+	for (i = 0; i < size; i++) {
+		Return(faslwrite_byte_(stream, (byte)data[i]));
+	}
+
+	return 0;
+}
+
+static int faslwrite_value_string32_(Execute ptr, addr stream, addr pos)
 {
 	const unicode *data;
 	size_t size;
@@ -301,23 +354,13 @@ int faslwrite_value_string_(Execute ptr, addr stream, addr pos)
 	return 0;
 }
 
-static int faslread_string_code_local_(LocalRoot local, addr stream, addr *ret)
+int faslwrite_value_string_(Execute ptr, addr stream, addr pos)
 {
-	FaslStatus status;
-	addr pos;
-	unicode *data;
-	size_t size;
-
-	Return(faslread_type_check_(stream, FaslCode_string));
-	Return(faslread_status_(stream, &status));
-	Return(faslread_size_(stream, &size));
-
-	strvect_local(local, &pos, size);
-	GetStringUnicode(pos, &data);
-	Return(faslread_buffer_(stream, data, sizeoft(unicode) * size));
-	faslread_status_update(pos, status);
-
-	return Result(ret, pos);
+	CheckType(pos, LISPTYPE_STRING);
+	if (faslwrite_value_string7_p(ptr, pos))
+		return faslwrite_value_string7_(ptr, stream, pos);
+	else
+		return faslwrite_value_string32_(ptr, stream, pos);
 }
 
 int faslread_value_string_(Execute ptr, addr stream, addr *ret)
@@ -336,6 +379,86 @@ int faslread_value_string_(Execute ptr, addr stream, addr *ret)
 	faslread_status_update(pos, status);
 
 	return Result(ret, pos);
+}
+
+int faslread_value_string7_(Execute ptr, addr stream, addr *ret)
+{
+	FaslStatus status;
+	byte c;
+	addr pos;
+	unicode *data;
+	size_t size, i;
+
+	Return(faslread_status_(stream, &status));
+	Return(faslread_size_(stream, &size));
+
+	strvect_heap(&pos, size);
+	GetStringUnicode(pos, &data);
+	for (i = 0; i < size; i++) {
+		Return(faslread_byte_(stream, &c));
+		data[i] = (unicode)c;
+	}
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
+}
+
+static int faslread_string32_local_(LocalRoot local, addr stream, addr *ret)
+{
+	FaslStatus status;
+	addr pos;
+	unicode *data;
+	size_t size;
+
+	Return(faslread_status_(stream, &status));
+	Return(faslread_size_(stream, &size));
+
+	strvect_local(local, &pos, size);
+	GetStringUnicode(pos, &data);
+	Return(faslread_buffer_(stream, data, sizeoft(unicode) * size));
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
+}
+
+static int faslread_string7_local_(LocalRoot local, addr stream, addr *ret)
+{
+	FaslStatus status;
+	byte c;
+	addr pos;
+	unicode *data;
+	size_t size, i;
+
+	Return(faslread_status_(stream, &status));
+	Return(faslread_size_(stream, &size));
+
+	strvect_local(local, &pos, size);
+	GetStringUnicode(pos, &data);
+	for (i = 0; i < size; i++) {
+		Return(faslread_byte_(stream, &c));
+		data[i] = (unicode)c;
+	}
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
+}
+
+static int faslread_string_local_(LocalRoot local, addr stream, addr *ret)
+{
+	enum FaslCode code;
+
+	Return(faslread_type_(stream, &code));
+	switch (code) {
+		case FaslCode_string:
+			return faslread_string32_local_(local, stream, ret);
+
+		case FaslCode_string7:
+			return faslread_string7_local_(local, stream, ret);
+
+		default:
+			*ret = Nil;
+			return fmte_("Invalid faslcode.", NULL);
+	}
 }
 
 
@@ -832,6 +955,7 @@ int faslwrite_value_package_(Execute ptr, addr stream, addr pos)
 	CheckType(pos, LISPTYPE_PACKAGE);
 	Return(faslwrite_type_(stream, FaslCode_package));
 	getname_package_unsafe(pos, &pos);
+	Return(strvect_value_heap_(&pos, pos));
 	return faslwrite_value_(ptr, stream, pos);
 }
 
@@ -843,7 +967,7 @@ int faslread_value_package_(Execute ptr, addr stream, addr *ret)
 
 	local = ptr->local;
 	push_local(local, &stack);
-	Return(faslread_string_code_local_(local, stream, &pos));
+	Return(faslread_string_local_(local, stream, &pos));
 	Return(find_package_(pos, ret));
 	rollback_local(local, stack);
 

@@ -232,7 +232,9 @@ void init_compile_read(void)
 	FaslRead_Table[FaslCode_vector8] = faslread_value_vector8_;
 #endif
 	FaslRead_Table[FaslCode_character] = faslread_value_character_;
+	FaslRead_Table[FaslCode_character7] = faslread_value_character7_;
 	FaslRead_Table[FaslCode_string] = faslread_value_string_;
+	FaslRead_Table[FaslCode_string7] = faslread_value_string7_;
 	FaslRead_Table[FaslCode_hashtable] = faslread_value_hashtable_;
 	FaslRead_Table[FaslCode_gensym] = faslread_value_gensym_;
 	FaslRead_Table[FaslCode_symbol] = faslread_value_symbol_;

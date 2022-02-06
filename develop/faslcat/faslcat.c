@@ -9,10 +9,21 @@
 typedef uint32_t unicode;
 typedef uint64_t size64;
 
+int Info;
 int BigEndian;
 int Arch64;
 int Fixnum64;
 FILE *Output;
+
+/*
+ *  info
+ */
+void info(const char *str)
+{
+	if (Info)
+		fprintf(stderr, "%s\n", str);
+}
+
 
 /*
  *  read
@@ -105,18 +116,43 @@ int read_byte8(FILE *file, uint64_t *ret)
 }
 int read_size(FILE *file, size64 *ret)
 {
-	uint32_t u32;
-	uint64_t u64;
+	uint8_t v1;
+	uint16_t v2;
+	uint32_t v4;
+	uint64_t v8;
 
-	if (Arch64) {
-		if (read_byte8(file, &u64))
+	/* size */
+	if (read_byte(file, &v1))
+		return 1;
+
+	/* value */
+	switch (v1) {
+		case 1:
+			if (read_byte(file, &v1))
+				return 1;
+			*ret = (size64)v1;
+			return 0;
+
+		case 2:
+			if (read_byte2(file, &v2))
+				return 1;
+			*ret = (size64)v2;
+			return 0;
+
+		case 4:
+			if (read_byte4(file, &v4))
+				return 1;
+			*ret = (size64)v4;
+			return 0;
+
+		case 8:
+			if (read_byte8(file, &v8))
+				return 1;
+			*ret = (size64)v8;
+			return 0;
+
+		default:
 			return 1;
-		*ret = (size64)u64;
-	}
-	else {
-		if (read_byte4(file, &u32))
-			return 1;
-		*ret = (size64)u32;
 	}
 
 	return 0;
@@ -221,20 +257,40 @@ int write_byte8(uint64_t v)
 }
 int write_size(size64 v)
 {
-	if (Arch64) {
-		if (write_byte8((uint64_t)v))
+	uint8_t v1;
+	uint16_t v2;
+	uint32_t v4;
+	uint64_t v8;
+
+	/* size 1 */
+	if (v <= 0xFFULL) {
+		if (write_byte(1))
 			return 1;
-	}
-	else {
-		if (v >> 4) {
-			fprintf(stderr, "write_size error.\n");
-			return 1;
-		}
-		if (write_byte4((uint32_t)v))
-			return 1;
+		v1 = (uint8_t)(v & 0xFFULL);
+		return write_byte(v1);
 	}
 
-	return 0;
+	/* size 2 */
+	if (v <= 0xFFFFULL) {
+		if (write_byte(2))
+			return 1;
+		v2 = (uint16_t)(v & 0xFFFFULL);
+		return write_byte2(v2);
+	}
+
+	/* size 4 */
+	if (v <= 0xFFFFFFFFULL) {
+		if (write_byte(4))
+			return 1;
+		v4 = (uint32_t)(v & 0xFFFFFFFFULL);
+		return write_byte4(v4);
+	}
+
+	/* size 8 */
+	if (write_byte(8))
+		return 1;
+	v8 = (uint64_t)v;
+	return write_byte(v8);
 }
 int write_faslcode(enum FaslCode code)
 {
@@ -363,6 +419,8 @@ int fasl_code_loop(FILE *file, size64 size)
 int fasl_code(FILE *file)
 {
 	size64 size;
+
+	info("Fasl_code");
 	return pipe_status(file)
 		|| pipe_size(file, &size)
 		|| fasl_code_loop(file, size);
@@ -385,6 +443,8 @@ int fasl_type_array(FILE *file, size64 size)
 int fasl_type(FILE *file)
 {
 	size64 size;
+
+	info("FaslCode_type");
 	return pipe_status(file)
 		|| pipe_byte(file, NULL)         /* LispDecl */
 		|| pipe_size(file, &size)        /* size */
@@ -395,6 +455,7 @@ int fasl_type(FILE *file)
 /* clos */
 int fasl_clos(FILE *file)
 {
+	info("FaslCode_clos");
 	return pipe_status(file)
 		|| pipe_size(file, NULL);
 }
@@ -403,6 +464,7 @@ int fasl_clos(FILE *file)
 /* cons */
 int fasl_cons(FILE *file)
 {
+	info("FaslCode_cons");
 	return pipe_status(file)
 		|| fasl_value(file)   /* car */
 		|| fasl_value(file);  /* cdr */
@@ -501,6 +563,7 @@ int fasl_array(FILE *file)
 	uint8_t type, element;
 	size64 front, dim;
 
+	info("FaslCode_array");
 	return pipe_status(file)
 		|| fasl_array_struct(file, &type, &element, &front, &dim)
 		|| fasl_value(file) /* type */
@@ -526,6 +589,7 @@ int fasl_vector(FILE *file)
 {
 	size64 size;
 
+	info("FaslCode_vector");
 	return pipe_status(file)
 		|| pipe_size(file, &size)
 		|| fasl_vector_loop(file, size);
@@ -536,8 +600,17 @@ int fasl_vector(FILE *file)
 int fasl_character(FILE *file)
 {
 	unicode value;
+
+	info("FaslCode_character");
 	return pipe_status(file)
 		|| pipe_sequence(file, &value, sizeof(value));
+}
+
+int fasl_character7(FILE *file)
+{
+	info("FaslCode_character7");
+	return pipe_status(file)
+		|| pipe_byte(file, NULL);
 }
 
 
@@ -558,9 +631,33 @@ int fasl_string_loop(FILE *file, size64 size)
 int fasl_string(FILE *file)
 {
 	size64 size;
+
+	info("FaslCode_string");
 	return pipe_status(file)
 		|| pipe_size(file, &size)
 		|| fasl_string_loop(file, size);
+}
+
+int fasl_string7_loop(FILE *file, size64 size)
+{
+	size64 i;
+
+	for (i = 0; i < size; i++) {
+		if (pipe_byte(file, NULL))
+			return 1;
+	}
+
+	return 0;
+}
+
+int fasl_string7(FILE *file)
+{
+	size64 size;
+
+	info("FaslCode_string7");
+	return pipe_status(file)
+		|| pipe_size(file, &size)
+		|| fasl_string7_loop(file, size);
 }
 
 
@@ -598,6 +695,8 @@ int fasl_hashtable_loop(FILE *file, size64 count)
 int fasl_hashtable(FILE *file)
 {
 	size64 count;
+
+	info("FaslCode_hashtable");
 	return pipe_status(file)
 		|| fasl_hashtable_struct(file, &count)
 		|| fasl_hashtable_loop(file, count);
@@ -607,6 +706,7 @@ int fasl_hashtable(FILE *file)
 /* gensym */
 int fasl_gensym(FILE *file)
 {
+	info("FaslCode_gensym");
 	return pipe_status(file)
 		|| pipe_size(file, NULL);
 }
@@ -615,6 +715,7 @@ int fasl_gensym(FILE *file)
 /* symbol */
 int fasl_symbol(FILE *file)
 {
+	info("FaslCode_symbol");
 	return fasl_value(file)   /* package */
 		|| fasl_value(file);  /* name */
 }
@@ -625,6 +726,8 @@ int fasl_fixnum(FILE *file)
 {
 	int32_t v32;
 	int64_t v64;
+
+	info("FaslCode_fixnum");
 
 	/* status */
 	if (pipe_status(file))
@@ -670,6 +773,8 @@ int fasl_bignum_loop(FILE *file, size64 size)
 int fasl_bignum(FILE *file)
 {
 	size64 size;
+
+	info("FaslCode_bignum");
 	return pipe_status(file)
 		|| pipe_byte(file, NULL)
 		|| pipe_size(file, &size)
@@ -680,6 +785,7 @@ int fasl_bignum(FILE *file)
 /* ratio */
 int fasl_ratio(FILE *file)
 {
+	info("FaslCode_ratio");
 	return pipe_status(file)
 		|| pipe_byte(file, NULL)  /* sign */
 		|| fasl_value(file)       /* numer */
@@ -691,6 +797,8 @@ int fasl_ratio(FILE *file)
 int fasl_single_float(FILE *file)
 {
 	float value;
+
+	info("FaslCode_single_float");
 	return pipe_status(file)
 		|| pipe_sequence(file, &value, sizeof(value));
 }
@@ -700,6 +808,8 @@ int fasl_single_float(FILE *file)
 int fasl_double_float(FILE *file)
 {
 	double value;
+
+	info("FaslCode_double_float");
 	return pipe_status(file)
 		|| pipe_sequence(file, &value, sizeof(value));
 }
@@ -709,6 +819,8 @@ int fasl_double_float(FILE *file)
 int fasl_long_float(FILE *file)
 {
 	long double value;
+
+	info("FaslCode_long_float");
 	return pipe_status(file)
 		|| pipe_sequence(file, &value, sizeof(value));
 }
@@ -717,6 +829,7 @@ int fasl_long_float(FILE *file)
 /* complex */
 int fasl_complex(FILE *file)
 {
+	info("FaslCode_complex");
 	return pipe_status(file)
 		|| pipe_byte(file, NULL)  /* type */
 		|| fasl_value(file)       /* real */
@@ -727,6 +840,7 @@ int fasl_complex(FILE *file)
 /* callname */
 int fasl_callname(FILE *file)
 {
+	info("FaslCode_callname");
 	return pipe_status(file)
 		|| pipe_byte(file, NULL)
 		|| fasl_value(file);
@@ -736,6 +850,7 @@ int fasl_callname(FILE *file)
 /* index */
 int fasl_index(FILE *file)
 {
+	info("FaslCode_index");
 	return pipe_status(file)
 		|| pipe_size(file, NULL);
 }
@@ -744,6 +859,7 @@ int fasl_index(FILE *file)
 /* package */
 int fasl_package(FILE *file)
 {
+	info("FaslCode_package");
 	return fasl_value(file);
 }
 
@@ -752,6 +868,8 @@ int fasl_package(FILE *file)
 int fasl_random_state(FILE *file)
 {
 	uint8_t data[16];  /* 128bit */
+
+	info("FaslCode_random_state");
 	return pipe_status(file)
 		|| pipe_sequence(file, data, 16);
 }
@@ -760,6 +878,7 @@ int fasl_random_state(FILE *file)
 /* pathname */
 int fasl_pathname(FILE *file)
 {
+	info("FaslCode_pathname");
 	return pipe_status(file)
 		|| pipe_byte(file, NULL)
 		|| fasl_value(file)   /* host */
@@ -774,6 +893,7 @@ int fasl_pathname(FILE *file)
 /* quote */
 int fasl_quote(FILE *file)
 {
+	info("FaslCode_quote");
 	return pipe_status(file)
 		|| pipe_byte(file, NULL)  /* type */
 		|| fasl_value(file)       /* value */
@@ -807,6 +927,8 @@ int fasl_bitvector_loop(FILE *file, size64 fixed)
 int fasl_bitvector(FILE *file)
 {
 	size64 fixed;
+
+	info("FaslCode_bitvector");
 	return pipe_status(file)
 		|| pipe_size(file, NULL)    /* bitsize */
 		|| pipe_size(file, &fixed)  /* fixedsize */
@@ -817,6 +939,7 @@ int fasl_bitvector(FILE *file)
 /* load-time-value */
 int fasl_load(FILE *file)
 {
+	info("FaslCode_load_time_value");
 	return pipe_status(file)
 		|| pipe_size(file, NULL);
 }
@@ -830,9 +953,16 @@ int fasl_switch(FILE *file, enum FaslCode code)
 			return fasl_code(file);
 
 		case FaslCode_unbound:
+			info("FaslCode_unbound");
+			return 0;
+
 		case FaslCode_nil:
+			info("FaslCode_nil");
+			return 0;
+
 		case FaslCode_t:
-			return 0; /* do nothing */
+			info("FaslCode_t");
+			return 0;
 
 		case FaslCode_type:
 			return fasl_type(file);
@@ -854,8 +984,14 @@ int fasl_switch(FILE *file, enum FaslCode code)
 		case FaslCode_character:
 			return fasl_character(file);
 
+		case FaslCode_character7:
+			return fasl_character7(file);
+
 		case FaslCode_string:
 			return fasl_string(file);
+
+		case FaslCode_string7:
+			return fasl_string7(file);
 
 		case FaslCode_hashtable:
 			return fasl_hashtable(file);
@@ -912,6 +1048,7 @@ int fasl_switch(FILE *file, enum FaslCode code)
 			return fasl_load(file);
 
 		case FaslCode_break:
+			info("FaslCode_break");
 			break;
 
 		case FaslCode_error:
@@ -1173,11 +1310,11 @@ int read_input(FILE *file, const char *str)
  */
 int Option_argc;
 char **Option_argv;
-int Option_f;
+int Option_o;
 int Option_c;
 int Option_input;
 int Option_stdin;
-char *Option_fp;
+char *Option_of;
 
 int main_pipe_file(const char *str)
 {
@@ -1233,16 +1370,16 @@ int main_option_f(int i)
 	int check;
 	FILE *file;
 
-	file = fopen(Option_fp, "wb");
+	file = fopen(Option_of, "wb");
 	if (file == NULL) {
-		fprintf(stderr, "File write error, %s.\n", Option_fp);
+		fprintf(stderr, "File write error, %s.\n", Option_of);
 		return 1;
 	}
 	Output = file;
 	check = main_output(i);
 	Output = NULL;
 	if (fclose(file)) {
-		fprintf(stderr, "File close error, %s.\n", Option_fp);
+		fprintf(stderr, "File close error, %s.\n", Option_of);
 		return 1;
 	}
 
@@ -1259,15 +1396,16 @@ int main_help(void)
 {
 	printf("faslcat -- concatenate fasl files for %s.\n", Lispname);
 	printf("\n");
-	printf("Usage: faslcat [-h] [-c] [-f OUTPUT] [--] [INPUT ...]\n");
+	printf("Usage: faslcat [-h] [-c] [-o OUTPUT] [--] [INPUTS ...]\n");
 	printf("  -h      Help\n");
 	printf("  -c      Do not write output file. (check only)\n");
-	printf("  -f      Output file.\n");
+	printf("  -v      Output information to stderr\n");
+	printf("  -o      Output file.\n");
 	printf("\n");
 	printf("Example:\n");
 	printf("  faslcat < input.fasl > output.fasl\n");
-	printf("  faslcat -f output.fasl input.fasl\n");
-	printf("  faslcat -f output.fasl x.fasl y.fasl z.fasl\n");
+	printf("  faslcat -o output.fasl input.fasl\n");
+	printf("  faslcat -o output.fasl x.fasl y.fasl z.fasl\n");
 
 	return 0;
 }
@@ -1278,6 +1416,7 @@ int main(int argc, char *argv[])
 	char *str;
 
 	Initialize = 0;
+	Info = 0;
 	BigEndian = 0;
 	Arch64 = 0;
 	Fixnum64 = 0;
@@ -1287,10 +1426,10 @@ int main(int argc, char *argv[])
 	Option_argc = argc;
 	Option_argv = argv;
 	Option_c = 0;
-	Option_f = 0;
+	Option_o = 0;
 	Option_input = 0;
 	Option_stdin = 0;
-	Option_fp = NULL;
+	Option_of = NULL;
 
 	/* help */
 	if (argc == 2) {
@@ -1309,8 +1448,8 @@ loop:
 
 	/* -c */
 	if (strcmp(str, "-c") == 0) {
-		if (Option_f) {
-			fprintf(stderr, "Option -f already set.\n");
+		if (Option_o) {
+			fprintf(stderr, "Option -o already set.\n");
 			return 1;
 		}
 		Option_c = 1;
@@ -1318,23 +1457,30 @@ loop:
 		goto loop;
 	}
 
-	/* -f */
-	if (strcmp(str, "-f") == 0) {
+	/* -v */
+	if (strcmp(str, "-v") == 0) {
+		Info = 1;
+		i++;
+		goto loop;
+	}
+
+	/* -o */
+	if (strcmp(str, "-o") == 0) {
 		if (Option_c) {
 			fprintf(stderr, "Option -c already set.\n");
 			return 1;
 		}
-		if (Option_f) {
-			fprintf(stderr, "Option -f already set.\n");
+		if (Option_o) {
+			fprintf(stderr, "Option -o already set.\n");
 			return 1;
 		}
 		i++;
 		if (argc <= i) {
-			fprintf(stderr, "There is no filename after -f.\n");
+			fprintf(stderr, "There is no filename after -o.\n");
 			return 1;
 		}
-		Option_fp = argv[i];
-		Option_f = 1;
+		Option_of = argv[i];
+		Option_o = 1;
 		i++;
 		goto loop;
 	}
@@ -1357,7 +1503,7 @@ finish:
 	/* stdout */
 	if (Option_c)
 		return main_check_only(i);
-	else if (Option_f)
+	else if (Option_o)
 		return main_option_f(i);
 	else
 		return main_stdout(i);
