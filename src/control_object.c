@@ -531,7 +531,7 @@ void setrestart_control(LocalRoot local, addr pos, addr value)
 
 void pushdebug_control(Execute ptr, addr pos)
 {
-	Check(! fixnump(pos), "type error");
+	Check(! (pos == Nil || fixnump(pos)), "type error");
 	settable_control(ptr->local, ptr->control, CONSTANT_CODE_BEGIN, pos);
 }
 

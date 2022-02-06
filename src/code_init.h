@@ -14,6 +14,7 @@ enum CodeValueType {
 	CodeValueType_Addr,
 	CodeValueType_Index,
 	CodeValueType_Fixnum,
+	CodeValueType_FixnumNull,
 	CodeValueType_Character,
 	CodeValueType_Null
 };

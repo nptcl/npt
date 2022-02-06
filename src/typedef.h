@@ -19,7 +19,6 @@ union CODEVALUE {
 	fixnum value;
 	unicode character;
 	size_t index;
-	void *voidp;
 	addr pos;
 };
 typedef union CODEVALUE CodeValue;

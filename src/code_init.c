@@ -36,9 +36,9 @@ void init_code_init(void)
 	/* system */
 	initcode(nop_code, Null);
 #ifdef LISP_DEBUG
-	initcode(begin_code, Fixnum);
-	initcode(begin_call_code, Fixnum);
-	initcode(end_code, Fixnum);
+	initcode(begin_code, FixnumNull);
+	initcode(begin_call_code, FixnumNull);
+	initcode(end_code, FixnumNull);
 #else
 	initcode(begin_code, Null);
 	initcode(begin_call_code, Null);

@@ -40,12 +40,20 @@ int nop_code(Execute ptr, CodeValue x)
 }
 
 #ifdef LISP_DEBUG
+static void fixnum_null_heap(addr *ret, CodeValue x)
+{
+	if (x.pos == Nil)
+		*ret = Nil;
+	else
+		fixnum_heap(ret, x.value);
+}
+
 int begin_code(Execute ptr, CodeValue x)
 {
 	addr ignore, pos;
 
 	push_control(ptr, &ignore);
-	fixnum_heap(&pos, x.value);
+	fixnum_null_heap(&pos, x);
 	pushdebug_control(ptr, pos);
 
 	return 0;
@@ -56,7 +64,7 @@ int begin_call_code(Execute ptr, CodeValue x)
 	addr ignore, pos;
 
 	push_args_control(ptr, &ignore);
-	fixnum_heap(&pos, x.value);
+	fixnum_null_heap(&pos, x);
 	pushdebug_control(ptr, pos);
 
 	return 0;
@@ -85,11 +93,17 @@ int end_code(Execute ptr, CodeValue x)
 
 	if (! getdebug_control(ptr, &pos))
 		return fmte_("end-code error, getdebug.", NULL);
-	if (! fixnump(pos))
-		return fmte_("end-code error, object ~S.", pos, NULL);
-	GetFixnum(pos, &check);
-	if (check != x.value)
-		return fmte_("end-code error, check ~S.", pos, NULL);
+	if (pos == Nil) {
+		if (x.pos != Nil)
+			return fmte_("end-code error, null check ~S.", x.pos, NULL);
+	}
+	else {
+		if (! fixnump(pos))
+			return fmte_("end-code error, object ~S.", pos, NULL);
+		GetFixnum(pos, &check);
+		if (check != x.value)
+			return fmte_("end-code error, check ~S.", pos, NULL);
+	}
 
 	return pop_control_(ptr, ptr->control);
 }

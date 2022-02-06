@@ -112,6 +112,13 @@ static void code_value_heap(addr *ret, enum CodeValueType type, CodeValue x)
 			fixnum_heap(ret, x.value);
 			break;
 
+		case CodeValueType_FixnumNull:
+			if (x.pos == Nil)
+				*ret = Nil;
+			else
+				fixnum_heap(ret, x.value);
+			break;
+
 		case CodeValueType_Character:
 			character_heap(ret, x.character);
 			break;

@@ -82,12 +82,21 @@ static CodeValue make_code_value(pointer id, addr pos)
 			GetFixnum(pos, &ret.value);
 			break;
 
+		case CodeValueType_FixnumNull:
+			if (pos == Nil) {
+				ret.pos = Nil;
+			}
+			else {
+				GetFixnum(pos, &ret.value);
+			}
+			break;
+
 		case CodeValueType_Character:
 			GetCharacter(pos, &ret.character);
 			break;
 
 		case CodeValueType_Null:
-			ret.voidp = NULL;
+			ret.pos = Nil;
 			break;
 	}
 
