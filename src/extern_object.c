@@ -2,6 +2,7 @@
 #include "call_filenames.h"
 #include "character.h"
 #include "condition.h"
+#include "control_object.h"
 #include "extern_develop.h"
 #include "extern_error.h"
 #include "extern_object.h"
@@ -18,6 +19,7 @@
 #include "ratio.h"
 #include "reader.h"
 #include "real.h"
+#include "symbol.h"
 #include "typedef.h"
 #include "unicode.h"
 
@@ -317,6 +319,128 @@ int lisp_package32_(addr x, const void *str)
 
 	Return(lisp0_package32_(&pos, str));
 	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_in_package_(addr value)
+{
+	addr symbol;
+
+	GetConst(SPECIAL_PACKAGE, &symbol);
+	value = holdv(value);
+	if (! packagep(value))
+		return fmte_("Value ~S must be a package object.", value, NULL);
+	setspecial_local(Execute_Thread, symbol, value);
+
+	return 0;
+}
+
+int lisp_in_package8_(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, value;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string8_null_local_(local, &x, (const char *)str));
+	Return(find_package_(x, &value));
+	Return(lisp_in_package_(value));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_in_package16_(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, value;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string16_null_local_(local, &x, (const byte16 *)str));
+	Return(find_package_(x, &value));
+	Return(lisp_in_package_(value));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_in_package32_(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, value;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string32_null_local_(local, &x, (const unicode *)str));
+	Return(find_package_(x, &value));
+	Return(lisp_in_package_(value));
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+int lisp_push_and_in_package_(addr value)
+{
+	addr symbol;
+
+	GetConst(SPECIAL_PACKAGE, &symbol);
+	value = holdv(value);
+	if (! packagep(value))
+		return fmte_("Value ~S must be a package object.", value, NULL);
+	pushspecial_control(Execute_Thread, symbol, value);
+
+	return 0;
+}
+
+int lisp_push_and_in_package8_(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, value;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string8_null_local_(local, &x, (const char *)str));
+	Return(find_package_(x, &value));
+	rollback_local(local, stack);
+	Return(lisp_push_and_in_package_(value));
+
+	return 0;
+}
+
+int lisp_push_and_in_package16_(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, value;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string16_null_local_(local, &x, (const byte16 *)str));
+	Return(find_package_(x, &value));
+	rollback_local(local, stack);
+	Return(lisp_push_and_in_package_(value));
+
+	return 0;
+}
+
+int lisp_push_and_in_package32_(const void *str)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, value;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(string32_null_local_(local, &x, (const unicode *)str));
+	Return(find_package_(x, &value));
+	rollback_local(local, stack);
+	Return(lisp_push_and_in_package_(value));
+
 	return 0;
 }
 

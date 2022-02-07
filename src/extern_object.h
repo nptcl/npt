@@ -35,6 +35,15 @@ int lisp_package8_(addr x, const void *str);
 int lisp_package16_(addr x, const void *str);
 int lisp_package32_(addr x, const void *str);
 
+int lisp_in_package_(addr pos);
+int lisp_in_package8_(const void *str);
+int lisp_in_package16_(const void *str);
+int lisp_in_package32_(const void *str);
+int lisp_push_and_in_package_(addr pos);
+int lisp_push_and_in_package8_(const void *str);
+int lisp_push_and_in_package16_(const void *str);
+int lisp_push_and_in_package32_(const void *str);
+
 /* intern */
 int lisp0_intern_(addr *ret, addr package, addr name);
 int lisp0_intern8_(addr *ret, const void *package, const void *name);
