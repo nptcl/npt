@@ -52,34 +52,6 @@ int arraymemory_get_(addr pos, size_t index, addr *retp, size_t *rets, int *ret)
 	return 0;
 }
 
-int arraymemory_get_safe(addr pos, size_t index, addr *retp, size_t *rets, int *ret)
-{
-	struct array_struct *str;
-
-	Check(! arrayp(pos), "type error");
-	str = ArrayInfoStruct(pos);
-	if (str->size <= index) {
-		*retp = Nil;
-		*rets = 0;
-		*ret = 0;
-		return 1;
-	}
-	if (! str->displaced)
-		return arraymemory_get_memory_(pos, index, retp, rets, ret);
-
-	/* displaced */
-	GetArrayInfo(pos, ARRAY_INDEX_DISPLACED, &pos);
-	index += str->offset;
-	if (arrayp(pos))
-		return arraymemory_get_safe(pos, index, retp, rets, ret);
-
-	/* not array */
-	*retp = pos;
-	*rets = index;
-	*ret = 0;
-	return 0;
-}
-
 
 /*
  *  arraymemory_set

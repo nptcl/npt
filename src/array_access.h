@@ -7,7 +7,6 @@
 #include "typedef.h"
 
 #define arraymemory_get_ _n(arraymemory_get_)
-#define arraymemory_get_safe _n(arraymemory_get_safe)
 #define array_arefindex_ _n(array_arefindex_)
 #define array_get_t_ _n(array_get_t_)
 #define array_get_bit_ _n(array_get_bit_)
@@ -39,7 +38,6 @@
 #define array_get_rowlength _n(array_get_rowlength)
 
 int arraymemory_get_(addr pos, size_t index, addr *retp, size_t *rets, int *ret);
-int arraymemory_get_safe(addr pos, size_t index, addr *retp, size_t *rets, int *ret);
 int array_arefindex_(addr pos, addr args, size_t *ret);
 
 int array_get_t_(addr pos, size_t index, addr *ret);

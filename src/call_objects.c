@@ -801,7 +801,7 @@ error:
  *    (:method-class method-class)
  *    (:method qualifiers* lambda declare* document* form*)*
  */
-static int defgeneric_parse_order(addr list, addr *ret)
+static int defgeneric_parse_order_(addr list, addr *ret)
 {
 	addr check;
 
@@ -817,7 +817,7 @@ static int defgeneric_parse_order(addr list, addr *ret)
 	return 0;
 }
 
-static int defgeneric_parse_declare(addr list, addr *ret)
+static int defgeneric_parse_declare_(addr list, addr *ret)
 {
 	int check;
 	addr decl;
@@ -829,7 +829,7 @@ static int defgeneric_parse_declare(addr list, addr *ret)
 	return Result(ret, decl);
 }
 
-static int defgeneric_parse_document(addr list, addr *ret)
+static int defgeneric_parse_document_(addr list, addr *ret)
 {
 	addr pos, doc;
 
@@ -846,7 +846,7 @@ error:
 	return fmte_(":DOCUMENTATION ~S must be a (string) form.", list, NULL);
 }
 
-static int defgeneric_parse_method_combination(addr list, addr *ret)
+static int defgeneric_parse_method_combination_(addr list, addr *ret)
 {
 	addr pos, check;
 
@@ -862,7 +862,7 @@ error:
 			"(symbol arguments*) form.", list, NULL);
 }
 
-static int defgeneric_parse_generic(addr list, addr *ret)
+static int defgeneric_parse_generic_(addr list, addr *ret)
 {
 	addr name, tail, find, quote;
 
@@ -884,7 +884,7 @@ static int defgeneric_parse_generic(addr list, addr *ret)
 	return 0;
 }
 
-static int defgeneric_parse_method(addr list, addr *ret)
+static int defgeneric_parse_method_(addr list, addr *ret)
 {
 	addr name, tail, find, quote;
 
@@ -915,7 +915,7 @@ static void defgeneric_parse_form(addr root, addr name, addr list, addr *ret)
 	cons_heap(ret, pos, root);
 }
 
-static int defgeneric_parse_options(addr name, addr args,
+static int defgeneric_parse_options_(addr name, addr args,
 		addr *rorder, addr *rdecl, addr *rdoc, addr *rcomb,
 		addr *rgen, addr *rmethod, addr *rcode)
 {
@@ -933,37 +933,37 @@ static int defgeneric_parse_options(addr name, addr args,
 		/* :argument-precedence-order */
 		GetConst(KEYWORD_ARGUMENT_PRECEDENCE_ORDER, &check);
 		if (type == check) {
-			Return(defgeneric_parse_order(tail, &order));
+			Return(defgeneric_parse_order_(tail, &order));
 			continue;
 		}
 		/* :declare */
 		GetConst(COMMON_DECLARE, &check);
 		if (type == check) {
-			Return(defgeneric_parse_declare(tail, &decl));
+			Return(defgeneric_parse_declare_(tail, &decl));
 			continue;
 		}
 		/* :documentation */
 		GetConst(KEYWORD_DOCUMENTATION, &check);
 		if (type == check) {
-			Return(defgeneric_parse_document(tail, &doc));
+			Return(defgeneric_parse_document_(tail, &doc));
 			continue;
 		}
 		/* :method-combination */
 		GetConst(KEYWORD_METHOD_COMBINATION, &check);
 		if (type == check) {
-			Return(defgeneric_parse_method_combination(tail, &comb));
+			Return(defgeneric_parse_method_combination_(tail, &comb));
 			continue;
 		}
 		/* :generic-function-class */
 		GetConst(KEYWORD_GENERIC_FUNCTION_CLASS, &check);
 		if (type == check) {
-			Return(defgeneric_parse_generic(tail, &gen));
+			Return(defgeneric_parse_generic_(tail, &gen));
 			continue;
 		}
 		/* :method-class */
 		GetConst(KEYWORD_METHOD_CLASS, &check);
 		if (type == check) {
-			Return(defgeneric_parse_method(tail, &method));
+			Return(defgeneric_parse_method_(tail, &method));
 			continue;
 		}
 		/* :method */
@@ -1093,7 +1093,7 @@ int defgeneric_common_(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	/* options */
 	order = decl = doc = comb = gen = method = code = Nil;
-	Return(defgeneric_parse_options(name, args,
+	Return(defgeneric_parse_options_(name, args,
 				&order, &decl, &doc, &comb, &gen, &method, &code));
 	/* check */
 	Return(defgeneric_check_function_(name));

@@ -20,7 +20,7 @@ static int arrayinplace_get_general_(addr mem, size_t index, struct array_value 
 	return 0;
 }
 
-static int arrayinplace_get_specialized_safe(
+static int arrayinplace_get_specialized_(
 		addr pos, addr mem, size_t index, struct array_value *value)
 {
 	unsigned element;
@@ -29,7 +29,7 @@ static int arrayinplace_get_specialized_safe(
 
 	str = ArrayInfoStruct(pos);
 	if (str->type == ARRAY_TYPE_BIT)
-		return 1;
+		return fmte_("Invaild array object, ~S.", pos, NULL);
 
 	element = (unsigned)str->element;
 	data = (const byte *)arrayspec_ptr(mem);
@@ -41,15 +41,6 @@ static int arrayinplace_get_specialized_safe(
 	return 0;
 }
 
-static int arrayinplace_get_specialized_(
-		addr pos, addr mem, size_t index, struct array_value *value)
-{
-	if (arrayinplace_get_specialized_safe(pos, mem, index, value))
-		return fmte_("Invaild array object, ~S.", pos, NULL);
-
-	return 0;
-}
-
 static int arrayinplace_get_memory_(
 		addr pos, addr mem, size_t index, struct array_value *value)
 {
@@ -57,15 +48,6 @@ static int arrayinplace_get_memory_(
 		return arrayinplace_get_general_(mem, index, value);
 	else
 		return arrayinplace_get_specialized_(pos, mem, index, value);
-}
-
-static int arrayinplace_get_memory_safe(
-		addr pos, addr mem, size_t index, struct array_value *value)
-{
-	if (array_type(pos) == ARRAY_TYPE_T)
-		return arrayinplace_get_general_(mem, index, value);
-	else
-		return arrayinplace_get_specialized_safe(pos, mem, index, value);
 }
 
 static int arrayinplace_get_t_(addr mem, size_t index, struct array_value *str)
@@ -123,24 +105,6 @@ static int arrayinplace_get_object_(
 	}
 }
 
-static int arrayinplace_get_object_safe(
-		addr pos, addr mem, size_t index, struct array_value *value)
-{
-	switch (array_type(pos)) {
-		case ARRAY_TYPE_T:
-			return arrayinplace_get_t_(mem, index, value);
-
-		case ARRAY_TYPE_BIT:
-			return arrayinplace_get_bit_(mem, index, value);
-
-		case ARRAY_TYPE_CHARACTER:
-			return arrayinplace_get_character_(mem, index, value);
-
-		default:
-			return 1;
-	}
-}
-
 int arrayinplace_get_(addr pos, size_t index, struct array_value *str)
 {
 	int check;
@@ -151,18 +115,6 @@ int arrayinplace_get_(addr pos, size_t index, struct array_value *str)
 		return arrayinplace_get_memory_(pos, mem, index, str);
 	else
 		return arrayinplace_get_object_(pos, mem, index, str);
-}
-
-int arrayinplace_get_safe(addr pos, size_t index, struct array_value *str)
-{
-	int check;
-	addr mem;
-
-	Return(arraymemory_get_safe(pos, index, &mem, &index, &check));
-	if (check)
-		return arrayinplace_get_memory_safe(pos, mem, index, str);
-	else
-		return arrayinplace_get_object_safe(pos, mem, index, str);
 }
 
 

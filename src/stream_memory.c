@@ -6,7 +6,6 @@
 #include "cons.h"
 #include "integer.h"
 #include "sequence.h"
-#include "sequence_safe.h"
 #include "stream.h"
 #include "stream_error.h"
 #include "stream_memory.h"

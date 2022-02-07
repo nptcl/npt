@@ -342,7 +342,6 @@ sequence_map.c
 sequence_merge.c
 sequence_range.c
 sequence_remove.c
-sequence_safe.c
 sequence_substitute.c
 sequence_write.c
 sequence.c

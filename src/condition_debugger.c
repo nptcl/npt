@@ -238,7 +238,7 @@ static int condition_check_p_(constindex index, addr condition, int *ret)
 }
 #define ConditionCheck_(x,y,r) condition_check_p_(CONSTANT_CONDITION_##x,(y),(r))
 
-static int output_debugger(Execute ptr, addr stream, addr pos)
+static int output_debugger_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 
@@ -273,12 +273,12 @@ static int invoke_standard_header_(Execute ptr, addr io, addr condition)
 	(void)text_color_terme(ptr, print_color_bright_red);
 	Return(format_stream_(ptr, io, "~&ERROR: ~S~%", pos, NULL));
 	(void)text_color_terme(ptr, print_color_reset);
-	Return(output_debugger(ptr, io, condition));
+	Return(output_debugger_(ptr, io, condition));
 
 	return 0;
 }
 
-static int output_restarts_debugger(Execute ptr, addr io, addr list)
+static int output_restarts_debugger_(Execute ptr, addr io, addr list)
 {
 	int check;
 	addr pos, symbol, name, str, id;
@@ -312,7 +312,7 @@ static int eval_debugger_call_(Execute ptr, addr io, addr eval)
 	return eval_loop_output_(ptr, io);
 }
 
-static int eval_debugger(Execute ptr, addr io, addr eval)
+static int eval_debugger_(Execute ptr, addr io, addr eval)
 {
 	addr control;
 
@@ -321,7 +321,7 @@ static int eval_debugger(Execute ptr, addr io, addr eval)
 	return pop_control_(ptr, control);
 }
 
-static int eval_symbol_debugger(Execute ptr, addr io, addr list, addr eval)
+static int eval_symbol_debugger_(Execute ptr, addr io, addr list, addr eval)
 {
 	int check;
 	addr root, restart, x, y;
@@ -349,7 +349,7 @@ static int eval_symbol_debugger(Execute ptr, addr io, addr list, addr eval)
 	}
 
 	/* eval */
-	return eval_debugger(ptr, io, eval);
+	return eval_debugger_(ptr, io, eval);
 }
 
 static int enter_debugger_symbol_p(addr pos, const char *key, int keyword)
@@ -394,7 +394,7 @@ static int enter_debugger_call_(Execute ptr, addr io, addr list, int *ret)
 		Return(finish_output_stream_(io));
 		/* restart abort */
 		GetConst(COMMON_ABORT, &pos);
-		Return(eval_symbol_debugger(ptr, io, list, pos));
+		Return(eval_symbol_debugger_(ptr, io, list, pos));
 		return Result(ret, 0);
 	}
 
@@ -417,7 +417,7 @@ static int enter_debugger_call_(Execute ptr, addr io, addr list, int *ret)
 
 	/* check */
 	if (! fixnump(pos)) {
-		Return(eval_symbol_debugger(ptr, io, list, pos));
+		Return(eval_symbol_debugger_(ptr, io, list, pos));
 		return Result(ret, 0);
 	}
 	if (GetIndex_integer(pos, &select)) {
@@ -459,7 +459,7 @@ static int enter_debugger_(Execute ptr, addr io, addr condition, addr list)
 
 show:
 	Return(invoke_standard_header_(ptr, io, condition));
-	Return(output_restarts_debugger(ptr, io, list));
+	Return(output_restarts_debugger_(ptr, io, list));
 
 loop:
 	Return(enter_debugger_abort_(ptr, io, list, &check));
