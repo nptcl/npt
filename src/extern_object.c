@@ -15,6 +15,7 @@
 #include "object.h"
 #include "package.h"
 #include "package_intern.h"
+#include "paper.h"
 #include "pathname.h"
 #include "ratio.h"
 #include "reader.h"
@@ -736,194 +737,153 @@ int lisp_namestring_(addr x, addr path)
 
 
 /*
- *  user
+ *  paper
  */
-#ifdef LISP_DEBUG
-static void lisp0_user_alloc(LocalRoot local, addr *ret, size_t size)
+int lisp0_paper_(addr *ret, size_t array, size_t body)
 {
-	addr pos;
-	size_t size1, alloc;
-	byte *body;
-
-	size1 = size + IdxSize;
-	alloc = size + IdxSize + 8UL;
-	if (size1 < size || alloc < size) {
-		*ret = Nil;
-		lisp_abortf("lisp0_user_heap error");
-		return;
-	}
-
-	alloc_body(local, &pos, LISPSYSTEM_USER, alloc);
-	SetUser(pos, 0);
-	posbody(pos, (addr *)&body);
-	*((size_t *)body) = size;
-	memcpy(body + size1, "\xFF\x00\xAA\xAA\xAA\xAA\xAA\xAA", 8);
-	*ret = pos;
+	return paper_arraybody_heap_(ret, array, body);
 }
 
-static void lisp_object_check(addr pos)
+int lisp_paper_(addr x, size_t array, size_t body)
 {
-	byte *body;
+	addr pos;
+
+	Return(lisp0_paper_(&pos, array, body));
+	hold_set(x, pos);
+	return 0;
+}
+
+int lisp_paper_gettype_(addr x, byte *ret)
+{
+	hold_value(x, &x);
+	if (! paperp(x)) {
+		*ret = 0;
+		return fmte_("Not paper object, ~S.", x, NULL);
+	}
+	paper_get_type(x, ret);
+
+	return 0;
+}
+
+int lisp_paper_settype_(addr x, byte value)
+{
+	hold_value(x, &x);
+	if (! paperp(x))
+		return fmte_("Not paper object, ~S.", x, NULL);
+	paper_set_type(x, value);
+
+	return 0;
+}
+
+int lisp_paper_lenarray_(addr x, size_t *ret)
+{
+	hold_value(x, &x);
+	if (! paperp(x)) {
+		*ret = 0;
+		return fmte_("Not paper object, ~S.", x, NULL);
+	}
+	paper_len_array(x, ret);
+
+	return 0;
+}
+
+int lisp_paper_lenbody_(addr x, size_t *ret)
+{
+	hold_value(x, &x);
+	if (! paperp(x)) {
+		*ret = 0;
+		return fmte_("Not paper object, ~S.", x, NULL);
+	}
+	paper_len_body(x, ret);
+
+	return 0;
+}
+
+int lisp_paper_getarray_(addr x, size_t index, addr *ret)
+{
 	size_t size;
 
-	posbody(pos, (addr *)&body);
-	size = *((size_t *)body) + 8UL;
-	body += size;
-	if (body[0] != 0xFF || body[1] != 0x00) {
-		lisp_abortf("The user object may be destroyed.");
-		return;
-	}
-}
-#define Lisp_object_check(x) lisp_object_check(x)
-#else
-static void lisp0_user_alloc(LocalRoot local, addr *ret, size_t size)
-{
-	addr pos;
-	size_t alloc;
-	byte *body;
-
-	alloc = size + IdxSize;
-	if (alloc < size) {
+	hold_value(x, &x);
+	if (! paperp(x)) {
 		*ret = Nil;
-		lisp_abortf("lisp0_user_heap error");
-		return;
+		return fmte_("Not paper object, ~S.", x, NULL);
 	}
-
-	alloc_body(local, &pos, LISPSYSTEM_USER, alloc);
-	SetUser(pos, 0);
-	posbody(pos, (addr *)&body);
-	*((size_t *)body) = size;
-	*ret = pos;
-}
-#define Lisp_object_check(x)
-#endif
-
-void lisp0_user_heap(addr *ret, size_t size)
-{
-	lisp0_user_alloc(NULL, ret, size);
-}
-
-void lisp0_user_local(addr *ret, size_t size)
-{
-	lisp0_user_alloc(Local_Thread, ret, size);
-}
-
-static void lisp0_user_resize_alloc(LocalRoot local, addr *ret, addr pos, size_t size)
-{
-	addr value;
-	byte *body1, *body2;
-	size_t copy;
-
-	/* check */
-	hold_value(pos, &pos);
-	if (! lisp_user_p(pos)) {
+	paper_len_array(x, &size);
+	if (size <= index) {
 		*ret = Nil;
-		lisp_abortf("The object is not user type.");
-		return;
+		return fmte_("paper size error, ~S.", x, NULL);
 	}
-	Lisp_object_check(pos);
+	paper_get_array(x, index, ret);
 
-	lisp0_user_alloc(local, &value, size);
-	posbody(pos, (addr *)&body1);
-	posbody(value, (addr *)&body2);
-	copy = *((size_t *)body1);
-	memcpy(body2 + IdxSize, body1 + IdxSize, (copy < size)? copy: size);
-	SetUser(value, GetUser(pos));
-	*ret = value;
+	return 0;
 }
 
-void lisp0_user_resize_heap(addr *ret, addr pos, size_t size)
+int lisp_paper_setarray_(addr x, size_t index, addr value)
 {
-	lisp0_user_resize_alloc(NULL, ret, pos, size);
+	size_t size;
+
+	hold_value(x, &x);
+	if (! paperp(x))
+		return fmte_("Not paper object, ~S.", x, NULL);
+	paper_len_array(x, &size);
+	if (size <= index)
+		return fmte_("paper size error, ~S.", x, NULL);
+	paper_set_array(x, index, value);
+
+	return 0;
 }
 
-void lisp0_user_resize_local(addr *ret, addr pos, size_t size)
+int lisp_paper_getbody_(addr x, size_t index, byte *ret)
 {
-	lisp0_user_resize_alloc(Local_Thread, ret, pos, size);
-}
+	size_t size;
 
-void lisp_user_heap(addr x, size_t size)
-{
-	addr pos;
-	lisp0_user_heap(&pos, size);
-	hold_set(x, pos);
-}
-
-void lisp_user_local(addr x, size_t size)
-{
-	addr pos;
-	lisp0_user_local(&pos, size);
-	hold_set(x, pos);
-}
-
-void lisp_user_resize_heap(addr x, addr pos, size_t size)
-{
-	lisp0_user_resize_heap(&pos, pos, size);
-	hold_set(x, pos);
-}
-
-void lisp_user_resize_local(addr x, addr pos, size_t size)
-{
-	lisp0_user_resize_local(&pos, pos, size);
-	hold_set(x, pos);
-}
-
-int lisp_user_p(addr pos)
-{
-	if (pos == NULL || pos == Unbound)
-		return 0;
-	hold_value(pos, &pos);
-	return GetType(pos) == LISPSYSTEM_USER;
-}
-
-void lisp_user_getsize(addr pos, size_t *ret)
-{
-	addr body;
-
-	hold_value(pos, &pos);
-	if (! lisp_user_p(pos)) {
+	hold_value(x, &x);
+	if (! paperp(x)) {
 		*ret = 0;
-		lisp_abortf("The object is not user type.");
-		return;
+		return fmte_("Not paper object, ~S.", x, NULL);
 	}
-	Lisp_object_check(pos);
+	paper_len_body(x, &size);
+	if (size <= index) {
+		*ret = 0;
+		return fmte_("paper size error, ~S.", x, NULL);
+	}
+	paper_get_body(x, index, ret);
 
-	posbody(pos, &body);
-	*ret = *((size_t *)body);
+	return 0;
 }
 
-int lisp_user_getvalue(addr pos)
+int lisp_paper_setbody_(addr x, size_t index, byte value)
 {
-	hold_value(pos, &pos);
-	if (! lisp_user_p(pos)) {
-		lisp_abortf("The object is not user type.");
-		return 0;
-	}
-	Lisp_object_check(pos);
+	size_t size;
 
-	return GetUser(pos);
+	hold_value(x, &x);
+	if (! paperp(x))
+		return fmte_("Not paper object, ~S.", x, NULL);
+	paper_len_body(x, &size);
+	if (size <= index)
+		return fmte_("paper size error, ~S.", x, NULL);
+	paper_set_body(x, index, value);
+
+	return 0;
 }
 
-void lisp_user_setvalue(addr pos, byte c)
+int lisp_paper_getmemory_(addr x, size_t a, size_t b, void *output, size_t *ret)
 {
-	hold_value(pos, &pos);
-	if (! lisp_user_p(pos)) {
-		lisp_abortf("The object is not user type.");
-		return;
-	}
+	hold_value(x, &x);
+	if (! paperp(x))
+		return fmte_("Not paper object, ~S.", x, NULL);
+	paper_get_memory(x, a, b, output, ret);
 
-	Lisp_object_check(pos);
-	SetUser(pos, c);
+	return 0;
 }
 
-byte *lisp_object_body(addr pos)
+int lisp_paper_setmemory_(addr x, size_t a, size_t b, const void *input, size_t *ret)
 {
-	byte *body;
+	hold_value(x, &x);
+	if (! paperp(x))
+		return fmte_("Not paper object, ~S.", x, NULL);
+	paper_set_memory(x, a, b, input, ret);
 
-	hold_value(pos, &pos);
-	Lisp_object_check(pos);
-	posbody(pos, (addr *)&body);
-
-	return body + IdxSize;
+	return 0;
 }
 

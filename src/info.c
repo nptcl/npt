@@ -79,6 +79,8 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPTYPE_PRINT_DISPATCH:		return "print-dispatch";
 		case LISPTYPE_BYTESPEC:				return "bytespec";
 		case LISPTYPE_FORMAT:				return "format";
+		case LISPTYPE_LOAD_TIME_VALUE:		return "load-time-value";
+		case LISPTYPE_PAPER:				return "paper";
 		case LISPTYPE_COMPILE:				return "??compile";
 
 		case LISPSYSTEM_CONSTANT:			return "?constant";
@@ -135,7 +137,6 @@ static const char *infochar_lisp(enum LISPTYPE type)
 		case LISPSYSTEM_HOLD:				return "?hold";
 		case LISPSYSTEM_BUFFERING:			return "?buffering";
 		case LISPSYSTEM_BUFCELL:			return "?bufcell";
-		case LISPSYSTEM_USER:				return "?user";
 		case LISPSYSTEM_CHECK:				return "?check";
 
 		case LISPSYSTEM_UNBOUND:			return "unboundtype";
@@ -245,6 +246,11 @@ static const char *infochar_decl(enum LISPDECL decl)
 		case LISPDECL_PRETTY_STREAM:		return "pretty-stream";
 		case LISPDECL_MEMORY_STREAM:		return "memory-stream";
 		case LISPDECL_TERMINAL_STREAM:		return "terminal-stream";
+		case LISPDECL_QUOTE:				return "quote";
+		case LISPDECL_BYTESPEC:				return "bytespec";
+		case LISPDECL_PRINT_DISPATCH:		return "print-dispatch";
+		case LISPDECL_PAPER:				return "paper";
+		case LISPDECL_EVAL:					return "eval";
 		default:							return "invalid";
 	}
 }

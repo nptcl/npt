@@ -118,6 +118,7 @@ DefTypeTable(0,  TERMINAL_STREAM,      TerminalStream       );
 DefTypeTable(0,  QUOTE,                Quote                );
 DefTypeTable(0,  BYTESPEC,             ByteSpec             );
 DefTypeTable(0,  PRINT_DISPATCH,       PrintDispatch        );
+DefTypeTable(0,  PAPER,                Paper                );
 DefTypeTable(0,  EVAL,                 Eval                 );
 
 static void typetable_Nil(void)
@@ -1412,6 +1413,7 @@ DefTypeValues(Complex);
 DefTypeValues(TypeSymbol);
 DefTypeValues(Class);
 DefTypeValues(ClassNull);
+DefTypeValues(Paper);
 DefTypeValues(MethodCombination);
 DefTypeValues(GenericFunction);
 
@@ -2988,6 +2990,7 @@ void build_type_constant(void)
 	typetable_Quote();
 	typetable_ByteSpec();
 	typetable_PrintDispatch();
+	typetable_Paper();
 	typetable_Eval();
 
 	/* Condition */
@@ -3167,6 +3170,7 @@ void build_type_constant(void)
 	typevalues_TypeSymbol();
 	typevalues_Class();
 	typevalues_ClassNull();
+	typevalues_Paper();
 	typevalues_MethodCombination();
 	typevalues_GenericFunction();
 

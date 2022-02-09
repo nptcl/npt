@@ -18,6 +18,7 @@
 #define type_value_random_state _n(type_value_random_state)
 #define type_value_pathname _n(type_value_pathname)
 #define type_value_environment _n(type_value_environment)
+#define type_value_paper _n(type_value_paper)
 #define type_value_ _n(type_value_)
 #define init_type_value _n(init_type_value)
 
@@ -41,6 +42,7 @@ void type_value_package(addr *ret, addr value);
 void type_value_random_state(addr *ret, addr value);
 void type_value_pathname(addr *ret, addr value);
 void type_value_environment(addr *ret, addr value);
+void type_value_paper(addr *ret, addr value);
 
 int type_value_(addr *ret, addr value);
 void init_type_value(void);

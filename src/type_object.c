@@ -657,6 +657,7 @@ void init_type_object(void)
 	TypeObjectTable[LISPDECL_QUOTE] = type_object_error;
 	TypeObjectTable[LISPDECL_BYTESPEC] = type_object_name;
 	TypeObjectTable[LISPDECL_PRINT_DISPATCH] = type_object_name;
+	TypeObjectTable[LISPDECL_PAPER] = type_object_name;
 	TypeObjectTable[LISPDECL_EVAL] = type_object_name;
 }
 

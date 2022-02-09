@@ -2078,6 +2078,10 @@ static int parse_switch_(Execute ptr, addr *ret, addr pos)
 		case LISPTYPE_QUOTE:
 			return parse_backquote_(ptr, ret, pos);
 
+		case LISPTYPE_PAPER:
+			eval_single_parse_heap(ret, EVAL_PARSE_PAPER, pos);
+			break;
+
 		default:
 			return fmte_("parse-error: ~S.", pos, NULL);
 	}

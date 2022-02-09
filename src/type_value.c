@@ -517,18 +517,34 @@ static int type_value_quote_(addr *ret, addr value)
 	return 0;
 }
 
+/* bytespec */
 static int type_value_bytespec_(addr *ret, addr value)
 {
 	GetTypeTable(ret, ByteSpec);
 	return 0;
 }
 
+/* print-dispatch */
 static int type_value_print_dispatch_(addr *ret, addr value)
 {
 	GetTypeTable(ret, PrintDispatch);
 	return 0;
 }
 
+/* paper */
+void type_value_paper(addr *ret, addr value)
+{
+	GetTypeTable(ret, Paper);
+}
+
+static int type_value_paper_(addr *ret, addr value)
+{
+	type_value_paper(ret, value);
+	return 0;
+}
+
+
+/* value */
 static int type_value_argument_(addr *ret, addr value)
 {
 	GetTypeTable(ret, T);
@@ -589,6 +605,7 @@ void init_type_value(void)
 	TypeValueTable[LISPTYPE_QUOTE] = type_value_quote_;
 	TypeValueTable[LISPTYPE_BYTESPEC] = type_value_bytespec_;
 	TypeValueTable[LISPTYPE_PRINT_DISPATCH] = type_value_print_dispatch_;
+	TypeValueTable[LISPTYPE_PAPER] = type_value_paper_;
 	TypeValueTable[LISPSYSTEM_ARGUMENT] = type_value_argument_;
 }
 

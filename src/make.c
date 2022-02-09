@@ -79,6 +79,7 @@ void init_make(void)
 	CodeMakeTable[EVAL_PARSE_RANDOM_STATE] = code_make_value_;
 	CodeMakeTable[EVAL_PARSE_PATHNAME] = code_make_value_;
 	CodeMakeTable[EVAL_PARSE_ENVIRONMENT] = code_make_value_;
+	CodeMakeTable[EVAL_PARSE_PAPER] = code_make_value_;
 	CodeMakeTable[EVAL_PARSE_LEXICAL] = code_make_lexical_;
 	CodeMakeTable[EVAL_PARSE_PROGN] = code_make_progn_;
 	CodeMakeTable[EVAL_PARSE_LET] = code_make_let_;

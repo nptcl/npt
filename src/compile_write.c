@@ -229,5 +229,6 @@ void init_compile_write(void)
 	FaslWrite_Value[LISPTYPE_QUOTE] = faslwrite_value_quote_;
 	FaslWrite_Value[LISPTYPE_BITVECTOR] = faslwrite_value_bitvector_;
 	FaslWrite_Value[LISPTYPE_LOAD_TIME_VALUE] = faslwrite_value_load_time_value_;
+	FaslWrite_Value[LISPTYPE_PAPER] = faslwrite_value_paper_;
 }
 

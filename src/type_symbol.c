@@ -93,6 +93,7 @@ void build_type_symbol(void)
 	DefSymbolType(SYSTEM_QUOTE,                Quote               );
 	DefSymbolType(SYSTEM_BYTESPEC,             ByteSpec            );
 	DefSymbolType(SYSTEM_PRINT_DISPATCH,       PrintDispatch       );
+	DefSymbolType(SYSTEM_PAPER,                Paper               );
 	DefSymbolType(SYSTEM_EVAL,                 Eval                );
 }
 
@@ -195,6 +196,7 @@ void init_type_symbol(void)
 	DefTypeSymbol(QUOTE,                SYSTEM_QUOTE                );
 	DefTypeSymbol(BYTESPEC,             SYSTEM_BYTESPEC             );
 	DefTypeSymbol(PRINT_DISPATCH,       SYSTEM_PRINT_DISPATCH       );
+	DefTypeSymbol(PAPER,                SYSTEM_PAPER                );
 	DefTypeSymbol(EVAL,                 SYSTEM_EVAL                 );
 }
 

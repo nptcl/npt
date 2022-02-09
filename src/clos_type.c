@@ -272,6 +272,12 @@ static int class_of_bit_vector_(addr object, addr *ret)
 	return 0;
 }
 
+static int class_of_paper_(addr object, addr *ret)
+{
+	GetConst(CLOS_PAPER, ret);
+	return 0;
+}
+
 void init_clos_type(void)
 {
 	size_t i;
@@ -306,6 +312,7 @@ void init_clos_type(void)
 	class_of_call[LISPTYPE_STREAM] = class_of_stream_;
 	class_of_call[LISPTYPE_RESTART] = class_of_restart_;
 	class_of_call[LISPTYPE_BITVECTOR] = class_of_bit_vector_;
+	class_of_call[LISPTYPE_PAPER] = class_of_paper_;
 }
 
 int clos_class_of_(addr object, addr *ret)

@@ -1320,6 +1320,10 @@ enum pointer_index {
 	p_defun_syscall_sysctl,
 	p_defun_syscall_terme,
 	p_defun_syscall_fpclassify,
+	p_defun_syscall_make_paper,
+	p_defun_syscall_info_paper,
+	p_defun_syscall_array_paper,
+	p_defun_syscall_body_paper,
 	/* size */
 	p_size
 };

@@ -285,3 +285,8 @@ int lisp_print_dispatch_p(addr x)
 	return lisp_type_p(x, LISPTYPE_PRINT_DISPATCH);
 }
 
+int lisp_paper_p(addr x)
+{
+	return lisp_type_p(x, LISPTYPE_PAPER);
+}
+

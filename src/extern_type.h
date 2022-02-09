@@ -59,6 +59,7 @@ int lisp_restart_p(addr x);
 int lisp_environment_p(addr x);
 int lisp_bitvector_p(addr x);
 int lisp_print_dispatch_p(addr x);
+int lisp_paper_p(addr x);
 
 #endif
 

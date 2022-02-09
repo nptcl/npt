@@ -76,20 +76,19 @@ int lisp_pathname16_(addr x, const void *str);
 int lisp_pathname32_(addr x, const void *str);
 int lisp_namestring_(addr x, addr path);
 
-/* user */
-void lisp0_user_heap(addr *ret, size_t size);
-void lisp0_user_local(addr *ret, size_t size);
-void lisp0_user_resize_heap(addr *ret, addr pos, size_t size);
-void lisp0_user_resize_local(addr *ret, addr pos, size_t size);
-void lisp_user_heap(addr x, size_t size);
-void lisp_user_local(addr x, size_t size);
-void lisp_user_resize_heap(addr x, addr pos, size_t size);
-void lisp_user_resize_local(addr x, addr pos, size_t size);
-int lisp_user_p(addr pos);
-void lisp_user_getsize(addr pos, size_t *ret);
-int lisp_user_getvalue(addr pos);
-void lisp_user_setvalue(addr pos, byte c);
-byte *lisp_object_body(addr pos);
+/* paper */
+int lisp0_paper_(addr *ret, size_t array, size_t body);
+int lisp_paper_(addr x, size_t array, size_t body);
+int lisp_paper_gettype_(addr x, byte *ret);
+int lisp_paper_settype_(addr x, byte value);
+int lisp_paper_lenarray_(addr x, size_t *ret);
+int lisp_paper_lenbody_(addr x, size_t *ret);
+int lisp_paper_getarray_(addr x, size_t index, addr *ret);
+int lisp_paper_setarray_(addr x, size_t index, addr value);
+int lisp_paper_getbody_(addr x, size_t index, byte *ret);
+int lisp_paper_setbody_(addr x, size_t index, byte value);
+int lisp_paper_getmemory_(addr x, size_t a, size_t b, void *output, size_t *ret);
+int lisp_paper_setmemory_(addr x, size_t a, size_t b, const void *input, size_t *ret);
 
 #endif
 

@@ -225,6 +225,18 @@ static int scope_environment_(Execute ptr, addr *ret, addr eval)
 }
 
 
+/* paper */
+static int scope_paper_(Execute ptr, addr *ret, addr eval)
+{
+	addr type;
+
+	Check(! eval_parse_p(eval), "type error");
+	GetEvalParse(eval, 0, &eval);
+	type_value_paper(&type, eval);
+	return make_eval_scope_(ptr, ret, EVAL_PARSE_PAPER, type, eval);
+}
+
+
 /* progn */
 int scope_progn_(Execute ptr, addr *ret, addr eval)
 {
@@ -886,6 +898,7 @@ void init_scope_function(void)
 	EvalScopeTable[EVAL_PARSE_RANDOM_STATE] = scope_random_state_;
 	EvalScopeTable[EVAL_PARSE_PATHNAME] = scope_pathname_;
 	EvalScopeTable[EVAL_PARSE_ENVIRONMENT] = scope_environment_;
+	EvalScopeTable[EVAL_PARSE_PAPER] = scope_paper_;
 	EvalScopeTable[EVAL_PARSE_PROGN] = scope_progn_;
 	EvalScopeTable[EVAL_PARSE_LET] = scope_let_;
 	EvalScopeTable[EVAL_PARSE_LETA] = scope_leta_;

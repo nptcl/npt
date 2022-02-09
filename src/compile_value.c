@@ -21,6 +21,7 @@
 #include "package.h"
 #include "package_intern.h"
 #include "package_object.h"
+#include "paper.h"
 #include "pathname_object.h"
 #include "quote.h"
 #include "random_state.h"
@@ -1165,6 +1166,61 @@ int faslread_value_load_time_value_(Execute ptr, addr stream, addr *ret)
 	Return(faslread_status_(stream, &status));
 	Return(faslread_size_(stream, &index));
 	Return(execute_load_get_(ptr, index, &pos));
+	faslread_status_update(pos, status);
+
+	return Result(ret, pos);
+}
+
+
+/*
+ *  paper
+ */
+int faslwrite_value_paper_(Execute ptr, addr stream, addr pos)
+{
+	addr value;
+	size_t array, body, i;
+
+	CheckType(pos, LISPTYPE_PAPER);
+	paper_len_array(pos, &array);
+	paper_len_body(pos, &body);
+	Return(faslwrite_type_status_(stream, pos, FaslCode_paper));
+	Return(faslwrite_size_(stream, array));
+	Return(faslwrite_size_(stream, body));
+	/* array */
+	for (i = 0; i < array; i++) {
+		paper_get_array(pos, i, &value);
+		Return(faslwrite_value_(ptr, stream, value));
+	}
+	/* body */
+	if (body) {
+		posbody(pos, &value);
+		Return(faslwrite_buffer_(stream, (const void *)value, body));
+	}
+
+	return 0;
+}
+
+int faslread_value_paper_(Execute ptr, addr stream, addr *ret)
+{
+	FaslStatus status;
+	addr pos, value;
+	size_t array, body, i;
+
+	Return(faslread_status_(stream, &status));
+	Return(faslread_size_(stream, &array));
+	Return(faslread_size_(stream, &body));
+	Return(paper_arraybody_heap_(&pos, array, body));
+	/* array */
+	for (i = 0; i < array; i++) {
+		Return(faslread_value_(ptr, stream, &value));
+		paper_set_array(pos, i, value);
+	}
+	/* body */
+	if (body) {
+		posbody(pos, &value);
+		Return(faslwrite_buffer_(stream, (void *)value, body));
+	}
+	/* result */
 	faslread_status_update(pos, status);
 
 	return Result(ret, pos);

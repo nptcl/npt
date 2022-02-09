@@ -2665,6 +2665,7 @@ void init_print_write(void)
 	WriteCallTable[LISPTYPE_ENVIRONMENT] = WriteCall_system_;
 	WriteCallTable[LISPTYPE_BITVECTOR] = WriteCall_bitvector_;
 	WriteCallTable[LISPTYPE_PRINT_DISPATCH] = WriteCall_system_;
+	WriteCallTable[LISPTYPE_PAPER] = WriteCall_system_;
 	WriteCallTable[LISPTYPE_BYTESPEC] = WriteCall_bytespec_;
 
 	WriteCallTable[LISPSYSTEM_CHARACTER2] = WriteCall_system_;

@@ -253,5 +253,6 @@ void init_compile_read(void)
 	FaslRead_Table[FaslCode_quote] = faslread_value_quote_;
 	FaslRead_Table[FaslCode_bitvector] = faslread_value_bitvector_;
 	FaslRead_Table[FaslCode_load] = faslread_value_load_time_value_;
+	FaslRead_Table[FaslCode_paper] = faslread_value_paper_;
 }
 

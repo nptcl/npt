@@ -1210,6 +1210,12 @@ static int typep_print_dispatch_(Execute ptr, addr value, addr type, int *ret)
 	return 0;
 }
 
+static int typep_paper_(Execute ptr, addr value, addr type, int *ret)
+{
+	*ret = (GetType(value) == LISPTYPE_PAPER);
+	return 0;
+}
+
 static int typep_eval_(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_EVAL);
@@ -1317,6 +1323,7 @@ void init_type_typep(void)
 	TypeTypep[LISPDECL_MEMORY_STREAM] = typep_memory_stream_;
 	TypeTypep[LISPDECL_BYTESPEC] = typep_byte_;
 	TypeTypep[LISPDECL_PRINT_DISPATCH] = typep_print_dispatch_;
+	TypeTypep[LISPDECL_PAPER] = typep_paper_;
 	TypeTypep[LISPDECL_EVAL] = typep_eval_;
 }
 

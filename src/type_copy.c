@@ -432,6 +432,7 @@ void init_type_copy(void)
 	TypeCopyTable[LISPDECL_QUOTE] = typecopy_empty;
 	TypeCopyTable[LISPDECL_BYTESPEC] = typecopy_empty;
 	TypeCopyTable[LISPDECL_PRINT_DISPATCH] = typecopy_empty;
+	TypeCopyTable[LISPDECL_PAPER] = typecopy_empty;
 	TypeCopyTable[LISPDECL_EVAL] = typecopy_empty;
 }
 

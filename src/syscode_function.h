@@ -59,6 +59,10 @@
 #define sysctl_syscode_ _n(sysctl_syscode_)
 #define terme_syscode_ _n(terme_syscode_)
 #define fpclassify_syscode _n(fpclassify_syscode)
+#define make_paper_syscode_ _n(make_paper_syscode_)
+#define info_paper_syscode_ _n(info_paper_syscode_)
+#define array_paper_syscode_ _n(array_paper_syscode_)
+#define body_paper_syscode_ _n(body_paper_syscode_)
 
 int hello_syscode_(Execute ptr);
 void infobit_syscode(addr rest, addr *ret);
@@ -115,6 +119,10 @@ int setf_memory_stream_p_syscode_(addr var, addr value);
 int sysctl_syscode_(Execute ptr, addr var, addr args);
 int terme_syscode_(Execute ptr, addr var, addr args);
 void fpclassify_syscode(addr var, addr *rtype, addr *rsign);
+int make_paper_syscode_(addr array, addr body, addr rest, addr *ret);
+int info_paper_syscode_(addr pos, addr symbol, addr second, addr *ret);
+int array_paper_syscode_(addr pos, addr index, addr value, addr *ret);
+int body_paper_syscode_(addr pos, addr index, addr value, addr *ret);
 
 #endif
 

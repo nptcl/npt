@@ -36,6 +36,7 @@ enum FaslCode {
 	FaslCode_quote,
 	FaslCode_bitvector,
 	FaslCode_load,
+	FaslCode_paper,
 	FaslCode_value, /* end of value */
 
 	/* code */

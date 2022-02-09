@@ -1989,6 +1989,9 @@ lisp-system::fp-normal
 lisp-system::fp-subnormal
 lisp-system::fp-zero
 
+;;  paper
+lisp-system::paper
+
 ;; syscall_common.c
  lisp-system::define-symbol-macro
  lisp-system::symbol-macro-expander
@@ -2098,6 +2101,10 @@ lisp-system::fp-zero
 (lisp-system::sysctl :export t)
 (lisp-system::terme :export t)
 (lisp-system::fpclassify :export t)
+(lisp-system::make-paper :export t)
+(lisp-system::info-paper :export t)
+(lisp-system::array-paper :export t)
+(lisp-system::body-paper :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

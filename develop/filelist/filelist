@@ -260,6 +260,7 @@ package_object.c
 package_shadow.c
 package_use.c
 package.c
+paper.c
 parse_function.c
 parse_macro.c
 parse_object.c

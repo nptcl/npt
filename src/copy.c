@@ -8,6 +8,7 @@
 #include "integer.h"
 #include "memory.h"
 #include "object.h"
+#include "paper.h"
 #include "pathname_object.h"
 #include "random_state.h"
 #include "ratio.h"
@@ -232,6 +233,22 @@ static void copyhard_pathname(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
+static void copyhard_paper(LocalRoot local, addr *ret, addr pos)
+{
+	addr one, value;
+	size_t size, i;
+
+	CheckType(pos, LISPTYPE_PAPER);
+	paper_copy_body_alloc(local, &one, pos);
+	paper_len_array(one, &size);
+	for (i = 0; i < size; i++) {
+		paper_get_array(pos, i, &value);
+		copyhard_object(local, &value, value);
+		paper_set_array(one, i, value);
+	}
+	*ret = one;
+}
+
 void copyhard_object(LocalRoot local, addr *ret, addr pos)
 {
 	int index;
@@ -280,6 +297,7 @@ static void init_copyhard_call(void)
 	TableCopy[LISPTYPE_STREAM] = copyhard_error;
 	TableCopy[LISPTYPE_QUOTE] = copyhard_error;
 	TableCopy[LISPTYPE_RESTART] = copyhard_error;
+	TableCopy[LISPTYPE_PAPER] = copyhard_paper;
 	TableCopy[LISPTYPE_EVAL] = copyhard_error;
 }
 
@@ -477,6 +495,22 @@ static void copylocal_pathname(LocalRoot local, addr *ret, addr pos)
 	*ret = one;
 }
 
+static void copylocal_paper(LocalRoot local, addr *ret, addr pos)
+{
+	addr one, value;
+	size_t size, i;
+
+	CheckType(pos, LISPTYPE_PAPER);
+	paper_copy_body_alloc(local, &one, pos);
+	paper_len_array(one, &size);
+	for (i = 0; i < size; i++) {
+		paper_get_array(pos, i, &value);
+		copylocal_object(local, &value, value);
+		paper_set_array(one, i, value);
+	}
+	*ret = one;
+}
+
 int copylocal_object(LocalRoot local, addr *ret, addr pos)
 {
 	int index;
@@ -567,6 +601,7 @@ static void init_copylocal_call(void)
 	TableCopySoft[LISPTYPE_STREAM] = copylocal_error;
 	TableCopySoft[LISPTYPE_QUOTE] = copylocal_error;
 	TableCopySoft[LISPTYPE_RESTART] = copylocal_error;
+	TableCopySoft[LISPTYPE_PAPER] = copylocal_paper;
 	TableCopySoft[LISPTYPE_EVAL] = copylocal_error;
 }
 

@@ -22,6 +22,7 @@
 #include "integer_common.h"
 #include "package_designer.h"
 #include "package_object.h"
+#include "paper.h"
 #include "pathname.h"
 #include "process.h"
 #include "random_state.h"
@@ -800,5 +801,157 @@ int terme_syscode_(Execute ptr, addr var, addr args)
 void fpclassify_syscode(addr var, addr *rtype, addr *rsign)
 {
 	fpclassify_float(var, rtype, rsign);
+}
+
+
+/* make-paper */
+static int make_paper_index_syscode_(addr pos, size_t *ret)
+{
+	if (pos == Nil)
+		return Result(ret, 0);
+	else
+		return getindex_integer_(pos, ret);
+}
+
+static int make_paper_fill_syscode_(addr rest, int *fill, byte *c)
+{
+	if (GetKeyArgs(rest, KEYWORD_FILL, &rest)) {
+		*fill = 0;
+		*c = 0;
+		return 0;
+	}
+
+	if (rest == Nil) {
+		*fill = 0;
+		*c = 0;
+		return 0;
+	}
+
+	if (rest == T) {
+		*fill = 1;
+		*c = 0;
+		return 0;
+	}
+
+	/* (unsigned-byte 8) */
+	*fill = 1;
+	if (GetByte_integer(rest, c))
+		return fmte_("Invalid :fill value, ~S.", rest, NULL);
+
+	return 0;
+}
+
+static int make_paper_type_syscode_(addr rest, byte *ret)
+{
+	if (GetKeyArgs(rest, KEYWORD_TYPE, &rest)) {
+		*ret = 0;
+		return 0;
+	}
+
+	/* (unsigned-byte 8) */
+	if (GetByte_integer(rest, ret))
+		return fmte_("Invalid :type value, ~S.", rest, NULL);
+
+	return 0;
+}
+
+int make_paper_syscode_(addr array, addr body, addr rest, addr *ret)
+{
+	byte c, user;
+	int fill;
+	addr pos, mem;
+	size_t x, y;
+
+	Return(make_paper_index_syscode_(array, &x));
+	Return(make_paper_index_syscode_(body, &y));
+	Return(make_paper_fill_syscode_(rest, &fill, &c));
+	Return(make_paper_type_syscode_(rest, &user));
+	Return(paper_arraybody_heap_(&pos, x, y));
+	if (fill && y) {
+		posbody(pos, &mem);
+		memset((void *)mem, (int)c, y);
+	}
+	paper_set_type(pos, user);
+
+	return Result(ret, pos);
+}
+
+
+/* info-paper */
+int info_paper_syscode_(addr pos, addr symbol, addr second, addr *ret)
+{
+	int body_p;
+	addr value;
+
+	if (second == Unbound)
+		second = Nil;  /* default */
+	body_p = (second != Nil);
+
+	/* length */
+	GetConst(COMMON_LENGTH, &value);
+	if (symbol == value) {
+		if (body_p)
+			return paper_length_body_(pos, ret);
+		else
+			return paper_length_array_(pos, ret);
+	}
+
+	/* list */
+	GetConst(COMMON_LIST, &value);
+	if (symbol == value) {
+		if (body_p)
+			return paper_list_body_(pos, ret);
+		else
+			return paper_list_array_(pos, ret);
+	}
+
+	/* vector */
+	GetConst(COMMON_VECTOR, &value);
+	if (symbol == value) {
+		if (body_p)
+			return paper_vector_body_(pos, ret);
+		else
+			return paper_vector_array_(pos, ret);
+	}
+
+	/* type */
+	GetConst(COMMON_TYPE, &value);
+	if (symbol == value) {
+		if (second == Nil)
+			return paper_get_type_(pos, ret);
+		else {
+			*ret = second;
+			return paper_set_type_(pos, second);
+		}
+	}
+
+	/* error */
+	return Result(ret, Nil);
+}
+
+
+/* array-paper */
+int array_paper_syscode_(addr pos, addr index, addr value, addr *ret)
+{
+	if (value == Unbound) {
+		return paper_get_array_(pos, index, ret);
+	}
+	else {
+		*ret = value;
+		return paper_set_array_(pos, index, value);
+	}
+}
+
+
+/* body-paper */
+int body_paper_syscode_(addr pos, addr index, addr value, addr *ret)
+{
+	if (value == Unbound) {
+		return paper_get_body_(pos, index, ret);
+	}
+	else {
+		*ret = value;
+		return paper_set_body_(pos, index, value);
+	}
 }
 

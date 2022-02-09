@@ -1559,7 +1559,7 @@ static void type_syscall_byte_integer(addr *ret)
 {
 	addr args, values;
 
-	type4integer_heap(Nil, 0, Nil, 0xFF, &args);
+	GetTypeTable(&args, Unsigned8);
 	typeargs_rest(&args, args);
 	GetTypeValues(&values, Intplus);
 	type_compiled_heap(args, values, ret);
@@ -1674,6 +1674,184 @@ static void defun_fpclassify(void)
 }
 
 
+/* (defun make-paper (array body &key fill type) ...)
+ *   array  (or null (integer 0 *))
+ *   body   (or null (integer 0 *))
+ *   fill   (or boolean (integer 0 #xFF))  ;; default t
+ *   type   (integer 0 #xFF)
+ *   paper  paper
+ */
+static int syscall_make_paper(Execute ptr, addr array, addr body, addr rest)
+{
+	Return(make_paper_syscode_(array, body, rest, &array));
+	setresult_control(ptr, array);
+	return 0;
+}
+
+static void type_syscall_make_paper(addr *ret)
+{
+	addr args, values, type1, type2, type3;
+	addr key, key1, key2;
+
+	/* array, body */
+	GetTypeTable(&args, IntplusNull);
+	/* :fill */
+	GetTypeTable(&type1, Boolean);
+	GetTypeTable(&type2, Unsigned8);
+	type2or_heap(type1, type2, &type3);
+	GetConst(KEYWORD_FILL, &key1);
+	cons_heap(&key1, key1, type3);
+	/* :type */
+	KeyTypeTable(&key2, TYPE, Unsigned8);
+	/* &key */
+	list_heap(&key, key1, key2, NULL);
+	/* function */
+	typeargs_var2key(&args, args, args, key);
+	GetTypeValues(&values, Paper);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_make_paper(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_MAKE_PAPER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2dynamic(pos, p_defun_syscall_make_paper);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_make_paper(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun info-paper (paper symbol &optional second) ...) -> t
+ *   paper   paper
+ *   symbol  (member list vector type length)
+ *   second  t
+ */
+static int syscall_info_paper(Execute ptr, addr pos, addr symbol, addr body_p)
+{
+	Return(info_paper_syscode_(pos, symbol, body_p, &pos));
+	setresult_control(ptr, pos);
+	return 0;
+}
+
+static void type_syscall_info_paper(addr *ret)
+{
+	addr args, values, type;
+	addr m, m1, m2, m3, m4;
+
+	GetTypeTable(&args, Paper);
+	GetConst(COMMON_LIST, &m1);
+	GetConst(COMMON_VECTOR, &m2);
+	GetConst(COMMON_TYPE, &m3);
+	GetConst(COMMON_LENGTH, &m4);
+	type_member_heap(&m, m1, m2, m3, m4, NULL);
+	GetTypeTable(&type, T);
+	typeargs_var2opt1(&args, args, m, type);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_info_paper(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_INFO_PAPER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2opt1(pos, p_defun_syscall_info_paper);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_info_paper(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun array-paper (paper index &optional value) -> t
+ *   paper  paper
+ *   index  (integer 0 *)
+ *   value  t
+ */
+static int syscall_array_paper(Execute ptr, addr pos, addr index, addr value)
+{
+	Return(array_paper_syscode_(pos, index, value, &pos));
+	setresult_control(ptr, pos);
+	return 0;
+}
+
+static void type_syscall_array_paper(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&args, Paper);
+	GetTypeTable(&values, Intplus);
+	GetTypeTable(&type, T);
+	typeargs_var2opt1(&args, args, values, type);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_array_paper(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_ARRAY_PAPER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2opt1(pos, p_defun_syscall_array_paper);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_array_paper(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun body-paper (paper index &optional value) -> (unsigned-byte 8)
+ *   paper  paper
+ *   index  (integer 0 *)
+ *   value  (unsigned-byte 8)
+ */
+static int syscall_body_paper(Execute ptr, addr pos, addr index, addr value)
+{
+	Return(body_paper_syscode_(pos, index, value, &pos));
+	setresult_control(ptr, pos);
+	return 0;
+}
+
+static void type_syscall_body_paper(addr *ret)
+{
+	addr args, values, type;
+
+	GetTypeTable(&args, Paper);
+	GetTypeTable(&values, Intplus);
+	GetTypeTable(&type, Unsigned8);
+	typeargs_var2opt1(&args, args, values, type);
+	typevalues_result(&values, type);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_body_paper(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_BODY_PAPER, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var2opt1(pos, p_defun_syscall_body_paper);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_body_paper(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -1734,6 +1912,10 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var1dynamic, sysctl);
 	SetPointerSysCall(defun, var1dynamic, terme);
 	SetPointerSysCall(defun, var1, fpclassify);
+	SetPointerSysCall(defun, var2dynamic, make_paper);
+	SetPointerSysCall(defun, var2opt1, info_paper);
+	SetPointerSysCall(defun, var2opt1, array_paper);
+	SetPointerSysCall(defun, var2opt1, body_paper);
 }
 
 void build_syscall_function(void)
@@ -1794,5 +1976,9 @@ void build_syscall_function(void)
 	defun_sysctl();
 	defun_terme();
 	defun_fpclassify();
+	defun_make_paper();
+	defun_info_paper();
+	defun_array_paper();
+	defun_body_paper();
 }
 

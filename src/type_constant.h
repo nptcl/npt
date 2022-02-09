@@ -90,6 +90,7 @@ enum TypeTable {
 	TypeTable_Quote,
 	TypeTable_ByteSpec,
 	TypeTable_PrintDispatch,
+	TypeTable_Paper,
 	TypeTable_Eval,
 
 	/* Condition */
@@ -309,6 +310,7 @@ enum TypeTable {
 	TypeValues_TypeSymbol,
 	TypeValues_Class,
 	TypeValues_ClassNull,
+	TypeValues_Paper,
 
 	TypeValues_DecodeUniversalTime,
 	TypeValues_Empty,

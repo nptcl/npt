@@ -29,6 +29,7 @@
 #define faslwrite_value_quote_ _n(faslwrite_value_quote_)
 #define faslwrite_value_bitvector_ _n(faslwrite_value_bitvector_)
 #define faslwrite_value_load_time_value_ _n(faslwrite_value_load_time_value_)
+#define faslwrite_value_paper_ _n(faslwrite_value_paper_)
 
 #define faslread_value_nil_ _n(faslread_value_nil_)
 #define faslread_value_t_ _n(faslread_value_t_)
@@ -59,6 +60,7 @@
 #define faslread_value_quote_ _n(faslread_value_quote_)
 #define faslread_value_bitvector_ _n(faslread_value_bitvector_)
 #define faslread_value_load_time_value_ _n(faslread_value_load_time_value_)
+#define faslread_value_paper_ _n(faslread_value_paper_)
 
 int faslwrite_value_nil_(Execute ptr, addr stream, addr pos);
 int faslwrite_value_t_(Execute ptr, addr stream, addr pos);
@@ -84,6 +86,7 @@ int faslwrite_value_pathname_(Execute ptr, addr stream, addr pos);
 int faslwrite_value_quote_(Execute ptr, addr stream, addr pos);
 int faslwrite_value_bitvector_(Execute ptr, addr stream, addr pos);
 int faslwrite_value_load_time_value_(Execute ptr, addr stream, addr pos);
+int faslwrite_value_paper_(Execute ptr, addr stream, addr pos);
 
 int faslread_value_nil_(Execute ptr, addr stream, addr *ret);
 int faslread_value_t_(Execute ptr, addr stream, addr *ret);
@@ -116,6 +119,7 @@ int faslread_value_pathname_(Execute ptr, addr stream, addr *ret);
 int faslread_value_quote_(Execute ptr, addr stream, addr *ret);
 int faslread_value_bitvector_(Execute ptr, addr stream, addr *ret);
 int faslread_value_load_time_value_(Execute ptr, addr stream, addr *ret);
+int faslread_value_paper_(Execute ptr, addr stream, addr *ret);
 
 #endif
 
