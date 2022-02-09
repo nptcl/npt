@@ -2044,7 +2044,7 @@ lisp-system::paper
  lisp-system::restart-progn
 
 ;; syscall_function.c
-(lisp-system::abort :export t)
+(lisp-system::abort-lisp :export t)
 (lisp-system::hello :export t)
 (lisp-system::infobit :export t)
 (lisp-system::infoprint :export t)

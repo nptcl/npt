@@ -11,22 +11,22 @@
 #include "syscode_function.h"
 #include "symbol.h"
 
-/* (defun abort () ...) -> null */
-static int syscall_abort(Execute ptr)
+/* (defun abort-lisp () ...) -> null */
+static int syscall_abort_lisp(Execute ptr)
 {
-	Abort("syscall-abort");
+	Abort("syscall-abort-lisp");
 	setresult_control(ptr, Nil);
 	return 0;
 }
 
-static void defun_syscall_abort(void)
+static void defun_abort_lisp(void)
 {
 	addr symbol, pos, type;
 
 	/* function */
-	GetConst(SYSTEM_ABORT, &symbol);
+	GetConst(SYSTEM_ABORT_LISP, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_empty(pos, p_defun_syscall_abort);
+	setcompiled_empty(pos, p_defun_syscall_abort_lisp);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	GetTypeTable(&type, CompiledFunction);
@@ -1857,7 +1857,7 @@ static void defun_body_paper(void)
  */
 void init_syscall_function(void)
 {
-	SetPointerSysCall(defun, empty, abort);
+	SetPointerSysCall(defun, empty, abort_lisp);
 	SetPointerSysCall(defun, empty, hello);
 	SetPointerSysCall(defun, dynamic, infobit);
 	SetPointerSysCall(defun, dynamic, infoprint);
@@ -1920,7 +1920,7 @@ void init_syscall_function(void)
 
 void build_syscall_function(void)
 {
-	defun_syscall_abort();
+	defun_abort_lisp();
 	defun_hello();
 	defun_infobit();
 	defun_infoprint();

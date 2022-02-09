@@ -1265,7 +1265,7 @@ enum pointer_index {
 	p_defun_syscall_condition_restarts_make,
 	p_defun_syscall_make_restart,
 	/* syscall function */
-	p_defun_syscall_abort,
+	p_defun_syscall_abort_lisp,
 	p_defun_syscall_hello,
 	p_defun_syscall_infobit,
 	p_defun_syscall_infoprint,
