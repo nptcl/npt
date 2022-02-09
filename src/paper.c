@@ -1,3 +1,5 @@
+#include "array_access.h"
+#include "array_make.h"
 #include "condition.h"
 #include "cons_list.h"
 #include "heap.h"
@@ -11,6 +13,7 @@
 void paper_array_alloc(LocalRoot local, addr *ret, size_t array)
 {
 	alloc_array(local, ret, LISPTYPE_PAPER, array);
+	SetUser(*ret, 0);
 }
 
 void paper_array_local(LocalRoot local, addr *ret, size_t array)
@@ -27,6 +30,7 @@ void paper_array_heap(addr *ret, size_t array)
 void paper_body_alloc(LocalRoot local, addr *ret, size_t body)
 {
 	alloc_body(local, ret, LISPTYPE_PAPER, body);
+	SetUser(*ret, 0);
 }
 
 void paper_body_local(LocalRoot local, addr *ret, size_t body)
@@ -50,12 +54,14 @@ static int paper_arraybody(LocalRoot local, addr *ret, size_t array, size_t body
 		paper_array_alloc(local, ret, array);
 		return 0;
 	}
-	if (array <= 0xFFFFULL && body <= 0xFFFFULL) {
-		alloc_arraybody(local, ret, LISPTYPE_PAPER, array, body);
-		return 0;
-	}
 	if (array <= 0xFFULL && body <= 0xFFULL) {
 		alloc_smallsize(local, ret, LISPTYPE_PAPER, array, body);
+		SetUser(*ret, 0);
+		return 0;
+	}
+	if (array <= 0xFFFFULL && body <= 0xFFFFULL) {
+		alloc_arraybody(local, ret, LISPTYPE_PAPER, array, body);
+		SetUser(*ret, 0);
 		return 0;
 	}
 	*ret = Nil;
@@ -330,18 +336,17 @@ int paper_list_array_(addr pos, addr *ret)
 int paper_vector_body_(addr pos, addr *ret)
 {
 	byte c;
-	addr vector, x;
+	addr array;
 	size_t size, i;
 
 	CheckType(pos, LISPTYPE_PAPER);
 	paper_len_body(pos, &size);
-	vector_heap(&vector, size);
+	Return(array_unsigned8_heap_(&array, size));
 	for (i = 0; i < size; i++) {
 		paper_get_body(pos, i, &c);
-		fixnum_heap(&x, (fixnum)c);
-		setarray(vector, i, x);
+		Return(array_set_unsigned8_(array, i, c));
 	}
-	*ret = vector;
+	*ret = array;
 
 	return 0;
 }

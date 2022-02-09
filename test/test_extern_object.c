@@ -732,6 +732,378 @@ static int test_lisp_namestring(void)
 
 
 /*
+ *  paper
+ */
+static int test_lisp_paper(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr pos, x;
+	size_t size;
+
+	lisp0_paper_(&pos, 10, 0);
+	test(paperp(pos), "lisp_paper.1");
+	test(GetStatusSize(pos) == LISPSIZE_ARRAY2, "lisp_paper.2");
+	lenarray(pos, &size);
+	test(size == 10, "lisp_paper.3");
+
+	lisp0_paper_(&pos, 0, 0x010000);
+	test(GetStatusSize(pos) == LISPSIZE_BODY4, "lisp_paper.4");
+	lenbody(pos, &size);
+	test(size == 0x010000, "lisp_paper.5");
+
+	lisp0_paper_(&pos, 4, 5);
+	test(GetStatusSize(pos) == LISPSIZE_SMALLSIZE, "lisp_paper.6");
+	lenarray(pos, &size);
+	test(size == 4, "lisp_paper.7");
+	lenbody(pos, &size);
+	test(size == 5, "lisp_paper.8");
+
+	lisp0_paper_(&pos, 4, 0x0100);
+	test(GetStatusSize(pos) == LISPSIZE_ARRAYBODY, "lisp_paper.9");
+	lenarray(pos, &size);
+	test(size == 4, "lisp_paper.10");
+	lenbody(pos, &size);
+	test(size == 0x0100, "lisp_paper.11");
+
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp_paper_(x, 10, 20);
+	test(holdp(x), "lisp_paper.12");
+	test(lisp_paper_p(x), "lisp_paper.13");
+	lisp_hold_value(x, &pos);
+	lenarray(pos, &size);
+	test(size == 10, "lisp_paper.14");
+	lenbody(pos, &size);
+	test(size == 20, "lisp_paper.15");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_paper_gettype(void)
+{
+	byte c;
+	LocalRoot local;
+	LocalStack stack;
+	addr x, pos;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp0_paper_(&pos, 10, 20);
+	c = 99;
+	lisp_paper_gettype_(pos, &c);
+	test(c == 0, "lisp_paper_gettype.1");
+	lisp_paper_settype_(pos, 88);
+	lisp_paper_gettype_(pos, &c);
+	test(c == 88, "lisp_paper_gettype.2");
+
+	lisp_paper_(x, 30, 40);
+	c = 99;
+	lisp_paper_gettype_(x, &c);
+	test(c == 0, "lisp_paper_gettype.3");
+	lisp_paper_settype_(x, 77);
+	lisp_paper_gettype_(x, &c);
+	test(c == 77, "lisp_paper_gettype.4");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_paper_lenarray(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, pos;
+	size_t size;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp0_paper_(&pos, 10, 20);
+	size = 99;
+	lisp_paper_lenarray_(pos, &size);
+	test(size == 10, "lisp_paper_lenarray.1");
+	lisp_paper_lenbody_(pos, &size);
+	test(size == 20, "lisp_paper_lenarray.2");
+
+	lisp_paper_(x, 30, 40);
+	size = 99;
+	lisp_paper_lenarray_(x, &size);
+	test(size == 30, "lisp_paper_lenarray.3");
+	lisp_paper_lenbody_(x, &size);
+	test(size == 40, "lisp_paper_lenarray.4");
+
+	lisp_paper_(x, 0, 40);
+	size = 99;
+	lisp_paper_lenarray_(x, &size);
+	test(size == 0, "lisp_paper_lenarray.5");
+	lisp_paper_lenbody_(x, &size);
+	test(size == 40, "lisp_paper_lenarray.6");
+
+	lisp_paper_(x, 30, 0);
+	size = 99;
+	lisp_paper_lenarray_(x, &size);
+	test(size == 30, "lisp_paper_lenarray.7");
+	lisp_paper_lenbody_(x, &size);
+	test(size == 0, "lisp_paper_lenarray.8");
+
+	lisp_paper_(x, 0, 0);
+	size = 99;
+	lisp_paper_lenarray_(x, &size);
+	test(size == 0, "lisp_paper_lenarray.9");
+	lisp_paper_lenbody_(x, &size);
+	test(size == 0, "lisp_paper_lenarray.10");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_paper_getarray(void)
+{
+	LocalRoot local;
+	LocalStack stack;
+	addr x, v, pos, value;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+	v = Lisp_hold();
+
+	lisp0_paper_(&pos, 10, 20);
+	lisp_paper_getarray_(v, pos, 1);
+	lisp_hold_value(v, &value);
+	test(value == Nil, "lisp_paper_getarray.1");
+	value = NULL;
+	lisp0_paper_getarray_(&value, pos, 1);
+	test(value == Nil, "lisp_paper_getarray.2");
+
+	lisp_paper_setarray_(pos, 2, T);
+	lisp_paper_getarray_(v, pos, 2);
+	lisp_hold_value(v, &value);
+	test(value == T, "lisp_paper_getarray.3");
+	value = NULL;
+	lisp0_paper_getarray_(&value, pos, 2);
+	test(value == T, "lisp_paper_getarray.4");
+
+	lisp_paper_(x, 5, 0);
+	lisp_paper_getarray_(v, x, 3);
+	lisp_hold_value(v, &value);
+	test(value == Nil, "lisp_paper_getarray.5");
+	value = NULL;
+	lisp0_paper_getarray_(&value, x, 3);
+	test(value == Nil, "lisp_paper_getarray.6");
+
+	lisp_paper_setarray_(x, 4, T);
+	lisp_paper_getarray_(v, x, 4);
+	lisp_hold_value(v, &value);
+	test(value == T, "lisp_paper_getarray.7");
+	value = NULL;
+	lisp0_paper_getarray_(&value, x, 4);
+	test(value == T, "lisp_paper_getarray.8");
+
+	lisp_string8_(v, "Hello");
+	lisp_paper_setarray_(x, 4, v);
+	lisp_paper_getarray_(v, x, 4);
+	lisp_hold_value(v, &value);
+	test(strvectp(value), "lisp_paper_getarray.9");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_paper_getbody(void)
+{
+	byte value;
+	LocalRoot local;
+	LocalStack stack;
+	addr x, pos;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp0_paper_(&pos, 10, 20);
+	lisp_paper_setbody_(pos, 2, 123);
+	lisp_paper_getbody_(pos, 2, &value);
+	test(value == 123, "lisp_paper_getbody.1");
+
+	lisp_paper_(x, 0, 5);
+	lisp_paper_setbody_(x, 4, 45);
+	lisp_paper_getbody_(x, 4, &value);
+	test(value == 45, "lisp_paper_getbody.2");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static void test_lisp_paper_getmemory_data(addr x)
+{
+	byte c;
+	size_t size, i;
+
+	lisp_paper_lenbody_(x, &size);
+	c = 0;
+	for (i = 0; i < size; i++)
+		lisp_paper_setbody_(x, i, c++);
+}
+
+static int test_lisp_paper_getmemory(void)
+{
+	byte data[100];
+	const char *str;
+	int check;
+	LocalRoot local;
+	LocalStack stack;
+	addr x, pos;
+	size_t size;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp0_paper_(&pos, 10, 20);
+	lisp_paper_getmemory_(pos, 0, 20, data, &size);
+	test(size == 20, "lisp_paper_getmemory.1");
+	check = lisp_paper_getmemory_(pos, 0, 20, data, NULL);
+	test(check == 0, "lisp_paper_getmemory.2");
+
+	lisp_paper_(x, 30, 40);
+	lisp_paper_getmemory_(x, 0, 40, data, &size);
+	test(size == 40, "lisp_paper_getmemory.3");
+	check = lisp_paper_getmemory_(x, 0, 20, data, NULL);
+	test(check == 0, "lisp_paper_getmemory.4");
+
+	lisp_paper_(x, 0, 5);
+	test_lisp_paper_getmemory_data(x);
+	memset(data, 0xAA, 100);
+	lisp_paper_getmemory_(x, 0, 5, data, &size);
+	test(size == 5, "lisp_paper_getmemory.5");
+	str = "\x00\x01\x02\x03\x04\xAA";
+	test(memcmp(data, str, 6) == 0, "lisp_paper_getmemory.6");
+
+	memset(data, 0xAA, 100);
+	lisp_paper_getmemory_(x, 3, 6, data, &size);
+	test(size == 2, "lisp_paper_getmemory.7");
+	str = "\x03\x04\xAA\xAA\xAA\xAA";
+	test(memcmp(data, str, 6) == 0, "lisp_paper_getmemory.8");
+
+	lisp_paper_getmemory_(x, 4, 2, data, &size);
+	test(size == 0, "lisp_paper_getmemory.9");
+	lisp_paper_getmemory_(x, 2, 2, data, &size);
+	test(size == 0, "lisp_paper_getmemory.10");
+	lisp_paper_getmemory_(x, 20, 30, data, &size);
+	test(size == 0, "lisp_paper_getmemory.11");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_paper_setmemory(void)
+{
+	byte data[100];
+	const char *str;
+	int check;
+	LocalRoot local;
+	LocalStack stack;
+	addr x, pos;
+	size_t size;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp0_paper_(&pos, 10, 20);
+	test_lisp_paper_getmemory_data(pos);
+	memset(data, 0xAA, 100);
+	lisp_paper_setmemory_(pos, 0, 20, data, &size);
+	test(size == 20, "lisp_paper_setmemory.1");
+	lisp_paper_getmemory_(pos, 0, 5, data, &size);
+	str = "\xAA\xAA\xAA\xAA\xAA";
+	test(memcmp(data, str, 5) == 0, "lisp_paper_setmemory.2");
+	check = lisp_paper_setmemory_(pos, 0, 20, data, NULL);
+	test(check == 0, "lisp_paper_setmemory.3");
+
+	lisp_paper_(x, 10, 20);
+	test_lisp_paper_getmemory_data(x);
+	memset(data, 0xAA, 100);
+	lisp_paper_setmemory_(x, 0, 20, data, &size);
+	test(size == 20, "lisp_paper_setmemory.4");
+	lisp_paper_getmemory_(x, 0, 5, data, &size);
+	str = "\xAA\xAA\xAA\xAA\xAA";
+	test(memcmp(data, str, 5) == 0, "lisp_paper_setmemory.5");
+	check = lisp_paper_setmemory_(x, 0, 20, data, NULL);
+	test(check == 0, "lisp_paper_setmemory.6");
+
+	memset(data, 0xAA, 100);
+	lisp_paper_setmemory_(x, 0, 20, data, NULL);
+	str = "\xB1\xB2\xB3\xB4\xB5\xB6\xB7\xB8\xB9\xBB";
+	lisp_paper_setmemory_(x, 2, 5, str, &size);
+	test(size == 3, "lisp_paper_setmemory.7");
+	lisp_paper_getmemory_(x, 0, 6, data, &size);
+	str = "\xAA\xAA\xB1\xB2\xB3\xAA\xAA\xAA";
+	test(memcmp(data, str, 6) == 0, "lisp_paper_setmemory.8");
+
+	lisp_paper_setmemory_(x, 4, 2, data, &size);
+	test(size == 0, "lisp_paper_setmemory.9");
+	lisp_paper_setmemory_(x, 2, 2, data, &size);
+	test(size == 0, "lisp_paper_setmemory.10");
+	lisp_paper_setmemory_(x, 20, 30, data, &size);
+	test(size == 0, "lisp_paper_setmemory.11");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+static int test_lisp_paper_body_unsafe(void)
+{
+	const char *str;
+	int check;
+	LocalRoot local;
+	LocalStack stack;
+	addr x, pos;
+	size_t size;
+
+	local = Local_Thread;
+	push_local(local, &stack);
+	x = Lisp_hold();
+
+	lisp0_paper_(&pos, 10, 20);
+	lisp_paper_setmemory_(pos, 0, 6, "Hello", NULL);
+	lisp_paper_body_unsafe_(pos, (byte **)&str, &size);
+	test(strcmp(str, "Hello") == 0, "lisp_paper_body_unsafe.1");
+	test(size == 20, "lisp_paper_body_unsafe.2");
+	check = lisp_paper_body_unsafe_(pos, NULL, NULL);
+	test(check == 0, "lisp_paper_body_unsafe.3");
+
+	lisp_paper_(x, 10, 20);
+	lisp_paper_setmemory_(x, 0, 6, "Hello", NULL);
+	lisp_paper_body_unsafe_(x, (byte **)&str, &size);
+	test(strcmp(str, "Hello") == 0, "lisp_paper_body_unsafe.4");
+	test(size == 20, "lisp_paper_body_unsafe.5");
+	check = lisp_paper_body_unsafe_(x, NULL, NULL);
+	test(check == 0, "lisp_paper_body_unsafe.6");
+
+	rollback_local(local, stack);
+
+	RETURN;
+}
+
+
+/*
  *  Main
  */
 static int testcase_extern_object(void)
@@ -772,6 +1144,15 @@ static int testcase_extern_object(void)
 	TestBreak(test_lisp_pathname16);
 	TestBreak(test_lisp_pathname32);
 	TestBreak(test_lisp_namestring);
+	/* paper */
+	TestBreak(test_lisp_paper);
+	TestBreak(test_lisp_paper_gettype);
+	TestBreak(test_lisp_paper_lenarray);
+	TestBreak(test_lisp_paper_getarray);
+	TestBreak(test_lisp_paper_getbody);
+	TestBreak(test_lisp_paper_getmemory);
+	TestBreak(test_lisp_paper_setmemory);
+	TestBreak(test_lisp_paper_body_unsafe);
 
 	return 0;
 }

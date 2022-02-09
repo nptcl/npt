@@ -1218,7 +1218,7 @@ int faslread_value_paper_(Execute ptr, addr stream, addr *ret)
 	/* body */
 	if (body) {
 		posbody(pos, &value);
-		Return(faslwrite_buffer_(stream, (void *)value, body));
+		Return(faslread_buffer_(stream, (void *)value, body));
 	}
 	/* result */
 	faslread_status_update(pos, status);

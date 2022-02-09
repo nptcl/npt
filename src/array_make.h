@@ -20,6 +20,7 @@
 #define array_make_array_ _n(array_make_array_)
 #define array_contents_heap_ _n(array_contents_heap_)
 #define array_character_alloc_ _n(array_character_alloc_)
+#define array_unsigned8_heap_ _n(array_unsigned8_heap_)
 #define array_build_ _n(array_build_)
 
 /* control */
@@ -46,6 +47,7 @@ int array_make_array_(addr *ret, addr dimension,
 /* interface */
 int array_contents_heap_(addr *ret, addr rank, addr contents);
 int array_character_alloc_(LocalRoot local, addr pos);
+int array_unsigned8_heap_(addr *ret, size_t size);
 int array_build_(addr pos);
 
 #endif

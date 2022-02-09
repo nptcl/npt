@@ -1889,6 +1889,8 @@ static int build_clos_class_type_(LocalRoot local)
 	ClosMakeType1_(local, COMPILED_FUNCTION, FUNCTION);
 	ClosMakeType1_(local, KEYWORD, SYMBOL);
 
+	Return(clos_stdtype_buildin0_(local, CONSTANT_SYSTEM_PAPER, CONSTANT_CLOS_PAPER));
+
 	return 0;
 }
 

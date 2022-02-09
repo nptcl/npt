@@ -83,12 +83,14 @@ int lisp_paper_gettype_(addr x, byte *ret);
 int lisp_paper_settype_(addr x, byte value);
 int lisp_paper_lenarray_(addr x, size_t *ret);
 int lisp_paper_lenbody_(addr x, size_t *ret);
-int lisp_paper_getarray_(addr x, size_t index, addr *ret);
+int lisp0_paper_getarray_(addr *ret, addr pos, size_t index);
+int lisp_paper_getarray_(addr x, addr pos, size_t index);
 int lisp_paper_setarray_(addr x, size_t index, addr value);
 int lisp_paper_getbody_(addr x, size_t index, byte *ret);
 int lisp_paper_setbody_(addr x, size_t index, byte value);
 int lisp_paper_getmemory_(addr x, size_t a, size_t b, void *output, size_t *ret);
 int lisp_paper_setmemory_(addr x, size_t a, size_t b, const void *input, size_t *ret);
+int lisp_paper_body_unsafe_(addr x, byte **ptr, size_t *ret);
 
 #endif
 

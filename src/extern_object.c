@@ -799,22 +799,31 @@ int lisp_paper_lenbody_(addr x, size_t *ret)
 	return 0;
 }
 
-int lisp_paper_getarray_(addr x, size_t index, addr *ret)
+int lisp0_paper_getarray_(addr *ret, addr pos, size_t index)
 {
 	size_t size;
 
-	hold_value(x, &x);
-	if (! paperp(x)) {
+	hold_value(pos, &pos);
+	if (! paperp(pos)) {
 		*ret = Nil;
-		return fmte_("Not paper object, ~S.", x, NULL);
+		return fmte_("Not paper object, ~S.", pos, NULL);
 	}
-	paper_len_array(x, &size);
+	paper_len_array(pos, &size);
 	if (size <= index) {
 		*ret = Nil;
-		return fmte_("paper size error, ~S.", x, NULL);
+		return fmte_("paper size error, ~S.", pos, NULL);
 	}
-	paper_get_array(x, index, ret);
+	paper_get_array(pos, index, ret);
 
+	return 0;
+}
+
+int lisp_paper_getarray_(addr x, addr pos, size_t index)
+{
+	addr value;
+
+	Return(lisp0_paper_getarray_(&value, pos, index));
+	hold_set(x, value);
 	return 0;
 }
 
@@ -828,6 +837,7 @@ int lisp_paper_setarray_(addr x, size_t index, addr value)
 	paper_len_array(x, &size);
 	if (size <= index)
 		return fmte_("paper size error, ~S.", x, NULL);
+	hold_value(value, &value);
 	paper_set_array(x, index, value);
 
 	return 0;
@@ -883,6 +893,38 @@ int lisp_paper_setmemory_(addr x, size_t a, size_t b, const void *input, size_t 
 	if (! paperp(x))
 		return fmte_("Not paper object, ~S.", x, NULL);
 	paper_set_memory(x, a, b, input, ret);
+
+	return 0;
+}
+
+int lisp_paper_body_unsafe_(addr x, byte **ptr, size_t *ret)
+{
+	size_t size;
+
+	hold_value(x, &x);
+	if (! paperp(x)) {
+		if (ptr)
+			*ptr = NULL;
+		if (ret)
+			*ret = 0;
+		return fmte_("Not paper object, ~S.", x, NULL);
+	}
+
+	paper_len_body(x, &size);
+	if (size == 0) {
+		if (ptr)
+			*ptr = NULL;
+		if (ret)
+			*ret = 0;
+		return 0;
+	}
+
+	if (ptr) {
+		posbody(x, &x);
+		*ptr = (byte *)x;
+	}
+	if (ret)
+		*ret = size;
 
 	return 0;
 }

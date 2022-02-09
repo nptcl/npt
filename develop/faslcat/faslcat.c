@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include "compile_faslcode.h"
 #include "typedef_object.h"
 #include "version.h"
 
 typedef uint32_t unicode;
-typedef uint64_t size64;
+typedef uint64_t sizetype;
 
 int Info;
 int BigEndian;
@@ -114,7 +115,7 @@ int read_byte8(FILE *file, uint64_t *ret)
 
 	return 0;
 }
-int read_size(FILE *file, size64 *ret)
+int read_size(FILE *file, sizetype *ret)
 {
 	uint8_t v1;
 	uint16_t v2;
@@ -130,25 +131,25 @@ int read_size(FILE *file, size64 *ret)
 		case 1:
 			if (read_byte(file, &v1))
 				return 1;
-			*ret = (size64)v1;
+			*ret = (sizetype)v1;
 			return 0;
 
 		case 2:
 			if (read_byte2(file, &v2))
 				return 1;
-			*ret = (size64)v2;
+			*ret = (sizetype)v2;
 			return 0;
 
 		case 4:
 			if (read_byte4(file, &v4))
 				return 1;
-			*ret = (size64)v4;
+			*ret = (sizetype)v4;
 			return 0;
 
 		case 8:
 			if (read_byte8(file, &v8))
 				return 1;
-			*ret = (size64)v8;
+			*ret = (sizetype)v8;
 			return 0;
 
 		default:
@@ -255,7 +256,7 @@ int write_byte8(uint64_t v)
 
 	return 0;
 }
-int write_size(size64 v)
+int write_size(sizetype v)
 {
 	uint8_t v1;
 	uint16_t v2;
@@ -334,9 +335,9 @@ int pipe_byte(FILE *file, uint8_t *ret)
 
 	return 0;
 }
-int pipe_size(FILE *file, size64 *ret)
+int pipe_size(FILE *file, sizetype *ret)
 {
-	size64 v;
+	sizetype v;
 
 	if (ret == NULL)
 		ret = &v;
@@ -404,9 +405,9 @@ int fasl_code_operator(FILE *file)
 	return fasl_value(file);
 }
 
-int fasl_code_loop(FILE *file, size64 size)
+int fasl_code_loop(FILE *file, sizetype size)
 {
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < size; i++) {
 		if (fasl_code_operator(file))
@@ -418,7 +419,7 @@ int fasl_code_loop(FILE *file, size64 size)
 
 int fasl_code(FILE *file)
 {
-	size64 size;
+	sizetype size;
 
 	info("Fasl_code");
 	return pipe_status(file)
@@ -428,9 +429,9 @@ int fasl_code(FILE *file)
 
 
 /* type */
-int fasl_type_array(FILE *file, size64 size)
+int fasl_type_array(FILE *file, sizetype size)
 {
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < size; i++) {
 		if (fasl_value(file))
@@ -442,7 +443,7 @@ int fasl_type_array(FILE *file, size64 size)
 
 int fasl_type(FILE *file)
 {
-	size64 size;
+	sizetype size;
 
 	info("FaslCode_type");
 	return pipe_status(file)
@@ -475,8 +476,8 @@ int fasl_cons(FILE *file)
 int fasl_array_struct(FILE *file,
 		uint8_t *rtype,
 		uint8_t *relement,
-		size64 *rfront,
-		size64 *rdim)
+		sizetype *rfront,
+		sizetype *rdim)
 {
 	return pipe_byte(file, NULL)      /* bit */
 		|| pipe_byte(file, rtype)     /* type */
@@ -488,9 +489,9 @@ int fasl_array_struct(FILE *file,
 		|| pipe_size(file, NULL);     /* offset */
 }
 
-int fasl_array_dimension(FILE *file, size64 dim)
+int fasl_array_dimension(FILE *file, sizetype dim)
 {
-	size64 i;
+	sizetype i;
 
 	if (dim <= 1)
 		return 0;
@@ -503,9 +504,9 @@ int fasl_array_dimension(FILE *file, size64 dim)
 	return 0;
 }
 
-int fasl_array_t(FILE *file, size64 front)
+int fasl_array_t(FILE *file, sizetype front)
 {
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < front; i++) {
 		if (fasl_value(file))
@@ -515,15 +516,15 @@ int fasl_array_t(FILE *file, size64 front)
 	return 1;
 }
 
-int fasl_array_bit(FILE *file, size64 front)
+int fasl_array_bit(FILE *file, sizetype front)
 {
 	return fasl_value(file);
 }
 
-int fasl_array_memory(FILE *file, uint8_t element, size64 front)
+int fasl_array_memory(FILE *file, uint8_t element, sizetype front)
 {
 	uint8_t data[0x0100];
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < front; i++) {
 		if (pipe_sequence(file, data, (size_t)element))
@@ -533,7 +534,7 @@ int fasl_array_memory(FILE *file, uint8_t element, size64 front)
 	return 0;
 }
 
-int fasl_array_body(FILE *file, uint8_t type, uint8_t element, size64 front)
+int fasl_array_body(FILE *file, uint8_t type, uint8_t element, sizetype front)
 {
 	switch ((enum ARRAY_TYPE)type) {
 		case ARRAY_TYPE_T:
@@ -561,7 +562,7 @@ int fasl_array_body(FILE *file, uint8_t type, uint8_t element, size64 front)
 int fasl_array(FILE *file)
 {
 	uint8_t type, element;
-	size64 front, dim;
+	sizetype front, dim;
 
 	info("FaslCode_array");
 	return pipe_status(file)
@@ -573,9 +574,9 @@ int fasl_array(FILE *file)
 
 
 /* vector */
-int fasl_vector_loop(FILE *file, size64 size)
+int fasl_vector_loop(FILE *file, sizetype size)
 {
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < size; i++) {
 		if (fasl_value(file))
@@ -587,7 +588,7 @@ int fasl_vector_loop(FILE *file, size64 size)
 
 int fasl_vector(FILE *file)
 {
-	size64 size;
+	sizetype size;
 
 	info("FaslCode_vector");
 	return pipe_status(file)
@@ -615,10 +616,10 @@ int fasl_character7(FILE *file)
 
 
 /* string */
-int fasl_string_loop(FILE *file, size64 size)
+int fasl_string_loop(FILE *file, sizetype size)
 {
 	unicode value;
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < size; i++) {
 		if (pipe_sequence(file, &value, sizeof(value)))
@@ -630,7 +631,7 @@ int fasl_string_loop(FILE *file, size64 size)
 
 int fasl_string(FILE *file)
 {
-	size64 size;
+	sizetype size;
 
 	info("FaslCode_string");
 	return pipe_status(file)
@@ -638,9 +639,9 @@ int fasl_string(FILE *file)
 		|| fasl_string_loop(file, size);
 }
 
-int fasl_string7_loop(FILE *file, size64 size)
+int fasl_string7_loop(FILE *file, sizetype size)
 {
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < size; i++) {
 		if (pipe_byte(file, NULL))
@@ -652,7 +653,7 @@ int fasl_string7_loop(FILE *file, size64 size)
 
 int fasl_string7(FILE *file)
 {
-	size64 size;
+	sizetype size;
 
 	info("FaslCode_string7");
 	return pipe_status(file)
@@ -662,7 +663,7 @@ int fasl_string7(FILE *file)
 
 
 /* hashtable */
-int fasl_hashtable_struct(FILE *file, size64 *rcount)
+int fasl_hashtable_struct(FILE *file, sizetype *rcount)
 {
 	double dvalue;
 	return pipe_byte(file, NULL)    /* resize_float_p */
@@ -676,9 +677,9 @@ int fasl_hashtable_struct(FILE *file, size64 *rcount)
 		|| pipe_sequence(file, &dvalue, sizeof(dvalue)); /* threshold */
 }
 
-int fasl_hashtable_loop(FILE *file, size64 count)
+int fasl_hashtable_loop(FILE *file, sizetype count)
 {
-	size64 i;
+	sizetype i;
 
 	for (i = 0; i < count; i++) {
 		/* key */
@@ -694,7 +695,7 @@ int fasl_hashtable_loop(FILE *file, size64 count)
 
 int fasl_hashtable(FILE *file)
 {
-	size64 count;
+	sizetype count;
 
 	info("FaslCode_hashtable");
 	return pipe_status(file)
@@ -748,11 +749,11 @@ int fasl_fixnum(FILE *file)
 
 
 /* bignum */
-int fasl_bignum_loop(FILE *file, size64 size)
+int fasl_bignum_loop(FILE *file, sizetype size)
 {
 	int32_t v32;
 	int64_t v64;
-	size64 i;
+	sizetype i;
 
 	if (Fixnum64) {
 		for (i = 0; i < size; i++) {
@@ -772,7 +773,7 @@ int fasl_bignum_loop(FILE *file, size64 size)
 
 int fasl_bignum(FILE *file)
 {
-	size64 size;
+	sizetype size;
 
 	info("FaslCode_bignum");
 	return pipe_status(file)
@@ -902,11 +903,11 @@ int fasl_quote(FILE *file)
 
 
 /* bitvector */
-int fasl_bitvector_loop(FILE *file, size64 fixed)
+int fasl_bitvector_loop(FILE *file, sizetype fixed)
 {
 	uint32_t v32;
 	uint64_t v64;
-	size64 i;
+	sizetype i;
 
 	if (Fixnum64) {
 		for (i = 0; i < fixed; i++) {
@@ -926,7 +927,7 @@ int fasl_bitvector_loop(FILE *file, size64 fixed)
 
 int fasl_bitvector(FILE *file)
 {
-	size64 fixed;
+	sizetype fixed;
 
 	info("FaslCode_bitvector");
 	return pipe_status(file)
@@ -942,6 +943,50 @@ int fasl_load(FILE *file)
 	info("FaslCode_load_time_value");
 	return pipe_status(file)
 		|| pipe_size(file, NULL);
+}
+
+
+/* paper */
+int fasl_paper_array(FILE *file, sizetype size)
+{
+	sizetype i;
+
+	for (i = 0; i < size; i++) {
+		if (fasl_value(file))
+			return 1;
+	}
+
+	return 0;
+}
+
+int fasl_paper_body(FILE *file, sizetype size)
+{
+	int errorp;
+	void *ptr;
+
+	if (size == 0)
+		return 0;
+	ptr = malloc(size);
+	if (ptr == NULL) {
+		fprintf(stderr, "malloc error.\n");
+		return 1;
+	}
+	errorp = pipe_sequence(file, ptr, (size_t)size);
+	free(ptr);
+
+	return errorp;
+}
+
+int fasl_paper(FILE *file)
+{
+	sizetype array, body;
+
+	info("FaslCode_paper");
+	return pipe_status(file)
+		|| pipe_size(file, &array)
+		|| pipe_size(file, &body)
+		|| fasl_paper_array(file, array)
+		|| fasl_paper_body(file, body);
 }
 
 
@@ -1046,6 +1091,9 @@ int fasl_switch(FILE *file, enum FaslCode code)
 
 		case FaslCode_load:
 			return fasl_load(file);
+
+		case FaslCode_paper:
+			return fasl_paper(file);
 
 		case FaslCode_break:
 			info("FaslCode_break");

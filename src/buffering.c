@@ -1,4 +1,3 @@
-#include "array.h"
 #include "array_access.h"
 #include "array_make.h"
 #include "condition.h"
@@ -309,20 +308,6 @@ void length_buffering(addr pos, size_t *ret)
 /*
  *  make vector
  */
-static int make_array_buffering_(addr *ret, size_t size)
-{
-	addr pos;
-	struct array_struct *str;
-
-	Return(array_heap_(&pos, 1, size));
-	str = ArrayInfoStruct(pos);
-	str->type = ARRAY_TYPE_UNSIGNED;
-	str->bytesize = 8;
-	Return(array_build_(pos));
-
-	return Result(ret, pos);
-}
-
 int make_vector_buffering_heap_(addr pos, addr *ret)
 {
 	byte c;
@@ -333,7 +318,7 @@ int make_vector_buffering_heap_(addr pos, addr *ret)
 	CheckType(pos, LISPSYSTEM_BUFFERING);
 	str = struct_buffering(pos);
 	size = str->size;
-	Return(make_array_buffering_(&array, size));
+	Return(array_unsigned8_heap_(&array, size));
 
 	for (i = 0; i < size; i++) {
 		if (get_buffering(pos, i, &c))

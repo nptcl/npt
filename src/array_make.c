@@ -1234,6 +1234,20 @@ int array_character_alloc_(LocalRoot local, addr pos)
 	return array_allocate_(local, pos, str);
 }
 
+int array_unsigned8_heap_(addr *ret, size_t size)
+{
+	addr pos;
+	struct array_struct *str;
+
+	Return(array_heap_(&pos, 1, size));
+	str = ArrayInfoStruct(pos);
+	str->type = ARRAY_TYPE_UNSIGNED;
+	str->bytesize = 8;
+	Return(array_build_(pos));
+
+	return Result(ret, pos);
+}
+
 int array_build_(addr pos)
 {
 	struct array_struct *str;

@@ -6,6 +6,7 @@
 #include "bignum_output.h"
 #include "bit.h"
 #include "bytespec.h"
+#include "c99.h"
 #include "callname.h"
 #include "character.h"
 #include "character_name.h"
@@ -24,6 +25,7 @@
 #include "integer.h"
 #include "package.h"
 #include "package_object.h"
+#include "paper.h"
 #include "pathname.h"
 #include "print.h"
 #include "print_dispatch.h"
@@ -2371,6 +2373,25 @@ static int WriteCall_bitvector_(Execute ptr, addr stream, addr pos)
 
 
 /*
+ *  paper
+ */
+static int WriteBody_paper_(Execute ptr, addr stream, addr pos)
+{
+	char str[8];
+	byte c;
+
+	paper_get_type(pos, &c);
+	snprintc(str, 8, "%d", (int)c);
+	return print_ascii_stream_(stream, str);
+}
+
+static int WriteCall_paper_(Execute ptr, addr stream, addr pos)
+{
+	return print_unreadable_object_(ptr, stream, pos, 1, 1, WriteBody_paper_);
+}
+
+
+/*
  *  byte
  */
 static int WriteBody_bytespec_(Execute ptr, addr stream, addr pos)
@@ -2665,7 +2686,7 @@ void init_print_write(void)
 	WriteCallTable[LISPTYPE_ENVIRONMENT] = WriteCall_system_;
 	WriteCallTable[LISPTYPE_BITVECTOR] = WriteCall_bitvector_;
 	WriteCallTable[LISPTYPE_PRINT_DISPATCH] = WriteCall_system_;
-	WriteCallTable[LISPTYPE_PAPER] = WriteCall_system_;
+	WriteCallTable[LISPTYPE_PAPER] = WriteCall_paper_;
 	WriteCallTable[LISPTYPE_BYTESPEC] = WriteCall_bytespec_;
 
 	WriteCallTable[LISPSYSTEM_CHARACTER2] = WriteCall_system_;

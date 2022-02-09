@@ -1,5 +1,5 @@
 ;;
-;;  System Call: memory-stream
+;;  System Call: sysctl
 ;;
 (import 'lisp-system:sysctl)
 
