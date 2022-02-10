@@ -201,11 +201,11 @@ static void lisp_compiled_index_check(int index)
 	}
 }
 
-void lisp_compiled_dynamic(int index, lisp_calltype_dynamic call)
+void lisp_compiled_macro(int index, lisp_calltype_macro call)
 {
 	lisp_compiled_index_check(index);
 	index += (int)p_size;
-	SetPointer_extend_dynamic(index, call);
+	SetPointer_extend_macro(index, call);
 }
 
 void lisp_compiled_rest(int index, lisp_calltype_rest call)
@@ -213,6 +213,20 @@ void lisp_compiled_rest(int index, lisp_calltype_rest call)
 	lisp_compiled_index_check(index);
 	index += (int)p_size;
 	SetPointer_extend_rest(index, call);
+}
+
+void lisp_compiled_dynamic(int index, lisp_calltype_dynamic call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_dynamic(index, call);
+}
+
+void lisp_compiled_any(int index, lisp_calltype_any call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_any(index, call);
 }
 
 void lisp_compiled_empty(int index, lisp_calltype_empty call)
@@ -243,15 +257,170 @@ void lisp_compiled_var3(int index, lisp_calltype_var3 call)
 	SetPointer_extend_var3(index, call);
 }
 
+void lisp_compiled_var4(int index, lisp_calltype_var4 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var4(index, call);
+}
+
+void lisp_compiled_var5(int index, lisp_calltype_var5 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var5(index, call);
+}
+
+void lisp_compiled_var6(int index, lisp_calltype_var6 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var6(index, call);
+}
+
+void lisp_compiled_opt1(int index, lisp_calltype_opt1 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_opt1(index, call);
+}
+
+void lisp_compiled_opt2(int index, lisp_calltype_opt2 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_opt2(index, call);
+}
+
+void lisp_compiled_opt3(int index, lisp_calltype_opt3 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_opt3(index, call);
+}
+
+void lisp_compiled_var1opt1(int index, lisp_calltype_var1opt1 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var1opt1(index, call);
+}
+
+void lisp_compiled_var1opt2(int index, lisp_calltype_var1opt2 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var1opt2(index, call);
+}
+
+void lisp_compiled_var1opt3(int index, lisp_calltype_var1opt3 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var1opt3(index, call);
+}
+
+void lisp_compiled_var2opt1(int index, lisp_calltype_var2opt1 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var2opt1(index, call);
+}
+
+void lisp_compiled_var2opt2(int index, lisp_calltype_var2opt2 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var2opt2(index, call);
+}
+
+void lisp_compiled_var2opt3(int index, lisp_calltype_var2opt3 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var2opt3(index, call);
+}
+
+void lisp_compiled_var3opt1(int index, lisp_calltype_var3opt1 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var3opt1(index, call);
+}
+
+void lisp_compiled_var3opt2(int index, lisp_calltype_var3opt2 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var3opt2(index, call);
+}
+
+void lisp_compiled_var3opt3(int index, lisp_calltype_var3opt3 call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var3opt3(index, call);
+}
+
+void lisp_compiled_var1rest(int index, lisp_calltype_var1rest call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var1rest(index, call);
+}
+
+void lisp_compiled_var2rest(int index, lisp_calltype_var2rest call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var2rest(index, call);
+}
+
+void lisp_compiled_var3rest(int index, lisp_calltype_var3rest call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var3rest(index, call);
+}
+
+void lisp_compiled_var1dynamic(int index, lisp_calltype_var1dynamic call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var1dynamic(index, call);
+}
+
+void lisp_compiled_var2dynamic(int index, lisp_calltype_var2dynamic call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var2dynamic(index, call);
+}
+
+void lisp_compiled_var3dynamic(int index, lisp_calltype_var3dynamic call)
+{
+	lisp_compiled_index_check(index);
+	index += (int)p_size;
+	SetPointer_extend_var3dynamic(index, call);
+}
+
 static int lisp_compiled_function_set(addr pos, int index)
 {
 	switch (pointer_table[index].type) {
-		case CallBind_extend_dynamic:
-			setcompiled_extend_dynamic(pos, (pointer)index);
+		case CallBind_extend_macro:
+			setcompiled_extend_macro(pos, (pointer)index);
 			break;
 
 		case CallBind_extend_rest:
 			setcompiled_extend_rest(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_dynamic:
+			setcompiled_extend_dynamic(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_any:
+			setcompiled_extend_any(pos, (pointer)index);
 			break;
 
 		case CallBind_extend_empty:
@@ -268,6 +437,90 @@ static int lisp_compiled_function_set(addr pos, int index)
 
 		case CallBind_extend_var3:
 			setcompiled_extend_var3(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var4:
+			setcompiled_extend_var4(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var5:
+			setcompiled_extend_var5(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var6:
+			setcompiled_extend_var6(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_opt1:
+			setcompiled_extend_opt1(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_opt2:
+			setcompiled_extend_opt2(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_opt3:
+			setcompiled_extend_opt3(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var1opt1:
+			setcompiled_extend_var1opt1(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var1opt2:
+			setcompiled_extend_var1opt2(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var1opt3:
+			setcompiled_extend_var1opt3(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var2opt1:
+			setcompiled_extend_var2opt1(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var2opt2:
+			setcompiled_extend_var2opt2(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var2opt3:
+			setcompiled_extend_var2opt3(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var3opt1:
+			setcompiled_extend_var3opt1(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var3opt2:
+			setcompiled_extend_var3opt2(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var3opt3:
+			setcompiled_extend_var3opt3(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var1rest:
+			setcompiled_extend_var1rest(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var2rest:
+			setcompiled_extend_var2rest(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var3rest:
+			setcompiled_extend_var3rest(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var1dynamic:
+			setcompiled_extend_var1dynamic(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var2dynamic:
+			setcompiled_extend_var2dynamic(pos, (pointer)index);
+			break;
+
+		case CallBind_extend_var3dynamic:
+			setcompiled_extend_var3dynamic(pos, (pointer)index);
 			break;
 
 		default:

@@ -29,8 +29,8 @@
 #define setcompiled_none _n(setcompiled_none)
 #define setcompiled_any _n(setcompiled_any)
 #define setcompiled_empty _n(setcompiled_empty)
-#define setcompiled_dynamic _n(setcompiled_dynamic)
 #define setcompiled_rest _n(setcompiled_rest)
+#define setcompiled_dynamic _n(setcompiled_dynamic)
 #define setcompiled_var1 _n(setcompiled_var1)
 #define setcompiled_var2 _n(setcompiled_var2)
 #define setcompiled_var3 _n(setcompiled_var3)
@@ -60,12 +60,37 @@
 #define setcompiled_var3dynamic _n(setcompiled_var3dynamic)
 #define setcompiled_var4dynamic _n(setcompiled_var4dynamic)
 #define setcompiled_opt1dynamic _n(setcompiled_opt1dynamic)
-#define setcompiled_extend_dynamic _n(setcompiled_extend_dynamic)
+
+#define setcompiled_extend_macro _n(setcompiled_extend_macro)
 #define setcompiled_extend_rest _n(setcompiled_extend_rest)
+#define setcompiled_extend_dynamic _n(setcompiled_extend_dynamic)
+#define setcompiled_extend_any _n(setcompiled_extend_any)
 #define setcompiled_extend_empty _n(setcompiled_extend_empty)
 #define setcompiled_extend_var1 _n(setcompiled_extend_var1)
 #define setcompiled_extend_var2 _n(setcompiled_extend_var2)
 #define setcompiled_extend_var3 _n(setcompiled_extend_var3)
+#define setcompiled_extend_var4 _n(setcompiled_extend_var4)
+#define setcompiled_extend_var5 _n(setcompiled_extend_var5)
+#define setcompiled_extend_var6 _n(setcompiled_extend_var6)
+#define setcompiled_extend_opt1 _n(setcompiled_extend_opt1)
+#define setcompiled_extend_opt2 _n(setcompiled_extend_opt2)
+#define setcompiled_extend_opt3 _n(setcompiled_extend_opt3)
+#define setcompiled_extend_var1opt1 _n(setcompiled_extend_var1opt1)
+#define setcompiled_extend_var1opt2 _n(setcompiled_extend_var1opt2)
+#define setcompiled_extend_var1opt3 _n(setcompiled_extend_var1opt3)
+#define setcompiled_extend_var2opt1 _n(setcompiled_extend_var2opt1)
+#define setcompiled_extend_var2opt2 _n(setcompiled_extend_var2opt2)
+#define setcompiled_extend_var2opt3 _n(setcompiled_extend_var2opt3)
+#define setcompiled_extend_var3opt1 _n(setcompiled_extend_var3opt1)
+#define setcompiled_extend_var3opt2 _n(setcompiled_extend_var3opt2)
+#define setcompiled_extend_var3opt3 _n(setcompiled_extend_var3opt3)
+#define setcompiled_extend_var1rest _n(setcompiled_extend_var1rest)
+#define setcompiled_extend_var2rest _n(setcompiled_extend_var2rest)
+#define setcompiled_extend_var3rest _n(setcompiled_extend_var3rest)
+#define setcompiled_extend_var1dynamic _n(setcompiled_extend_var1dynamic)
+#define setcompiled_extend_var2dynamic _n(setcompiled_extend_var2dynamic)
+#define setcompiled_extend_var3dynamic _n(setcompiled_extend_var3dynamic)
+
 #define structfunction _n(structfunction)
 #define getcodefunction _n(getcodefunction)
 #define setcodefunction _n(setcodefunction)
@@ -164,8 +189,8 @@ void setcompiled_macro(addr pos, pointer p);
 void setcompiled_none(addr pos, pointer p);
 void setcompiled_any(addr pos, pointer p);
 void setcompiled_empty(addr pos, pointer p);
-void setcompiled_dynamic(addr pos, pointer p);
 void setcompiled_rest(addr pos, pointer p);
+void setcompiled_dynamic(addr pos, pointer p);
 void setcompiled_var1(addr pos, pointer p);
 void setcompiled_var2(addr pos, pointer p);
 void setcompiled_var3(addr pos, pointer p);
@@ -195,12 +220,36 @@ void setcompiled_var2dynamic(addr pos, pointer p);
 void setcompiled_var3dynamic(addr pos, pointer p);
 void setcompiled_var4dynamic(addr pos, pointer p);
 void setcompiled_opt1dynamic(addr pos, pointer p);
-void setcompiled_extend_dynamic(addr pos, pointer p);
+
+void setcompiled_extend_macro(addr pos, pointer p);
 void setcompiled_extend_rest(addr pos, pointer p);
+void setcompiled_extend_dynamic(addr pos, pointer p);
+void setcompiled_extend_any(addr pos, pointer p);
 void setcompiled_extend_empty(addr pos, pointer p);
 void setcompiled_extend_var1(addr pos, pointer p);
 void setcompiled_extend_var2(addr pos, pointer p);
 void setcompiled_extend_var3(addr pos, pointer p);
+void setcompiled_extend_var4(addr pos, pointer p);
+void setcompiled_extend_var5(addr pos, pointer p);
+void setcompiled_extend_var6(addr pos, pointer p);
+void setcompiled_extend_opt1(addr pos, pointer p);
+void setcompiled_extend_opt2(addr pos, pointer p);
+void setcompiled_extend_opt3(addr pos, pointer p);
+void setcompiled_extend_var1opt1(addr pos, pointer p);
+void setcompiled_extend_var1opt2(addr pos, pointer p);
+void setcompiled_extend_var1opt3(addr pos, pointer p);
+void setcompiled_extend_var2opt1(addr pos, pointer p);
+void setcompiled_extend_var2opt2(addr pos, pointer p);
+void setcompiled_extend_var2opt3(addr pos, pointer p);
+void setcompiled_extend_var3opt1(addr pos, pointer p);
+void setcompiled_extend_var3opt2(addr pos, pointer p);
+void setcompiled_extend_var3opt3(addr pos, pointer p);
+void setcompiled_extend_var1rest(addr pos, pointer p);
+void setcompiled_extend_var2rest(addr pos, pointer p);
+void setcompiled_extend_var3rest(addr pos, pointer p);
+void setcompiled_extend_var1dynamic(addr pos, pointer p);
+void setcompiled_extend_var2dynamic(addr pos, pointer p);
+void setcompiled_extend_var3dynamic(addr pos, pointer p);
 
 struct function_struct *structfunction(addr pos);
 void getcodefunction(addr pos, addr *ret);

@@ -171,13 +171,6 @@ void setcompiled_any(addr pos, pointer p)
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_dynamic(addr pos, pointer p)
-{
-	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(pointer_table[p].type != CallBind_dynamic, "type error");
-	StructFunction(pos)->index = p;
-}
-
 void setcompiled_empty(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
@@ -189,6 +182,13 @@ void setcompiled_rest(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_dynamic(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_dynamic, "type error");
 	StructFunction(pos)->index = p;
 }
 
@@ -395,10 +395,11 @@ void setcompiled_opt1dynamic(addr pos, pointer p)
 	StructFunction(pos)->index = p;
 }
 
-void setcompiled_extend_dynamic(addr pos, pointer p)
+
+void setcompiled_extend_macro(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
-	Check(pointer_table[p].type != CallBind_extend_dynamic, "type error");
+	Check(pointer_table[p].type != CallBind_extend_macro, "type error");
 	StructFunction(pos)->index = p;
 }
 
@@ -406,6 +407,20 @@ void setcompiled_extend_rest(addr pos, pointer p)
 {
 	CheckType(pos, LISPTYPE_FUNCTION);
 	Check(pointer_table[p].type != CallBind_extend_rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_dynamic(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_dynamic, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_any(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_any, "type error");
 	StructFunction(pos)->index = p;
 }
 
@@ -436,6 +451,154 @@ void setcompiled_extend_var3(addr pos, pointer p)
 	Check(pointer_table[p].type != CallBind_extend_var3, "type error");
 	StructFunction(pos)->index = p;
 }
+
+void setcompiled_extend_var4(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var4, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var5(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var5, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var6(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var6, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_opt1(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_opt1, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_opt2(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_opt2, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_opt3(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_opt3, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var1opt1(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var1opt1, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var1opt2(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var1opt2, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var1opt3(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var1opt3, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var2opt1(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var2opt1, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var2opt2(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var2opt2, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var2opt3(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var2opt3, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var3opt1(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var3opt1, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var3opt2(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var3opt2, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var3opt3(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var3opt3, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var1rest(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var1rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var2rest(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var2rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var3rest(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var3rest, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var1dynamic(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var1dynamic, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var2dynamic(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var2dynamic, "type error");
+	StructFunction(pos)->index = p;
+}
+
+void setcompiled_extend_var3dynamic(addr pos, pointer p)
+{
+	CheckType(pos, LISPTYPE_FUNCTION);
+	Check(pointer_table[p].type != CallBind_extend_var3dynamic, "type error");
+	StructFunction(pos)->index = p;
+}
+
 
 struct function_struct *structfunction(addr pos)
 {
