@@ -92,3 +92,8 @@ int input_prompt_(Execute ptr, addr *ret)
 	return check;
 }
 
+int clear_prompt_(void)
+{
+	return 0;
+}
+

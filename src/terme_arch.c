@@ -6,6 +6,7 @@
 #include "typedef.h"
 
 #if defined(LISP_TERME_UNIX)
+#include <errno.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -86,13 +87,22 @@ void terme_arch_size_get(unsigned *ret_x, unsigned *ret_y)
 /*
  *  terme-begin
  */
+static int terme_arch_signal_value = 0;
+
+int terme_arch_signal_p(void)
+{
+	return terme_arch_signal_value;
+}
+
+void terme_arch_signal_clear(void)
+{
+	terme_arch_signal_value = 0;
+}
+
 #if defined(LISP_TERME_UNIX)
 static void terme_arch_handler(int sig)
 {
-	if (getwidth_arch(&terme_arch_x, &terme_arch_y)) {
-		terme_arch_x = 0;
-		terme_arch_y = 0;
-	}
+	terme_arch_signal_value = 1;
 }
 
 static int terme_arch_signal(void)
@@ -101,7 +111,7 @@ static int terme_arch_signal(void)
 
 	act.sa_handler = terme_arch_handler;
 	sigemptyset(&act.sa_mask);
-	act.sa_flags = SA_RESTART;
+	act.sa_flags = 0;
 	if (sigaction(SIGWINCH, &act, NULL))
 		return 1;
 
@@ -210,109 +220,113 @@ int terme_arch_end(void)
  *  terme-switch
  */
 #if defined(LISP_TERME_UNIX)
-int terme_arch_textmode(int *ret)
+static int terme_arch_textmode_unsafe(int *ret)
 {
 	if (! terme_arch_enable_p)
 		return 0;
 	if (terme_arch_textmode_p) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 0;
 	}
 	if (terme_arch_get(&terme_arch_switch_v)) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 1;
 	}
-	if (ret)
-		*ret = 1;
+	*ret = 1;
 	terme_arch_textmode_p = 1;
 	return terme_arch_set(&terme_arch_textmode_v);
 }
 
-int terme_arch_rawmode(int *ret)
+static int terme_arch_rawmode_unsafe(int *ret)
 {
 	if (! terme_arch_enable_p)
 		return 0;
 	if (! terme_arch_textmode_p) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 0;
 	}
 	if (terme_arch_set(&terme_arch_switch_v)) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 1;
 	}
-	if (ret)
-		*ret = 1;
+	*ret = 1;
 	terme_arch_textmode_p = 0;
 	memset(&terme_arch_switch_v, '\0', sizeof(terme_arch_switch_v));
 	return 0;
 }
 
 #elif defined(LISP_TERME_WINDOWS)
-int terme_arch_textmode(int *ret)
+static int terme_arch_textmode_unsafe(int *ret)
 {
 	if (! terme_arch_enable_p)
 		return 0;
 	if (terme_arch_textmode_p) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 0;
 	}
 	if (terme_windows_textmode()) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 1;
 	}
-	if (ret)
-		*ret = 1;
+	*ret = 1;
 	terme_arch_textmode_p = 1;
 	return 0;
 }
 
-int terme_arch_rawmode(int *ret)
+static int terme_arch_rawmode_unsafe(int *ret)
 {
 	if (! terme_arch_enable_p)
 		return 0;
 	if (! terme_arch_textmode_p) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 0;
 	}
 	if (terme_windows_rawmode()) {
-		if (ret)
-			*ret = 0;
+		*ret = 0;
 		return 1;
 	}
-	if (ret)
-		*ret = 1;
+	*ret = 1;
 	terme_arch_textmode_p = 0;
 	return 0;
 }
 
 #else
-int terme_arch_textmode(int *ret)
+static int terme_arch_textmode_unsafe(int *ret)
 {
 	if (! terme_arch_enable_p)
 		return 0;
 	terme_arch_textmode_p = 1;
-	if (ret)
-		*ret = 0;
+	*ret = 0;
 	return 0;
 }
 
-int terme_arch_rawmode(int *ret)
+static int terme_arch_rawmode_unsafe(int *ret)
 {
 	if (! terme_arch_enable_p)
 		return 0;
 	terme_arch_textmode_p = 0;
-	if (ret)
-		*ret = 0;
+	*ret = 0;
 	return 0;
 }
 #endif
+
+int terme_arch_textmode(int *ret)
+{
+	int check;
+
+	if (ret == NULL)
+		ret = &check;
+	return terme_arch_textmode_unsafe(ret);
+}
+
+int terme_arch_rawmode(int *ret)
+{
+	int check;
+
+	if (ret == NULL)
+		ret = &check;
+	return terme_arch_rawmode_unsafe(ret);
+}
 
 
 /*
@@ -349,19 +363,25 @@ int terme_arch_select(int *ret)
 	tm.tv_sec = 0;
 	tm.tv_usec = 0;
 	reti = select(fd + 1, &fdset, NULL, NULL, &tm);
-	if (reti < 0) {
-		*ret = 0;
-		return 1; /* error */
-	}
 	if (reti == 0) {
 		/* empty */
 		*ret = 0;
 		return 0;
 	}
-	else {
+	if (0 < reti) {
 		/* can read */
 		*ret = 1;
 		return 0;
+	}
+	if (errno == EINTR) {
+		/* signal */
+		*ret = 0;
+		return -1;
+	}
+	else {
+		/* error */
+		*ret = 0;
+		return 1;
 	}
 }
 
@@ -376,7 +396,18 @@ int terme_arch_wait(void)
 	FD_ZERO(&fdset);
 	FD_SET(fd, &fdset);
 	reti = select(fd + 1, &fdset, NULL, NULL, NULL);
-	return reti < 0;
+	if (0 <= reti) {
+		/* normal */
+		return 0;
+	}
+	if (errno == EINTR) {
+		/* signal */
+		return -1;
+	}
+	else {
+		/* error */
+		return 1;
+	}
 }
 
 int terme_arch_read(void *data, size_t size, size_t *ret)
@@ -386,11 +417,18 @@ int terme_arch_read(void *data, size_t size, size_t *ret)
 	if (! terme_arch_enable_p)
 		return 0;
 	check = read(STDIN_FILENO, data, size);
-	if (check < 0)
+	if (0 <= check) {
+		*ret = (size_t)check;
+		return 0;
+	}
+	if (errno == EINTR) {
+		*ret = 0;
 		return -1;
-	*ret = (size_t)check;
-
-	return 0;
+	}
+	else {
+		*ret = 0;
+		return 1;
+	}
 }
 
 int terme_arch_write(const void *data, size_t size, size_t *ret)
@@ -399,9 +437,13 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 
 	if (! terme_arch_enable_p)
 		return 0;
+retry:
 	check = write(STDOUT_FILENO, data, size);
-	if (check < 0)
+	if (check < 0) {
+		if (errno == EINTR)
+			goto retry;
 		return -1;
+	}
 	*ret = (size_t)check;
 
 	return 0;

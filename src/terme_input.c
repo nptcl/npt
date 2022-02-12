@@ -9,6 +9,7 @@
 #define TERME_INPUT_SIZE		4096
 #endif
 
+#define TERME_INPUT_ENCODE		64
 #define TERME_INPUT_UNBYTE		64
 #define TERME_INPUT_UNREAD		8
 
@@ -16,43 +17,36 @@
 static byte terme_input_buffer[TERME_INPUT_SIZE];
 static size_t terme_input_size;
 static size_t terme_input_now;
-/* unicode */
+/* sequence */
 static byte terme_input_unbyte[TERME_INPUT_UNBYTE];
 static int terme_input_unbyte_size;
-static int terme_input_unbyte_base;
 static int terme_input_unbyte_now;
-/* unread */
-static unicode terme_input_unread[TERME_INPUT_UNREAD];
-static int terme_input_unread_size;
-static int terme_input_unread_base;
-static int terme_input_unread_now;
 
 void terme_input_init(void)
 {
 	terme_input_size = 0;
 	terme_input_now = 0;
 	terme_input_unbyte_size = 0;
-	terme_input_unbyte_base = 0;
 	terme_input_unbyte_now = 0;
-	terme_input_unread_size = 0;
-	terme_input_unread_base = 0;
-	terme_input_unread_now = 0;
 }
 
 #define TERME_CLEAR_INPUT_STDIN		4096
-static int terme_clear_input_stdin(void)
+static int terme_input_clear_stdin(void)
 {
 	byte data[TERME_CLEAR_INPUT_STDIN];
 	int check;
 	size_t ignore;
 
 	for (;;) {
-		if (terme_arch_select(&check))
-			return 1;
+		check = terme_arch_select(&check);
+		if (check < 0)
+			continue;
 		if (! check)
 			break;
 
 		check = terme_arch_read(data, TERME_CLEAR_INPUT_STDIN, &ignore);
+		if (check < 0)
+			continue;
 		if (check)
 			return 1;
 	}
@@ -60,34 +54,38 @@ static int terme_clear_input_stdin(void)
 	return 0;
 }
 
-int terme_clear_input(void)
+int terme_input_clear(void)
 {
 	terme_input_size = 0;
 	terme_input_now = 0;
 	terme_input_unbyte_size = 0;
-	terme_input_unbyte_base = 0;
 	terme_input_unbyte_now = 0;
-	terme_input_unread_size = 0;
-	terme_input_unread_base = 0;
-	terme_input_unread_now = 0;
-	return terme_clear_input_stdin();
+	return terme_input_clear_stdin();
 }
 
 
 /*
  *  unbyte
  */
-static int terme_unbyte_push(byte c)
+static void terme_unbyte_set(byte *data, int size)
 {
-	if (TERME_INPUT_UNBYTE <= terme_input_unbyte_size)
-		return 1; /* error */
+	Check(TERME_INPUT_UNBYTE <= size, "size error");
+	memcpy(terme_input_unbyte, data, (size_t)size);
+	terme_input_unbyte_size = size;
+	terme_input_unbyte_now = 0;
+}
 
-	terme_input_unbyte_size++;
-	terme_input_unbyte[terme_input_unbyte_base] = c;
-	terme_input_unbyte_base++;
-	terme_input_unbyte_base %= TERME_INPUT_UNBYTE;
+static void terme_unbyte_clear(void)
+{
+	terme_input_unbyte_size = 0;
+	terme_input_unbyte_now = 0;
+}
 
-	return 0;
+static void terme_unbyte_value(byte c)
+{
+	terme_input_unbyte[0] = c;
+	terme_input_unbyte_size = 1;
+	terme_input_unbyte_now = 0;
 }
 
 static void terme_unbyte_pop(byte *value, int *ret)
@@ -98,323 +96,93 @@ static void terme_unbyte_pop(byte *value, int *ret)
 		return;
 	}
 
-	*value = terme_input_unbyte[terme_input_unbyte_now];
-	terme_input_unbyte_size--;
-	if (terme_input_unbyte_size) {
-		terme_input_unbyte_now++;
-		terme_input_unbyte_now %= TERME_INPUT_UNBYTE;
-	}
-	else {
-		terme_input_unbyte_base = 0;
+	*value = terme_input_unbyte[terme_input_unbyte_now++];
+	if (terme_input_unbyte_size <= terme_input_unbyte_now) {
+		terme_input_unbyte_size = 0;
 		terme_input_unbyte_now = 0;
 	}
 	*ret = 1;
 }
 
-
-/*
- *  getc
- */
 static int terme_getc_buffering(void)
 {
 	int check;
 	size_t size;
 
-	terme_input_size = 0; /* for error */
 	terme_input_now = 0;
-
 	check = terme_arch_read(terme_input_buffer, TERME_INPUT_SIZE, &size);
-	if (check)
+	if (check < 0) {
+		terme_input_size = 0;
+		return -1;
+	}
+	if (check) {
+		terme_input_size = 0;
 		return 1;
-	terme_input_size = size;
-
-	return 0;
+	}
+	else {
+		terme_input_size = size;
+		return 0;
+	}
 }
 
-static int terme_getc_hang(byte *value, int *ret)
+static int terme_getc_blocking(int blocking, byte *value, int *ret)
 {
-	byte c;
-	int check;
+	int check, readp;
 
 	/* unbyte */
-	terme_unbyte_pop(&c, &check);
+	terme_unbyte_pop(value, &check);
 	if (check) {
-		*value = c;
 		*ret = 1;
 		return 0;
 	}
 
-	/* input buffer */
-	if (terme_input_size <= terme_input_now) {
-		if (terme_arch_select(&check))
-			goto error;
-		if (! check) { /* empty */
-			*value = 0;
+	/* read */
+retry:
+	if (terme_input_now < terme_input_size) {
+		*ret = 1;
+		*value = terme_input_buffer[terme_input_now];
+		terme_input_now++;
+		return 0;
+	}
+
+	/* non-blocking */
+	if (! blocking) {
+		check = terme_arch_select(&readp);
+		if (check < 0)
+			return -1;
+		if (readp == 0) {
 			*ret = 0;
 			return 0;
 		}
-		if (terme_getc_buffering())
-			goto error;
 	}
-	*ret = 1;
-	*value = terme_input_buffer[terme_input_now];
-	terme_input_now++;
-	return 0;
 
-error:
-	*value = 0;
-	*ret = 0;
-	return 1;
-}
+	/* buffering */
+	check = terme_getc_buffering();
+	if (! check)
+		goto retry;
 
-static int terme_getc(byte *ret)
-{
-	byte c;
-	int check;
-
-	for (;;) {
-		if (terme_getc_hang(&c, &check))
-			goto error;
-		if (check)
-			break;
-		if (terme_arch_wait())
-			goto error;
-		return 0;
-	}
-	*ret = c;
-	return 0;
-
-error:
-	*ret = 0;
-	return 1;
+	return check;
 }
 
 
 /*
- *  unread-char
+ *  table
  */
-int terme_unread_char(unicode c)
-{
-	if (TERME_INPUT_UNREAD <= terme_input_unread_size)
-		return 1; /* error */
+#define terme_size_escape	64
+#define terme_size_utf8		8
+#define terme_table_utf16(x) (0xD800 <= (x) && (x) < 0xE000)
 
-	terme_input_unread_size++;
-	terme_input_unread[terme_input_unread_base] = c;
-	terme_input_unread_base++;
-	terme_input_unread_base %= TERME_INPUT_UNREAD;
-
-	return 0;
-}
-
-static void terme_unread_pop(unicode *value, int *ret)
-{
-	if (terme_input_unread_size == 0) {
-		*value = 0;
-		*ret = 0;
-		return;
-	}
-
-	*value = terme_input_unread[terme_input_unread_now];
-	terme_input_unread_size--;
-	if (terme_input_unread_size) {
-		terme_input_unread_now++;
-		terme_input_unread_now %= TERME_INPUT_UNREAD;
-	}
-	else {
-		terme_input_unread_base = 0;
-		terme_input_unread_now = 0;
-	}
-	*ret = 1;
-}
-
-
-/*
- *  read-char
- */
-static int terme_listen_rollback(byte *data, int size)
-{
-	while (size) {
-		size--;
-		if (terme_unbyte_push(data[size]))
-			return 1;
-	}
-
-	return 0;
-}
-
-#define terme_listen_utf16(x) (0xD800 <= (x) && (x) < 0xE000)
-
-#define terme_listen_getc() { \
-	if (terme_getc_hang(&c, &check)) goto error; \
-	if (! check) goto hang; \
-	if (c == 0x1B) goto escape; \
+#define terme_table_getc(size_array) { \
+	check = terme_getc_blocking(blocking, &c, &hang); \
+	if (check < 0) goto signal; \
+	if (check) goto error; \
+	if (hang == 0) goto hang; \
+	Check(size_array <= i, "size error"); \
 	data[i++] = c; \
 }
-static int terme_listen_unicode(void)
-{
-	byte data[8], c;
-	int i, check;
-	unicode value;
-
-	i = 0;
-	terme_listen_getc();
-
-	/* encode */
-	if (0x00 <= c && c <= 0x7F)
-		goto sequence1;
-	if (0xC2 <= c && c <= 0xDF)
-		goto sequence2;
-	if (0xE0 <= c && c <= 0xEF)
-		goto sequence3;
-	if (0xF0 <= c && c <= 0xF7)
-		goto sequence4;
-	goto invalid;
-
-sequence1:
-	value = (unicode)c;
-	goto normal;
-
-sequence2:
-	value = (0x1F & c) << 6;
-	terme_listen_getc();
-	if (c < 0x80 || 0xBF < c)
-		goto invalid;
-	value |= 0x3F & c;
-	if (value < 0x80)
-		goto invalid;
-	goto normal;
-
-sequence3:
-	value = (0x0F & c) << 12;
-	terme_listen_getc();
-	if (c < 0x80 || 0xBF < c)
-		goto invalid;
-	value |= (0x3F & c) << 6;
-	terme_listen_getc();
-	if (c < 0x80 || 0xBF < c)
-		goto invalid;
-	value |= 0x3F & c;
-	if (value < 0x0800)
-		goto invalid;
-	if (terme_listen_utf16(value))
-		goto invalid;
-	goto normal;
-
-sequence4:
-	value = (0x07 & c) << 18;
-	terme_listen_getc();
-	if (c < 0x80 || 0xBF < c)
-		goto invalid;
-	value |= (0x3F & c) << 12;
-	terme_listen_getc();
-	if (c < 0x80 || 0xBF < c)
-		goto invalid;
-	value |= (0x3F & c) << 6;
-	terme_listen_getc();
-	if (c < 0x80 || 0xBF < c)
-		goto invalid;
-	value |= 0x3F & c;
-	if (value < 0x010000)
-		goto invalid;
-	if (UnicodeCount <= value)
-		goto invalid;
-	goto normal;
-
-normal:
-	if (terme_unread_char(value))
-		goto error;
-	return 0;
-
-invalid:
-	return 1;
-
-error:
-	(void)terme_listen_rollback(data, i);
-	return 1;
-
-hang:
-	return terme_listen_rollback(data, i);
-
-escape:
-	if (terme_listen_rollback(data, i))
-		return 1;
-	if (terme_unread_char(0x1B))
-		goto error;
-	return 0;
-}
-
-int terme_listen(int *ret)
-{
-	/* unread */
-	if (terme_input_unread_size) {
-		*ret = 1;
-		return 0;
-	}
-
-	/* listen */
-	if (terme_listen_unicode()) {
-		*ret = 0;
-		return 1; /* error */
-	}
-
-	/* unread */
-	*ret = (terme_input_unread_size != 0);
-	return 0;
-}
-
-int terme_hang_char(unicode *value, int *ret)
-{
-	int check;
-	unicode c;
-
-	/* unread */
-	terme_unread_pop(&c, &check);
-	if (check) {
-		*value = c;
-		*ret = 1;
-		return 0;
-	}
-
-	/* listen */
-	if (terme_listen_unicode()) {
-		*value = 0;
-		*ret = 0;
-		return 1; /* error */
-	}
-
-	/* unread */
-	terme_unread_pop(value, ret);
-	return 0;
-}
-
-int terme_read_char(unicode *value, int *ret)
-{
-	int check;
-	unicode c;
-
-	for (;;) {
-		if (terme_hang_char(&c, &check))
-			goto error;
-		if (check)
-			break;
-		if (terme_arch_wait())
-			goto error;
-	}
-	*value = c;
-	*ret = 0; /* normal */
-	return 0;
-
-error:
-	*value = 0;
-	*ret = 0;
-	return 1;
-}
 
 
-/*
- *  read-keyboard
- *
- *  Up       ^[OA
+/*  Up       ^[OA
  *  Down     ^[OB
  *  Right    ^[OC
  *  Left     ^[OD
@@ -435,30 +203,30 @@ error:
  *  F11      ^[[23~
  *  F12      ^[[24~
  */
-static void terme_read_escape(TermeKeyboard *ret)
+static void terme_table_escape(int blocking, TermeKeyboard *ret)
 {
-	byte c;
+	byte data[terme_size_escape], c;
+	int i, check, hang;
 
+	i = 0;
 	c = 0;
-	if (terme_getc(&c))
-		goto error;
+	hang = 0;
 
+	terme_table_getc(terme_size_escape);
 	if (c == 0x4F)
 		goto third_4F;
 	if (c == 0x5B)
 		goto third_5B;
-	goto error;
+	goto invalid;
 
 third_4F:
-	if (terme_getc(&c))
-		goto error;
+	terme_table_getc(terme_size_escape);
 	if (0x50 <= c && c <= 0x53) /* PF1 - PF4 */
 		goto program;
-	goto error;
+	goto invalid;
 
 third_5B:
-	if (terme_getc(&c))
-		goto error;
+	terme_table_getc(terme_size_escape);
 	if (c == 0x31)
 		goto forth_31;
 	if (c == 0x41)
@@ -469,65 +237,197 @@ third_5B:
 		goto escape_right;
 	if (c == 0x44)
 		goto escape_left;
-	goto error;
+	goto invalid;
 
 forth_31:
-	if (terme_getc(&c))
-		goto error;
+	terme_table_getc(terme_size_escape);
 	if (0x31 <= c && c <= 0x39) { /* F1 - F9 */
-		if (terme_getc(&c))
-			goto error;
+		terme_table_getc(terme_size_escape);
 		if (c == 0x7E) /* \E[[11~: F1 */
 			goto function1;
 	}
-	goto error;
+	goto invalid;
 
 escape_up: /* 0x1B 0x5B 0x41 */
 	ret->type = terme_escape_up;
-	return;
+	goto finish;
 
 escape_down: /* 0x1B 0x5B 0x42 */
 	ret->type = terme_escape_down;
-	return;
+	goto finish;
 
 escape_right: /* 0x1B 0x5B 0x43 */
 	ret->type = terme_escape_right;
-	return;
+	goto finish;
 
 escape_left: /* 0x1B 0x5B 0x44 */
 	ret->type = terme_escape_left;
-	return;
+	goto finish;
 
 program:
 	ret->type = terme_escape_function;
 	ret->c = (c - 0x50) + 1; /* PF1 -> 1 */
-	return;
+	goto finish;
 
 function1:
 	ret->type = terme_escape_function;
 	ret->c = (c - 0x31) + 1; /* F1 -> 1 */
+	goto finish;
+
+invalid:
+	terme_unbyte_value(c);
+	return;
+
+finish:
+	terme_unbyte_clear();
+	return;
+
+signal:
+	terme_unbyte_set(data, i);
+	ret->type = terme_escape_signal;
 	return;
 
 error:
+	terme_unbyte_set(data, i);
 	ret->type = terme_escape_error;
+	return;
+
+hang:
+	terme_unbyte_set(data, i);
+	ret->type = terme_escape_hang;
 	return;
 }
 
-int terme_read_keyboard(TermeKeyboard *ret)
+static int terme_table_utf8(int blocking, unicode *value, int *ret)
 {
-	int check;
+	byte data[terme_size_utf8], c;
+	int i, check, hang;
+	unicode merge;
+
+	i = 0;
+	c = 0;
+	hang = 0;
+	terme_table_getc(terme_size_utf8);
+
+	/* encode */
+	if (0x00 <= c && c <= 0x7F)
+		goto sequence1;
+	if (0xC2 <= c && c <= 0xDF)
+		goto sequence2;
+	if (0xE0 <= c && c <= 0xEF)
+		goto sequence3;
+	if (0xF0 <= c && c <= 0xF7)
+		goto sequence4;
+	goto invalid;
+
+sequence1:
+	merge = (unicode)c;
+	goto normal;
+
+sequence2:
+	merge = (0x1F & c) << 6;
+	terme_table_getc(terme_size_utf8);
+	if (c < 0x80 || 0xBF < c)
+		goto invalid;
+	merge |= 0x3F & c;
+	if (merge < 0x80)
+		goto invalid;
+	goto normal;
+
+sequence3:
+	merge = (0x0F & c) << 12;
+	terme_table_getc(terme_size_utf8);
+	if (c < 0x80 || 0xBF < c)
+		goto invalid;
+	merge |= (0x3F & c) << 6;
+	terme_table_getc(terme_size_utf8);
+	if (c < 0x80 || 0xBF < c)
+		goto invalid;
+	merge |= 0x3F & c;
+	if (merge < 0x0800)
+		goto invalid;
+	if (terme_table_utf16(merge))
+		goto invalid;
+	goto normal;
+
+sequence4:
+	merge = (0x07 & c) << 18;
+	terme_table_getc(terme_size_utf8);
+	if (c < 0x80 || 0xBF < c)
+		goto invalid;
+	merge |= (0x3F & c) << 12;
+	terme_table_getc(terme_size_utf8);
+	if (c < 0x80 || 0xBF < c)
+		goto invalid;
+	merge |= (0x3F & c) << 6;
+	terme_table_getc(terme_size_utf8);
+	if (c < 0x80 || 0xBF < c)
+		goto invalid;
+	merge |= 0x3F & c;
+	if (merge < 0x010000)
+		goto invalid;
+	if (UnicodeCount <= merge)
+		goto size_error;
+	goto normal;
+
+normal:
+	terme_unbyte_clear();
+	*value = merge;
+	*ret = 1;
+	return 0;
+
+invalid:
+	terme_unbyte_value(c);
+	return 1;
+
+size_error:
+	terme_unbyte_clear();
+	return 1;
+
+signal:
+	terme_unbyte_set(data, i);
+	return -1;
+
+hang:
+	terme_unbyte_set(data, i);
+	*ret = 0;
+	return 0;
+
+error:
+	terme_unbyte_set(data, i);
+	return 1;
+}
+
+void terme_input_event(int blocking, TermeKeyboard *ret)
+{
+	int check, readp;
 	unicode c;
 
-	if (terme_read_char(&c, &check))
-		return 1;
+	terme_input_unbyte_now = 0;
+	check = terme_table_utf8(blocking, &c, &readp);
+	if (check < 0) {
+		ret->type = terme_escape_signal;
+		ret->c = 0;
+		return;
+	}
+	if (check) {
+		ret->type = terme_escape_error;
+		ret->c = 0;
+		return;
+	}
+	if (! readp) {
+		ret->type = terme_escape_hang;
+		ret->c = 0;
+		return;
+	}
 	if (c != 0x1B) {
 		ret->type = terme_escape_code;
 		ret->c = c;
-		return 0;
+		return;
 	}
 
 	/* escape sequence */
-	terme_read_escape(ret);
-	return 0;
+	terme_input_unbyte_now = 0;
+	terme_table_escape(blocking, ret);
 }
 

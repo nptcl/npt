@@ -44,21 +44,21 @@ static int test_read_unix(void)
 	RETURN;
 }
 
-static int test_readforce_unix(void)
+static int test_readf_unix(void)
 {
 	int check, file;
 	char mem[100];
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "readforce_unix.1");
+	test(check == 0, "readf_unix.1");
 	file = open(TESTFILE, O_RDONLY);
-	test(0 <= file, "readforce_unix.2");
-	check = readforce_unix(file, mem, 6, &size);
+	test(0 <= file, "readf_unix.2");
+	check = readf_unix(file, mem, 6, &size);
 	close(file);
-	test(check == 0, "readforce_unix.3");
-	test(size == 6, "readforce_unix.4");
-	test(memcmp(mem, "HelloH", 6) == 0, "readforce_unix.5");
+	test(check == 0, "readf_unix.3");
+	test(size == 6, "readf_unix.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "readf_unix.5");
 
 	RETURN;
 }
@@ -100,7 +100,7 @@ static int test_read_windows(void)
 	RETURN;
 }
 
-static int test_readforce_windows(void)
+static int test_readf_windows(void)
 {
 	int check;
 	char mem[100];
@@ -108,14 +108,14 @@ static int test_readforce_windows(void)
 	size_t size;
 
 	check = test_write_file("HelloHello");
-	test(check == 0, "readforce_windows.1");
+	test(check == 0, "readf_windows.1");
 	check = test_open_windows(TESTFILE, &file);
-	test(! check, "readforce_windows.2");
-	check = readforce_windows(file, mem, 6, &size);
+	test(! check, "readf_windows.2");
+	check = readf_windows(file, mem, 6, &size);
 	CloseHandle(file);
-	test(check == 0, "readforce_windows.3");
-	test(size == 6, "readforce_windows.4");
-	test(memcmp(mem, "HelloH", 6) == 0, "readforce_windows.5");
+	test(check == 0, "readf_windows.3");
+	test(size == 6, "readf_windows.4");
+	test(memcmp(mem, "HelloH", 6) == 0, "readf_windows.5");
 
 	RETURN;
 }
@@ -157,11 +157,11 @@ int test_arch(void)
 
 #ifdef LISP_UNIX
 	TestBreak(test_read_unix);
-	TestBreak(test_readforce_unix);
+	TestBreak(test_readf_unix);
 #endif
 #ifdef LISP_WINDOWS
 	TestBreak(test_read_windows);
-	TestBreak(test_readforce_windows);
+	TestBreak(test_readf_windows);
 #endif
 	TestBreak(test_multisafe_size);
 	TestBreak(test_plussafe_size);

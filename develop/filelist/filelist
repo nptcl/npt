@@ -406,6 +406,7 @@ terme_data.c
 terme_display.c
 terme_escape.c
 terme_error.c
+terme_function.c
 terme_history.c
 terme_input.c
 terme_object.c

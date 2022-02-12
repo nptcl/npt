@@ -7,3 +7,8 @@ int input_prompt_(Execute ptr, addr *ret)
 	return fmte_("input-prompt is not supported.", NULL);
 }
 
+int clear_prompt_(void)
+{
+	return 0;
+}
+

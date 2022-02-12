@@ -77,9 +77,13 @@ static inline int open_input_chartype(file_type *ret, const char *name)
 {
 	file_type file;
 
+retry:
 	file = open(name, O_RDONLY);
-	if (file < 0)
+	if (file < 0) {
+		if (errno == EINTR)
+			goto retry;
 		return 1;
+	}
 	*ret = file;
 
 	return 0;
@@ -223,8 +227,11 @@ static inline int read_arch(file_type file, void *pos, size_t size, size_t *ret)
 {
 	ssize_t check;
 
+retry:
 	check = read(file, pos, size);
 	if (check < 0) {
+		if (errno == EINTR)
+			goto retry;
 		Debug("read error");
 		*ret = 0;
 		return check;
@@ -243,8 +250,11 @@ static inline int write_arch(file_type file, const void *pos, size_t size, size_
 {
 	ssize_t check;
 
+retry:
 	check = write(file, pos, size);
 	if (check < 0) {
+		if (errno == EINTR)
+			goto retry;
 		Debug("write error");
 		*ret = 0;
 		return check;
@@ -296,8 +306,11 @@ static inline int read_ready_arch(file_type file)
 	FD_SET(file, &fds);
 	memset(&timeout, 0, sizeof(timeout));
 
+retry:
 	result = select(file + 1, &fds, NULL, NULL, &timeout);
 	if (result < 0) {
+		if (errno == EINTR)
+			goto retry;
 		Debug("select error");
 		return 1;
 	}
@@ -347,6 +360,5 @@ static inline int file_position_set_arch(file_type file, size_t pos)
 {
 	return lseek(file, (off_t)pos, SEEK_SET) < 0;
 }
-
 #endif
 

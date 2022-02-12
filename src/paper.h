@@ -45,7 +45,7 @@ void paper_array_local(LocalRoot local, addr *ret, size_t array);
 void paper_array_heap(addr *ret, size_t array);
 void paper_body_alloc(LocalRoot local, addr *ret, size_t body);
 void paper_body_local(LocalRoot local, addr *ret, size_t body);
-void paper_body_heap(LocalRoot local, addr *ret, size_t body);
+void paper_body_heap(addr *ret, size_t body);
 int paper_arraybody_alloc_(LocalRoot local, addr *ret, size_t array, size_t body);
 int paper_arraybody_local_(LocalRoot local, addr *ret, size_t array, size_t body);
 int paper_arraybody_heap_(addr *ret, size_t array, size_t body);

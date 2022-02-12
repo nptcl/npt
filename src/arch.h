@@ -6,9 +6,9 @@
 #include "typedef.h"
 
 #define read_unix _n(read_unix)
-#define readforce_unix _n(readforce_unix)
+#define readf_unix _n(readf_unix)
 #define read_windows _n(read_windows)
-#define readforce_windows _n(readforce_windows)
+#define readf_windows _n(readf_windows)
 #define multisafe_size _n(multisafe_size)
 #define plussafe_size _n(plussafe_size)
 
@@ -17,15 +17,15 @@
 #define stderr_arch _n(stderr_arch)
 #define getwidth_arch _n(getwidth_arch)
 
-/* readforce */
+/* read force */
 #ifdef LISP_UNIX
 int read_unix(int file, void *pos, size_t size, size_t *ret);
-int readforce_unix(int file, void *pos, size_t size, size_t *ret);
+int readf_unix(int file, void *pos, size_t size, size_t *ret);
 #endif
 #ifdef LISP_WINDOWS
 #include <windows.h>
 int read_windows(HANDLE file, void *pos, size_t size, size_t *ret);
-int readforce_windows(HANDLE file, void *pos, size_t size, size_t *ret);
+int readf_windows(HANDLE file, void *pos, size_t size, size_t *ret);
 #endif
 
 /* safe */

@@ -1982,6 +1982,17 @@ lisp-system::subtypep-compound
 lisp-system::subtypep-force-number
 lisp-system::subtypep-normal
 
+;;  terme
+(lisp-system::terme-input :export t)
+(lisp-system::terme-move :export t)
+(lisp-system::terme-character :export t)
+(lisp-system::terme-delete :export t)
+(lisp-system::terme-clear :export t)
+(lisp-system::terme-color :export t)
+(lisp-system::terme-begin :export t)
+(lisp-system::terme-end :export t)
+(lisp-system::terme-enable :export t)
+
 ;;  fpclassify
 lisp-system::fp-nan
 lisp-system::fp-infinite

@@ -7,9 +7,11 @@
 #include "define.h"
 
 /*
- *  readforce arch
+ *  read force
  */
 #ifdef LISP_UNIX
+#include <errno.h>
+#include <signal.h>
 #include <unistd.h>
 
 /* Unix read */
@@ -17,8 +19,11 @@ int read_unix(int file, void *pos, size_t size, size_t *ret)
 {
 	ssize_t check;
 
+retry:
 	check = read(file, pos, size);
 	if (check < 0) {
+		if (errno == EINTR)
+			goto retry;
 		*ret = 0;
 		return check;
 	}
@@ -31,7 +36,7 @@ int read_unix(int file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-int readforce_unix(int file, void *ptr, size_t size, size_t *ret)
+int readf_unix(int file, void *ptr, size_t size, size_t *ret)
 {
 	ssize_t check;
 	size_t count, rsize, diff;
@@ -85,7 +90,7 @@ int read_windows(HANDLE file, void *pos, size_t size, size_t *ret)
 	return 0;
 }
 
-int readforce_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
+int readf_windows(HANDLE file, void *ptr, size_t size, size_t *ret)
 {
 	int check;
 	size_t count, rsize, diff;

@@ -158,6 +158,8 @@ static int clear_input_Prompt(addr stream)
 	PtrStructStream(stream)->unread_check = 0;
 	GetInfoStream(stream, &stream);
 	clear_input_string_stream(stream);
+	Return(clear_prompt_());
+
 	return 0;
 }
 

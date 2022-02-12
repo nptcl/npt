@@ -159,6 +159,25 @@ escape:
  */
 static int terme_readline_loop_(Execute ptr, TermeKeyboard *, addr *, int *);
 
+static int terme_readline_signal_(Execute ptr)
+{
+	int check;
+
+	check = terme_arch_signal_p();
+	if (check) {
+		terme_arch_signal_clear();
+		return terme_screen_update_(ptr);
+	}
+
+	return 0;
+}
+
+static int terme_readline_hang_(Execute pt, addr *value, int *ret)
+{
+	*value = 0;
+	return Result(ret, 1);
+}
+
 static int terme_readline_ctrl_z_(TermeKeyboard *str)
 {
 	int mode;
@@ -417,6 +436,12 @@ static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, in
 		case terme_escape_error:
 			break;
 
+		case terme_escape_signal:
+			return terme_readline_signal_(ptr);
+
+		case terme_escape_hang:
+			return terme_readline_hang_(ptr, value, ret);
+
 		case terme_escape_code:
 			return terme_readline_code_(ptr, str, value, ret);
 
@@ -480,8 +505,7 @@ static int terme_readline_call_(Execute ptr, addr *ret)
 	/* loop */
 	pos = Nil;
 	for (;;) {
-		if (terme_read_keyboard(&str))
-			continue;
+		terme_input_event(1, &str);
 		Return(terme_readline_loop_(ptr, &str, &pos, &check));
 		if (check)
 			break;

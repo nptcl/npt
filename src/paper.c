@@ -39,7 +39,7 @@ void paper_body_local(LocalRoot local, addr *ret, size_t body)
 	paper_body_alloc(local, ret, body);
 }
 
-void paper_body_heap(LocalRoot local, addr *ret, size_t body)
+void paper_body_heap(addr *ret, size_t body)
 {
 	paper_body_alloc(NULL, ret, body);
 }

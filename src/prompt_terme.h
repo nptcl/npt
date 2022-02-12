@@ -56,3 +56,8 @@ int input_prompt_(Execute ptr, addr *ret)
 	return 0;
 }
 
+int clear_prompt_(void)
+{
+	return clear_terme_(Execute_Thread);
+}
+

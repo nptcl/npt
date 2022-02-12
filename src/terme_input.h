@@ -4,15 +4,13 @@
 #include "typedef.h"
 
 #define terme_input_init _n(terme_input_init)
-#define terme_clear_input _n(terme_clear_input)
-#define terme_unread_char _n(terme_unread_char)
-#define terme_listen _n(terme_listen)
-#define terme_hang_char _n(terme_hang_char)
-#define terme_read_char _n(terme_read_char)
-#define terme_read_keyboard _n(terme_read_keyboard)
+#define terme_input_clear _n(terme_input_clear)
+#define terme_input_event _n(terme_input_event)
 
 enum terme_escape {
 	terme_escape_error,
+	terme_escape_signal,
+	terme_escape_hang,
 	terme_escape_code,
 	terme_escape_up,         /* ^P */
 	terme_escape_down,       /* ^N */
@@ -40,12 +38,8 @@ struct terme_keyboard {
 typedef struct terme_keyboard TermeKeyboard;
 
 void terme_input_init(void);
-int terme_clear_input(void);
-int terme_unread_char(unicode c);
-int terme_listen(int *ret);
-int terme_hang_char(unicode *value, int *ret);
-int terme_read_char(unicode *value, int *ret);
-int terme_read_keyboard(TermeKeyboard *ret);
+int terme_input_clear(void);
+void terme_input_event(int blocking, TermeKeyboard *ret);
 
 #endif
 

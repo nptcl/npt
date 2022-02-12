@@ -31,6 +31,8 @@ struct random_state *struct_random_state(addr pos)
 }
 
 #if defined LISP_UNIX
+#include <errno.h>
+#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
@@ -72,12 +74,15 @@ static int read_device_urandom(struct md5encode *md5)
 	int file, check;
 	size_t size;
 
+retry:
 	file = open(RANDOM_DEVICE, O_RDONLY | O_NONBLOCK);
 	if (file < 0) {
+		if (errno == EINTR)
+			goto retry;
 		Debug("file " RANDOM_DEVICE " is not exist.");
 		return 1;
 	}
-	check = readforce_unix(file, (void *)buffer, RANDOM_DEVICE_SIZE, &size);
+	check = readf_unix(file, (void *)buffer, RANDOM_DEVICE_SIZE, &size);
 	if (check) {
 		close(file);
 		Debug("read error");

@@ -1,3 +1,4 @@
+#include "condition.h"
 #include "constant.h"
 #include "define.h"
 #include "execute.h"
@@ -79,6 +80,13 @@ int prompt_terme_(Execute ptr, addr pos, PromptMode mode)
 int readline_terme_(Execute ptr, addr *ret)
 {
 	return terme_readline_(ptr, ret);
+}
+
+int clear_terme_(Execute ptr)
+{
+	if (terme_input_clear())
+		return fmte_("terme_input_clear error", NULL);
+	return 0;
 }
 
 int font_terme(Execute ptr, PrintFont value)
