@@ -12,6 +12,7 @@
 #define terme_cursor_right _n(terme_cursor_right)
 #define terme_cursor_up _n(terme_cursor_up)
 #define terme_cursor_down _n(terme_cursor_down)
+#define terme_cursor_move_x _n(terme_cursor_move_x)
 #define terme_cursor_move _n(terme_cursor_move)
 #define terme_cursor_first_up _n(terme_cursor_first_up)
 #define terme_cursor_first_down _n(terme_cursor_first_down)
@@ -27,7 +28,8 @@ int terme_cursor_left(int n);
 int terme_cursor_right(int n);
 int terme_cursor_up(int n);
 int terme_cursor_down(int n);
-int terme_cursor_move(int n);
+int terme_cursor_move_x(int x);
+int terme_cursor_move(int x, int y);
 int terme_cursor_first_up(int n);
 int terme_cursor_first_down(int n);
 int terme_cursor_delete_line_left(void);

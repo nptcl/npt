@@ -1,10 +1,18 @@
 #include "bignum.h"
+#include "character.h"
 #include "condition.h"
 #include "cons.h"
 #include "define.h"
+#include "eastasian_unicode.h"
+#include "integer.h"
 #include "paper.h"
+#include "real.h"
+#include "strtype.h"
+#include "terme_arch.h"
 #include "terme_escape.h"
 #include "terme_function.h"
+#include "terme_input.h"
+#include "terme_output.h"
 #include "typedef.h"
 
 #if defined(LISP_TERME_UNIX)
@@ -37,15 +45,115 @@ int terme_call_enable_p(void)
  *  input
  */
 #if defined(LISP_TERME_UNIX)
-int terme_call_input_(addr args, addr *ret1, addr *ret2)
+int terme_call_input_(addr args, addr *rtype, addr *rvalue)
 {
-	*ret1 = *ret2 = Nil;
-	return 0;
+	/* (terme 'terme-input &optional (blocking t)) */
+	int int_value;
+	double_float float_value;
+	addr pos;
+
+	if (args == Nil) {
+		terme_input_infinite(rtype, rvalue);
+		return 0;
+	}
+	Return_getcar(args, &pos);
+	if (pos == T) {
+		terme_input_infinite(rtype, rvalue);
+		return 0;
+	}
+	if (pos == Nil) {
+		terme_input_integer(0, rtype, rvalue);
+		return 0;
+	}
+	if (integerp(pos)) {
+		Return(getint_unsigned_(pos, &int_value));
+		terme_input_integer(int_value, rtype, rvalue);
+		return 0;
+	}
+	if (floatp(pos)) {
+		Return(cast_double_float_unsafe_(pos, &float_value));
+		terme_input_float((double)float_value, rtype, rvalue);
+		return 0;
+	}
+
+	*rtype = *rvalue = Nil;
+	return fmte_("Invalid blocking type, ~S.", pos, NULL);
 }
 #else
-int terme_call_input_(addr args, addr *ret1, addr *ret2)
+int terme_call_input_(addr args, addr *rtype, addr *rvalue)
 {
-	*ret1 = *ret2 = Nil;
+	*rtype = *rvalue = Nil;
+	return fmte_("TERME is not enabled.", NULL);
+}
+#endif
+
+
+/*
+ *  output
+ */
+#if defined(LISP_TERME_UNIX)
+static int terme_call_output_character_(unicode c)
+{
+	if (terme_output_char(c))
+		return fmte_("terme_output_char error.", NULL);
+
+	return 0;
+}
+
+static int terme_call_output_string_(addr x)
+{
+	unicode c;
+	size_t size, i;
+
+	string_length(x, &size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(x, i, &c));
+		Return(terme_call_output_character_(c));
+	}
+
+	return 0;
+}
+
+int terme_call_output_(addr args)
+{
+	/* (terme 'terme-output x) */
+	addr x;
+	unicode c;
+	fixnum intvalue;
+
+	/* &optional */
+	if (args == Nil) {
+		x = Nil;
+	}
+	else {
+		Return_getcons(args, &x, &args);
+	}
+
+	/* flush */
+	if (x == Nil) {
+		if (terme_finish_output())
+			return fmte_("terme_finish_output error.", NULL);
+		return 0;
+	}
+
+	/* output */
+	if (characterp(x)) {
+		GetCharacter(x, &c);
+		return terme_call_output_character_(c);
+	}
+	if (stringp(x)) {
+		return terme_call_output_string_(x);
+	}
+	if (integerp(x)) {
+		Return(getfixnum_unsigned_(x, &intvalue));
+		return terme_call_output_character_((unicode)intvalue);
+	}
+
+	return fmte_("Invalid output value, ~S.", x, NULL);
+}
+#else
+int terme_call_output_(addr args)
+{
 	return fmte_("TERME is not enabled.", NULL);
 }
 #endif
@@ -55,24 +163,27 @@ int terme_call_input_(addr args, addr *ret1, addr *ret2)
  *  move
  */
 #if defined(LISP_TERME_UNIX)
-static int terme_call_move_relative_(fixnum x, fixnum y)
+static int terme_call_unsigned_(addr pos, int *ret)
 {
-	int value, check;
+	if (pos == Nil)
+		return Result(ret, 0);
+	else
+		return getint_unsigned_(pos, ret);
+}
 
-	check = 0;
-	if (x) {
-		value = (int)x;
-		if (value < 0)
-			check = terme_cursor_left(-value);
-		else
-			check = terme_cursor_right(value);
+static int terme_call_move_absolute_(addr pos_x, addr pos_y)
+{
+	int x, y, check;
+
+	if (pos_x == Nil)
+		return fmte_("Invalid x-position, ~S.", pos_x, NULL);
+	Return(terme_call_unsigned_(pos_x, &x));
+	if (pos_y == Nil) {
+		check = terme_cursor_move_x(x);
 	}
-	if (y) {
-		value = (int)y;
-		if (value < 0)
-			check = terme_cursor_up(-value);
-		else
-			check = terme_cursor_down(value);
+	else {
+		Return(terme_call_unsigned_(pos_y, &y));
+		check = terme_cursor_move(x, y);
 	}
 	if (check)
 		return fmte_("terme_cursor error.", NULL);
@@ -80,27 +191,65 @@ static int terme_call_move_relative_(fixnum x, fixnum y)
 	return 0;
 }
 
-static int terme_call_fixnum_(addr pos, fixnum *ret)
+static int terme_call_signed_(addr pos, int *ret)
 {
 	if (pos == Nil)
 		return Result(ret, 0);
 	else
-		return getfixnum_signed_(pos, ret);
+		return getint_signed_(pos, ret);
+}
+
+static int terme_call_move_relative_(addr pos_x, addr pos_y)
+{
+	int check, x, y;
+
+	Return(terme_call_signed_(pos_x, &x));
+	Return(terme_call_signed_(pos_y, &y));
+
+	/* x */
+	check = 0;
+	if (x) {
+		if (x < 0)
+			check = terme_cursor_left(-x);
+		if (x > 0)
+			check = terme_cursor_right(x);
+	}
+	if (check)
+		return fmte_("terme_cursor x error.", NULL);
+
+	/* y */
+	check = 0;
+	if (y) {
+		if (x < 0)
+			check = terme_cursor_up(-x);
+		if (x > 0)
+			check = terme_cursor_down(x);
+	}
+	if (check)
+		return fmte_("terme_cursor y error.", NULL);
+
+	return 0;
 }
 
 int terme_call_move_(addr args)
 {
-	addr pos;
-	fixnum x, y;
+	addr x, y, pos, check;
 
-	/* x */
-	Return_getcons(args, &pos, &args);
-	Return(terme_call_fixnum_(pos, &x));
-	/* y */
-	Return_getcons(args, &pos, &args);
-	Return(terme_call_fixnum_(pos, &y));
-	/* move */
-	return terme_call_move_relative_(x, y);
+	/* x, y */
+	Return_getcons(args, &x, &args);
+	Return_getcons(args, &y, &args);
+	Return_getcar(args, &pos);
+	/* relative */
+	GetConst(KEYWORD_RELATIVE, &check);
+	if (pos == check)
+		return terme_call_move_relative_(x, y);
+	/* absolute */
+	GetConst(KEYWORD_ABSOLUTE, &check);
+	if (pos == check)
+		return terme_call_move_absolute_(x, y);
+
+	/* error */
+	return fmte_("Value ~S must be a (member :relative :absolute).", pos, NULL);
 }
 #else
 int terme_call_move_(addr args)
@@ -130,6 +279,31 @@ int terme_call_clear_(void)
 
 
 /*
+ *  size
+ */
+#if defined(LISP_TERME_UNIX)
+int terme_call_size_(addr *rx, addr *ry)
+{
+	unsigned x, y;
+
+	if (terme_arch_size_update())
+		return fmte_("terme_arch_size_update error.", NULL);
+	terme_arch_size_get(&x, &y);
+	fixnum_heap(rx, (fixnum)x);
+	fixnum_heap(ry, (fixnum)y);
+
+	return 0;
+}
+#else
+int terme_call_size_(addr *rx, addr *ry)
+{
+	*rx = *ry = Nil;
+	return fmte_("TERME is not enabled.", NULL);
+}
+#endif
+
+
+/*
  *  begin
  */
 #if defined(LISP_TERME_UNIX)
@@ -138,6 +312,12 @@ int terme_call_begin_(addr *ret)
 	addr pos;
 	size_t size;
 	struct termios v;
+
+	/* flush */
+	if (terme_finish_output()) {
+		*ret = Nil;
+		return fmte_("terme_finish_output error.", NULL);
+	}
 
 	/* backup */
 	if (tcgetattr(STDIN_FILENO, &v)) {
@@ -182,12 +362,18 @@ int terme_call_end_(addr pos)
 	size_t size;
 	struct termios v;
 
+	/* argument */
 	if (! paperp(pos)) {
 		GetConst(SYSTEM_PAPER, &type);
 		return call_type_error_va_(NULL, pos, type,
 				"Object ~S must be a PAPER type.", pos, NULL);
 	}
 
+	/* flush */
+	if (terme_finish_output())
+		return fmte_("terme_finish_output error.", NULL);
+
+	/* rollback */
 	paper_get_memory(pos, 0, sizeoft(v), (void *)&v, &size);
 	Check(size != sizeoft(v), "size error");
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &v))

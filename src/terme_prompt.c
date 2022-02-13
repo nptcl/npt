@@ -505,7 +505,7 @@ static int terme_readline_call_(Execute ptr, addr *ret)
 	/* loop */
 	pos = Nil;
 	for (;;) {
-		terme_input_event(1, &str);
+		terme_table_infinite(&str);
 		Return(terme_readline_loop_(ptr, &str, &pos, &check));
 		if (check)
 			break;

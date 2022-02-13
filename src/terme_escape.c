@@ -158,10 +158,17 @@ int terme_cursor_down(int n)
 	return terme_cursor_move_character(n, 'B');
 }
 
-int terme_cursor_move(int n)
+int terme_cursor_move_x(int x)
 {
 	char data[64];
-	snprintf(data, 64, "\x1B[%dG", n + 1);
+	snprintf(data, 64, "\x1B[%dG", x + 1);
+	return terme_escape_operator(data);
+}
+
+int terme_cursor_move(int x, int y)
+{
+	char data[64];
+	snprintf(data, 64, "\x1B[%d;%dH", y + 1, x + 1);
 	return terme_escape_operator(data);
 }
 

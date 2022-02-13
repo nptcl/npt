@@ -17,6 +17,8 @@
 #define terme_arch_build _n(terme_arch_build)
 
 #define terme_arch_select _n(terme_arch_select)
+#define terme_arch_wait_integer _n(terme_arch_wait_integer)
+#define terme_arch_wait_float _n(terme_arch_wait_float)
 #define terme_arch_wait _n(terme_arch_wait)
 #define terme_arch_read _n(terme_arch_read)
 #define terme_arch_write _n(terme_arch_write)
@@ -40,6 +42,8 @@ int terme_arch_rawmode(int *ret);
 void terme_arch_build(void);
 
 int terme_arch_select(int *ret);
+int terme_arch_wait_integer(int *ret, int value);
+int terme_arch_wait_float(int *ret, double value);
 int terme_arch_wait(void);
 int terme_arch_read(void *data, size_t size, size_t *ret);
 int terme_arch_write(const void *data, size_t size, size_t *ret);

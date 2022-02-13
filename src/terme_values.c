@@ -19,6 +19,13 @@ static int terme_values_input_(Execute ptr, addr args)
 	return 0;
 }
 
+static int terme_values_output_(Execute ptr, addr args)
+{
+	Return(terme_call_output_(args));
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
 static int terme_values_move_(Execute ptr, addr args)
 {
 	Return(terme_call_move_(args));
@@ -30,6 +37,15 @@ static int terme_values_clear_(Execute ptr)
 {
 	Return(terme_call_clear_());
 	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static int terme_values_size_(Execute ptr)
+{
+	addr x, y;
+
+	Return(terme_call_size_(&x, &y));
+	setvalues_control(ptr, x, y, NULL);
 	return 0;
 }
 
@@ -70,6 +86,11 @@ static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 	if (var == check)
 		return terme_values_input_(ptr, args);
 
+	/* output */
+	GetConst(SYSTEM_TERME_OUTPUT, &check);
+	if (var == check)
+		return terme_values_output_(ptr, args);
+
 	/* move */
 	GetConst(SYSTEM_TERME_MOVE, &check);
 	if (var == check)
@@ -79,6 +100,11 @@ static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 	GetConst(SYSTEM_TERME_CLEAR, &check);
 	if (var == check)
 		return terme_values_clear_(ptr);
+
+	/* size */
+	GetConst(SYSTEM_TERME_SIZE, &check);
+	if (var == check)
+		return terme_values_size_(ptr);
 
 	/* begin */
 	GetConst(SYSTEM_TERME_BEGIN, &check);

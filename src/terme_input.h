@@ -5,7 +5,10 @@
 
 #define terme_input_init _n(terme_input_init)
 #define terme_input_clear _n(terme_input_clear)
-#define terme_input_event _n(terme_input_event)
+#define terme_table_infinite _n(terme_table_infinite)
+#define terme_input_infinite _n(terme_input_infinite)
+#define terme_input_integer _n(terme_input_integer)
+#define terme_input_float _n(terme_input_float)
 
 enum terme_escape {
 	terme_escape_error,
@@ -39,7 +42,10 @@ typedef struct terme_keyboard TermeKeyboard;
 
 void terme_input_init(void);
 int terme_input_clear(void);
-void terme_input_event(int blocking, TermeKeyboard *ret);
+void terme_table_infinite(TermeKeyboard *ret);
+void terme_input_infinite(addr *rtype, addr *rvalue);
+void terme_input_integer(int wait, addr *rtype, addr *rvalue);
+void terme_input_float(double wait, addr *rtype, addr *rvalue);
 
 #endif
 

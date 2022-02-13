@@ -7,6 +7,7 @@
 
 #if defined(LISP_TERME_UNIX)
 #include <errno.h>
+#include <math.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -222,8 +223,10 @@ int terme_arch_end(void)
 #if defined(LISP_TERME_UNIX)
 static int terme_arch_textmode_unsafe(int *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	if (terme_arch_textmode_p) {
 		*ret = 0;
 		return 0;
@@ -239,8 +242,10 @@ static int terme_arch_textmode_unsafe(int *ret)
 
 static int terme_arch_rawmode_unsafe(int *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	if (! terme_arch_textmode_p) {
 		*ret = 0;
 		return 0;
@@ -258,8 +263,10 @@ static int terme_arch_rawmode_unsafe(int *ret)
 #elif defined(LISP_TERME_WINDOWS)
 static int terme_arch_textmode_unsafe(int *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	if (terme_arch_textmode_p) {
 		*ret = 0;
 		return 0;
@@ -275,8 +282,10 @@ static int terme_arch_textmode_unsafe(int *ret)
 
 static int terme_arch_rawmode_unsafe(int *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	if (! terme_arch_textmode_p) {
 		*ret = 0;
 		return 0;
@@ -293,8 +302,10 @@ static int terme_arch_rawmode_unsafe(int *ret)
 #else
 static int terme_arch_textmode_unsafe(int *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	terme_arch_textmode_p = 1;
 	*ret = 0;
 	return 0;
@@ -302,8 +313,10 @@ static int terme_arch_textmode_unsafe(int *ret)
 
 static int terme_arch_rawmode_unsafe(int *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	terme_arch_textmode_p = 0;
 	*ret = 0;
 	return 0;
@@ -349,22 +362,24 @@ void terme_arch_build(void)
  *  input / output
  */
 #if defined(LISP_TERME_UNIX)
-int terme_arch_select(int *ret)
+static int terme_arch_select_value(int *ret, long tv_sec, long tv_usec)
 {
 	int fd, reti;
 	fd_set fdset;
 	struct timeval tm;
 
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	fd = STDIN_FILENO;
 	FD_ZERO(&fdset);
 	FD_SET(fd, &fdset);
-	tm.tv_sec = 0;
-	tm.tv_usec = 0;
+	tm.tv_sec = tv_sec;
+	tm.tv_usec = tv_usec;
 	reti = select(fd + 1, &fdset, NULL, NULL, &tm);
 	if (reti == 0) {
-		/* empty */
+		/* timeout */
 		*ret = 0;
 		return 0;
 	}
@@ -383,6 +398,11 @@ int terme_arch_select(int *ret)
 		*ret = 0;
 		return 1;
 	}
+}
+
+int terme_arch_select(int *ret)
+{
+	return terme_arch_select_value(ret, 0, 0);
 }
 
 int terme_arch_wait(void)
@@ -410,12 +430,39 @@ int terme_arch_wait(void)
 	}
 }
 
+int terme_arch_wait_integer(int *ret, int value)
+{
+	if (value <= 0)
+		value = 0;
+	return terme_arch_select_value(ret, (long)value, 0);
+}
+
+int terme_arch_wait_float(int *ret, double value)
+{
+	long lx, ly;
+	double x, y;
+
+	if (value <= 0.0)
+		return terme_arch_select_value(ret, 0, 0);
+
+	/* usec = (expt 10 -6) sec */
+	x = trunc(value);
+	value -= x;
+	value *= 1.0e6;
+	y = trunc(value);
+	lx = (long)x;
+	ly = (long)y;
+	return terme_arch_select_value(ret, lx, ly);
+}
+
 int terme_arch_read(void *data, size_t size, size_t *ret)
 {
 	ssize_t check;
 
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 	check = read(STDIN_FILENO, data, size);
 	if (0 <= check) {
 		*ret = (size_t)check;
@@ -435,8 +482,10 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 {
 	ssize_t check;
 
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 retry:
 	check = write(STDOUT_FILENO, data, size);
 	if (check < 0) {
@@ -452,8 +501,10 @@ retry:
 #elif defined(LISP_TERME_WINDOWS)
 int terme_arch_select(int *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 
 	return terme_windows_select(ret);
 }
@@ -466,18 +517,42 @@ int terme_arch_wait(void)
 	return terme_windows_wait();
 }
 
+int terme_arch_wait_integer(int *ret, int value)
+{
+	if (! terme_arch_enable_p) {
+		*ret = 0;
+		return 0;
+	}
+
+	return terme_windows_wait_integer(ret, value);
+}
+
+int terme_arch_wait_float(int *ret, double value)
+{
+	if (! terme_arch_enable_p) {
+		*ret = 0;
+		return 0;
+	}
+
+	return terme_windows_wait_float(ret, value);
+}
+
 int terme_arch_read(void *data, size_t size, size_t *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 
 	return terme_windows_read(data, size, ret);
 }
 
 int terme_arch_write(const void *data, size_t size, size_t *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 
 	return terme_windows_write(data, size, ret);
 }
@@ -485,25 +560,33 @@ int terme_arch_write(const void *data, size_t size, size_t *ret)
 #else
 int terme_arch_select(int *ret)
 {
-	if (! terme_arch_enable_p)
-		return 0;
-
 	*ret = 0;
 	return 0;
 }
 
 int terme_arch_wait(void)
 {
-	if (! terme_arch_enable_p)
-		return 0;
+	return 0;
+}
 
+int terme_arch_wait_integer(int *ret, int value)
+{
+	*ret = 0;
+	return 0;
+}
+
+int terme_arch_wait_float(int *ret, double value)
+{
+	*ret = 0;
 	return 0;
 }
 
 int terme_arch_read(void *data, size_t size, size_t *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 
 	*ret = 0;
 	return 1;
@@ -511,8 +594,10 @@ int terme_arch_read(void *data, size_t size, size_t *ret)
 
 int terme_arch_write(const void *data, size_t size, size_t *ret)
 {
-	if (! terme_arch_enable_p)
+	if (! terme_arch_enable_p) {
+		*ret = 0;
 		return 0;
+	}
 
 	*ret = 0;
 	return 1;

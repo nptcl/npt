@@ -134,6 +134,20 @@ int terme_write_char(unicode c, unsigned width)
 	return terme_write_memory(data, size);
 }
 
+int terme_output_char(unicode c)
+{
+	byte data[8];
+	size_t size;
+
+	if (terme_write_utf8(c, data, &size)) {
+		/* encode error */
+		return 0;
+	}
+
+	/* output */
+	return terme_write_memory(data, size);
+}
+
 
 /*
  *  call

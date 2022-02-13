@@ -872,6 +872,120 @@ int getfixed1_integer(addr pos, int *sign, fixed *ret)
 	}
 }
 
+static int GetInt_bignum(addr pos, int *ret)
+{
+	int sign;
+	fixed value;
+
+	CheckType(pos, LISPTYPE_BIGNUM);
+	if (RefSizeBignum(pos) != 1)
+		return 1;
+	GetSignBignum(pos, &sign);
+	getfixed_bignum(pos, 0, &value);
+	if (IsPlus(sign)) {
+		if (INT_MAX < value)
+			return 1;
+		*ret = (int)value;
+		return 0;
+	}
+	else {
+		if (((fixed)INT_MIN) < value)
+			return 1;
+		*ret = -(int)value;
+		return 0;
+	}
+
+	return 1;
+}
+
+#if (INT_MAX == FIXNUM_MAX)
+static int GetInt_fixnum(addr pos, int *ret)
+{
+	fixnum value;
+
+	CheckType(pos, LISPTYPE_FIXNUM);
+	GetFixnum(pos, &value);
+	return Result(ret, (int)value);
+}
+#else
+static int GetInt_fixnum(addr pos, int *ret)
+{
+	fixnum value;
+
+	CheckType(pos, LISPTYPE_FIXNUM);
+	GetFixnum(pos, &value);
+	if (INT_MAX < value)
+		return 1;
+	if (value < INT_MIN)
+		return 1;
+	return Result(ret, (int)value);
+}
+#endif
+
+int GetInt_signed(addr pos, int *ret)
+{
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			return GetInt_fixnum(pos, ret);
+
+		case LISPTYPE_BIGNUM:
+			return GetInt_bignum(pos, ret);
+
+		default:
+			break;
+	}
+
+	return 1;
+}
+
+int getint_signed_(addr pos, int *ret)
+{
+	addr type;
+
+	if (GetInt_signed(pos, ret)) {
+		type4integer_heap(Nil, INT_MIN, Nil, INT_MAX, &type);
+		return call_type_error_(NULL, pos, type);
+	}
+
+	return 0;
+}
+
+int GetInt_unsigned(addr pos, int *ret)
+{
+	int v;
+
+	switch (GetType(pos)) {
+		case LISPTYPE_FIXNUM:
+			if (GetInt_fixnum(pos, &v))
+				return 1;
+			break;
+
+		case LISPTYPE_BIGNUM:
+			if (GetInt_bignum(pos, &v))
+				return 1;
+			break;
+
+		default:
+			return 1;
+	}
+	if (v < 0)
+		return 1;
+	*ret = v;
+	return 0;
+}
+
+int getint_unsigned_(addr pos, int *ret)
+{
+	addr type;
+
+	if (GetInt_unsigned(pos, ret)) {
+		type4integer_heap(Nil, 0, Nil, INT_MAX, &type);
+		return call_type_error_(NULL, pos, type);
+	}
+
+	return 0;
+}
+
 
 /*
  *  math

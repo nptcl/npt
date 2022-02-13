@@ -65,6 +65,10 @@
 #define getfixnum_unsigned_ _n(getfixnum_unsigned_)
 #define getfixed1_bignum _n(getfixed1_bignum)
 #define getfixed1_integer _n(getfixed1_integer)
+#define GetInt_signed _n(GetInt_signed)
+#define getint_signed_ _n(getint_signed_)
+#define GetInt_unsigned _n(GetInt_unsigned)
+#define getint_unsigned_ _n(getint_unsigned_)
 #define abs_fixnum_integer_local _n(abs_fixnum_integer_local)
 #define abs_fixnum_integer_common _n(abs_fixnum_integer_common)
 #define abs_bignum_integer_local _n(abs_bignum_integer_local)
@@ -145,6 +149,10 @@ int GetFixnum_unsigned(addr pos, fixnum *ret);
 int getfixnum_unsigned_(addr pos, fixnum *ret);
 int getfixed1_bignum(addr pos, int *sign, fixed *ret);
 int getfixed1_integer(addr pos, int *sign, fixed *ret);
+int GetInt_signed(addr pos, int *ret);
+int getint_signed_(addr pos, int *ret);
+int GetInt_unsigned(addr pos, int *ret);
+int getint_unsigned_(addr pos, int *ret);
 
 void abs_fixnum_integer_local(LocalRoot local, addr left, addr *ret);
 void abs_fixnum_integer_common(addr left, addr *ret);

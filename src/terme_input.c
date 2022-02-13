@@ -1,3 +1,4 @@
+#include "constant.h"
 #include "character_check.h"
 #include "terme_arch.h"
 #include "terme_input.h"
@@ -8,10 +9,25 @@
 #else
 #define TERME_INPUT_SIZE		4096
 #endif
-
-#define TERME_INPUT_ENCODE		64
 #define TERME_INPUT_UNBYTE		64
-#define TERME_INPUT_UNREAD		8
+
+enum terme_blocking_type {
+	terme_blocking_infinite,
+	terme_blocking_integer,
+	terme_blocking_float
+};
+
+union terme_blocking_value {
+	int integer_value;
+	double float_value;
+};
+
+struct terme_blocking {
+	enum terme_blocking_type type;
+	union terme_blocking_value wait;
+};
+
+typedef struct terme_blocking TermeBlocking;
 
 /* buffer */
 static byte terme_input_buffer[TERME_INPUT_SIZE];
@@ -125,7 +141,23 @@ static int terme_getc_buffering(void)
 	}
 }
 
-static int terme_getc_blocking(int blocking, byte *value, int *ret)
+static int terme_getc_wait(TermeBlocking *blocking, int *ret)
+{
+	switch (blocking->type) {
+		case terme_blocking_integer:
+			return terme_arch_wait_integer(ret, blocking->wait.integer_value);
+
+		case terme_blocking_float:
+			return terme_arch_wait_float(ret, blocking->wait.float_value);
+
+		case terme_blocking_infinite:
+		default:
+			*ret = 1;
+			return 0;
+	}
+}
+
+static int terme_getc_blocking(TermeBlocking *blocking, byte *value, int *ret)
 {
 	int check, readp;
 
@@ -145,15 +177,13 @@ retry:
 		return 0;
 	}
 
-	/* non-blocking */
-	if (! blocking) {
-		check = terme_arch_select(&readp);
-		if (check < 0)
-			return -1;
-		if (readp == 0) {
-			*ret = 0;
-			return 0;
-		}
+	/* blocking */
+	check = terme_getc_wait(blocking, &readp);
+	if (check < 0)
+		return -1;
+	if (readp == 0) {
+		*ret = 0;
+		return 0;
 	}
 
 	/* buffering */
@@ -203,7 +233,7 @@ retry:
  *  F11      ^[[23~
  *  F12      ^[[24~
  */
-static void terme_table_escape(int blocking, TermeKeyboard *ret)
+static void terme_table_escape(TermeBlocking *blocking, TermeKeyboard *ret)
 {
 	byte data[terme_size_escape], c;
 	int i, check, hang;
@@ -298,7 +328,7 @@ hang:
 	return;
 }
 
-static int terme_table_utf8(int blocking, unicode *value, int *ret)
+static int terme_table_utf8(TermeBlocking *blocking, unicode *value, int *ret)
 {
 	byte data[terme_size_utf8], c;
 	int i, check, hang;
@@ -398,7 +428,7 @@ error:
 	return 1;
 }
 
-void terme_input_event(int blocking, TermeKeyboard *ret)
+static void terme_table_wait(TermeBlocking *blocking, TermeKeyboard *ret)
 {
 	int check, readp;
 	unicode c;
@@ -429,5 +459,133 @@ void terme_input_event(int blocking, TermeKeyboard *ret)
 	/* escape sequence */
 	terme_input_unbyte_now = 0;
 	terme_table_escape(blocking, ret);
+}
+
+void terme_table_infinite(TermeKeyboard *ret)
+{
+	TermeBlocking blocking;
+	blocking.type = terme_blocking_infinite;
+	terme_table_wait(&blocking, ret);
+}
+
+
+/*
+ *  values
+ */
+static void terme_input_value(TermeBlocking *blocking, addr *rtype, addr *rvalue)
+{
+	TermeKeyboard v;
+
+	terme_table_wait(blocking, &v);
+	*rvalue = Nil;
+	switch (v.type) {
+		case terme_escape_signal:
+			GetConst(SYSTEM_TERME_SIGNAL, rtype);
+			break;
+
+		case terme_escape_hang:
+			GetConst(SYSTEM_TERME_HANG, rtype);
+			break;
+
+		case terme_escape_code:
+			GetConst(SYSTEM_TERME_CODE, rtype);
+			fixnum_heap(rvalue, (fixnum)v.c);
+			break;
+
+		case terme_escape_up:
+			GetConst(SYSTEM_TERME_UP, rtype);
+			break;
+
+		case terme_escape_down:
+			GetConst(SYSTEM_TERME_DOWN, rtype);
+			break;
+
+		case terme_escape_left:
+			GetConst(SYSTEM_TERME_LEFT, rtype);
+			break;
+
+		case terme_escape_right:
+			GetConst(SYSTEM_TERME_RIGHT, rtype);
+			break;
+
+		case terme_escape_function:
+			GetConst(SYSTEM_TERME_FUNCTION, rtype);
+			fixnum_heap(rvalue, (fixnum)v.c);
+			break;
+
+		case terme_escape_return:
+			GetConst(SYSTEM_TERME_RETURN, rtype);
+			break;
+
+		case terme_escape_backspace:
+			GetConst(SYSTEM_TERME_BACKSPACE, rtype);
+			break;
+
+		case terme_escape_first:
+			GetConst(SYSTEM_TERME_FIRST, rtype);
+			break;
+
+		case terme_escape_last:
+			GetConst(SYSTEM_TERME_LAST, rtype);
+			break;
+
+		case terme_escape_update:
+			GetConst(SYSTEM_TERME_UPDATE, rtype);
+			break;
+
+		case terme_escape_delete:
+			GetConst(SYSTEM_TERME_DELETE, rtype);
+			break;
+
+		case terme_escape_rmleft:
+			GetConst(SYSTEM_TERME_RMLEFT, rtype);
+			break;
+
+		case terme_escape_rmright:
+			GetConst(SYSTEM_TERME_RMRIGHT, rtype);
+			break;
+
+		case terme_escape_tabular:
+			GetConst(SYSTEM_TERME_TABULAR, rtype);
+			break;
+
+		case terme_escape_search:
+			GetConst(SYSTEM_TERME_SEARCH, rtype);
+			break;
+
+		case terme_escape_error:
+		default:
+			*rtype = Nil;
+			break;
+	}
+}
+
+void terme_input_infinite(addr *rtype, addr *rvalue)
+{
+	TermeBlocking blocking;
+	blocking.type = terme_blocking_infinite;
+	terme_input_value(&blocking, rtype, rvalue);
+}
+
+void terme_input_integer(int wait, addr *rtype, addr *rvalue)
+{
+	TermeBlocking blocking;
+
+	if (wait < 0)
+		wait = 0;
+	blocking.type = terme_blocking_integer;
+	blocking.wait.integer_value = wait;
+	terme_input_value(&blocking, rtype, rvalue);
+}
+
+void terme_input_float(double wait, addr *rtype, addr *rvalue)
+{
+	TermeBlocking blocking;
+
+	if (wait < 0.0)
+		wait = 0;
+	blocking.type = terme_blocking_float;
+	blocking.wait.float_value = wait;
+	terme_input_value(&blocking, rtype, rvalue);
 }
 
