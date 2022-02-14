@@ -116,7 +116,7 @@ static int terme_call_output_string_(addr x)
 
 int terme_call_output_(addr args)
 {
-	/* (terme 'terme-output x) */
+	/* (terme 'terme-output &optional x) */
 	addr x;
 	unicode c;
 	fixnum intvalue;
@@ -263,15 +263,140 @@ int terme_call_move_(addr args)
  *  clear
  */
 #if defined(LISP_TERME_UNIX)
-int terme_call_clear_(void)
+static int terme_call_clear_all_(void)
 {
 	if (terme_cursor_delete_page())
 		return fmte_("terme_cursor_delete_page error.", NULL);
+	return 0;
+}
 
+static int terme_call_clear_before_(void)
+{
+	if (terme_cursor_delete_page_left())
+		return fmte_("terme_cursor_delete_page_left error.", NULL);
+	return 0;
+}
+
+static int terme_call_clear_after_(void)
+{
+	if (terme_cursor_delete_page_right())
+		return fmte_("terme_cursor_delete_page_right error.", NULL);
+	return 0;
+}
+
+int terme_call_clear_(addr args)
+{
+	/* (terme 'terme-clear &optional x)
+	 *   x  (member :before :after nil)
+	 */
+	addr pos, check;
+
+	/* all */
+	if (args == Nil)
+		return terme_call_clear_all_();
+	Return_getcar(args, &pos);
+	if (pos == Nil)
+		return terme_call_clear_all_();
+
+	/* :before */
+	GetConst(KEYWORD_BEFORE, &check);
+	if (pos == check)
+		return terme_call_clear_before_();
+
+	/* :after */
+	GetConst(KEYWORD_AFTER, &check);
+	if (pos == check)
+		return terme_call_clear_after_();
+
+	return fmte_("Invalid operator, ~S.", pos, NULL);
+}
+#else
+int terme_call_clear_(addr args)
+{
+	return fmte_("TERME is not enabled.", NULL);
+}
+#endif
+
+
+/*
+ *  delete
+ */
+#if defined(LISP_TERME_UNIX)
+static int terme_call_delete_all_(void)
+{
+	if (terme_cursor_delete_line())
+		return fmte_("terme_cursor_delete_line error.", NULL);
+	return 0;
+}
+
+static int terme_call_delete_before_(void)
+{
+	if (terme_cursor_delete_line_left())
+		return fmte_("terme_cursor_delete_line_left error.", NULL);
+	return 0;
+}
+
+static int terme_call_delete_after_(void)
+{
+	if (terme_cursor_delete_line_right())
+		return fmte_("terme_cursor_delete_line_right error.", NULL);
+	return 0;
+}
+
+int terme_call_delete_(addr args)
+{
+	/* (terme 'terme-delete &optional x)
+	 *   x  (member :before :after nil)
+	 */
+	addr pos, check;
+
+	/* all */
+	if (args == Nil)
+		return terme_call_delete_all_();
+	Return_getcar(args, &pos);
+	if (pos == Nil)
+		return terme_call_delete_all_();
+
+	/* :before */
+	GetConst(KEYWORD_BEFORE, &check);
+	if (pos == check)
+		return terme_call_delete_before_();
+
+	/* :after */
+	GetConst(KEYWORD_AFTER, &check);
+	if (pos == check)
+		return terme_call_delete_after_();
+
+	return fmte_("Invalid operator, ~S.", pos, NULL);
+}
+#else
+int terme_call_delete_(addr args)
+{
+	return fmte_("TERME is not enabled.", NULL);
+}
+#endif
+
+
+/*
+ *  font
+ *    (terme 'terme-font nil)
+ *    (terme 'terme-font 'code 3)
+ *    (terme 'terme-font 'code 'italic)
+ *    (terme 'terme-font 'fore 'red)
+ *    (terme 'terme-font 'back 'red)
+ *    (terme 'terme-font 'code 'italic 'fore 'red 'back 'black)
+ *    (terme 'terme-font 'palfore 10 'palback 20)
+ *    (terme 'terme-font 'rgbfore 30 40 50'rgbback 60 70 80)
+ */
+#if defined(LISP_TERME_UNIX)
+int terme_call_font_(Execute ptr, addr args)
+{
+	Return(terme_font_parser_(args));
+	Return(terme_font_update_(ptr, args));
 	return 0;
 }
 #else
-int terme_call_clear_(void)
+int terme_call_font_(Execute ptr, addr args)
 {
 	return fmte_("TERME is not enabled.", NULL);
 }
@@ -298,6 +423,46 @@ int terme_call_size_(addr *rx, addr *ry)
 int terme_call_size_(addr *rx, addr *ry)
 {
 	*rx = *ry = Nil;
+	return fmte_("TERME is not enabled.", NULL);
+}
+#endif
+
+
+/*
+ *  scroll
+ */
+#if defined(LISP_TERME_UNIX)
+static int terme_call_scroll_up_(int value)
+{
+	if (terme_cursor_scroll_up(value))
+		return fmte_("terme_cursor_scroll_up error.", NULL);
+	return 0;
+}
+
+static int terme_call_scroll_down_(int value)
+{
+	if (terme_cursor_scroll_down(value))
+		return fmte_("terme_cursor_scroll_down error.", NULL);
+	return 0;
+}
+
+int terme_call_scroll_(addr args)
+{
+	int value;
+	addr pos;
+
+	Return_getcar(args, &pos);
+	Return(getint_unsigned_(pos, &value));
+	if (value < 0)
+		return terme_call_scroll_up_(-value);
+	if (value > 0)
+		return terme_call_scroll_down_(value);
+
+	return 0;
+}
+#else
+int terme_call_scroll_(addr args)
+{
 	return fmte_("TERME is not enabled.", NULL);
 }
 #endif

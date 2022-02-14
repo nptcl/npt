@@ -1,5 +1,10 @@
 #include <stdio.h>
+#include "bignum.h"
+#include "condition.h"
+#include "cons.h"
 #include "constant.h"
+#include "integer.h"
+#include "strtype.h"
 #include "symbol.h"
 #include "terme_escape.h"
 #include "terme_output.h"
@@ -33,6 +38,13 @@ static int terme_escape_operator(const char *str)
 			return 1;
 	}
 
+	return 0;
+}
+
+static int terme_escape_operator_(const char *str)
+{
+	if (terme_escape_operator(str))
+		return fmte_("terme_escape_operator error.", NULL);
 	return 0;
 }
 
@@ -197,9 +209,476 @@ int terme_cursor_delete_line(void)
 	return terme_escape_operator("\x1B[2K");
 }
 
+int terme_cursor_delete_page_left(void)
+{
+	return terme_escape_operator("\x1B[1J")
+		|| terme_escape_operator("\x1B[1;1H");
+}
+
+int terme_cursor_delete_page_right(void)
+{
+	return terme_escape_operator("\x1B[J");
+}
+
 int terme_cursor_delete_page(void)
 {
 	return terme_escape_operator("\x1B[2J")
 		|| terme_escape_operator("\x1B[1;1H");
+}
+
+int terme_cursor_scroll_up(int n)
+{
+	return terme_cursor_move_character(n, 'T');
+}
+
+int terme_cursor_scroll_down(int n)
+{
+	return terme_cursor_move_character(n, 'S');
+}
+
+
+/*
+ *  font
+ */
+struct terme_font_struct {
+	const char *name;
+	int value;
+};
+
+static struct terme_font_struct terme_struct_code[] = {
+	{ "RESET",           0 },
+	{ "BOLD",            1 },
+	{ "FAINT",           2 },
+	{ "ITALIC",          3 },
+	{ "UNDERLINE",       4 },
+	{ "SLOW-BLINK",      5 },
+	{ "RAPID-BLINK",     6 },
+	{ "REVERSE",         7 },
+	{ "HIDE",            8 },
+	{ "STRIKE",          9 },
+	{ NULL,              0 }
+};
+
+static struct terme_font_struct terme_struct_color[] = {
+	{ "BLACK",           0 },
+	{ "RED",             1 },
+	{ "GREEN",           2 },
+	{ "YELLOW",          3 },
+	{ "BLUE",            4 },
+	{ "MAGENTA",         5 },
+	{ "CYAN",            6 },
+	{ "WHITE",           7 },
+	{ "DEFAULT",         9 },
+	{ NULL,              0 }
+};
+
+static struct terme_font_struct terme_struct_dark[] = {
+	{ "DARK-BLACK",      0 },
+	{ "DARK-RED",        1 },
+	{ "DARK-GREEN",      2 },
+	{ "DARK-YELLOW",     3 },
+	{ "DARK-BLUE",       4 },
+	{ "DARK-MAGENTA",    5 },
+	{ "DARK-CYAN",       6 },
+	{ "DARK-WHITE",      7 },
+	{ NULL,              0 }
+};
+
+static struct terme_font_struct terme_struct_bright[] = {
+	{ "BRIGHT-BLACK",    0 },
+	{ "BRIGHT-RED",      1 },
+	{ "BRIGHT-GREEN",    2 },
+	{ "BRIGHT-YELLOW",   3 },
+	{ "BRIGHT-BLUE",     4 },
+	{ "BRIGHT-MAGENTA",  5 },
+	{ "BRIGHT-CYAN",     6 },
+	{ "BRIGHT-WHITE",    7 },
+	{ NULL,              0 }
+};
+
+static int terme_struct_find_(struct terme_font_struct *array,
+		addr pos, int *ret, int *value)
+{
+	int i, check;
+	struct terme_font_struct *str;
+
+	if (symbolp(pos))
+		GetNameSymbol(pos, &pos);
+	if (! stringp(pos))
+		goto error;
+	for (i = 0; ; i++) {
+		str = array + i;
+		if (str->name == NULL)
+			break;
+		Return(string_equal_char_(pos, str->name, &check));
+		if (check) {
+			if (value)
+				*value = str->value;
+			return Result(ret, 1);
+		}
+	}
+
+error:
+	return Result(ret, 0);
+}
+
+static int terme_font_parser_list_code_(addr list, addr *ret)
+{
+	int check;
+	addr pos;
+
+	Return_getcons(list, &pos, ret);
+
+	/* integer */
+	if (integerp(pos)) {
+		Return(getint_unsigned_(pos, &check));
+		if (0xFF < check)
+			return fmte_("Too large integer check, ~S.", pos, NULL);
+		return 0;
+	}
+
+	/* name */
+	Return(terme_struct_find_(terme_struct_code, pos, &check, NULL));
+	if (check)
+		return 0;
+
+	/* error */
+	return fmte_("Invalid value, ~S.", pos, NULL);
+}
+
+static int terme_font_parser_list_color_(addr list, addr *ret)
+{
+	int check;
+	addr pos;
+
+	Return_getcons(list, &pos, ret);
+
+	/* color */
+	Return(terme_struct_find_(terme_struct_color, pos, &check, NULL));
+	if (check)
+		return 0;
+
+	/* dark */
+	Return(terme_struct_find_(terme_struct_dark, pos, &check, NULL));
+	if (check)
+		return 0;
+
+	/* bright */
+	Return(terme_struct_find_(terme_struct_bright, pos, &check, NULL));
+	if (check)
+		return 0;
+
+	/* error */
+	return fmte_("Invalid value, ~S.", pos, NULL);
+}
+
+static int terme_font_parser_list_palette_(addr list, addr *ret, int *value)
+{
+	int check;
+	addr pos;
+
+	Return_getcons(list, &pos, ret);
+	/* integer */
+	if (! integerp(pos))
+		return fmte_("Invalid value, ~S.", pos, NULL);
+	Return(getint_unsigned_(pos, &check));
+	if (0xFF < check)
+		return fmte_("Too large integer value, ~S.", pos, NULL);
+	if (value)
+		*value = check;
+
+	return 0;
+}
+
+static int terme_font_parser_list_rgb_(addr list, addr *ret)
+{
+	Return(terme_font_parser_list_palette_(list, &list, NULL));
+	Return(terme_font_parser_list_palette_(list, &list, NULL));
+	Return(terme_font_parser_list_palette_(list, &list, NULL));
+	return Result(ret, list);
+}
+
+static int terme_font_parser_list_(addr list, addr pos, addr *ret)
+{
+	int check;
+
+	if (symbolp(pos))
+		GetNameSymbol(pos, &pos);
+	if (! stringp(pos))
+		goto error;
+
+	/* code */
+	Return(string_equal_char_(pos, "CODE", &check));
+	if (check)
+		return terme_font_parser_list_code_(list, ret);
+
+	/* fore */
+	Return(string_equal_char_(pos, "FORE", &check));
+	if (check)
+		return terme_font_parser_list_color_(list, ret);
+
+	/* back */
+	Return(string_equal_char_(pos, "BACK", &check));
+	if (check)
+		return terme_font_parser_list_color_(list, ret);
+
+	/* palfore */
+	Return(string_equal_char_(pos, "PALFORE", &check));
+	if (check)
+		return terme_font_parser_list_palette_(list, ret, NULL);
+
+	/* palback */
+	Return(string_equal_char_(pos, "PALBACK", &check));
+	if (check)
+		return terme_font_parser_list_palette_(list, ret, NULL);
+
+	/* rgbfore */
+	Return(string_equal_char_(pos, "RGBFORE", &check));
+	if (check)
+		return terme_font_parser_list_rgb_(list, ret);
+
+	/* rgbback */
+	Return(string_equal_char_(pos, "RGBBACK", &check));
+	if (check)
+		return terme_font_parser_list_rgb_(list, ret);
+
+	/* error */
+error:
+	return fmte_("Invalid operator, ~S.", pos, NULL);
+}
+
+int terme_font_parser_(addr args)
+{
+	addr list, pos;
+
+	list = args;
+	Return_getcons(list, &pos, &list);
+	if (pos == Nil) {
+		if (list != Nil)
+			return fmte_("Invalid font format, ~S.", args, NULL);
+		/* reset */
+		return 0;
+	}
+
+	/* loop */
+	list = args;
+	while (list != Nil) {
+		Return_getcons(list, &pos, &list);
+		Return(terme_font_parser_list_(list, pos, &list));
+	}
+
+	return 0;
+}
+
+
+/* update */
+static int terme_font_update_single_(int value)
+{
+	char data[64];
+	snprintf(data, 64, "%d", value);
+	return terme_escape_operator_(data);
+}
+
+static int terme_font_update_list_code_(addr list, addr *ret)
+{
+	int check, value;
+	addr pos;
+
+	Return_getcons(list, &pos, ret);
+
+	/* integer */
+	if (integerp(pos)) {
+		Return(getint_unsigned_(pos, &check));
+		if (0xFF < check)
+			return fmte_("Too large integer check, ~S.", pos, NULL);
+		return terme_font_update_single_(check);
+	}
+
+	/* name */
+	Return(terme_struct_find_(terme_struct_code, pos, &check, &value));
+	if (check)
+		return terme_font_update_single_(value);
+
+	/* error */
+	return fmte_("Invalid value, ~S.", pos, NULL);
+}
+
+static int terme_font_bright_mode(Execute ptr)
+{
+	addr pos;
+
+	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Unbound)
+		pos = Nil;
+
+	return pos != Nil;
+}
+
+static int terme_font_update_list_color_mode_(Execute ptr,
+		addr list, addr *ret, int dark, int bright)
+{
+	int check, value;
+	addr pos;
+
+	Return_getcons(list, &pos, ret);
+
+	/* color */
+	Return(terme_struct_find_(terme_struct_color, pos, &check, &value));
+	if (check) {
+		if (terme_font_bright_mode(ptr))
+			return terme_font_update_single_(value + bright);
+		else
+			return terme_font_update_single_(value + dark);
+	}
+
+	/* dark */
+	Return(terme_struct_find_(terme_struct_dark, pos, &check, &value));
+	if (check)
+		return terme_font_update_single_(value + dark);
+
+	/* bright */
+	Return(terme_struct_find_(terme_struct_bright, pos, &check, &value));
+	if (check)
+		return terme_font_update_single_(value + bright);
+
+	/* error */
+	return fmte_("Invalid value, ~S.", pos, NULL);
+}
+
+static int terme_font_update_list_fore_(Execute ptr, addr list, addr *ret)
+{
+	return terme_font_update_list_color_mode_(ptr, list, ret, 30, 90);
+}
+
+static int terme_font_update_list_back_(Execute ptr, addr list, addr *ret)
+{
+	return terme_font_update_list_color_mode_(ptr, list, ret, 40, 100);
+}
+
+static int terme_font_update_list_palette_(addr list, addr *ret, int id)
+{
+	int value;
+
+	Return(terme_font_parser_list_palette_(list, ret, &value));
+	Return(terme_font_update_single_(id));
+	Return(terme_escape_operator_(";5;"));
+	Return(terme_font_update_single_(value));
+
+	return 0;
+}
+
+static int terme_font_update_list_palfore_(addr list, addr *ret)
+{
+	return terme_font_update_list_palette_(list, ret, 38);
+}
+
+static int terme_font_update_list_palback_(addr list, addr *ret)
+{
+	return terme_font_update_list_palette_(list, ret, 48);
+}
+
+static int terme_font_update_list_rgb_(addr list, addr *ret, int id)
+{
+	int r, g, b;
+
+	Return(terme_font_parser_list_palette_(list, &list, &r));
+	Return(terme_font_parser_list_palette_(list, &list, &g));
+	Return(terme_font_parser_list_palette_(list, &list, &b));
+	Return(terme_font_update_single_(id));
+	Return(terme_escape_operator_(";2;"));
+	Return(terme_font_update_single_(r));
+	Return(terme_escape_operator_(";"));
+	Return(terme_font_update_single_(g));
+	Return(terme_escape_operator_(";"));
+	Return(terme_font_update_single_(b));
+
+	return Result(ret, list);
+}
+
+static int terme_font_update_list_rgbfore_(addr list, addr *ret)
+{
+	return terme_font_update_list_rgb_(list, ret, 38);
+}
+
+static int terme_font_update_list_rgbback_(addr list, addr *ret)
+{
+	return terme_font_update_list_rgb_(list, ret, 48);
+}
+
+static int terme_font_update_list_(Execute ptr, addr list, addr pos, addr *ret)
+{
+	int check;
+
+	if (symbolp(pos))
+		GetNameSymbol(pos, &pos);
+	if (! stringp(pos))
+		goto error;
+
+	/* code */
+	Return(string_equal_char_(pos, "CODE", &check));
+	if (check)
+		return terme_font_update_list_code_(list, ret);
+
+	/* fore */
+	Return(string_equal_char_(pos, "FORE", &check));
+	if (check)
+		return terme_font_update_list_fore_(ptr, list, ret);
+
+	/* back */
+	Return(string_equal_char_(pos, "BACK", &check));
+	if (check)
+		return terme_font_update_list_back_(ptr, list, ret);
+
+	/* palfore */
+	Return(string_equal_char_(pos, "PALFORE", &check));
+	if (check)
+		return terme_font_update_list_palfore_(list, ret);
+
+	/* palback */
+	Return(string_equal_char_(pos, "PALBACK", &check));
+	if (check)
+		return terme_font_update_list_palback_(list, ret);
+
+	/* rgbfore */
+	Return(string_equal_char_(pos, "RGBFORE", &check));
+	if (check)
+		return terme_font_update_list_rgbfore_(list, ret);
+
+	/* rgbback */
+	Return(string_equal_char_(pos, "RGBBACK", &check));
+	if (check)
+		return terme_font_update_list_rgbback_(list, ret);
+
+	/* error */
+error:
+	return fmte_("Invalid operator, ~S.", pos, NULL);
+}
+
+int terme_font_update_(Execute ptr, addr args)
+{
+	int semi;
+	addr list, pos;
+
+	list = args;
+	Return_getcons(list, &pos, &list);
+	if (pos == Nil)
+		return terme_escape_operator_("\x1B[0m");
+
+	/* loop */
+	Return(terme_escape_operator_("\x1B["));
+	list = args;
+	semi = 0;
+	while (list != Nil) {
+		if (semi) {
+			Return(terme_escape_operator_(";"));
+		}
+		Return_getcons(list, &pos, &list);
+		Return(terme_font_update_list_(ptr, list, pos, &list));
+		semi = 1;
+	}
+	Return(terme_escape_operator_("m"));
+
+	return 0;
 }
 

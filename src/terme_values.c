@@ -33,9 +33,23 @@ static int terme_values_move_(Execute ptr, addr args)
 	return 0;
 }
 
-static int terme_values_clear_(Execute ptr)
+static int terme_values_clear_(Execute ptr, addr args)
 {
-	Return(terme_call_clear_());
+	Return(terme_call_clear_(args));
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static int terme_values_delete_(Execute ptr, addr args)
+{
+	Return(terme_call_delete_(args));
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static int terme_values_font_(Execute ptr, addr args)
+{
+	Return(terme_call_font_(ptr, args));
 	setresult_control(ptr, Nil);
 	return 0;
 }
@@ -46,6 +60,13 @@ static int terme_values_size_(Execute ptr)
 
 	Return(terme_call_size_(&x, &y));
 	setvalues_control(ptr, x, y, NULL);
+	return 0;
+}
+
+static int terme_values_scroll_(Execute ptr, addr args)
+{
+	Return(terme_call_scroll_(args));
+	setresult_control(ptr, Nil);
 	return 0;
 }
 
@@ -99,12 +120,27 @@ static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 	/* clear */
 	GetConst(SYSTEM_TERME_CLEAR, &check);
 	if (var == check)
-		return terme_values_clear_(ptr);
+		return terme_values_clear_(ptr, args);
+
+	/* delete */
+	GetConst(SYSTEM_TERME_DELETE, &check);
+	if (var == check)
+		return terme_values_delete_(ptr, args);
+
+	/* font */
+	GetConst(SYSTEM_TERME_FONT, &check);
+	if (var == check)
+		return terme_values_font_(ptr, args);
 
 	/* size */
 	GetConst(SYSTEM_TERME_SIZE, &check);
 	if (var == check)
 		return terme_values_size_(ptr);
+
+	/* scroll */
+	GetConst(SYSTEM_TERME_SCROLL, &check);
+	if (var == check)
+		return terme_values_scroll_(ptr, args);
 
 	/* begin */
 	GetConst(SYSTEM_TERME_BEGIN, &check);

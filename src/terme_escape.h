@@ -19,7 +19,13 @@
 #define terme_cursor_delete_line_left _n(terme_cursor_delete_line_left)
 #define terme_cursor_delete_line_right _n(terme_cursor_delete_line_right)
 #define terme_cursor_delete_line _n(terme_cursor_delete_line)
+#define terme_cursor_delete_page_left _n(terme_cursor_delete_page_left)
+#define terme_cursor_delete_page_right _n(terme_cursor_delete_page_right)
 #define terme_cursor_delete_page _n(terme_cursor_delete_page)
+#define terme_cursor_scroll_up _n(terme_cursor_scroll_up)
+#define terme_cursor_scroll_down _n(terme_cursor_scroll_down)
+#define terme_font_parser_ _n(terme_font_parser_)
+#define terme_font_update_ _n(terme_font_update_)
 
 int terme_font(Execute ptr, PrintFont value);
 int terme_text_color(Execute ptr, PrintColor value);
@@ -35,7 +41,13 @@ int terme_cursor_first_down(int n);
 int terme_cursor_delete_line_left(void);
 int terme_cursor_delete_line_right(void);
 int terme_cursor_delete_line(void);
+int terme_cursor_delete_page_left(void);
+int terme_cursor_delete_page_right(void);
 int terme_cursor_delete_page(void);
+int terme_cursor_scroll_up(int n);
+int terme_cursor_scroll_down(int n);
+int terme_font_parser_(addr args);
+int terme_font_update_(Execute ptr, addr args);
 
 #endif
 
