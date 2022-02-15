@@ -56,7 +56,11 @@ int terme_call_input_(addr args, addr *rtype, addr *rvalue)
 		terme_input_infinite(rtype, rvalue);
 		return 0;
 	}
-	Return_getcar(args, &pos);
+	Return_getcons(args, &pos, &args);
+	if (args != Nil) {
+		*rtype = *rvalue = Nil;
+		return fmte_("Invalid arguments, ~S.", args, NULL);
+	}
 	if (pos == T) {
 		terme_input_infinite(rtype, rvalue);
 		return 0;
@@ -127,6 +131,8 @@ int terme_call_output_(addr args)
 	}
 	else {
 		Return_getcons(args, &x, &args);
+		if (args != Nil)
+			return fmte_("Invalid arguments, ~S.", args, NULL);
 	}
 
 	/* flush */
@@ -294,7 +300,9 @@ int terme_call_clear_(addr args)
 	/* all */
 	if (args == Nil)
 		return terme_call_clear_all_();
-	Return_getcar(args, &pos);
+	Return_getcons(args, &pos, &args);
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
 	if (pos == Nil)
 		return terme_call_clear_all_();
 
@@ -451,8 +459,10 @@ int terme_call_scroll_(addr args)
 	int value;
 	addr pos;
 
-	Return_getcar(args, &pos);
-	Return(getint_unsigned_(pos, &value));
+	Return_getcons(args, &pos, &args);
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
+	Return(getint_signed_(pos, &value));
 	if (value < 0)
 		return terme_call_scroll_up_(-value);
 	if (value > 0)

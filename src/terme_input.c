@@ -479,10 +479,6 @@ static void terme_input_value(TermeBlocking *blocking, addr *rtype, addr *rvalue
 	terme_table_wait(blocking, &v);
 	*rvalue = Nil;
 	switch (v.type) {
-		case terme_escape_signal:
-			GetConst(SYSTEM_TERME_SIGNAL, rtype);
-			break;
-
 		case terme_escape_hang:
 			GetConst(SYSTEM_TERME_HANG, rtype);
 			break;
@@ -513,47 +509,10 @@ static void terme_input_value(TermeBlocking *blocking, addr *rtype, addr *rvalue
 			fixnum_heap(rvalue, (fixnum)v.c);
 			break;
 
-		case terme_escape_return:
-			GetConst(SYSTEM_TERME_RETURN, rtype);
+		case terme_escape_signal:
+			GetConst(SYSTEM_TERME_SIGNAL, rtype);
 			break;
 
-		case terme_escape_backspace:
-			GetConst(SYSTEM_TERME_BACKSPACE, rtype);
-			break;
-
-		case terme_escape_first:
-			GetConst(SYSTEM_TERME_FIRST, rtype);
-			break;
-
-		case terme_escape_last:
-			GetConst(SYSTEM_TERME_LAST, rtype);
-			break;
-
-		case terme_escape_update:
-			GetConst(SYSTEM_TERME_UPDATE, rtype);
-			break;
-
-		case terme_escape_delete:
-			GetConst(SYSTEM_TERME_DELETE, rtype);
-			break;
-
-		case terme_escape_rmleft:
-			GetConst(SYSTEM_TERME_RMLEFT, rtype);
-			break;
-
-		case terme_escape_rmright:
-			GetConst(SYSTEM_TERME_RMRIGHT, rtype);
-			break;
-
-		case terme_escape_tabular:
-			GetConst(SYSTEM_TERME_TABULAR, rtype);
-			break;
-
-		case terme_escape_search:
-			GetConst(SYSTEM_TERME_SEARCH, rtype);
-			break;
-
-		case terme_escape_error:
 		default:
 			*rtype = Nil;
 			break;

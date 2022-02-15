@@ -233,7 +233,7 @@ error:
 /*
  *  random
  */
-static int sysctl_random_integer_(Execute ptr, addr args)
+static int sysctl_random_state_integer_(Execute ptr, addr args)
 {
 	addr value;
 
@@ -250,7 +250,7 @@ error:
 	return 0;
 }
 
-static int sysctl_random_make_(Execute ptr, addr args)
+static int sysctl_random_state_make_(Execute ptr, addr args)
 {
 	addr value;
 
@@ -267,7 +267,7 @@ error:
 	return 0;
 }
 
-static int sysctl_random_write_(Execute ptr, addr args)
+static int sysctl_random_state_write_(Execute ptr, addr args)
 {
 	addr pos, value;
 
@@ -286,7 +286,7 @@ error:
 	return 0;
 }
 
-static int sysctl_random_(Execute ptr, addr args)
+static int sysctl_random_state_(Execute ptr, addr args)
 {
 	int check;
 	addr pos;
@@ -297,17 +297,17 @@ static int sysctl_random_(Execute ptr, addr args)
 	/* integer */
 	Return(string_designer_equalp_char_(pos, "integer", &check));
 	if (check)
-		return sysctl_random_integer_(ptr, args);
+		return sysctl_random_state_integer_(ptr, args);
 
 	/* make */
 	Return(string_designer_equalp_char_(pos, "make", &check));
 	if (check)
-		return sysctl_random_make_(ptr, args);
+		return sysctl_random_state_make_(ptr, args);
 
 	/* write */
 	Return(string_designer_equalp_char_(pos, "write", &check));
 	if (check)
-		return sysctl_random_write_(ptr, args);
+		return sysctl_random_state_write_(ptr, args);
 
 error:
 	setvalues_control(ptr, Nil, Nil, NULL);
@@ -341,9 +341,9 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 		return sysctl_structure_(ptr, args);
 
 	/* random */
-	Return(string_designer_equalp_char_(pos, "random", &check));
+	Return(string_designer_equalp_char_(pos, "random-state", &check));
 	if (check)
-		return sysctl_random_(ptr, args);
+		return sysctl_random_state_(ptr, args);
 
 	/* error */
 	setvalues_control(ptr, Nil, Nil, NULL);

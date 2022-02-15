@@ -1987,6 +1987,7 @@ lisp-system::subtypep-normal
 (lisp-system::terme-output :export t)
 (lisp-system::terme-move :export t)
 (lisp-system::terme-clear :export t)
+(lisp-system::terme-delete :export t)
 (lisp-system::terme-font :export t)
 (lisp-system::terme-size :export t)
 (lisp-system::terme-scroll :export t)
@@ -2002,16 +2003,6 @@ lisp-system::subtypep-normal
 (lisp-system::terme-left :export t)
 (lisp-system::terme-right :export t)
 (lisp-system::terme-function :export t)
-(lisp-system::terme-return :export t)
-(lisp-system::terme-backspace :export t)
-(lisp-system::terme-first :export t)
-(lisp-system::terme-last :export t)
-(lisp-system::terme-update :export t)
-(lisp-system::terme-delete :export t)
-(lisp-system::terme-rmleft :export t)
-(lisp-system::terme-rmright :export t)
-(lisp-system::terme-tabular :export t)
-(lisp-system::terme-search :export t)
 
 ;;  fpclassify
 lisp-system::fp-nan

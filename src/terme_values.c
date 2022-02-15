@@ -54,12 +54,15 @@ static int terme_values_font_(Execute ptr, addr args)
 	return 0;
 }
 
-static int terme_values_size_(Execute ptr)
+static int terme_values_size_(Execute ptr, addr args)
 {
 	addr x, y;
 
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
 	Return(terme_call_size_(&x, &y));
 	setvalues_control(ptr, x, y, NULL);
+
 	return 0;
 }
 
@@ -70,12 +73,15 @@ static int terme_values_scroll_(Execute ptr, addr args)
 	return 0;
 }
 
-static int terme_values_begin_(Execute ptr)
+static int terme_values_begin_(Execute ptr, addr args)
 {
 	addr pos;
 
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
 	Return(terme_call_begin_(&pos));
 	setresult_control(ptr, pos);
+
 	return 0;
 }
 
@@ -83,16 +89,27 @@ static int terme_values_end_(Execute ptr, addr args)
 {
 	addr pos;
 
-	Return_getcar(args, &pos);
+	Return_getcons(args, &pos, &args);
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
 	Return(terme_call_end_(pos));
 	setresult_control(ptr, Nil);
 
 	return 0;
 }
 
-static int terme_values_enable_(Execute ptr)
+static int terme_values_enable_(Execute ptr, addr args)
 {
-	setbool_control(ptr, terme_call_enable_p());
+	int check;
+
+	/* arguments */
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
+
+	/* enable-p */
+	check = terme_call_enable_p();
+	setbool_control(ptr, check);
+
 	return 0;
 }
 
@@ -135,7 +152,7 @@ static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 	/* size */
 	GetConst(SYSTEM_TERME_SIZE, &check);
 	if (var == check)
-		return terme_values_size_(ptr);
+		return terme_values_size_(ptr, args);
 
 	/* scroll */
 	GetConst(SYSTEM_TERME_SCROLL, &check);
@@ -145,7 +162,7 @@ static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 	/* begin */
 	GetConst(SYSTEM_TERME_BEGIN, &check);
 	if (var == check)
-		return terme_values_begin_(ptr);
+		return terme_values_begin_(ptr, args);
 
 	/* end */
 	GetConst(SYSTEM_TERME_END, &check);
@@ -155,7 +172,7 @@ static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 	/* enalbe */
 	GetConst(SYSTEM_TERME_ENABLE, &check);
 	if (var == check)
-		return terme_values_enable_(ptr);
+		return terme_values_enable_(ptr, args);
 
 	/* error */
 	return Result(ret, 0);

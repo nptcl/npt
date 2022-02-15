@@ -452,6 +452,8 @@ int terme_font_parser_(addr args)
 	addr list, pos;
 
 	list = args;
+	if (list == Nil)
+		return 0; /* reset */
 	Return_getcons(list, &pos, &list);
 	if (pos == Nil) {
 		if (list != Nil)
@@ -661,6 +663,8 @@ int terme_font_update_(Execute ptr, addr args)
 	addr list, pos;
 
 	list = args;
+	if (list == Nil)
+		return terme_escape_operator_("\x1B[0m");
 	Return_getcons(list, &pos, &list);
 	if (pos == Nil)
 		return terme_escape_operator_("\x1B[0m");

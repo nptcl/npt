@@ -131,80 +131,80 @@
   nil nil)
 
 
-;;  random
-(deftest random-integer-sysctl.1
+;;  random-state
+(deftest random-state-integer-sysctl.1
   (let ((r (make-random-state t)))
-    (multiple-value-bind (x y) (sysctl 'random 'integer r)
+    (multiple-value-bind (x y) (sysctl 'random-state 'integer r)
       (values (integerp x) y)))
   t t)
 
-(deftest random-integer-sysctl.2
+(deftest random-state-integer-sysctl.2
   (let* ((x (make-random-state t))
          (y (make-random-state x)))
-    (= (sysctl 'random 'integer x)
-       (sysctl 'random 'integer y)))
+    (= (sysctl 'random-state 'integer x)
+       (sysctl 'random-state 'integer y)))
   t)
 
-(deftest random-integer-sysctl.3
+(deftest random-state-integer-sysctl.3
   (let* ((x (make-random-state t))
          (y (make-random-state x)))
     (random 100 x)
-    (= (sysctl 'random 'integer x)
-       (sysctl 'random 'integer y)))
+    (= (sysctl 'random-state 'integer x)
+       (sysctl 'random-state 'integer y)))
   nil)
 
-(deftest random-make-sysctl.1
-  (multiple-value-bind (x y) (sysctl 'random 'make 10)
+(deftest random-state-make-sysctl.1
+  (multiple-value-bind (x y) (sysctl 'random-state 'make 10)
     (values
-      (sysctl 'random 'integer x)
+      (sysctl 'random-state 'integer x)
       y))
   10 t)
 
-(deftest random-make-sysctl.2
-  (let ((x (sysctl 'random 'make 10)))
+(deftest random-state-make-sysctl.2
+  (let ((x (sysctl 'random-state 'make 10)))
     (lisp-system:fixnump
-      (sysctl 'random 'integer x)))
+      (sysctl 'random-state 'integer x)))
   t)
 
-(deftest random-make-sysctl.3
-  (let ((x (sysctl 'random 'make #x0123456789ABCDEFFFFFEEEEDDDDBBBB)))
-    (sysctl 'random 'integer x))
+(deftest random-state-make-sysctl.3
+  (let ((x (sysctl 'random-state 'make #x0123456789ABCDEFFFFFEEEEDDDDBBBB)))
+    (sysctl 'random-state 'integer x))
   #x0123456789ABCDEFFFFFEEEEDDDDBBBB t)
 
-(deftest random-make-sysctl.4
-  (let ((x (sysctl 'random 'make -2)))
-    (sysctl 'random 'integer x))
+(deftest random-state-make-sysctl.4
+  (let ((x (sysctl 'random-state 'make -2)))
+    (sysctl 'random-state 'integer x))
   #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE t)
 
-(deftest random-write-sysctl.1
+(deftest random-state-write-sysctl.1
   (let ((r (make-random-state)))
-    (multiple-value-bind (x y) (sysctl 'random 'write r 10)
+    (multiple-value-bind (x y) (sysctl 'random-state 'write r 10)
       (values
-        (sysctl 'random 'integer r)
+        (sysctl 'random-state 'integer r)
         (eq x r)
         y)))
   10 t t)
 
-(deftest random-write-sysctl.2
+(deftest random-state-write-sysctl.2
   (let ((r (make-random-state)))
-    (sysctl 'random 'write r 10)
+    (sysctl 'random-state 'write r 10)
     (lisp-system:fixnump
-      (sysctl 'random 'integer r)))
+      (sysctl 'random-state 'integer r)))
   t)
 
-(deftest random-write-sysctl.3
+(deftest random-state-write-sysctl.3
   (let ((r (make-random-state)))
-    (sysctl 'random 'write r #x0123456789ABCDEFFFFFEEEEDDDDBBBB)
-    (sysctl 'random 'integer r))
+    (sysctl 'random-state 'write r #x0123456789ABCDEFFFFFEEEEDDDDBBBB)
+    (sysctl 'random-state 'integer r))
   #x0123456789ABCDEFFFFFEEEEDDDDBBBB t)
 
-(deftest random-write-sysctl.4
+(deftest random-state-write-sysctl.4
   (let ((r (make-random-state)))
-    (sysctl 'random 'write r -3)
-    (sysctl 'random 'integer r))
+    (sysctl 'random-state 'write r -3)
+    (sysctl 'random-state 'integer r))
   #xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD t)
 
-(deftest random-sysctl.1
-  (sysctl 'random 'hello)
+(deftest random-state-sysctl.1
+  (sysctl 'random-state 'hello)
   nil nil)
 
