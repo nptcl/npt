@@ -1,3 +1,5 @@
+#include "array_access.h"
+#include "array_inplace.h"
 #include "bignum.h"
 #include "character.h"
 #include "condition.h"
@@ -98,6 +100,12 @@ int terme_call_input_(addr args, addr *rtype, addr *rvalue)
 #if defined(LISP_TERME_UNIX)
 static int terme_call_output_character_(unicode c)
 {
+	addr pos;
+
+	if (! isBaseType(c)) {
+		fixnum_heap(&pos, (fixnum)c);
+		return fmte_("Invalid code, ~S.", NULL);
+	}
 	if (terme_output_char(c))
 		return fmte_("terme_output_char error.", NULL);
 
@@ -113,6 +121,215 @@ static int terme_call_output_string_(addr x)
 	for (i = 0; i < size; i++) {
 		Return(string_getc_(x, i, &c));
 		Return(terme_call_output_character_(c));
+	}
+
+	return 0;
+}
+
+static int terme_call_output_object_(addr x)
+{
+	unicode c;
+	fixnum v;
+
+	switch (GetType(x)) {
+		case LISPTYPE_CHARACTER:
+			GetCharacter(x, &c);
+			return terme_call_output_character_(c);
+
+		case LISPTYPE_FIXNUM:
+			GetFixnum(x, &v);
+			if (v < 0)
+				return fmte_("Invalid value, ~S.", x, NULL);
+			return terme_call_output_character_((unicode)v);
+
+		default:
+			return fmte_("Invalid value, ~S.", x, NULL);
+	}
+}
+
+static int terme_call_output_array_t_(addr x, size_t front)
+{
+	addr value;
+	size_t i;
+
+	for (i = 0; i < front; i++) {
+		Return(array_get_t_(x, i, &value));
+		Return(terme_call_output_object_(value));
+	}
+
+	return 0;
+}
+
+static int terme_call_output_array_character_(addr x, size_t front)
+{
+	unicode c;
+	size_t i;
+
+	for (i = 0; i < front; i++) {
+		Return(array_get_unicode_(x, i, &c));
+		Return(terme_call_output_character_(c));
+	}
+
+	return 0;
+}
+
+static int terme_call_output_array_signed_(const struct array_value *str, int *ret)
+{
+	int8_t i8;
+	int16_t i16;
+	int32_t i32;
+#ifdef LISP_64BIT
+	int64_t i64;
+#endif
+
+	switch (str->size) {
+		case 8:
+			i8 = str->value.signed8;
+			if (i8 < 0)
+				goto error;
+			Return(terme_call_output_character_((unicode)i8));
+			break;
+
+		case 16:
+			i16 = str->value.signed16;
+			if (i16 < 0)
+				goto error;
+			Return(terme_call_output_character_((unicode)i16));
+			break;
+
+		case 32:
+			i32 = str->value.signed32;
+			if (i32 < 0 || isBaseType(i32))
+				goto error;
+			Return(terme_call_output_character_((unicode)i32));
+			break;
+
+#ifdef LISP_64BIT
+		case 64:
+			i64 = str->value.signed64;
+			if (i64 < 0 || isBaseType(i64))
+				goto error;
+			Return(terme_call_output_character_((unicode)i64));
+			break;
+#endif
+		default:
+			goto error;
+	}
+	return Result(ret, 0);
+
+error:
+	return Result(ret, 1);
+}
+
+static int terme_call_output_array_unsigned_(const struct array_value *str, int *ret)
+{
+	uint8_t u8;
+	uint16_t u16;
+	uint32_t u32;
+#ifdef LISP_64BIT
+	uint64_t u64;
+#endif
+
+	switch (str->size) {
+		case 8:
+			u8 = str->value.unsigned8;
+			Return(terme_call_output_character_((unicode)u8));
+			break;
+
+		case 16:
+			u16 = str->value.unsigned16;
+			Return(terme_call_output_character_((unicode)u16));
+			break;
+
+		case 32:
+			u32 = str->value.unsigned32;
+			if (isBaseType(u32))
+				goto error;
+			Return(terme_call_output_character_((unicode)u32));
+			break;
+
+#ifdef LISP_64BIT
+		case 64:
+			u64 = str->value.unsigned64;
+			if (isBaseType(u64))
+				goto error;
+			Return(terme_call_output_character_((unicode)u64));
+			break;
+#endif
+		default:
+			goto error;
+	}
+	return Result(ret, 0);
+
+error:
+	return Result(ret, 1);
+}
+
+static int terme_call_output_array_value_(addr x, size_t front)
+{
+	int check;
+	size_t i;
+	struct array_value str;
+
+	for (i = 0; i < front; i++) {
+		Return(arrayinplace_get_(x, i, &str));
+		check = 1;
+		switch (str.type) {
+			case ARRAY_TYPE_SIGNED:
+				Return(terme_call_output_array_signed_(&str, &check));
+				break;
+
+			case ARRAY_TYPE_UNSIGNED:
+				Return(terme_call_output_array_unsigned_(&str, &check));
+				break;
+
+			default:
+				break;
+		}
+		if (check) {
+			Return(array_get_(NULL, x, i, &x));
+			return fmte_("Invalid value, ~S.", x, NULL);
+		}
+	}
+
+	return 0;
+}
+
+static int terme_call_output_array_(addr x)
+{
+	struct array_struct *str;
+	size_t front;
+
+	str = ArrayInfoStruct(x);
+	if (str->dimension != 1)
+		return fmte_("Array ~S dimension must be a 1.", x, NULL);
+
+	front = str->front;
+	switch (str->type) {
+		case ARRAY_TYPE_T:
+			return terme_call_output_array_t_(x, front);
+
+		case ARRAY_TYPE_CHARACTER:
+			return terme_call_output_array_character_(x, front);
+
+		case ARRAY_TYPE_SIGNED:
+		case ARRAY_TYPE_UNSIGNED:
+			return terme_call_output_array_value_(x, front);
+
+		default:
+			return fmte_("Invalid array type, ~S.", x, NULL);
+	}
+}
+
+static int terme_call_output_vector_(addr x)
+{
+	addr value;
+	size_t i, size;
+
+	lenarray(x, &size);
+	for (i = 0; i < size; i++) {
+		getarray(x, i, &value);
+		Return(terme_call_output_object_(value));
 	}
 
 	return 0;
@@ -153,6 +370,12 @@ int terme_call_output_(addr args)
 	if (integerp(x)) {
 		Return(getfixnum_unsigned_(x, &intvalue));
 		return terme_call_output_character_((unicode)intvalue);
+	}
+	if (arrayp(x)) {
+		return terme_call_output_array_(x);
+	}
+	if (GetType(x) == LISPTYPE_VECTOR) {
+		return terme_call_output_vector_(x);
 	}
 
 	return fmte_("Invalid output value, ~S.", x, NULL);
@@ -558,6 +781,59 @@ int terme_call_end_(addr pos)
 }
 #else
 int terme_call_end_(addr pos)
+{
+	return fmte_("TERME is not enabled.", NULL);
+}
+#endif
+
+
+/*
+ *  signal
+ */
+#if defined(LISP_TERME_UNIX)
+static int terme_call_signal_sigint_(void)
+{
+	if (terme_arch_terminal_sigint_())
+		return fmte_("kill error.", NULL);
+
+	return 0;
+}
+
+static int terme_call_signal_stop_(void)
+{
+	if (terme_arch_terminal_stop_())
+		return fmte_("kill error.", NULL);
+
+	return 0;
+}
+
+int terme_call_signal_(addr args)
+{
+	int check;
+	addr pos;
+
+	/* arguments */
+	if (args == Nil)
+		return fmte_("Invalid arguments.", NULL);
+	Return_getcons(args, &pos, &args);
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
+
+	/* sigint */
+	Return(string_designer_equalp_char_(pos, "SIGINT", &check));
+	if (check)
+		return terme_call_signal_sigint_();
+
+	/* stop */
+	Return(string_designer_equalp_char_(pos, "STOP", &check));
+	if (check)
+		return terme_call_signal_stop_();
+
+	/* error */
+	return fmte_("Invalid arguments, ~S.", pos, NULL);
+}
+#else
+int terme_call_signal_(addr args)
 {
 	return fmte_("TERME is not enabled.", NULL);
 }

@@ -113,6 +113,13 @@ static int terme_values_enable_(Execute ptr, addr args)
 	return 0;
 }
 
+static int terme_values_signal_(Execute ptr, addr args)
+{
+	Return(terme_call_signal_(args));
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
 static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 {
 	addr check;
@@ -169,10 +176,15 @@ static int terme_values_operator_(Execute ptr, addr var, addr args, int *ret)
 	if (var == check)
 		return terme_values_end_(ptr, args);
 
-	/* enalbe */
+	/* enable */
 	GetConst(SYSTEM_TERME_ENABLE, &check);
 	if (var == check)
 		return terme_values_enable_(ptr, args);
+
+	/* signal */
+	GetConst(SYSTEM_TERME_SIGNAL, &check);
+	if (var == check)
+		return terme_values_signal_(ptr, args);
 
 	/* error */
 	return Result(ret, 0);

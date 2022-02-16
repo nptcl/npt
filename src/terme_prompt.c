@@ -484,6 +484,7 @@ static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, in
 		case terme_escape_function:
 		case terme_escape_tabular:
 		case terme_escape_search:
+		case terme_escape_escape:
 			break; /* ignore */
 
 		default:

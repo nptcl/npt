@@ -25,6 +25,8 @@
 #define terme_arch_terminal_stop_ _n(terme_arch_terminal_stop_)
 #define terme_arch_terminal_sigint_ _n(terme_arch_terminal_sigint_)
 #define terme_arch_enable _n(terme_arch_enable)
+#define terme_arch_escape_begin _n(terme_arch_escape_begin)
+#define terme_arch_escape_end _n(terme_arch_escape_end)
 
 #define font_arch_terme _n(font_arch_terme)
 #define text_color_arch_terme _n(text_color_arch_terme)
@@ -50,6 +52,8 @@ int terme_arch_write(const void *data, size_t size, size_t *ret);
 int terme_arch_terminal_stop_(void);
 int terme_arch_terminal_sigint_(void);
 int terme_arch_enable(void);
+int terme_arch_escape_begin(void);
+int terme_arch_escape_end(int *ret);
 
 int font_arch_terme(Execute ptr, PrintFont value);
 int text_color_arch_terme(Execute ptr, PrintColor value);

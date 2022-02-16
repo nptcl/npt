@@ -2003,6 +2003,7 @@ lisp-system::subtypep-normal
 (lisp-system::terme-left :export t)
 (lisp-system::terme-right :export t)
 (lisp-system::terme-function :export t)
+(lisp-system::terme-escape :export t)
 
 ;;  fpclassify
 lisp-system::fp-nan

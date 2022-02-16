@@ -30,6 +30,7 @@ enum terme_escape {
 	terme_escape_rmright,    /* ^K */
 	terme_escape_tabular,    /* ^I */
 	terme_escape_search,     /* ^R */
+	terme_escape_escape,     /* ^[ */
 	terme_escape_size
 };
 typedef enum terme_escape TermeEscape;

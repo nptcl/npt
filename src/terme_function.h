@@ -15,6 +15,7 @@
 #define terme_call_scroll_ _n(terme_call_scroll_)
 #define terme_call_begin_ _n(terme_call_begin_)
 #define terme_call_end_ _n(terme_call_end_)
+#define terme_call_signal_ _n(terme_call_signal_)
 
 int terme_call_enable_p(void);
 int terme_call_input_(addr args, addr *rtype, addr *rvalue);
@@ -27,6 +28,7 @@ int terme_call_size_(addr *rx, addr *ry);
 int terme_call_scroll_(addr args);
 int terme_call_begin_(addr *ret);
 int terme_call_end_(addr pos);
+int terme_call_signal_(addr args);
 
 #endif
 

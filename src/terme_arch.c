@@ -16,8 +16,10 @@
 #include <sys/ioctl.h>
 #include <sys/select.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <termios.h>
 #include <unistd.h>
+#define TERME_ARCH_ESCAPE		9990
 #elif defined(LISP_TERME_WINDOWS)
 #include "windows_terme.h"
 #endif
@@ -30,7 +32,24 @@ static int terme_arch_enable_p;
 /*
  *  terme-init
  */
-#ifdef LISP_TERME_WINDOWS
+#if defined(LISP_TERME_UNIX)
+static int terme_arch_escape_p;
+static struct timeval terme_arch_escape_timeval;
+
+int terme_arch_init(void)
+{
+	terme_arch_x = 0;
+	terme_arch_y = 0;
+	terme_arch_textmode_p = 0;
+	terme_arch_enable_p = 0;
+
+	/* escape */
+	terme_arch_escape_p = 0;
+	cleartype(terme_arch_escape_timeval);
+
+	return 0;
+}
+#elif defined(LISP_TERME_WINDOWS)
 int terme_arch_init(void)
 {
 	terme_arch_x = 0;
@@ -40,7 +59,6 @@ int terme_arch_init(void)
 
 	return terme_windows_init();
 }
-
 #else
 int terme_arch_init(void)
 {
@@ -648,6 +666,75 @@ int terme_arch_enable(void)
 {
 	return terme_arch_enable_p;
 }
+
+
+/*
+ *  escape
+ */
+#if defined(LISP_TERME_UNIX)
+int terme_arch_escape_begin(void)
+{
+	int check;
+
+	if (terme_arch_escape_p)
+		return 0;
+	check = gettimeofday(&terme_arch_escape_timeval, NULL);
+	if (check)
+		return 1;
+	terme_arch_escape_p = 1;
+
+	return 0;
+}
+int terme_arch_escape_end(int *ret)
+{
+	int check;
+	struct timeval *a, *b, now, diff;
+
+	if (terme_arch_escape_p == 0)
+		goto error;
+	a = &now;
+	b = &terme_arch_escape_timeval;
+	check = gettimeofday(a, NULL);
+	if (check)
+		goto error;
+
+	/* minus */
+	if (timercmp(a, b, <))
+		goto normal;
+
+	/* diff */
+	timersub(a, b, &diff);
+	if (diff.tv_sec != 0)
+		goto normal;
+	if (diff.tv_usec < TERME_ARCH_ESCAPE)
+		goto normal;
+
+	/* escape */
+	terme_arch_escape_p = 0;
+	*ret = 1;
+	return 0;
+
+normal:
+	terme_arch_escape_p = 0;
+	*ret = 0;
+	return 0;
+
+error:
+	terme_arch_escape_p = 0;
+	*ret = 0;
+	return 1;
+}
+#else
+int terme_arch_escape_begin(void)
+{
+	return 0;
+}
+int terme_arch_escape_end(int *ret)
+{
+	*ret = 0;
+	return 0;
+}
+#endif
 
 
 /*

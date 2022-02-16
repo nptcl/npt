@@ -10,6 +10,7 @@
 #define TERME_INPUT_SIZE		4096
 #endif
 #define TERME_INPUT_UNBYTE		64
+#define TERME_INPUT_ESCAPE		0.01
 
 enum terme_blocking_type {
 	terme_blocking_infinite,
@@ -194,6 +195,15 @@ retry:
 	return check;
 }
 
+static int terme_getc_escape(byte *value, int *ret)
+{
+	TermeBlocking wait;
+
+	wait.type = terme_blocking_float;
+	wait.wait.float_value = TERME_INPUT_ESCAPE;
+	return terme_getc_blocking(&wait, value, ret);
+}
+
 
 /*
  *  table
@@ -210,7 +220,6 @@ retry:
 	Check(size_array <= i, "size error"); \
 	data[i++] = c; \
 }
-
 
 /*  Up       ^[OA
  *  Down     ^[OB
@@ -242,7 +251,25 @@ static void terme_table_escape(TermeBlocking *blocking, TermeKeyboard *ret)
 	c = 0;
 	hang = 0;
 
-	terme_table_getc(terme_size_escape);
+	terme_arch_escape_begin();
+	check = terme_getc_escape(&c, &hang);
+	if (check < 0)
+		goto signal;
+	if (check)
+		goto error;
+	if (hang == 0) {
+		terme_arch_escape_end(&check);
+		if (check)
+			goto escape0;
+		terme_table_getc(terme_size_escape);
+	}
+	else {
+		terme_arch_escape_end(&check);
+		if (check)
+			goto escape1;
+		Check(terme_size_escape <= i, "size error");
+		data[i++] = c;
+	}
 	if (c == 0x4F)
 		goto third_4F;
 	if (c == 0x5B)
@@ -303,6 +330,17 @@ function1:
 	ret->type = terme_escape_function;
 	ret->c = (c - 0x31) + 1; /* F1 -> 1 */
 	goto finish;
+
+escape0:
+	ret->type = terme_escape_escape;
+	terme_unbyte_clear();
+	return;
+
+escape1:
+	ret->type = terme_escape_escape;
+	terme_unbyte_clear();
+	terme_unbyte_value(c);
+	return;
 
 invalid:
 	terme_unbyte_value(c);
@@ -511,6 +549,10 @@ static void terme_input_value(TermeBlocking *blocking, addr *rtype, addr *rvalue
 
 		case terme_escape_signal:
 			GetConst(SYSTEM_TERME_SIGNAL, rtype);
+			break;
+
+		case terme_escape_escape:
+			GetConst(SYSTEM_TERME_ESCAPE, rtype);
 			break;
 
 		default:
