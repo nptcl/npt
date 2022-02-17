@@ -8,6 +8,7 @@
 #include "terme_arch.h"
 #include "terme_data.h"
 #include "terme_display.h"
+#include "terme_function.h"
 #include "terme_history.h"
 #include "terme_input.h"
 #include "terme_object.h"
@@ -23,6 +24,9 @@ void init_terme(void)
 {
 	if (terme_arch_init()) {
 		Abort("terme_arch_init error.");
+	}
+	if (terme_call_init()) {
+		Abort("terme_call_init error.");
 	}
 	terme_input_init();
 	terme_output_init();

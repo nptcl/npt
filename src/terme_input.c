@@ -221,26 +221,31 @@ static int terme_getc_escape(byte *value, int *ret)
 	data[i++] = c; \
 }
 
-/*  Up       ^[OA
- *  Down     ^[OB
- *  Right    ^[OC
- *  Left     ^[OD
- *  PF1      ^[OP
- *  PF2      ^[OQ
- *  PF3      ^[OR
- *  PF4      ^[OS
- *  F1       ^[[11~  ^[OP
- *  F2       ^[[12~  ^[OQ
- *  F3       ^[[13~  ^[OR
- *  F4       ^[[14~  ^[OS
- *  F5       ^[[15~  ^[Ot
- *  F6       ^[[17~  ^[Ou
- *  F7       ^[[18~  ^[Ov
- *  F8       ^[[19~  ^[Ol
- *  F9       ^[[20~  ^[Ow
- *  F10      ^[[21~  ^[Ox
- *  F11      ^[[23~
- *  F12      ^[[24~
+/*  Up         ^[OA
+ *  Down       ^[OB
+ *  Right      ^[OC
+ *  Left       ^[OD
+ *  PF1        ^[OP
+ *  PF2        ^[OQ
+ *  PF3        ^[OR
+ *  PF4        ^[OS
+ *  F1         ^[[11~  ^[OP
+ *  F2         ^[[12~  ^[OQ
+ *  F3         ^[[13~  ^[OR
+ *  F4         ^[[14~  ^[OS
+ *  F5         ^[[15~  ^[Ot
+ *  F6         ^[[17~  ^[Ou
+ *  F7         ^[[18~  ^[Ov
+ *  F8         ^[[19~  ^[Ol
+ *  F9         ^[[20~  ^[Ow
+ *  F10        ^[[21~  ^[Ox
+ *  F11        ^[[23~
+ *  F12        ^[[24~
+ *  Home       ^[[1~
+ *  Insert     ^[[2~
+ *  End        ^[[4~
+ *  Page Up    ^[[5~
+ *  Page Down  ^[[6~
  */
 static void terme_table_escape(TermeBlocking *blocking, TermeKeyboard *ret)
 {
@@ -274,7 +279,7 @@ static void terme_table_escape(TermeBlocking *blocking, TermeKeyboard *ret)
 		goto third_4F;
 	if (c == 0x5B)
 		goto third_5B;
-	goto invalid;
+	goto escape1;
 
 third_4F:
 	terme_table_getc(terme_size_escape);
@@ -286,6 +291,14 @@ third_5B:
 	terme_table_getc(terme_size_escape);
 	if (c == 0x31)
 		goto forth_31;
+	if (c == 0x32)
+		goto forth_32;
+	if (c == 0x34)
+		goto forth_34;
+	if (c == 0x35)
+		goto forth_35;
+	if (c == 0x36)
+		goto forth_36;
 	if (c == 0x41)
 		goto escape_up;
 	if (c == 0x42)
@@ -303,6 +316,32 @@ forth_31:
 		if (c == 0x7E) /* \E[[11~: F1 */
 			goto function1;
 	}
+	if (c == 0x7E)
+		goto escape_home;
+	goto invalid;
+
+forth_32:
+	terme_table_getc(terme_size_escape);
+	if (c == 0x7E)
+		goto escape_insert;
+	goto invalid;
+
+forth_34:
+	terme_table_getc(terme_size_escape);
+	if (c == 0x7E)
+		goto escape_end;
+	goto invalid;
+
+forth_35:
+	terme_table_getc(terme_size_escape);
+	if (c == 0x7E)
+		goto escape_page_up;
+	goto invalid;
+
+forth_36:
+	terme_table_getc(terme_size_escape);
+	if (c == 0x7E)
+		goto escape_page_down;
 	goto invalid;
 
 escape_up: /* 0x1B 0x5B 0x41 */
@@ -319,6 +358,26 @@ escape_right: /* 0x1B 0x5B 0x43 */
 
 escape_left: /* 0x1B 0x5B 0x44 */
 	ret->type = terme_escape_left;
+	goto finish;
+
+escape_home: /* 0x1B 0x5B 0x31 0x7E */
+	ret->type = terme_escape_home;
+	goto finish;
+
+escape_insert: /* 0x1B 0x5B 0x32 0x7E */
+	ret->type = terme_escape_insert;
+	goto finish;
+
+escape_end: /* 0x1B 0x5B 0x34 0x7E */
+	ret->type = terme_escape_end;
+	goto finish;
+
+escape_page_up: /* 0x1B 0x5B 0x35 0x7E */
+	ret->type = terme_escape_page_up;
+	goto finish;
+
+escape_page_down: /* 0x1B 0x5B 0x36 0x7E */
+	ret->type = terme_escape_page_down;
 	goto finish;
 
 program:
@@ -343,7 +402,8 @@ escape1:
 	return;
 
 invalid:
-	terme_unbyte_value(c);
+	terme_unbyte_clear();
+	ret->type = terme_escape_error;
 	return;
 
 finish:
@@ -540,6 +600,26 @@ static void terme_input_value(TermeBlocking *blocking, addr *rtype, addr *rvalue
 
 		case terme_escape_right:
 			GetConst(SYSTEM_TERME_RIGHT, rtype);
+			break;
+
+		case terme_escape_page_up:
+			GetConst(SYSTEM_TERME_PAGE_UP, rtype);
+			break;
+
+		case terme_escape_page_down:
+			GetConst(SYSTEM_TERME_PAGE_DOWN, rtype);
+			break;
+
+		case terme_escape_home:
+			GetConst(SYSTEM_TERME_HOME, rtype);
+			break;
+
+		case terme_escape_end:
+			GetConst(SYSTEM_TERME_END, rtype);
+			break;
+
+		case terme_escape_insert:
+			GetConst(SYSTEM_TERME_INSERT, rtype);
 			break;
 
 		case terme_escape_function:

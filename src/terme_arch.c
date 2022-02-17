@@ -156,7 +156,7 @@ static int terme_arch_termios(void)
 
 	/* backup */
 	if (terme_arch_get(&v)) {
-		fprintf(stderr, "tcgetattr value error\n");
+		Debug("tcgetattr error.");
 		return 1;
 	}
 	terme_arch_textmode_v = v;

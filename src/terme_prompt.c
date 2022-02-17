@@ -481,6 +481,11 @@ static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, in
 		case terme_escape_rmright:
 			return terme_readline_rmright_(ptr);
 
+		case terme_escape_home:
+		case terme_escape_end:
+		case terme_escape_insert:
+		case terme_escape_page_up:
+		case terme_escape_page_down:
 		case terme_escape_function:
 		case terme_escape_tabular:
 		case terme_escape_search:

@@ -2002,6 +2002,10 @@ lisp-system::subtypep-normal
 (lisp-system::terme-down :export t)
 (lisp-system::terme-left :export t)
 (lisp-system::terme-right :export t)
+(lisp-system::terme-page-up :export t)
+(lisp-system::terme-page-down :export t)
+(lisp-system::terme-home :export t)
+(lisp-system::terme-insert :export t)
 (lisp-system::terme-function :export t)
 (lisp-system::terme-escape :export t)
 

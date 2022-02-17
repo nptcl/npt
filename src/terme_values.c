@@ -75,13 +75,8 @@ static int terme_values_scroll_(Execute ptr, addr args)
 
 static int terme_values_begin_(Execute ptr, addr args)
 {
-	addr pos;
-
-	if (args != Nil)
-		return fmte_("Invalid arguments, ~S.", args, NULL);
-	Return(terme_call_begin_(&pos));
-	setresult_control(ptr, pos);
-
+	Return(terme_call_begin_(args, &args));
+	setresult_control(ptr, args);
 	return 0;
 }
 

@@ -19,6 +19,11 @@ enum terme_escape {
 	terme_escape_down,       /* ^N */
 	terme_escape_left,       /* ^F */
 	terme_escape_right,      /* ^B */
+	terme_escape_page_up,    /* [Page Up] */
+	terme_escape_page_down,  /* [Page Down] */
+	terme_escape_home,       /* [Home] */
+	terme_escape_end,        /* [End] */
+	terme_escape_insert,     /* [Insert] */
 	terme_escape_function,   /* Fx, PFx */
 	terme_escape_return,     /* ^J, ^M, Enter */
 	terme_escape_backspace,  /* ^H, BS */

@@ -28,6 +28,29 @@
 #endif
 
 /*
+ *  init
+ */
+#if defined(LISP_TERME_UNIX)
+static struct termios terme_call_default_v;
+
+int terme_call_init(void)
+{
+	if (tcgetattr(STDIN_FILENO, &terme_call_default_v)) {
+		Debug("tcgetattr error.");
+		return 1;
+	}
+
+	return 0;
+}
+#else
+int terme_call_init(void)
+{
+	return 0;
+}
+#endif
+
+
+/*
  *  enable
  */
 #if defined(LISP_TERME_UNIX)
@@ -705,7 +728,7 @@ int terme_call_scroll_(addr args)
  *  begin
  */
 #if defined(LISP_TERME_UNIX)
-int terme_call_begin_(addr *ret)
+static int terme_call_begin_update_(addr *ret, void (*call)(struct termios *))
 {
 	addr pos;
 	size_t size;
@@ -727,13 +750,7 @@ int terme_call_begin_(addr *ret)
 	Check(size != sizeoft(v), "size error");
 
 	/* set terminal */
-	v.c_iflag &= ~(PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
-	v.c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
-	v.c_oflag &= ~OPOST;
-	v.c_cflag &= ~(CSIZE | PARENB);
-	v.c_cflag |= CS8;
-	v.c_cc[VMIN] = 1;
-	v.c_cc[VTIME] = 0;
+	(*call)(&v);
 	if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &v)) {
 		*ret = Nil;
 		return fmte_("tcsetattr error.", NULL);
@@ -741,8 +758,59 @@ int terme_call_begin_(addr *ret)
 
 	return Result(ret, pos);
 }
+
+static void terme_call_begin_raw_call(struct termios *ptr)
+{
+	ptr->c_iflag &= ~(PARMRK | ISTRIP | INLCR | IGNCR | ICRNL | IXON);
+	ptr->c_lflag &= ~(ECHO | ECHONL | ICANON | ISIG | IEXTEN);
+	ptr->c_oflag &= ~OPOST;
+	ptr->c_cflag &= ~(CSIZE | PARENB);
+	ptr->c_cflag |= CS8;
+	ptr->c_cc[VMIN] = 1;
+	ptr->c_cc[VTIME] = 0;
+}
+
+static int terme_call_begin_raw_(addr *ret)
+{
+	return terme_call_begin_update_(ret, terme_call_begin_raw_call);
+}
+
+static void terme_call_begin_default_call(struct termios *ptr)
+{
+	*ptr = terme_call_default_v;
+}
+
+static int terme_call_begin_default_(addr *ret)
+{
+	return terme_call_begin_update_(ret, terme_call_begin_default_call);
+}
+
+int terme_call_begin_(addr args, addr *ret)
+{
+	addr pos, check;
+
+	if (args == Nil)
+		goto raw_mode;
+	Return_getcons(args, &pos, &args);
+	if (args != Nil)
+		goto error;
+	if (pos == Nil)
+		goto raw_mode;
+	GetConst(KEYWORD_DEFAULT, &check);
+	if (pos == check)
+		goto default_mode;
+error:
+	*ret = Nil;
+	return fmte_("Invalid arguments, ~S.", args, NULL);
+
+default_mode:
+	return terme_call_begin_default_(ret);
+raw_mode:
+	return terme_call_begin_raw_(ret);
+}
+
 #else
-int terme_call_begin_(addr *ret)
+int terme_call_begin_(addr args, addr *ret)
 {
 	*ret = Nil;
 	return fmte_("TERME is not enabled.", NULL);
