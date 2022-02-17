@@ -3,8 +3,8 @@
 Npt documentation.
 
 Reference: [ANSI Common Lisp npt](index.html)  
-Prev: [6. Escape Operations](B6_Operations.html)
-
+Prev: [6. Escape Operations](B6_Operations.html)  
+Next: [8. Paper Object](B8_Paper.html)
 
 # 7.1 Start Up
 

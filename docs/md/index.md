@@ -33,6 +33,7 @@ It is distributed on github.
   - [5. LISP ABORT](B5_Abort.html)
   - [6. Escape Operations](B6_Operations.html)
   - [7. Start Up](B7_StartUp.html)
+  - [8. Paper Object](B8_Paper.html)
 
 - C Function Specification
   - [C Function: Type Function](C1_Type.html)
