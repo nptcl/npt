@@ -640,7 +640,7 @@ int terme_call_delete_(addr args)
  *    (terme 'terme-font 'back 'red)
  *    (terme 'terme-font 'code 'italic 'fore 'red 'back 'black)
  *    (terme 'terme-font 'palfore 10 'palback 20)
- *    (terme 'terme-font 'rgbfore 30 40 50'rgbback 60 70 80)
+ *    (terme 'terme-font 'rgbfore 30 40 50 'rgbback 60 70 80)
  */
 #if defined(LISP_TERME_UNIX)
 int terme_call_font_(Execute ptr, addr args)

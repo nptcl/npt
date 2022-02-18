@@ -9,7 +9,7 @@ Reference: [ANSI Common Lisp npt](index.html)
 
 The following functions of the `npt-system` package are described.
 
-- [1. System Function](#system-develop)
+- [1. System Function](#system-call-1)
 
 ```lisp
 defun gc
@@ -19,7 +19,7 @@ defun quit
 ```
 
 
-- [2. Object Type](#object-check)
+- [2. Object Type](#system-call-2)
 
 ```lisp
 defun specialp
@@ -37,7 +37,7 @@ defun callnamep
 ```
 
 
-- [3. Object Creation](#object-make)
+- [3. Object Creation](#system-call-3)
 
 ```lisp
 defun make-character
@@ -49,16 +49,16 @@ defun make-callname
 ```
 
 
-- [4. Type Check](#type-check)
+- [4. Type Check](#system-call-4)
 
 ```lisp
-defun subtypep-result
+defun subtypep!
 defun parse-type
 defun type-object
 ```
 
 
-- [5. Memory Stream](#memory-stream)
+- [5. Memory Stream](#system-call-5)
 
 ```lisp
 defun make-memory-input-stream
@@ -72,7 +72,7 @@ defun (setf memory-stream-p)
 ```
 
 
-- [6. Sort](#sort)
+- [6. Sort](#system-call-6)
 
 ```lisp
 defun simple-sort
@@ -82,7 +82,17 @@ defun merge-sort
 ```
 
 
-- [7. Other Functions](#others)
+- [7. Paper Object](#system-call-7)
+
+```lisp
+defun make-paper
+defun info-paper
+defun array-paper
+defun body-paper
+```
+
+
+- [8. Other Functions](#system-call-8)
 
 ```lisp
 defun package-export-list
@@ -91,13 +101,14 @@ defun equal-random-state
 defun remove-file
 defun remove-directory
 defun byte-integer
+defun fpclassify
 defun eastasian-set
 defun eastasian-get
 defun eastasian-width
 ```
 
 
-# <a id="system-develop">1. System Function</a>
+# <a id="system-call-1">1. System Function</a>
 
 These are function specifications for system functions in the `npt-system` package.
 
@@ -224,7 +235,7 @@ $
 ```
 
 
-# <a id="object-check">2. Object Type</a>
+# <a id="system-call-2">2. Object Type</a>
 
 These are function specifications for object checks in the `npt-system` package.
 
@@ -496,7 +507,7 @@ called `car`, and the `(setf car)`type for the setf function.
 There is no way to create a `callname` object in Common Lisp.
 
 
-# <a id="object-make">3. Object Creation</a>
+# <a id="system-call-3">3. Object Creation</a>
 
 These are function specifications for object creation in the `npt-system` package.
 
@@ -707,23 +718,23 @@ Create a `callname` object for the function name.
 The input can be of type `symbol` or `(setf symbol)`.
 
 
-# <a id="type-check">4. Type Check</a>
+# <a id="system-call-4">4. Type Check</a>
 
 These are function specifications for type checking in the `npt-system` package.
 
 ```lisp
-defun subtypep-result
+defun subtypep!
 defun parse-type
 defun type-object
 ```
 
 
-## Fuction `subtypep-result`
+## Fuction `subtypep!`
 
 Get the result of `subtypep` with `symbol`.
 
 ```lisp
-(defun subtypep-result (left right) ...) -> symbol
+(defun subtypep! (left right) ...) -> symbol
 
 Input: left type-specifier
 Input: right type-specifier
@@ -769,7 +780,7 @@ Output: result (or cons symbol)
 Generates a type name from the type object of the input.
 
 
-# <a id="memory-stream">5. Memory Stream</a>
+# <a id="system-call-5">5. Memory Stream</a>
 
 These are function specifications for memory stream in the `npt-system` package.
 
@@ -1011,7 +1022,7 @@ T
 ```
 
 
-# <a id="sort">6. Sort</a>
+# <a id="system-call-6">6. Sort</a>
 
 These are function specifications for sorting in the `npt-system` package.
 
@@ -1086,7 +1097,123 @@ Output: result sequence
 It is stable and does an `O(n log n)` sort.
 
 
-# <a id="others">7. Other Functions</a>
+# <a id="system-call-7">7. Paper Object</a>
+
+These are function specifications for paper object in the `npt-system` package.
+
+```lisp
+defun make-paper
+defun info-paper
+defun array-paper
+defun body-paper
+```
+
+## Function `make-paper`
+
+Create a Paper object.
+
+```lisp
+(defun make-paper (array body &key fill type) ...) -> result
+
+Input: array size
+Input: body size
+Input: fill Initial value
+Input: type User Value
+Output: result paper
+```
+
+A Paper object is an object that contains both
+a `simple-vector` and a buffer in byte format.  
+If `array` is `nil` or `0`, it will be created in body format.  
+If `body` is `nil` or `0`, it will be created in array format.  
+If both `array` and `body` are greater than or equal to 1,
+it will be generated in array-body format.  
+In the case of array-body format,
+both `array` and `body` must be less than or equal to `#xFFFF`.
+
+`:fill` specifies the initial value of the body format.  
+It can be `nil`, `t`, or an integer between `0x00` and `#xFF`.  
+If `nil`, no initialization is performed.  
+`t` is the same as 0.
+
+`:type` is a User value.  
+User value is a 1-byte region that holds values
+from `#x00` to `#xFF` regardless of the format.  
+The default value is 0.  
+It is recommended to use this as the type of Paper object.
+
+
+## Function `info-paper`
+
+Perform the following operations on the Paper object.
+
+- Getting and Setting User Values
+- Get array and body in bulk
+- Getting the size of array and body
+
+```lisp
+(defun info-paper (paper symbol &optional second) ...) -> result
+
+Input: paper
+Input: symbol, (member list vector type length)
+Input: second
+Output: result
+```
+
+If `symbol` is `type`, acquisition and setting of the User value will be performed.  
+If `second` is not specified, acquisition is performed.  
+If `second` is specified, setting is performed.
+
+If `symbol` is `list`, the contents of the array or body will be returned as a list.  
+If `second` is not specified or is `nil`, all arrays will be returned.  
+If `second` is not `nil`, all bodies will be returned.
+
+If `symbol` is `vector`, the contents of the array or body will be returned as a vector.  
+If `second` is not specified or is `nil`, all arrays will be returned.  
+If `second` is not `nil`, all bodies will be returned.  
+If it is a body, it will be returned as
+a specialized array of the form `(unsigned-byte 8)`.
+
+If `symbol` is `length`, the length of array or body will be returned.  
+If `second` is not specified or is `nil`, the array length will be returned.  
+If `second` is not `nil`, the body length will be returned.
+
+
+## Function `array-paper`
+
+Sets and gets the array for the Paper object.
+
+```lisp
+(defun array-paper (paper index &optional value) ...) -> result
+
+Input: paper
+Input: index, (integer 0 *)
+Input: value
+Output: result
+```
+
+If `value` is not specified, it is a get.  
+If `value` is specified, it is a setting.
+
+
+## Function `body-paper`
+
+Sets and gets the body for the Paper object.
+
+```lisp
+(defun body-paper (paper index &optional value) ...) -> result
+
+Input: paper
+Input: index, (integer 0 *)
+Input: value
+Output: result
+```
+
+If `value` is not specified, it is a get.  
+If `value` is specified, it is a setting.
+
+
+# <a id="system-call-8">8. Other Functions</a>
 
 These are function specifications for other function in the `npt-system` package.
 
@@ -1097,6 +1224,7 @@ defun equal-random-state
 defun remove-file
 defun remove-directory
 defun byte-integer
+defun fpclassify
 defun eastasian-set
 defun eastasian-get
 defun eastasian-width
@@ -1224,6 +1352,30 @@ If the CPU is big endian, the upper byte is `#x00` and
 the lower byte is `#x01`, so the return value is `#x01=1`.  
 On the other hand, if the CPU is a little endian,
 the return value is `#x0100=256`.
+
+
+## Function `fpclassify`
+
+Get the status and sign of a floating-point number.
+
+```lisp
+(defun fpclassify (float) ...) -> type, sign
+
+Input: float
+Output: result symbol
+Output: result 1 or -1
+```
+
+If `float` is infinite, `type` is `npt-system::fp-infinite`.  
+If `float` is a non-numeric number, `type` is `npt-system::fp-nan`.  
+If `float` is a normal number, `type` is `npt-system::fp-normal`.  
+If `float` is a denormal number, `type` is `npt-system::fp-subnormal`.  
+If `float` is zero, `type` is `npt-system::fp-zero`.  
+If the sign of `float` is positive, `sign` is `1`.  
+If the sign of the `float` is negative, `sign` is `-1`.
+
+Essentially, Common Lisp cannot handle infinity and non-numbers,
+and an `arithmetic-error` condition will be raised when it occurs.
 
 
 ## Fuction `eastasian-set`

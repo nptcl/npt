@@ -34,12 +34,7 @@
     "config.h" "load.h"
     ;;  windows
     "windows_arch.h" "windows_terme.h" "windows_values.h" "windows_main.h"
-    ;;  ext
-    "ext_main.h" "ext_eval.h"
-    "ext_include_const.h"
-    "ext_include_parse.h"
-    "ext_include_pointer.h"
-    "ext_include_type.h"))
+    ))
 
 (defconstant +header-include+
   '("cmpl_c99.h" "cmpl_cpp.h" "cmpl_windows.h"
@@ -50,7 +45,6 @@
     "intern_symbol_32.h" "intern_symbol_64.h"
     "process_unix.h" "process_windows.h"
     "prompt_disable.h" "prompt_module.h" "prompt_terme.h"
-    "term_ansic.h" "term_termios.h"
     "thread_disable.h" "thread_unix.h" "thread_single.h" "thread_windows.h"))
 
 (defparameter +lisp-header+
@@ -67,6 +61,7 @@
     "extern_error.h"
     "extern_execute.h"
     "extern_function.h"
+    "extern_instance.h"
     "extern_object.h"
     "extern_print.h"
     "extern_sequence.h"

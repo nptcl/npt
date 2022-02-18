@@ -221,14 +221,14 @@
 <h1 id="lisp-function-specification">Lisp Function Specification</h1>
 <p>The following functions of the <code>npt-system</code> package are described.</p>
 <ul>
-<li><a href="#system-develop">1. System Function</a></li>
+<li><a href="#system-call-1">1. System Function</a></li>
 </ul>
 <div class="sourceCode" id="cb1"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> gc</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> savecore</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> exit</span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> quit</span></span></code></pre></div>
 <ul>
-<li><a href="#object-check">2. Object Type</a></li>
+<li><a href="#system-call-2">2. Object Type</a></li>
 </ul>
 <div class="sourceCode" id="cb2"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> specialp</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> array-general-p</span></span>
@@ -243,7 +243,7 @@
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> long-float-p</span></span>
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> callnamep</span></span></code></pre></div>
 <ul>
-<li><a href="#object-make">3. Object Creation</a></li>
+<li><a href="#system-call-3">3. Object Creation</a></li>
 </ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-character</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-fixnum</span></span>
@@ -252,13 +252,13 @@
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-complex</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-callname</span></span></code></pre></div>
 <ul>
-<li><a href="#type-check">4. Type Check</a></li>
+<li><a href="#system-call-4">4. Type Check</a></li>
 </ul>
-<div class="sourceCode" id="cb4"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> subtypep-result</span></span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> subtypep</span>!</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> parse-type</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> type-object</span></span></code></pre></div>
 <ul>
-<li><a href="#memory-stream">5. Memory Stream</a></li>
+<li><a href="#system-call-5">5. Memory Stream</a></li>
 </ul>
 <div class="sourceCode" id="cb5"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-input-stream</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-output-stream</span></span>
@@ -269,84 +269,92 @@
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> memory-stream-p</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> </span>(<span class="kw">setf</span> memory-stream-p)</span></code></pre></div>
 <ul>
-<li><a href="#sort">6. Sort</a></li>
+<li><a href="#system-call-6">6. Sort</a></li>
 </ul>
 <div class="sourceCode" id="cb6"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> simple-sort</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> bubble-sort</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> quick-sort</span></span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> merge-sort</span></span></code></pre></div>
 <ul>
-<li><a href="#others">7. Other Functions</a></li>
+<li><a href="#system-call-7">7. Paper Object</a></li>
 </ul>
-<div class="sourceCode" id="cb7"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> package-export-list</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> large-number</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> equal-random-state</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-file</span></span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-directory</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> byte-integer</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-set</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-get</span></span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-width</span></span></code></pre></div>
-<h1 id="system-function"><a id="system-develop">1. System Function</a></h1>
+<div class="sourceCode" id="cb7"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-paper</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> info-paper</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> array-paper</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> body-paper</span></span></code></pre></div>
+<ul>
+<li><a href="#system-call-8">8. Other Functions</a></li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> package-export-list</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> large-number</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> equal-random-state</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-file</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-directory</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> byte-integer</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> fpclassify</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-set</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-get</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-width</span></span></code></pre></div>
+<h1 id="system-function"><a id="system-call-1">1. System Function</a></h1>
 <p>These are function specifications for system functions in the <code>npt-system</code> package.</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> gc</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> savecore</span></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> exit</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> quit</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> gc</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> savecore</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> exit</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> quit</span></span></code></pre></div>
 <h2 id="function-gc">Function <code>gc</code></h2>
 <p>Launches the garbage collector.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> gc </span>(&amp;key full) ...) -&gt; <span class="kw">null</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>Input: full general-boolean</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">null</span> <span class="kw">return</span> <span class="kw">nil</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> gc </span>(&amp;key full) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>Input: full general-boolean</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">null</span> <span class="kw">return</span> <span class="kw">nil</span></span></code></pre></div>
 <p>This function requests the garbage collector.<br />
 This function does not execute the garbage collector in the function, but at a convenient time for the implementation.<br />
 The <code>:full</code> argument is ignored for now.<br />
 The garbage collector is checked with the <code>room</code> function.</p>
 <h3 id="example">Example</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">room</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>...</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>GC count:           <span class="dv">1</span>                   [times]</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>...</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (npt-system:gc)</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">room</span>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>...</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>GC count:           <span class="dv">2</span>                   [times]</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>...</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">room</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>GC count:           <span class="dv">1</span>                   [times]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (npt-system:gc)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">room</span>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>GC count:           <span class="dv">2</span>                   [times]</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div>
 <h2 id="function-savecore">Function <code>savecore</code></h2>
 <p>Quit Lisp and then create the core file.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> savecore </span>(pathname-designer) ...) -&gt; <span class="kw">null</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>Input: pathname-designer  output path</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">null</span> No <span class="kw">return</span> value</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> savecore </span>(pathname-designer) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Input: pathname-designer  output path</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">null</span> No <span class="kw">return</span> value</span></code></pre></div>
 <p>The core file is a memory image file. The core file is read from the core file if the <code>--core</code> and <code>--corefile</code> arguments are specified at the startup of npt.</p>
 <p>The function <code>savecore</code> executes the <code>savecore condition</code> and exits Lisp.<br />
 The <code>handler</code> can be caught in the middle. If this function works correctly, Lisp exits, so the process itself is usually terminated. If it is used as a module, control is returned from the <code>lisp_argv_run</code> function of the C language.</p>
 <h3 id="example-1">Example</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>$ npt</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defvar</span><span class="fu"> *hello* </span><span class="dv">1234</span>)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>*HELLO*</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> *hello*</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="dv">1234</span></span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (npt-system:savecore #p<span class="st">&quot;hello-core-image.core&quot;</span>)</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>Core file: hello-core-image.core</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>$ ls</span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>hello-core-image.core</span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>$ npt --core --corefile hello-core-image.core</span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> *hello*</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="dv">1234</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>$ npt</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defvar</span><span class="fu"> *hello* </span><span class="dv">1234</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>*HELLO*</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> *hello*</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="dv">1234</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (npt-system:savecore #p<span class="st">&quot;hello-core-image.core&quot;</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>Core file: hello-core-image.core</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>$ ls</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>hello-core-image.core</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>$ npt --core --corefile hello-core-image.core</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> *hello*</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="dv">1234</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div>
 <h2 id="function-exit">Function <code>exit</code></h2>
 <h2 id="function-quit">Function <code>quit</code></h2>
 <p>Exit Lisp.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> exit </span>(&amp;optional code) ...) -&gt; none</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> quit </span>(&amp;optional code) ...) -&gt; none</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>Input: code exit-code, default is <span class="fl">0.</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> exit </span>(&amp;optional code) ...) -&gt; none</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> quit </span>(&amp;optional code) ...) -&gt; none</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>Input: code exit-code, default is <span class="fl">0.</span></span></code></pre></div>
 <p>The function of <code>exit</code> and <code>quit</code> is the same.</p>
 <p>Because this function terminates Lisp, there is no return value of the expression.<br />
 The exit code of the argument is set to the exit code of the process usually.<br />
@@ -355,217 +363,217 @@ If it is used as a module, control is returned from the <code>lisp_argv_run</cod
 The <code>handler</code> can be caught in the middle.</p>
 <p>The <code>exit</code> and <code>quit</code> <code>symbol</code> begins with imported into the <code>common-lisp-user</code> package.</p>
 <h3 id="example-2">Example</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>$ npt</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (quit)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>$ echo $?</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="dv">0</span></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>$ npt --eval &#39;(exit <span class="dv">22</span>)&#39;</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>$ echo $?</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="dv">22</span></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>$</span></code></pre></div>
-<h1 id="object-type"><a id="object-check">2. Object Type</a></h1>
+<div class="sourceCode" id="cb15"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>$ npt</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (quit)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>$ echo $?</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="dv">0</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>$ npt --eval &#39;(exit <span class="dv">22</span>)&#39;</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>$ echo $?</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="dv">22</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>$</span></code></pre></div>
+<h1 id="object-type"><a id="system-call-2">2. Object Type</a></h1>
 <p>These are function specifications for object checks in the <code>npt-system</code> package.</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> specialp</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> array-general-p</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> array-specialized-p</span></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> closp</span></span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> fixnump</span></span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> bignump</span></span>
-<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> ratiop</span></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> short-float-p</span></span>
-<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> single-float-p</span></span>
-<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> double-float-p</span></span>
-<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> long-float-p</span></span>
-<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> callnamep</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> specialp</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> array-general-p</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> array-specialized-p</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> closp</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> fixnump</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> bignump</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> ratiop</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> short-float-p</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> single-float-p</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> double-float-p</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> long-float-p</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> callnamep</span></span></code></pre></div>
 <h2 id="function-specialp">Function <code>specialp</code></h2>
 <p>Examine whether the global variable is special or not.</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> specialp </span>(<span class="kw">symbol</span>) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">symbol</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> specialp </span>(<span class="kw">symbol</span>) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">symbol</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>Returns whether the variable is special or not, without considering the lexical situation. That is, the variable is <code>t</code> if it becomes a special variable by the execution of <code>defvar</code>, <code>defparameter</code>, <code>declaim</code>, or <code>proclaim</code>.</p>
 <h3 id="example-3">Example</h3>
-<div class="sourceCode" id="cb17"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (specialp &#39;aaa)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defvar</span><span class="fu"> bbb</span>)</span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>BBB</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (specialp &#39;bbb)</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">let</span> (ccc) (<span class="kw">declare</span> (<span class="kw">special</span> ccc)) (specialp &#39;ccc))</span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>NIL</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (specialp &#39;aaa)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defvar</span><span class="fu"> bbb</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>BBB</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (specialp &#39;bbb)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">let</span> (ccc) (<span class="kw">declare</span> (<span class="kw">special</span> ccc)) (specialp &#39;ccc))</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>NIL</span></code></pre></div>
 <h2 id="fuction-array-general-p">Fuction <code>array-general-p</code></h2>
 <p>Checks if the argument is a general array.</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> array-general-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> array-general-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>If the input is an <code>array</code> object and it is a general array, the function returns <code>t</code>.<br />
 Unlike <code>typep</code>, the decision is based on the object type in npt.<br />
 If the input is generated by <code>make-array</code> and <code>element-type</code> is <code>t</code>, then <code>t</code> is returned. For example, <code>#(10 20 30)</code> is a <code>vector</code> object and <code>t</code> is not returned.</p>
 <h3 id="example-4">Example</h3>
-<div class="sourceCode" id="cb19"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (array-general-p (<span class="kw">make-array</span> <span class="dv">10</span>))</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (array-general-p #(<span class="dv">10</span> <span class="dv">20</span> <span class="dv">30</span>))</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">typep</span> (<span class="kw">make-array</span> <span class="dv">10</span>) &#39;(<span class="kw">array</span> <span class="kw">t</span>))</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">typep</span> #(<span class="dv">10</span> <span class="dv">20</span> <span class="dv">30</span>) &#39;(<span class="kw">array</span> <span class="kw">t</span>))</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (array-general-p (<span class="kw">make-array</span> <span class="dv">10</span>))</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (array-general-p #(<span class="dv">10</span> <span class="dv">20</span> <span class="dv">30</span>))</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">typep</span> (<span class="kw">make-array</span> <span class="dv">10</span>) &#39;(<span class="kw">array</span> <span class="kw">t</span>))</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">typep</span> #(<span class="dv">10</span> <span class="dv">20</span> <span class="dv">30</span>) &#39;(<span class="kw">array</span> <span class="kw">t</span>))</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-array-specialized-p">Fuction <code>array-specialized-p</code></h2>
 <p>Checks if the argument is a specialized array.</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> array-specialized-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
-<p>If the input is an <code>array</code> object and the <code>element-type</code> is not <code>t</code>, <code>t</code> is returned.</p>
-<h2 id="fuction-closp">Fuction <code>closp</code></h2>
-<p>Checks if the argument is a <code>clos</code> object.</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> closp </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<div class="sourceCode" id="cb21"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> array-specialized-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<p>If the input is an <code>array</code> object and the <code>element-type</code> is not <code>t</code>, <code>t</code> is returned.</p>
+<h2 id="fuction-closp">Fuction <code>closp</code></h2>
+<p>Checks if the argument is a <code>clos</code> object.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> closp </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>If the input is a <code>clos</code> object, <code>t</code> is returned.<br />
 In Common Lisp, since all CLOS objects belong to the <code>standard-object</code>, this should normally be the same as the following command.</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">typep</span> object &#39;standard-object)</span></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">typep</span> object &#39;standard-object)</span></code></pre></div>
 <h2 id="fuction-fixnump">Fuction <code>fixnump</code></h2>
 <p>Checks if the argument is a <code>fixnum</code> object.</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> fixnump </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb24"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> fixnump </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>If the input is a <code>fixnum</code> object, <code>t</code> is returned.<br />
 Normally, every <code>integer</code> that belongs to the <code>fixnum</code> type should be a <code>fixnum</code> object.<br />
 However, in development, it is possible to have a small <code>integer</code>, say <code>10</code> or <code>20</code>, even though it is of type <code>bignum</code>, for example.<br />
 This function is for investigating the differences between the above.</p>
 <h3 id="example-5">Example</h3>
-<div class="sourceCode" id="cb24"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump <span class="dv">10</span>)</span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-bignum <span class="dv">20</span>)</span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump (make-bignum <span class="dv">20</span>))</span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>NIL</span></code></pre></div>
+<div class="sourceCode" id="cb25"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump <span class="dv">10</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-bignum <span class="dv">20</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump (make-bignum <span class="dv">20</span>))</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>NIL</span></code></pre></div>
 <h2 id="fuction-bignump">Fuction <code>bignump</code></h2>
 <p>Checks if the argument is a <code>bignum</code> object.</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> bignump </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>input: object</span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb26"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> bignump </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>input: object</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>If the input is a <code>bignum</code> object, <code>t</code> is returned.</p>
 <h3 id="example-6">Example</h3>
-<div class="sourceCode" id="cb26"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump <span class="dv">10</span>)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-bignum <span class="dv">20</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump (make-bignum <span class="dv">20</span>))</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<div class="sourceCode" id="cb27"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump <span class="dv">10</span>)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-bignum <span class="dv">20</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump (make-bignum <span class="dv">20</span>))</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-ratiop">Fuction <code>ratiop</code></h2>
 <p>Checks if the argument is a <code>ratio</code> object.</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> ratiop </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> ratiop </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>If the input is a <code>ratio</code> object, <code>t</code> is returned.<br />
 Normally, fractions with a denominator of <code>1</code> should be of type <code>integer</code>.<br />
 But in development, for example, <code>100/1</code> may exist in a <code>ratio</code> object.<br />
 This function is for investigating the differences between the above.</p>
 <h3 id="example-7">Example</h3>
-<div class="sourceCode" id="cb28"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span>/<span class="dv">5</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop <span class="dv">10</span>/<span class="dv">5</span>)</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-ratio <span class="dv">10</span> <span class="dv">5</span>)</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span>/<span class="dv">5</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop (make-ratio <span class="dv">10</span> <span class="dv">5</span>))</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span>/<span class="dv">5</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop <span class="dv">10</span>/<span class="dv">5</span>)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-ratio <span class="dv">10</span> <span class="dv">5</span>)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span>/<span class="dv">5</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop (make-ratio <span class="dv">10</span> <span class="dv">5</span>))</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-short-float-p">Fuction <code>short-float-p</code></h2>
 <p>Checks if the argument is a <code>short-float</code> object.</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> short-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
-<p>Currently, there is no way to create a <code>short-float</code> object in npt.</p>
-<h2 id="fuction-single-float-p">Fuction <code>single-float-p</code></h2>
-<p>Checks if the argument is a <code>single-float</code> object.</p>
-<div class="sourceCode" id="cb30"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> single-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<div class="sourceCode" id="cb30"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> short-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
 <span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
-<h2 id="fuction-double-float-p">Fuction <code>double-float-p</code></h2>
-<p>Checks if the argument is a <code>double-float</code> object.</p>
-<div class="sourceCode" id="cb31"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> double-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<p>Currently, there is no way to create a <code>short-float</code> object in npt.</p>
+<h2 id="fuction-single-float-p">Fuction <code>single-float-p</code></h2>
+<p>Checks if the argument is a <code>single-float</code> object.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> single-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
 <span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
-<h2 id="fuction-long-float-p">Fuction <code>long-float-p</code></h2>
-<p>Checks if the argument is a <code>long-float</code> object.</p>
-<div class="sourceCode" id="cb32"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> long-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<h2 id="fuction-double-float-p">Fuction <code>double-float-p</code></h2>
+<p>Checks if the argument is a <code>double-float</code> object.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> double-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
-<h2 id="fuction-callnamep">Fuction <code>callnamep</code></h2>
-<p>Checks if the argument is a <code>callname</code> object.</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> callnamep </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<h2 id="fuction-long-float-p">Fuction <code>long-float-p</code></h2>
+<p>Checks if the argument is a <code>long-float</code> object.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> long-float-p </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<h2 id="fuction-callnamep">Fuction <code>callnamep</code></h2>
+<p>Checks if the argument is a <code>callname</code> object.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> callnamep </span>(object) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>The <code>callname</code> is an object for the name of a function, which is a combination of the usual <code>symbol</code>, called <code>car</code>, and the <code>(setf car)</code>type for the setf function.<br />
 There is no way to create a <code>callname</code> object in Common Lisp.</p>
-<h1 id="object-creation"><a id="object-make">3. Object Creation</a></h1>
+<h1 id="object-creation"><a id="system-call-3">3. Object Creation</a></h1>
 <p>These are function specifications for object creation in the <code>npt-system</code> package.</p>
-<div class="sourceCode" id="cb34"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-character</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-fixnum</span></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-bignum</span></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-ratio</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-complex</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-callname</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-character</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-fixnum</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-bignum</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-ratio</span></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-complex</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-callname</span></span></code></pre></div>
 <h2 id="fuction-make-character">Fuction <code>make-character</code></h2>
 <p>Duplicate a <code>character</code> object.</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-character </span>(<span class="kw">character</span>) ...) -&gt; <span class="kw">character</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">character</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">character</span></span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-character </span>(<span class="kw">character</span>) ...) -&gt; <span class="kw">character</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">character</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">character</span></span></code></pre></div>
 <p>Duplicate a character object received on input and return it.<br />
 The purpose of this function is to create a new object, avoiding the cache.<br />
 In npt, if the character code is less than <code>#x80</code>, the same object is returned.<br />
 Therefore, <code>eq</code> returns <code>t</code>.</p>
-<div class="sourceCode" id="cb36"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="ch">#\A</span> <span class="ch">#\A</span>)</span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="ch">#\A</span> (<span class="kw">read-from-string</span> <span class="st">&quot;</span><span class="ch">#\\</span><span class="st">A&quot;</span>))</span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
-<p>If a different object is needed, this function will duplicate it.</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="ch">#\A</span> (make-character <span class="ch">#\A</span>))</span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eql</span> <span class="ch">#\A</span> (make-character <span class="ch">#\A</span>))</span>
+<div class="sourceCode" id="cb37"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="ch">#\A</span> <span class="ch">#\A</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="ch">#\A</span> (<span class="kw">read-from-string</span> <span class="st">&quot;</span><span class="ch">#\\</span><span class="st">A&quot;</span>))</span>
 <span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<p>If a different object is needed, this function will duplicate it.</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="ch">#\A</span> (make-character <span class="ch">#\A</span>))</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eql</span> <span class="ch">#\A</span> (make-character <span class="ch">#\A</span>))</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-make-fixnum">Fuction <code>make-fixnum</code></h2>
 <p>Duplicate a <code>fixnum</code> object.</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-fixnum </span>(<span class="kw">fixnum</span>) ...) -&gt; <span class="kw">fixnum</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">fixnum</span></span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">fixnum</span></span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-fixnum </span>(<span class="kw">fixnum</span>) ...) -&gt; <span class="kw">fixnum</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">fixnum</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">fixnum</span></span></code></pre></div>
 <p>Duplicate a fixnum object received on input and return it.<br />
 The purpose of this function is to create a new object, avoiding the cache.<br />
 In npt, if the value is an integer between <code>-1024</code> and <code>+1024</code>, the same object is returned.<br />
 Therefore, <code>eq</code> returns <code>t</code>.</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="dv">11</span> <span class="dv">11</span>)</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="dv">11</span> (<span class="kw">read-from-string</span> <span class="st">&quot;11&quot;</span>))</span>
-<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
-<p>If a different object is needed, this function will duplicate it.</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="dv">11</span> (make-fixnum <span class="dv">11</span>))</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eql</span> <span class="dv">11</span> (make-fixnum <span class="dv">11</span>))</span>
+<div class="sourceCode" id="cb40"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="dv">11</span> <span class="dv">11</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="dv">11</span> (<span class="kw">read-from-string</span> <span class="st">&quot;11&quot;</span>))</span>
 <span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<p>If a different object is needed, this function will duplicate it.</p>
+<div class="sourceCode" id="cb41"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eq</span> <span class="dv">11</span> (make-fixnum <span class="dv">11</span>))</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">eql</span> <span class="dv">11</span> (make-fixnum <span class="dv">11</span>))</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-make-bignum">Fuction <code>make-bignum</code></h2>
 <p>Create a <code>bignum</code> object.</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-bignum </span>(<span class="kw">integer</span>) ...) -&gt; <span class="kw">bignum</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">integer</span></span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">bignum</span></span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-bignum </span>(<span class="kw">integer</span>) ...) -&gt; <span class="kw">bignum</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">integer</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">bignum</span></span></code></pre></div>
 <p>Creates a <code>bignum</code> object from an integer received at the input.<br />
 The purpose of this function is to create a <code>bignum</code> object with a small integer value.<br />
 Normally, an integer, say <code>10</code> or <code>2000</code>, will be returned as a <code>fixnum</code> object.<br />
@@ -574,25 +582,25 @@ This function is used to force the creation of a <code>bignum</code> object.</p>
 Npt does not expect that integers originally in the range of <code>fixnum</code> are passed by <code>bignum</code> objects.<br />
 All results of using this function are undefined.</p>
 <h3 id="example-8">Example</h3>
-<div class="sourceCode" id="cb42"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span></span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-bignum <span class="dv">10</span>)</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump <span class="dv">10</span>)</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump <span class="dv">10</span>)</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump (make-bignum <span class="dv">10</span>))</span>
-<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump (make-bignum <span class="dv">10</span>))</span>
-<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-bignum <span class="dv">10</span>)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump <span class="dv">10</span>)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump <span class="dv">10</span>)</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (fixnump (make-bignum <span class="dv">10</span>))</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (bignump (make-bignum <span class="dv">10</span>))</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-make-ratio">Fuction <code>make-ratio</code></h2>
 <p>Create a <code>ratio</code> object.</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-ratio </span>(numer denom) ...) -&gt; <span class="kw">ratio</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>Input: numer An <span class="kw">integer</span> object representing <span class="kw">the</span> <span class="kw">numerator</span></span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>Input: denom An <span class="kw">integer</span> object representing <span class="kw">the</span> <span class="kw">denominator</span></span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">ratio</span></span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-ratio </span>(numer denom) ...) -&gt; <span class="kw">ratio</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>Input: numer An <span class="kw">integer</span> object representing <span class="kw">the</span> <span class="kw">numerator</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>Input: denom An <span class="kw">integer</span> object representing <span class="kw">the</span> <span class="kw">denominator</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">ratio</span></span></code></pre></div>
 <p>Creates a <code>ratio</code> object from an integer <code>numer</code>, <code>denom</code> received at the input.<br />
 The purpose of this function is to create a <code>ratio</code> object ignoring the divisor.<br />
 Normally, the fraction, say <code>10/5</code>, is divided by the divisor and the <code>fixnum</code> object, say <code>2</code>, is returned.<br />
@@ -601,21 +609,21 @@ This function is used to force the creation of a <code>ratio</code> object.</p>
 Npt does not expect what is supposed to be an <code>integer</code> to be passed as a <code>ratio</code> object.<br />
 All results of using this function are undefined.</p>
 <h3 id="example-9">Example</h3>
-<div class="sourceCode" id="cb44"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span>/<span class="dv">5</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop <span class="dv">10</span>/<span class="dv">5</span>)</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-ratio <span class="dv">10</span> <span class="dv">5</span>)</span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span>/<span class="dv">5</span></span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop (make-ratio <span class="dv">10</span> <span class="dv">5</span>))</span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> <span class="dv">10</span>/<span class="dv">5</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop <span class="dv">10</span>/<span class="dv">5</span>)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-ratio <span class="dv">10</span> <span class="dv">5</span>)</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span>/<span class="dv">5</span></span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (ratiop (make-ratio <span class="dv">10</span> <span class="dv">5</span>))</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-make-complex">Fuction <code>make-complex</code></h2>
 <p>Create a <code>complex</code> object.</p>
-<div class="sourceCode" id="cb45"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-complex </span>(<span class="kw">real</span> imag) ...) -&gt; <span class="kw">complex</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">real</span> A <span class="kw">real</span> object representing a <span class="kw">real</span> <span class="kw">number</span></span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>Input: imag A <span class="kw">real</span> object representing an imaginary <span class="kw">number</span></span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">complex</span></span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-complex </span>(<span class="kw">real</span> imag) ...) -&gt; <span class="kw">complex</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">real</span> A <span class="kw">real</span> object representing a <span class="kw">real</span> <span class="kw">number</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>Input: imag A <span class="kw">real</span> object representing an imaginary <span class="kw">number</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">complex</span></span></code></pre></div>
 <p>Creates a <code>complex</code> object from an integer <code>real</code>, <code>imag</code> received at the input.<br />
 The purpose of this function is to create a <code>complex</code> object of an integer type with an imaginary number of <code>0</code>.<br />
 Normally, the number <code>#c(10 0)</code>, for example, would return a <code>fixnum</code> object of <code>10</code>.<br />
@@ -624,34 +632,34 @@ This function is used to force the creation of a <code>complex</code> object.</p
 Npt does not expect what is supposed to be an <code>integer</code> to be passed as a <code>complex</code> object.<br />
 All results of using this function are undefined.</p>
 <h3 id="example-10">Example</h3>
-<div class="sourceCode" id="cb46"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> #c(<span class="dv">10</span> <span class="dv">0</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">complexp</span> #c(<span class="dv">10</span> <span class="dv">0</span>))</span>
-<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
-<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-complex <span class="dv">10</span> <span class="dv">0</span>)</span>
-<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>#C(<span class="dv">10</span> <span class="dv">0</span>)</span>
-<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">complexp</span> (make-complex <span class="dv">10</span> <span class="dv">0</span>))</span>
-<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> #c(<span class="dv">10</span> <span class="dv">0</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">complexp</span> #c(<span class="dv">10</span> <span class="dv">0</span>))</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (make-complex <span class="dv">10</span> <span class="dv">0</span>)</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>#C(<span class="dv">10</span> <span class="dv">0</span>)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">complexp</span> (make-complex <span class="dv">10</span> <span class="dv">0</span>))</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 <h2 id="fuction-make-callname">Fuction <code>make-callname</code></h2>
 <p>Create a <code>callname</code> object.</p>
-<div class="sourceCode" id="cb47"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-callname </span>(x) ...) -&gt; callname</span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>Input: x function-name</span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>Output: callname</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-callname </span>(x) ...) -&gt; callname</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>Input: x function-name</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>Output: callname</span></code></pre></div>
 <p>Create a <code>callname</code> object for the function name.<br />
 The input can be of type <code>symbol</code> or <code>(setf symbol)</code>.</p>
-<h1 id="type-check"><a id="type-check">4. Type Check</a></h1>
+<h1 id="type-check"><a id="system-call-4">4. Type Check</a></h1>
 <p>These are function specifications for type checking in the <code>npt-system</code> package.</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> subtypep-result</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> parse-type</span></span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> type-object</span></span></code></pre></div>
-<h2 id="fuction-subtypep-result">Fuction <code>subtypep-result</code></h2>
+<div class="sourceCode" id="cb49"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> subtypep</span>!</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> parse-type</span></span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> type-object</span></span></code></pre></div>
+<h2 id="fuction-subtypep">Fuction <code>subtypep!</code></h2>
 <p>Get the result of <code>subtypep</code> with <code>symbol</code>.</p>
-<div class="sourceCode" id="cb49"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> subtypep-result </span>(left right) ...) -&gt; <span class="kw">symbol</span></span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>Input: left type-specifier</span>
-<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>Input: right type-specifier</span>
-<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">symbol</span></span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> subtypep</span>! (left right) ...) -&gt; <span class="kw">symbol</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>Input: left type-specifier</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>Input: right type-specifier</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">symbol</span></span></code></pre></div>
 <p>Unlike <code>subtypep</code>, this function checks whether the type is exclusive or not.<br />
 The return values are as follows.</p>
 <ul>
@@ -662,38 +670,38 @@ The return values are as follows.</p>
 </ul>
 <h2 id="fuction-parse-type">Fuction <code>parse-type</code></h2>
 <p>Parsing the type-specifier.</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> parse-type </span>(object) ...) -&gt; <span class="kw">type</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>Input: object type-specifier</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">type</span></span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> parse-type </span>(object) ...) -&gt; <span class="kw">type</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>Input: object type-specifier</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">type</span></span></code></pre></div>
 <p>The main purpose is to investigate whether the type is of the correct form.<br />
 The return value is a type object, but we don’t use type objects in normal Common Lisp.</p>
 <h2 id="fuction-type-object">Fuction <code>type-object</code></h2>
 <p>Creates a Lisp object from a type object.</p>
-<div class="sourceCode" id="cb51"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> type-object </span>(<span class="kw">type</span>) ...) -&gt; result</span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">type</span></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>Output: result (<span class="kw">or</span> <span class="kw">cons</span> <span class="kw">symbol</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> type-object </span>(<span class="kw">type</span>) ...) -&gt; result</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">type</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>Output: result (<span class="kw">or</span> <span class="kw">cons</span> <span class="kw">symbol</span>)</span></code></pre></div>
 <p>Generates a type name from the type object of the input.</p>
-<h1 id="memory-stream"><a id="memory-stream">5. Memory Stream</a></h1>
+<h1 id="memory-stream"><a id="system-call-5">5. Memory Stream</a></h1>
 <p>These are function specifications for memory stream in the <code>npt-system</code> package.</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-input-stream</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-output-stream</span></span>
-<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-io-stream</span></span>
-<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defmacro</span><span class="fu"> with-input-from-memory</span></span>
-<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defmacro</span><span class="fu"> with-output-to-memory</span></span>
-<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> get-output-stream-memory</span></span>
-<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> memory-stream-p</span></span>
-<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> </span>(<span class="kw">setf</span> memory-stream-p)</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-input-stream</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-output-stream</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-memory-io-stream</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defmacro</span><span class="fu"> with-input-from-memory</span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defmacro</span><span class="fu"> with-output-to-memory</span></span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> get-output-stream-memory</span></span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> memory-stream-p</span></span>
+<span id="cb53-8"><a href="#cb53-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> </span>(<span class="kw">setf</span> memory-stream-p)</span></code></pre></div>
 <h2 id="explanation">Explanation</h2>
 <p><code>memory-stream</code> is an alternative stream for files.<br />
 As usual files have <code>byte</code> as the unit of data, this stream has <code>(unsigned-byte 8)</code> as the basic unit of data.<br />
 Because it is a binary stream, string-type stream functions such as the <code>read-char</code> function cannot be used. Binary manipulation functions such as the <code>read-byte</code> function are available.</p>
 <p>The <code>memory-stream</code> can be used for the <code>filespec</code> of the <code>open</code> function.</p>
-<div class="sourceCode" id="cb53"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">with-open-stream</span> (file (make-memory-input-stream #(<span class="ch">#x</span>48 #x65 #x6C #x6C #x6F)))</span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">with-open-file</span> (<span class="kw">stream</span> file)</span>
-<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">read-line</span> <span class="kw">stream</span>)))</span>
-<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>-&gt; <span class="st">&quot;Hello&quot;</span>, T</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">with-open-stream</span> (file (make-memory-input-stream #(<span class="ch">#x</span>48 #x65 #x6C #x6C #x6F)))</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">with-open-file</span> (<span class="kw">stream</span> file)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">read-line</span> <span class="kw">stream</span>)))</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>-&gt; <span class="st">&quot;Hello&quot;</span>, T</span></code></pre></div>
 <p>Although two streams are duplicated, the file pointer can be used only with the <code>open</code> one. The file pointer of <code>memory-stream</code> is manipulated by the <code>open</code> function.</p>
 <p>In the above case, <code>(open file)</code>’s <code>:input</code> operation, which is executed in the <code>with-open-file</code>, executes first <code>(file-position file :start)</code> for the <code>memory-stream</code> stored in the <code>file</code>.<br />
 When reading data by the <code>read-line</code> function occurs, the file pointer of <code>memory-stream</code> is moved forward at the same time when the file pointer of <code>stream</code> is moved forward.</p>
@@ -720,167 +728,242 @@ The default is <code>T</code> (enabled) if <code>LISP_DEBUG</code> is specified 
 <p>There are three types of <code>memory-stream</code>: input, output, and input/output. Because the same object is used internally, you can change the type of memory stream at any time.</p>
 <h2 id="fuction-make-memory-input-stream">Fuction <code>make-memory-input-stream</code></h2>
 <p>Creates a <code>memory-stream</code> for input only.</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-memory-input-stream </span>(<span class="kw">sequence</span> &amp;key size <span class="kw">array</span> cache) ...) -&gt; <span class="kw">stream</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">sequence</span></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>Input: size (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">array</span> (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
-<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>Input: cache <span class="kw">t</span>  <span class="co">;; boolean</span></span>
-<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">stream</span> input-memory-stream</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-memory-input-stream </span>(<span class="kw">sequence</span> &amp;key size <span class="kw">array</span> cache) ...) -&gt; <span class="kw">stream</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">sequence</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>Input: size (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">array</span> (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>Input: cache <span class="kw">t</span>  <span class="co">;; boolean</span></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">stream</span> input-memory-stream</span></code></pre></div>
 <p><code>sequence</code>is used as the initial value in the stream.<br />
 <code>size</code>is the size of the internal buffer, and the initial value is <code>4096</code> bytes.<br />
 <code>array</code>is the initial number of buffers, and the initial value is <code>8</code>.<br />
 <code>cache</code> is for development.</p>
 <h2 id="fuction-make-memory-output-stream">Fuction <code>make-memory-output-stream</code></h2>
 <p>Creates a <code>memory-stream</code> for output only.</p>
-<div class="sourceCode" id="cb55"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-memroy-output-stream </span>(&amp;key input size <span class="kw">array</span> cache) ...) -&gt; <span class="kw">stream</span></span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>Input: input <span class="kw">sequence</span></span>
-<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>Input: size (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
-<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">array</span> (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
-<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>Input: cache <span class="kw">t</span>  <span class="co">;; boolean</span></span>
-<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">stream</span> output-memory-stream</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-memroy-output-stream </span>(&amp;key input size <span class="kw">array</span> cache) ...) -&gt; <span class="kw">stream</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>Input: input <span class="kw">sequence</span></span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>Input: size (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">array</span> (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
+<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>Input: cache <span class="kw">t</span>  <span class="co">;; boolean</span></span>
+<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">stream</span> output-memory-stream</span></code></pre></div>
 <p><code>sequence</code>is used as the initial value in the stream.<br />
 <code>size</code>is the size of the internal buffer, and the initial value is <code>4096</code> bytes.<br />
 <code>array</code>is the initial number of buffers, and the initial value is <code>8</code>.<br />
 <code>cache</code> is for development.</p>
 <h2 id="fuction-make-memory-io-stream">Fuction <code>make-memory-io-stream</code></h2>
 <p>Create a <code>memory stream</code> for input and output.</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-memroy-io-stream </span>(&amp;key input size <span class="kw">array</span> cache) ...) -&gt; <span class="kw">stream</span></span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>Input: input <span class="kw">sequence</span></span>
-<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a>Input: size (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
-<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">array</span> (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
-<span id="cb56-6"><a href="#cb56-6" aria-hidden="true" tabindex="-1"></a>Input: cache <span class="kw">t</span>  <span class="co">;; boolean</span></span>
-<span id="cb56-7"><a href="#cb56-7" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">stream</span> io-memory-stream</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-memroy-io-stream </span>(&amp;key input size <span class="kw">array</span> cache) ...) -&gt; <span class="kw">stream</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>Input: input <span class="kw">sequence</span></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>Input: size (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">array</span> (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">integer</span> <span class="dv">1</span> <span class="op">*</span>))</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a>Input: cache <span class="kw">t</span>  <span class="co">;; boolean</span></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">stream</span> io-memory-stream</span></code></pre></div>
 <p><code>sequence</code>is used as the initial value in the stream.<br />
 <code>size</code>is the size of the internal buffer, and the initial value is <code>4096</code> bytes.<br />
 <code>array</code>is the initial number of buffers, and the initial value is <code>8</code>.<br />
 <code>cache</code> is for development.</p>
 <h2 id="macro-with-input-from-memory">Macro <code>with-input-from-memory</code></h2>
 <p>The <code>memory-stream</code> version of the macro <code>with-input-from-string</code>.</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defmacro</span><span class="fu"> with-input-from-memory</span></span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>  ((<span class="kw">stream</span> <span class="kw">vector</span> &amp;key size <span class="kw">array</span>) declaration* form*) ...)</span>
-<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  -&gt; result</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defmacro</span><span class="fu"> with-input-from-memory</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  ((<span class="kw">stream</span> <span class="kw">vector</span> &amp;key size <span class="kw">array</span>) declaration* form*) ...)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  -&gt; result</span></code></pre></div>
 <p>Unlike <code>string-stream</code>, there is no argument <code>index</code>.</p>
 <h2 id="macro-with-output-to-memory">Macro <code>with-output-to-memory</code></h2>
 <p>The <code>memory-stream</code> version of the macro <code>with-output-to-string</code>.</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defmacro</span><span class="fu"> with-output-to-memory</span></span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  ((var &amp;key input size <span class="kw">array</span>) declaration* form*) ...)</span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>  -&gt; result</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defmacro</span><span class="fu"> with-output-to-memory</span></span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  ((var &amp;key input size <span class="kw">array</span>) declaration* form*) ...)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  -&gt; result</span></code></pre></div>
 <p>The return value of <code>get-output-stream-memory</code> is used.<br />
 Unlike <code>string-stream</code>, the second argument, <code>array</code>, is not supported.<br />
 The return value is an array of <code>(array (unsigned-byte 8))</code>.</p>
 <h2 id="fuction-get-output-stream-memory">Fuction <code>get-output-stream-memory</code></h2>
 <p>Return an array of all data held by <code>memory-stream</code>.</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> get-output-stream-memory </span>(<span class="kw">stream</span>) ...) -&gt; <span class="kw">vector</span></span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">stream</span> memory-stream</span>
-<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">vector</span> (<span class="kw">array</span> (<span class="kw">unsigned-byte</span> <span class="dv">8</span>))</span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> get-output-stream-memory </span>(<span class="kw">stream</span>) ...) -&gt; <span class="kw">vector</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">stream</span> memory-stream</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">vector</span> (<span class="kw">array</span> (<span class="kw">unsigned-byte</span> <span class="dv">8</span>))</span></code></pre></div>
 <p>The argument is not only the <code>memory-stream</code> for output, but also accepts input and output. Unlike <code>string-stream</code>, the content is not deleted after outputting a value.<br />
 The return value is an array of <code>(array (unsigned-byte 8))</code>.</p>
 <h2 id="accessor-memory-stream-p">Accessor <code>memory-stream-p</code></h2>
 <p>Check whether the argument is <code>memory-stream</code> or not.</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> memory-stream-p </span>(object) ...) -&gt; result</span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
-<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>Output: result (<span class="kw">member</span> <span class="bu">:input</span> <span class="bu">:output</span> <span class="bu">:io</span> <span class="kw">nil</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> memory-stream-p </span>(object) ...) -&gt; result</span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>Input: object</span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>Output: result (<span class="kw">member</span> <span class="bu">:input</span> <span class="bu">:output</span> <span class="bu">:io</span> <span class="kw">nil</span>)</span></code></pre></div>
 <p>If it is not <code>memory-stream</code>, <code>nil</code> is returned.<br />
 If it is an <code>input-memory-stream</code>, <code>:input</code> is returned.<br />
 If it is an <code>output-memory-stream</code>, <code>:output</code> is returned.<br />
 If it is an <code>io-memory-stream</code>, <code>:io</code> is returned.</p>
 <h2 id="accessor-setf-memory-stream-p">Accessor <code>(setf memory-stream-p)</code></h2>
 <p>Change the type of <code>memory-stream</code>.</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>(<span class="kw">setf</span> memory-stream-p) (result <span class="kw">stream</span>) ...) -&gt; result</span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">stream</span> memory-stream</span>
-<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a>Input: result  (<span class="kw">member</span> <span class="bu">:input</span> <span class="bu">:output</span> <span class="bu">:io</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> </span>(<span class="kw">setf</span> memory-stream-p) (result <span class="kw">stream</span>) ...) -&gt; result</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">stream</span> memory-stream</span>
+<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>Input: result  (<span class="kw">member</span> <span class="bu">:input</span> <span class="bu">:output</span> <span class="bu">:io</span>)</span></code></pre></div>
 <p>For example, change an input <code>memory-stream</code> to an input/output <code>memory-stream</code>.<br />
 A value of <code>:input</code> is input, <code>:output</code> is output, and <code>:io</code> is input/output.</p>
 <p>Each <code>memory-stream</code> has the same kind of object. Setting the type changes the availability of the input and output functions of the <code>stream</code> (e.g. <code>read-byte</code>).</p>
 <h3 id="example-11">Example</h3>
-<div class="sourceCode" id="cb62"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (make-memory-output-stream))</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>#&lt;STREAM MEMORY-OUTPUT <span class="ch">#x</span>8012801e0&gt;</span>
-<span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">write-sequence</span> &#39;(<span class="dv">65</span> <span class="dv">66</span> <span class="dv">67</span>) x)</span>
-<span id="cb62-4"><a href="#cb62-4" aria-hidden="true" tabindex="-1"></a>(<span class="dv">65</span> <span class="dv">66</span> <span class="dv">67</span>)</span>
-<span id="cb62-5"><a href="#cb62-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">file-position</span> x <span class="bu">:start</span>)</span>
-<span id="cb62-6"><a href="#cb62-6" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb62-7"><a href="#cb62-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">with-open-file</span> (s x) (<span class="kw">read-line</span> s))</span>
-<span id="cb62-8"><a href="#cb62-8" aria-hidden="true" tabindex="-1"></a>  -&gt; <span class="kw">error</span></span>
-<span id="cb62-9"><a href="#cb62-9" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (memory-stream-p x)</span>
-<span id="cb62-10"><a href="#cb62-10" aria-hidden="true" tabindex="-1"></a>:OUTPUT</span>
-<span id="cb62-11"><a href="#cb62-11" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setf</span> (memory-stream-p x) <span class="bu">:input</span>)</span>
-<span id="cb62-12"><a href="#cb62-12" aria-hidden="true" tabindex="-1"></a>:INPUT</span>
-<span id="cb62-13"><a href="#cb62-13" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">with-open-file</span> (s x) (<span class="kw">read-line</span> s))</span>
-<span id="cb62-14"><a href="#cb62-14" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;ABC&quot;</span></span>
-<span id="cb62-15"><a href="#cb62-15" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb62-16"><a href="#cb62-16" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div>
-<h1 id="sort"><a id="sort">6. Sort</a></h1>
+<div class="sourceCode" id="cb63"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (make-memory-output-stream))</span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>#&lt;STREAM MEMORY-OUTPUT <span class="ch">#x</span>8012801e0&gt;</span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">write-sequence</span> &#39;(<span class="dv">65</span> <span class="dv">66</span> <span class="dv">67</span>) x)</span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>(<span class="dv">65</span> <span class="dv">66</span> <span class="dv">67</span>)</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">file-position</span> x <span class="bu">:start</span>)</span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb63-7"><a href="#cb63-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">with-open-file</span> (s x) (<span class="kw">read-line</span> s))</span>
+<span id="cb63-8"><a href="#cb63-8" aria-hidden="true" tabindex="-1"></a>  -&gt; <span class="kw">error</span></span>
+<span id="cb63-9"><a href="#cb63-9" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (memory-stream-p x)</span>
+<span id="cb63-10"><a href="#cb63-10" aria-hidden="true" tabindex="-1"></a>:OUTPUT</span>
+<span id="cb63-11"><a href="#cb63-11" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setf</span> (memory-stream-p x) <span class="bu">:input</span>)</span>
+<span id="cb63-12"><a href="#cb63-12" aria-hidden="true" tabindex="-1"></a>:INPUT</span>
+<span id="cb63-13"><a href="#cb63-13" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">with-open-file</span> (s x) (<span class="kw">read-line</span> s))</span>
+<span id="cb63-14"><a href="#cb63-14" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;ABC&quot;</span></span>
+<span id="cb63-15"><a href="#cb63-15" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb63-16"><a href="#cb63-16" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div>
+<h1 id="sort"><a id="system-call-6">6. Sort</a></h1>
 <p>These are function specifications for sorting in the <code>npt-system</code> package.</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> simple-sort</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> bubble-sort</span></span>
-<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> quick-sort</span></span>
-<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> merge-sort</span></span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> simple-sort</span></span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> bubble-sort</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> quick-sort</span></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> merge-sort</span></span></code></pre></div>
 <h2 id="fuction-simple-sort">Fuction <code>simple-sort</code></h2>
 <p>Sort selection.</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> simple-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
-<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">sequence</span></span>
-<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>Input: call Function</span>
-<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>Input: key Function</span>
-<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>Output: result <span class="kw">sequence</span></span></code></pre></div>
-<p>It is not stable and does an <code>O(n^2)</code> sort.</p>
-<h2 id="fuction-bubble-sort">Fuction <code>bubble-sort</code></h2>
-<p>Bubble sort.</p>
-<div class="sourceCode" id="cb65"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> bubble-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
+<div class="sourceCode" id="cb65"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> simple-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">sequence</span></span>
 <span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a>Input: call Function</span>
 <span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a>Input: key Function</span>
 <span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a>Output: result <span class="kw">sequence</span></span></code></pre></div>
-<p>It is stable and does an <code>O(n^2)</code> sort.</p>
-<h2 id="fuction-quick-sort">Fuction <code>quick-sort</code></h2>
-<p>Quick sort.</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> quick-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
+<p>It is not stable and does an <code>O(n^2)</code> sort.</p>
+<h2 id="fuction-bubble-sort">Fuction <code>bubble-sort</code></h2>
+<p>Bubble sort.</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> bubble-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
 <span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">sequence</span></span>
 <span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>Input: call Function</span>
 <span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>Input: key Function</span>
 <span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>Output: result <span class="kw">sequence</span></span></code></pre></div>
-<p>It is not stable and does an <code>O(n log n)</code> sort.</p>
-<h2 id="fuction-merge-sort">Fuction <code>merge-sort</code></h2>
-<p>Merge sort.</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> merge-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
+<p>It is stable and does an <code>O(n^2)</code> sort.</p>
+<h2 id="fuction-quick-sort">Fuction <code>quick-sort</code></h2>
+<p>Quick sort.</p>
+<div class="sourceCode" id="cb67"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> quick-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">sequence</span></span>
 <span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>Input: call Function</span>
 <span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a>Input: key Function</span>
 <span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>Output: result <span class="kw">sequence</span></span></code></pre></div>
+<p>It is not stable and does an <code>O(n log n)</code> sort.</p>
+<h2 id="fuction-merge-sort">Fuction <code>merge-sort</code></h2>
+<p>Merge sort.</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> merge-sort </span>(<span class="kw">sequence</span> call &amp;key key) ...) -&gt; result</span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">sequence</span></span>
+<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a>Input: call Function</span>
+<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a>Input: key Function</span>
+<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a>Output: result <span class="kw">sequence</span></span></code></pre></div>
 <p>It is stable and does an <code>O(n log n)</code> sort.</p>
-<h1 id="other-functions"><a id="others">7. Other Functions</a></h1>
+<h1 id="paper-object"><a id="system-call-7">7. Paper Object</a></h1>
+<p>These are function specifications for paper object in the <code>npt-system</code> package.</p>
+<div class="sourceCode" id="cb69"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> make-paper</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> info-paper</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> array-paper</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> body-paper</span></span></code></pre></div>
+<h2 id="function-make-paper">Function <code>make-paper</code></h2>
+<p>Create a Paper object.</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> make-paper </span>(<span class="kw">array</span> body &amp;key <span class="kw">fill</span> <span class="kw">type</span>) ...) -&gt; result</span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">array</span> size</span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>Input: body size</span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">fill</span> Initial value</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">type</span> User Value</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>Output: result paper</span></code></pre></div>
+<p>A Paper object is an object that contains both a <code>simple-vector</code> and a buffer in byte format.<br />
+If <code>array</code> is <code>nil</code> or <code>0</code>, it will be created in body format.<br />
+If <code>body</code> is <code>nil</code> or <code>0</code>, it will be created in array format.<br />
+If both <code>array</code> and <code>body</code> are greater than or equal to 1, it will be generated in array-body format.<br />
+In the case of array-body format, both <code>array</code> and <code>body</code> must be less than or equal to <code>#xFFFF</code>.</p>
+<p><code>:fill</code> specifies the initial value of the body format.<br />
+It can be <code>nil</code>, <code>t</code>, or an integer between <code>0x00</code> and <code>#xFF</code>.<br />
+If <code>nil</code>, no initialization is performed.<br />
+<code>t</code> is the same as 0.</p>
+<p><code>:type</code> is a User value.<br />
+User value is a 1-byte region that holds values from <code>#x00</code> to <code>#xFF</code> regardless of the format.<br />
+The default value is 0.<br />
+It is recommended to use this as the type of Paper object.</p>
+<h2 id="function-info-paper">Function <code>info-paper</code></h2>
+<p>Perform the following operations on the Paper object.</p>
+<ul>
+<li>Getting and Setting User Values</li>
+<li>Get array and body in bulk</li>
+<li>Getting the size of array and body</li>
+</ul>
+<div class="sourceCode" id="cb71"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> info-paper </span>(paper <span class="kw">symbol</span> &amp;optional <span class="kw">second</span>) ...) -&gt; result</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>Input: paper</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">symbol</span>, (<span class="kw">member</span> <span class="kw">list</span> <span class="kw">vector</span> <span class="kw">type</span> <span class="kw">length</span>)</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">second</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>Output: result</span></code></pre></div>
+<p>If <code>symbol</code> is <code>type</code>, acquisition and setting of the User value will be performed.<br />
+If <code>second</code> is not specified, acquisition is performed.<br />
+If <code>second</code> is specified, setting is performed.</p>
+<p>If <code>symbol</code> is <code>list</code>, the contents of the array or body will be returned as a list.<br />
+If <code>second</code> is not specified or is <code>nil</code>, all arrays will be returned.<br />
+If <code>second</code> is not <code>nil</code>, all bodies will be returned.</p>
+<p>If <code>symbol</code> is <code>vector</code>, the contents of the array or body will be returned as a vector.<br />
+If <code>second</code> is not specified or is <code>nil</code>, all arrays will be returned.<br />
+If <code>second</code> is not <code>nil</code>, all bodies will be returned.<br />
+If it is a body, it will be returned as a specialized array of the form <code>(unsigned-byte 8)</code>.</p>
+<p>If <code>symbol</code> is <code>length</code>, the length of array or body will be returned.<br />
+If <code>second</code> is not specified or is <code>nil</code>, the array length will be returned.<br />
+If <code>second</code> is not <code>nil</code>, the body length will be returned.</p>
+<h2 id="function-array-paper">Function <code>array-paper</code></h2>
+<p>Sets and gets the array for the Paper object.</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> array-paper </span>(paper index &amp;optional value) ...) -&gt; result</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a>Input: paper</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a>Input: index, (<span class="kw">integer</span> <span class="dv">0</span> <span class="op">*</span>)</span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a>Input: value</span>
+<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a>Output: result</span></code></pre></div>
+<p>If <code>value</code> is not specified, it is a get.<br />
+If <code>value</code> is specified, it is a setting.</p>
+<h2 id="function-body-paper">Function <code>body-paper</code></h2>
+<p>Sets and gets the body for the Paper object.</p>
+<div class="sourceCode" id="cb73"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> body-paper </span>(paper index &amp;optional value) ...) -&gt; result</span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>Input: paper</span>
+<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>Input: index, (<span class="kw">integer</span> <span class="dv">0</span> <span class="op">*</span>)</span>
+<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>Input: value</span>
+<span id="cb73-6"><a href="#cb73-6" aria-hidden="true" tabindex="-1"></a>Output: result</span></code></pre></div>
+<p>If <code>value</code> is not specified, it is a get.<br />
+If <code>value</code> is specified, it is a setting.</p>
+<h1 id="other-functions"><a id="system-call-8">8. Other Functions</a></h1>
 <p>These are function specifications for other function in the <code>npt-system</code> package.</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> package-export-list</span></span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> large-number</span></span>
-<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> equal-random-state</span></span>
-<span id="cb68-4"><a href="#cb68-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-file</span></span>
-<span id="cb68-5"><a href="#cb68-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-directory</span></span>
-<span id="cb68-6"><a href="#cb68-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> byte-integer</span></span>
-<span id="cb68-7"><a href="#cb68-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-set</span></span>
-<span id="cb68-8"><a href="#cb68-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-get</span></span>
-<span id="cb68-9"><a href="#cb68-9" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-width</span></span></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> package-export-list</span></span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> large-number</span></span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> equal-random-state</span></span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-file</span></span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> remove-directory</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> byte-integer</span></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> fpclassify</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-set</span></span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-get</span></span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-width</span></span></code></pre></div>
 <h2 id="fuction-package-export-list">Fuction <code>package-export-list</code></h2>
 <p>Get the <code>export</code> list of the <code>package</code>.</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> package-export-list </span>(package-designer) ...) -&gt; <span class="kw">list</span></span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>Input: package-designer</span>
-<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">list</span></span></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> package-export-list </span>(package-designer) ...) -&gt; <span class="kw">list</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>Input: package-designer</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">list</span></span></code></pre></div>
 <p>Get the list of names of symbols which are exported in the package.</p>
 <h2 id="fuction-large-number">Fuction <code>large-number</code></h2>
 <p>Get the notation for a comma-separated list of 3-digit numbers in English.</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> large-number </span>(value &amp;optional (cardinal <span class="kw">t</span>)) ...) -&gt; <span class="kw">string</span></span>
-<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>Input: value <span class="kw">integer</span></span>
-<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>Input: cardinal <span class="kw">boolean</span></span>
-<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">string</span></span></code></pre></div>
+<div class="sourceCode" id="cb76"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> large-number </span>(value &amp;optional (cardinal <span class="kw">t</span>)) ...) -&gt; <span class="kw">string</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>Input: value <span class="kw">integer</span></span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>Input: cardinal <span class="kw">boolean</span></span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">string</span></span></code></pre></div>
 <p>Separate each number by three digits and return the <code>n-1</code>th string from the right.</p>
 <p>Considering the following numbers</p>
 <pre><code>1,000,000</code></pre>
@@ -888,91 +971,106 @@ A value of <code>:input</code> is input, <code>:output</code> is output, and <co
 The argument 1 corresponds to the second comma from the right, so it is <code>million</code>.<br />
 The argument <code>cardinal</code> is <code>nil</code> and it becomes ordinal number.</p>
 <h3 id="example-12">Example</h3>
-<div class="sourceCode" id="cb72"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">0</span>)</span>
-<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;thousand&quot;</span></span>
-<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">1</span>)</span>
-<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;million&quot;</span></span>
-<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">1000</span>)</span>
-<span id="cb72-6"><a href="#cb72-6" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;millinillion&quot;</span></span>
-<span id="cb72-7"><a href="#cb72-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">5555</span>)</span>
-<span id="cb72-8"><a href="#cb72-8" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;quintilliquinquinquagintaquingentillion&quot;</span></span>
-<span id="cb72-9"><a href="#cb72-9" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">5555</span> <span class="kw">nil</span>)</span>
-<span id="cb72-10"><a href="#cb72-10" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;quintilliquinquinquagintaquingentillionth&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb78"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">0</span>)</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;thousand&quot;</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">1</span>)</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;million&quot;</span></span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">1000</span>)</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;millinillion&quot;</span></span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">5555</span>)</span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;quintilliquinquinquagintaquingentillion&quot;</span></span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (large-number <span class="dv">5555</span> <span class="kw">nil</span>)</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a><span class="st">&quot;quintilliquinquinquagintaquingentillionth&quot;</span></span></code></pre></div>
 <h2 id="fuction-equal-random-state">Fuction <code>equal-random-state</code></h2>
 <p>Check whether <code>random-state</code> is equal.</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> equal-random-state </span>(a b) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>Input: a <span class="kw">random-state</span></span>
-<span id="cb73-4"><a href="#cb73-4" aria-hidden="true" tabindex="-1"></a>Input: b <span class="kw">random-state</span></span>
-<span id="cb73-5"><a href="#cb73-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> equal-random-state </span>(a b) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>Input: a <span class="kw">random-state</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>Input: b <span class="kw">random-state</span></span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <h2 id="fuction-remove-file">Fuction <code>remove-file</code></h2>
 <p>Remove the file.</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> remove-file </span>(<span class="kw">pathname</span> &amp;optional (<span class="kw">error</span> <span class="kw">t</span>)) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">pathname</span></span>
-<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>Input: errorp</span>
-<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> remove-file </span>(<span class="kw">pathname</span> &amp;optional (<span class="kw">error</span> <span class="kw">t</span>)) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">pathname</span></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>Input: errorp</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>Unlike the standard function <code>delete-file</code>, the <code>errorp</code> argument can handle failure cases. By default, <code>errorp</code> is <code>t</code>, which is the same as <code>delete-file</code>.<br />
 If <code>errorp</code> is <code>nil</code>, the standard function returns <code>t</code> if the deletion succeeds, and <code>nil</code> if it fails.</p>
 <h2 id="fuction-remove-directory">Fuction <code>remove-directory</code></h2>
 <p>Remove the directory.</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> remove-directory </span>(<span class="kw">pathname</span> &amp;optional (<span class="kw">error</span> <span class="kw">t</span>)) ...) -&gt; <span class="kw">boolean</span></span>
-<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">pathname</span></span>
-<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>Input: errorp</span>
-<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> remove-directory </span>(<span class="kw">pathname</span> &amp;optional (<span class="kw">error</span> <span class="kw">t</span>)) ...) -&gt; <span class="kw">boolean</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">pathname</span></span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>Input: errorp</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>If <code>errorp</code> is <code>t</code>, the <code>error condition</code> is executed when the deletion fails.<br />
 If <code>errorp</code> is <code>nil</code>, <code>t</code> is returned when the deletion succeeds, and <code>nil</code> is returned when the deletion fails.</p>
 <h2 id="fuction-byte-integer">Fuction <code>byte-integer</code></h2>
 <p>Considering the endianness of the CPU, concatenate the values of <code>unsigned-byte</code> and return an integer.</p>
-<div class="sourceCode" id="cb76"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> byte-integer </span>(&amp;<span class="kw">rest</span> args) ...) -&gt; result</span>
-<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>Input: args (<span class="kw">unsigned-byte</span> <span class="dv">8</span>)</span>
-<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>Output: result (<span class="kw">integer</span> <span class="dv">0</span> <span class="op">*</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> byte-integer </span>(&amp;<span class="kw">rest</span> args) ...) -&gt; result</span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>Input: args (<span class="kw">unsigned-byte</span> <span class="dv">8</span>)</span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a>Output: result (<span class="kw">integer</span> <span class="dv">0</span> <span class="op">*</span>)</span></code></pre></div>
 <p>For example, it is used to get the number of bytes <code>#x00 #x01</code> for an unsigned 16-bit integer <code>uint16_t</code>.<br />
 If the CPU is big endian, the upper byte is <code>#x00</code> and the lower byte is <code>#x01</code>, so the return value is <code>#x01=1</code>.<br />
 On the other hand, if the CPU is a little endian, the return value is <code>#x0100=256</code>.</p>
+<h2 id="function-fpclassify">Function <code>fpclassify</code></h2>
+<p>Get the status and sign of a floating-point number.</p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> fpclassify </span>(<span class="kw">float</span>) ...) -&gt; <span class="kw">type</span>, sign</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">float</span></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>Output: result <span class="kw">symbol</span></span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>Output: result <span class="dv">1</span> <span class="kw">or</span> -<span class="dv">1</span></span></code></pre></div>
+<p>If <code>float</code> is infinite, <code>type</code> is <code>npt-system::fp-infinite</code>.<br />
+If <code>float</code> is a non-numeric number, <code>type</code> is <code>npt-system::fp-nan</code>.<br />
+If <code>float</code> is a normal number, <code>type</code> is <code>npt-system::fp-normal</code>.<br />
+If <code>float</code> is a denormal number, <code>type</code> is <code>npt-system::fp-subnormal</code>.<br />
+If <code>float</code> is zero, <code>type</code> is <code>npt-system::fp-zero</code>.<br />
+If the sign of <code>float</code> is positive, <code>sign</code> is <code>1</code>.<br />
+If the sign of the <code>float</code> is negative, <code>sign</code> is <code>-1</code>.</p>
+<p>Essentially, Common Lisp cannot handle infinity and non-numbers, and an <code>arithmetic-error</code> condition will be raised when it occurs.</p>
 <h2 id="fuction-eastasian-set">Fuction <code>eastasian-set</code></h2>
 <p>Set the number of characters for each of the East Asian Width categories.</p>
-<div class="sourceCode" id="cb77"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-set </span>(string-designer intplus &amp;optional <span class="kw">error</span>) ...) -&gt; <span class="kw">boolean</span>) */</span>
-<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>Input: string-designer</span>
-<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>Input: intplus (<span class="kw">integer</span> <span class="dv">0</span> <span class="op">*</span>)</span>
-<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">error</span> <span class="kw">boolean</span></span>
-<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-set </span>(string-designer intplus &amp;optional <span class="kw">error</span>) ...) -&gt; <span class="kw">boolean</span>) */</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>Input: string-designer</span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>Input: intplus (<span class="kw">integer</span> <span class="dv">0</span> <span class="op">*</span>)</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">error</span> <span class="kw">boolean</span></span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>EastAsianWidth is a representation of Unicode character width.<br />
 The input <code>string-designer</code> receives six categories, <code>N</code>, <code>A</code>, <code>H</code>, <code>W</code>, <code>F</code>, and <code>NA</code>.<br />
 For each category, the number of characters specified in the <code>intplus</code> is set. If <code>error</code> is <code>t</code>, an error occurs if the category does not exist.<br />
 If <code>error</code> is <code>t</code>, an error is returned if the category does not exist.</p>
 <h2 id="fuction-eastasian-get">Fuction <code>eastasian-get</code></h2>
 <p>Get the number of characters corresponding to the East Asian Width category.</p>
-<div class="sourceCode" id="cb78"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-get </span>(string-designer) ...) -&gt; (<span class="kw">values</span> IntplusNull <span class="kw">symbol</span>)</span>
-<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>Input: string-designer</span>
-<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>Output: intplusNull <span class="kw">length</span> of <span class="kw">string</span> <span class="kw">or</span> <span class="kw">nil</span></span>
-<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">symbol</span> category</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-get </span>(string-designer) ...) -&gt; (<span class="kw">values</span> IntplusNull <span class="kw">symbol</span>)</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>Input: string-designer</span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>Output: intplusNull <span class="kw">length</span> of <span class="kw">string</span> <span class="kw">or</span> <span class="kw">nil</span></span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">symbol</span> category</span></code></pre></div>
 <p>EastAsianWidth is a representation of Unicode character width.<br />
 The input <code>string-designer</code> receives six categories, <code>N</code>, <code>A</code>, <code>H</code>, <code>W</code>, <code>F</code>, and <code>NA</code>.<br />
 The number of characters for each category is returned.<br />
 In case of an error, <code>NIL</code> is returned.</p>
 <h2 id="fuction-eastasian-width">Fuction <code>eastasian-width</code></h2>
 <p>A length that takes into account the East Asian Width will be returned.</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-width </span>(var) ...) -&gt; (<span class="kw">values</span> IntplusNull <span class="kw">boolean</span>)</span>
-<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>Input: var  (<span class="kw">or</span> <span class="kw">integer</span> <span class="kw">character</span> <span class="kw">string</span>)</span>
-<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>Output: IntplusNull <span class="kw">length</span> of <span class="kw">string</span> <span class="kw">or</span> <span class="kw">nil</span></span>
-<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-width </span>(var) ...) -&gt; (<span class="kw">values</span> IntplusNull <span class="kw">boolean</span>)</span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>Input: var  (<span class="kw">or</span> <span class="kw">integer</span> <span class="kw">character</span> <span class="kw">string</span>)</span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a>Output: IntplusNull <span class="kw">length</span> of <span class="kw">string</span> <span class="kw">or</span> <span class="kw">nil</span></span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>The input <code>var</code> can be a character, a integer, or a string.<br />
 If it is a integer, it is assumed to be a character code.</p>
 <h3 id="example-13">Example</h3>
-<div class="sourceCode" id="cb80"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (eastasian-width <span class="ch">#\A</span>)</span>
-<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span></span>
-<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (eastasian-width <span class="ch">#\u</span>3042)</span>
-<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
-<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>T</span>
-<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (eastasian-width <span class="ch">#x</span>3044)</span>
-<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
-<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (eastasian-width <span class="ch">#\A</span>)</span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (eastasian-width <span class="ch">#\u</span>3042)</span>
+<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
+<span id="cb87-6"><a href="#cb87-6" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb87-7"><a href="#cb87-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (eastasian-width <span class="ch">#x</span>3044)</span>
+<span id="cb87-8"><a href="#cb87-8" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span></span>
+<span id="cb87-9"><a href="#cb87-9" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
 </body>
 </html>

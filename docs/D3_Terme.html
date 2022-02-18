@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Lisp Function: terme</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Lisp Function: terme</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a></p>
+<h1 id="lisp-function-specification">Lisp Function Specification</h1>
+<p>The following functions of the <code>npt-system</code> package are described.</p>
+<ul>
+<li><a href="#terme-1">sysctl</a></li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> terme</span></span></code></pre></div>
+<ul>
+<li><a href="#terme-2"><code>terme-enable</code></a></li>
+<li><a href="#terme-3"><code>terme-begin</code></a></li>
+<li><a href="#terme-4"><code>terme-end</code></a></li>
+<li><a href="#terme-5"><code>terme-input</code></a></li>
+<li><a href="#terme-6"><code>terme-output</code></a></li>
+<li><a href="#terme-7"><code>terme-move</code></a></li>
+<li><a href="#terme-8"><code>terme-clear</code></a></li>
+<li><a href="#terme-9"><code>terme-delete</code></a></li>
+<li><a href="#terme-10"><code>terme-size</code></a></li>
+<li><a href="#terme-11"><code>terme-scroll</code></a></li>
+<li><a href="#terme-12"><code>terme-font</code></a></li>
+</ul>
+<h1 id="function-terme"><a id="terme-1">Function <code>terme</code></a></h1>
+<p>This function manipulates the input and output of the terminal.</p>
+<p>To use terme, you need to specify the compile option.<br />
+You can check whether it is available or not with the command line argument <code>--version</code>.</p>
+<pre><code>$ npt --version | grep Prompt
+Prompt mode          terme</code></pre>
+<p>The function specification is shown below.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(<span class="kw">symbol</span> &amp;<span class="kw">rest</span> args) ...) -&gt; <span class="op">*</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">symbol</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Input: args</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>OOutput: <span class="op">*</span></span></code></pre></div>
+<p><code>symbol</code> can have the following contents</p>
+<ul>
+<li><code>terme-enable</code></li>
+<li><code>terme-begin</code></li>
+<li><code>terme-end</code></li>
+<li><code>terme-input</code></li>
+<li><code>terme-output</code></li>
+<li><code>terme-move</code></li>
+<li><code>terme-clear</code></li>
+<li><code>terme-delete</code></li>
+<li><code>terme-size</code></li>
+<li><code>terme-scroll</code></li>
+<li><code>terme-font</code></li>
+</ul>
+<p>For example, when you run <code>terme-enable</code>, do the following</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-enable)</span></code></pre></div>
+<p>Unlike <code>sysctl</code>, the argument is <code>symbol</code> compared with <code>eq</code>.<br />
+If you do not inherit from the <code>npt-system</code> package, you can run</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>(npt-system:terme &#39;npt-system:terme-enable)</span></code></pre></div>
+<p>The following explanation assumes that the package is inherited.</p>
+<h1 id="function-terme-terme-enable"><a id="terme-2">Function <code>terme</code>: <code>terme-enable</code></a></h1>
+<p>Returns whether the terme module is available or not.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-enable) ...) -&gt; <span class="kw">boolean</span></span></code></pre></div>
+<p>If the return is <code>t</code>, the <code>terme</code> function is available.<br />
+If the return is <code>nil</code>, the <code>terme</code> function is not available.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-enable)</span></code></pre></div>
+<h1 id="function-terme-terme-begin"><a id="terme-3">Function <code>terme</code>: <code>terme-begin</code></a></h1>
+<p>Start the terme operation.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-begin &amp;optional mode) ...) -&gt; paper</span></code></pre></div>
+<p>For internal operation, the terminal is set to raw mode.<br />
+The raw mode is different from the normal mode in the following ways</p>
+<ul>
+<li>Ctrl+C, etc. are treated as input.</li>
+<li>Input and output is done in bytes, not lines.</li>
+<li>Line feeds are handled differently than usual.</li>
+</ul>
+<p>The return value <code>paper</code> is a Paper object with the terminal information before the change.<br />
+By passing it as an argument of <code>terme-end</code>, you can restore the state of the terminal.<br />
+Be sure to run <code>terme-end</code> before exiting.</p>
+<p>The <code>mode</code> argument can be <code>nil</code> or <code>:default</code>.<br />
+If it is <code>nil</code>, it sets the terminal to raw mode.<br />
+If <code>mode</code> is <code>:default</code>, it will change the terminal to the startup configuration.<br />
+The return value is the terminal information before it is changed, as in raw mode.</p>
+<p>See <code>terme-end</code> for an execution example.</p>
+<h1 id="function-terme-terme-end"><a id="terme-4">Function <code>terme</code>: <code>terme-end</code></a></h1>
+<p>Terminate the terme operation.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-end paper) ...) -&gt; <span class="kw">null</span></span></code></pre></div>
+<p>For internal operation, restores the terminal to its normal state based on the information in the argument.</p>
+<p>It is recommended to run <code>terme-end</code> in the cleanup of <code>unwind-protect</code>.<br />
+For example, the following will work.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">let</span> ((x (terme &#39;terme-begin)))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  (<span class="kw">unwind-protect</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    (<span class="kw">progn</span> ...)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    (terme &#39;terme-end x)))</span></code></pre></div>
+<h1 id="function-terme-terme-input"><a id="terme-5">Function <code>terme</code>: <code>terme-input</code></a></h1>
+<p>Receives input.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-input &amp;optional (<span class="kw">block</span> <span class="kw">t</span>)) ...) -&gt; (<span class="kw">values</span> <span class="kw">symbol</span> value)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">block</span>   (<span class="kw">or</span> <span class="kw">null</span> (<span class="kw">eql</span> <span class="kw">t</span>) <span class="kw">integer</span> <span class="kw">float</span>)  <span class="co">;; default T</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">symbol</span>  <span class="kw">symbol</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  value   (<span class="kw">or</span> <span class="kw">null</span> <span class="kw">integer</span>)</span></code></pre></div>
+<p>This function will stop execution until an input is received.<br />
+The input can be any of the following</p>
+<ul>
+<li>Input from the keyboard</li>
+<li>Terminal resizing notification</li>
+</ul>
+<p>The correspondence between the input and returned values is shown below.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Input</th>
+<th>Return <code>symbol</code></th>
+<th>Return <code>value</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Character</td>
+<td><code>terme-code</code></td>
+<td>Code</td>
+</tr>
+<tr class="even">
+<td>Up key</td>
+<td><code>terme-up</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="odd">
+<td>Down key</td>
+<td><code>terme-down</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="even">
+<td>Left key</td>
+<td><code>terme-left</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="odd">
+<td>Right key</td>
+<td><code>terme-right</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="even">
+<td>Function key</td>
+<td><code>terme-function</code></td>
+<td>1, 2, …</td>
+</tr>
+<tr class="odd">
+<td>Home key</td>
+<td><code>terme-home</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="even">
+<td>End key</td>
+<td><code>terme-end</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="odd">
+<td>Page Up key</td>
+<td><code>terme-page-up</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="even">
+<td>Page Down key</td>
+<td><code>terme-page-down</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="odd">
+<td>Insert key</td>
+<td><code>terme-insert</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="even">
+<td>Esc key</td>
+<td><code>terme-escape</code></td>
+<td><code>nil</code></td>
+</tr>
+</tbody>
+</table>
+<p>The correspondence between events and returned values is shown below.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Event</th>
+<th>Return <code>symbol</code></th>
+<th>Return <code>value</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Input error</td>
+<td><code>nil</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="even">
+<td>Resizing</td>
+<td><code>terme-signal</code></td>
+<td><code>nil</code></td>
+</tr>
+<tr class="odd">
+<td>Time out</td>
+<td><code>terme-hang</code></td>
+<td><code>nil</code></td>
+</tr>
+</tbody>
+</table>
+<p>An input error is when an unrecognized input or an unsupported escape sequence is received.<br />
+This may occur frequently, so it is recommended to ignore it.</p>
+<p>A resize is when the process receives a signal.<br />
+When the size of the terminal is changed, it also receives a signal, which triggers the screen to be redrawn.</p>
+<p>Describes timeouts.</p>
+<p><code>terme-input</code> takes an optional argument <code>block</code>.<br />
+When omitted, it is <code>t</code>.<br />
+If <code>block</code> is <code>t</code>, it will wait indefinitely.<br />
+If <code>block</code> is <code>nil</code> or <code>0</code>, it will return immediately without waiting.<br />
+If <code>block</code> is an integer or a float, it is the number of seconds until timeout.<br />
+If a timeout occurs, <code>terme-hang</code> will be returned.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-input)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>-&gt; TERME-CODE, <span class="dv">3</span>       <span class="co">;; Ctrl+C received.</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-input <span class="fl">0.01</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>-&gt; TERME-HANG, NIL     <span class="co">;; Time out.</span></span></code></pre></div>
+<h1 id="function-terme-terme-output"><a id="terme-6">Function <code>terme</code>: <code>terme-output</code></a></h1>
+<p>Output data to the terminal.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-output &amp;optional value) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  value  (<span class="kw">or</span> <span class="kw">null</span> charcter <span class="kw">string</span> <span class="kw">integer</span> <span class="kw">array</span>)  <span class="co">;; default nil</span></span></code></pre></div>
+<p>The <code>value</code> argument is optional and defaults to <code>nil</code>.<br />
+If the argument <code>value</code> is a character, it will be output in UTF-8 encoding.<br />
+If the argument <code>value</code> is a string, the output will be UTF-8 encoded.<br />
+If the argument <code>value</code> is an integer, it will be assumed to be Unicode code and output with UTF-8 encoding.<br />
+If the argument <code>value</code> is an array, output will be performed according to the content.<br />
+If the argument <code>value</code> is <code>nil</code>, data in the cache will be flushed.</p>
+<p>If the argument is an array, it must be one-dimensional.<br />
+An array outputs from the first element to the value of the <code>fill-pointer</code>.<br />
+You can prepare a large buffer in advance and manipulate its size with <code>fill-pointer</code> to save memory space and improve speed.</p>
+<p>When output is performed with this function, the output data will be pending in the internal buffer.<br />
+If you want to reflect the data on the screen, be sure to flush the content with <code>(terme 'terme-output)</code>.<br />
+Other operation functions that are not <code>terme-output</code> (such as <code>terme-move</code>) are realized by outputting the escape sequence with <code>terme-output</code>.<br />
+If you want such functions to be reflected on the screen immediately, flush the buffer by executing <code>(terme 'terme-output)</code> as well as the character output.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">;;  13, 10, Output newline by flush.</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="dv">13</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="dv">10</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="co">;;  Moving the cursor.</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">10</span> <span class="dv">20</span> :absolute)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<h1 id="function-terme-terme-move"><a id="terme-7">Function <code>terme</code>: <code>terme-move</code></a></h1>
+<p>Move the cursor.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-move x y mode) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  x     <span class="kw">integer</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  y     (<span class="kw">or</span> <span class="kw">null</span> <span class="kw">integer</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  mode  (<span class="kw">member</span> :absolute :relative)</span></code></pre></div>
+<p>If <code>mode</code> is <code>:relative</code>, specifies the distance to move from the current cursor position.<br />
+If <code>mode</code> is <code>:absolute</code>, it specifies the absolute coordinates from the top-left corner.<br />
+<code>(0, 0)</code> is the origin.<br />
+You can set <code>y</code> to <code>nil</code> only when <code>:absolute</code>.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">0</span> :absolute)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<h1 id="function-terme-terme-clear"><a id="terme-8">Function <code>terme</code>: <code>terme-clear</code></a></h1>
+<p>Erase the text of the entire terminal.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-clear &amp;optional value) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  value  (<span class="kw">member</span> <span class="kw">nil</span> :before :after)  <span class="co">;; default nil</span></span></code></pre></div>
+<p>The <code>value</code> argument is optional and defaults to <code>nil</code>.<br />
+If the <code>value</code> argument is <code>nil</code>, the entire screen will be deleted.<br />
+If the <code>value</code> argument is <code>:before</code>, the entire top and bottom of the line including the cursor position will be deleted.<br />
+If the <code>value</code> argument is <code>:after</code>, it will delete the end of the line including the cursor position and the whole bottom part.</p>
+<p>The following is an example of <code>:before</code> execution.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-clear)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">0</span> :absolute)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;ABCDEF&quot;</span>)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">1</span> :absolute)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;GHIJKL&quot;</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">2</span> :absolute)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;MNOPQR&quot;</span>)</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">3</span> <span class="dv">1</span> :absolute)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-clear :before)</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">3</span> :absolute)</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<p>The execution results are as follows.</p>
+<pre><code>
+    KL
+MNOPQR</code></pre>
+<p>The following is an example of <code>:after</code> execution.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-clear)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">0</span> :absolute)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;ABCDEF&quot;</span>)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">1</span> :absolute)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;GHIJKL&quot;</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">2</span> :absolute)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;MNOPQR&quot;</span>)</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">3</span> <span class="dv">1</span> :absolute)</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-clear :after)</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">3</span> :absolute)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<p>The execution results are as follows.</p>
+<pre><code>ABCDEF
+GHI
+</code></pre>
+<h1 id="function-terme-terme-delete"><a id="terme-9">Function <code>terme</code>: <code>terme-delete</code></a></h1>
+<p>Erase a line of text.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-delete &amp;optional value) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  value  (<span class="kw">member</span> <span class="kw">nil</span> :before :after)  <span class="co">;; default nil</span></span></code></pre></div>
+<p>The <code>value</code> argument is optional and defaults to <code>nil</code>.<br />
+If the <code>value</code> argument is <code>nil</code>, the entire line will be deleted.<br />
+If the <code>value</code> argument is <code>:before</code>, the entire line up to and including the cursor position will be deleted.<br />
+If the <code>value</code> argument is <code>:after</code>, the end of the line including the cursor position will be deleted.</p>
+<p>The following is an example of <code>:after</code> execution.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-clear)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">0</span> :absolute)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;ABCDEF&quot;</span>)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">1</span> :absolute)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;GHIJKL&quot;</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">2</span> :absolute)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output <span class="st">&quot;MNOPQR&quot;</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">3</span> <span class="dv">1</span> :absolute)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-delete :before)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-move <span class="dv">0</span> <span class="dv">3</span> :absolute)</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<p>The execution results are as follows.</p>
+<pre><code>ABCDEF
+    KL
+MNOPQR</code></pre>
+<h1 id="function-terme-terme-size"><a id="terme-10">Function <code>terme</code>: <code>terme-size</code></a></h1>
+<p>Gets the width and height of the terminal.<br />
+The unit is the number of characters.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-size) ...) -&gt; x, y</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  x  Number of horizontal characters. Width.</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  y  Number of vertical characters. Height.</span></code></pre></div>
+<p>Execution example</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (terme &#39;terme-size)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="dv">80</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="dv">25</span></span></code></pre></div>
+<h1 id="function-terme-terme-scroll"><a id="terme-11">Function <code>terme</code>: <code>terme-scroll</code></a></h1>
+<p>Scroll up and down the screen.</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-scroll value) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  value  <span class="kw">integer</span></span></code></pre></div>
+<p>If <code>value</code> is positive, it will scroll up.<br />
+If <code>value</code> is negative, it will scroll down.</p>
+<p>When <code>value</code> is <code>1</code>, the behavior is the same as when you press Enter at the bottom of the screen.</p>
+<h1 id="function-terme-terme-font"><a id="terme-12">Function <code>terme</code>: <code>terme-font</code></a></h1>
+<p>Changes the text type, text color, and background color.</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> terme </span>(terme-font &amp;<span class="kw">rest</span> args) ...) -&gt; <span class="kw">null</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>  value  (<span class="kw">member</span> <span class="kw">nil</span> :before :after)  <span class="co">;; default nil</span></span></code></pre></div>
+<p>This function will not display correctly depending on the performance of the terminal being displayed.</p>
+<p>Text type refers to attributes such as bold, italic, etc.<br />
+The text and background colors can be set to the default 8 colors, 256 palettes, or RGB specification.</p>
+<p>The following order explains how to use this function.</p>
+<ul>
+<li>Resetting characters</li>
+<li>Setting the text type</li>
+<li>Setting text color</li>
+<li>Setting background color</li>
+<li>Composite settings</li>
+</ul>
+<h2 id="resetting-characters">Resetting characters</h2>
+<p>You can reset the character by doing one of the following</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font <span class="kw">nil</span>)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;code &#39;reset)</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;code <span class="dv">0</span>)</span></code></pre></div>
+<p>The text type, text color, and background color will be restored to their default settings.</p>
+<h2 id="setting-the-text-type">Setting the text type</h2>
+<p>The text type can be set with <code>'code</code>.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;code x)</span></code></pre></div>
+<p><code>x</code> can be an integer or a symbol.<br />
+If it is an integer, it is the operation number of the escape sequence.<br />
+If <code>x</code> is a symbol, the following contents can be specified.</p>
+<table>
+<thead>
+<tr class="header">
+<th>symbol</th>
+<th>Description</th>
+<th>Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>reset</code></td>
+<td>Reset or normal</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td><code>bold</code></td>
+<td>Bold or increased intensity</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td><code>faint</code></td>
+<td>Faint, decreased intensity</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td><code>italic</code></td>
+<td>Italic</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td><code>underline</code></td>
+<td>Underline</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td><code>slow-blink</code></td>
+<td>Slow blink</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td><code>rapid-blink</code></td>
+<td>Rapid blink</td>
+<td>6</td>
+</tr>
+<tr class="even">
+<td><code>reverse</code></td>
+<td>Reverse video or invert</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td><code>hide</code></td>
+<td>Conceal or hide</td>
+<td>8</td>
+</tr>
+<tr class="even">
+<td><code>strike</code></td>
+<td>Crossed-out, or strike</td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;code &#39;italic)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<h2 id="setting-text-color">Setting text color</h2>
+<p>The text color can be specified in the following three ways.</p>
+<ul>
+<li>Standard 8 colors</li>
+<li>256 palettes</li>
+<li>RGB full color</li>
+</ul>
+<p>The standard 8-color specification can be set with the <code>fore</code> identifier.<br />
+It takes the following values as arguments.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Color</th>
+<th>Value</th>
+<th>Value (Dark)</th>
+<th>Value (Bright)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Black</td>
+<td><code>black</code></td>
+<td><code>dark-black</code></td>
+<td><code>bright-black</code></td>
+</tr>
+<tr class="even">
+<td>Red</td>
+<td><code>red</code></td>
+<td><code>dark-red</code></td>
+<td><code>bright-red</code></td>
+</tr>
+<tr class="odd">
+<td>Green</td>
+<td><code>green</code></td>
+<td><code>dark-green</code></td>
+<td><code>bright-green</code></td>
+</tr>
+<tr class="even">
+<td>Yeloow</td>
+<td><code>yellow</code></td>
+<td><code>dark-yellow</code></td>
+<td><code>bright-yellow</code></td>
+</tr>
+<tr class="odd">
+<td>Blue</td>
+<td><code>blue</code></td>
+<td><code>dark-blue</code></td>
+<td><code>bright-blue</code></td>
+</tr>
+<tr class="even">
+<td>Magenta</td>
+<td><code>magenta</code></td>
+<td><code>dark-magenta</code></td>
+<td><code>bright-magenta</code></td>
+</tr>
+<tr class="odd">
+<td>Cyan</td>
+<td><code>cyan</code></td>
+<td><code>dark-cyan</code></td>
+<td><code>bright-cyan</code></td>
+</tr>
+<tr class="even">
+<td>White</td>
+<td><code>white</code></td>
+<td><code>dark-white</code></td>
+<td><code>bright-white</code></td>
+</tr>
+<tr class="odd">
+<td>Default</td>
+<td><code>default</code></td>
+<td>-</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>For identifications with neither <code>dark-</code> nor <code>bright-</code>, the lightness or darkness will be selected according to the value of <code>*prompt-bright*</code>.<br />
+For example, if <code>*prompt-bright*</code> is <code>t</code>, <code>yellow</code> is the same as <code>bright-yellow</code>.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;fore &#39;dark-magenta)</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<p>The 256-palette specification can be set with the <code>palfore</code> identifier.<br />
+The argument can be an integer from <code>#x00</code> to <code>#xFF</code>.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;palfore <span class="ch">#x</span>AA)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<p>The full RGB color specification can be set with the identifier <code>rgbfore</code>.<br />
+It takes three consecutive integers from <code>#x00</code> to <code>#xFF</code> as arguments.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;rgbfore <span class="ch">#x</span>FF #xFF #x80)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+<h2 id="setting-background-color">Setting background color</h2>
+<p>The setting method is the same as for text color.<br />
+The identifiers are different and are shown below.</p>
+<ul>
+<li>Standard 8 colors, <code>back</code>.</li>
+<li>256 palettes, <code>palback</code>.</li>
+<li>RGB full color, <code>rgbback</code>.</li>
+</ul>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;back &#39;dark-magenta)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;palback <span class="ch">#x</span>AA)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;rgbback <span class="ch">#x</span>FF #xFF #x80)</span></code></pre></div>
+<h2 id="composite-settings">Composite settings</h2>
+<p>The text type, text color, and background color can be set in combination.<br />
+If you want to set them at the same time, enter them consecutively.</p>
+<p>An execution example is shown below.</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-font &#39;code &#39;underline &#39;fore &#39;magenta &#39;rgbback <span class="ch">#x</span>FF #xFF #x80)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>(terme &#39;terme-output)</span></code></pre></div>
+</body>
+</html>

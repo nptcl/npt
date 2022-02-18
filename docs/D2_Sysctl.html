@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Lisp Function: sysctl</title>
+  <style>
+    html {
+      line-height: 1.5;
+      font-family: Georgia, serif;
+      font-size: 20px;
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 1em;
+      }
+    }
+    @media print {
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+      font-size: 85%;
+      margin: 0;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Lisp Function: sysctl</h1>
+</header>
+<p>Npt documentation.</p>
+<p>Reference: <a href="index.html">ANSI Common Lisp npt</a></p>
+<h1 id="lisp-function-specification">Lisp Function Specification</h1>
+<p>The following functions of the <code>npt-system</code> package are described.</p>
+<ul>
+<li><a href="#sysctl-1">sysctl</a></li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> sysctl</span></span></code></pre></div>
+<ul>
+<li><a href="#sysctl-2">sysctl: memory-stream</a></li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sysctl: memory-stream, size</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>sysctl: memory-stream, <span class="kw">array</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>sysctl: memory-stream, cache</span></code></pre></div>
+<ul>
+<li><a href="#sysctl-3">sysctl: clos</a></li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sysctl: clos, slots</span></code></pre></div>
+<ul>
+<li><a href="#sysctl-4">sysctl: recovery</a></li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>sysctl: recovery, <span class="kw">no-applicable-method</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>sysctl: recovery, <span class="kw">no-next-method</span></span></code></pre></div>
+<ul>
+<li><a href="#sysctl-5">sysctl: structure</a></li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>sysctl: <span class="kw">structure</span>, check</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>sysctl: <span class="kw">structure</span>, <span class="kw">delete</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>sysctl: <span class="kw">structure</span>, <span class="kw">type</span></span></code></pre></div>
+<ul>
+<li><a href="#sysctl-6">sysctl: random-state</a></li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>sysctl: <span class="kw">random-state</span>, <span class="kw">integer</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>sysctl: <span class="kw">random-state</span>, make</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>sysctl: <span class="kw">random-state</span>, <span class="kw">write</span></span></code></pre></div>
+<h1 id="function-sysctl"><a id="sysctl-1">Function <code>sysctl</code></a></h1>
+<p>This function performs the following operations.</p>
+<ul>
+<li>Getting and setting the system state</li>
+<li>Getting and setting the state of an object</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> sysctl </span>(<span class="kw">type</span> &amp;<span class="kw">rest</span> args) ...) -&gt; <span class="op">*</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">type</span>, object</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>Input: args</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="op">*</span></span></code></pre></div>
+<p>The <code>type</code> can be any of the following</p>
+<ul>
+<li><code>memory-stream</code></li>
+<li><code>clos</code></li>
+<li><code>recovery</code></li>
+<li><code>structure</code></li>
+<li><code>random-state</code></li>
+</ul>
+<h1 id="function-sysctl-memory-stream"><a id="sysctl-2">Function <code>sysctl</code>: <code>memory-stream</code></a></h1>
+<p>Retrieves information from a <code>memory-stream</code> object.<br />
+Execution is done as follows.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (make-memory-io-stream ...))</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl x ...)</span></code></pre></div>
+<p>Continue accepting the next argument.</p>
+<ul>
+<li><code>size</code></li>
+<li><code>array</code></li>
+<li><code>cache</code></li>
+</ul>
+<h2 id="sysctl-memory-stream-size"><code>sysctl</code>: <code>memory-stream</code>, <code>size</code></h2>
+<p>Get the <code>size</code> of <code>memory-stream</code>.<br />
+<code>size</code> is the number of bytes of the internal buffer.<br />
+An example of execution is shown below.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (make-memory-io-stream :size <span class="dv">10</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl x &#39;size)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="dv">10</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h2 id="sysctl-memory-stream-array"><code>sysctl</code>: <code>memory-stream</code>, <code>array</code></h2>
+<p>Get the <code>array</code> of <code>memory-stream</code>.<br />
+<code>array</code> is the number of internal buffers.<br />
+An example of execution is shown below.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (make-memory-io-stream <span class="bu">:array</span> <span class="dv">20</span>))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl x &#39;array)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h2 id="sysctl-memory-stream-cache"><code>sysctl</code>: <code>memory-stream</code>, <code>cache</code></h2>
+<p>Get the <code>cache</code> of <code>memory-stream</code>.<br />
+The <code>cache</code> is whether the <code>open</code> function should use the cache or not.<br />
+An example of execution is shown below.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (make-memory-io-stream :cache <span class="kw">t</span>))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl x &#39;cache)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h1 id="function-sysctl-clos"><a id="sysctl-3">Function <code>sysctl</code>: <code>clos</code></a></h1>
+<p>Get information from a <code>clos</code> object.<br />
+A <code>clos</code> object is anything created by <code>make-instance</code>, including instances of <code>structure-object</code>, <code>structure-object</code>.<br />
+It also includes instances of <code>standard-class</code>, <code>structure-class</code>, and <code>built-in-class</code>.<br />
+However, corresponding instances of class of <code>built-in-class</code> are not included because they are Lisp objects.</p>
+<p>Execution is done as follows.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (<span class="kw">make-instance</span> ...))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl x ...)</span></code></pre></div>
+<p>Continue accepting the next argument.</p>
+<ul>
+<li><code>slots</code></li>
+</ul>
+<h2 id="sysctl-clos-slots"><code>sysctl</code>: <code>clos</code>, <code>slots</code></h2>
+<p>Get all slots.<br />
+An execution example is shown below.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl (<span class="kw">find-class</span> &#39;class) &#39;slots)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>(NPT-CLOS::NAME NPT-CLOS::DIRECT-SLOTS NPT-CLOS::DIRECT-SUBCLASSES</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a> NPT-CLOS::DIRECT-SUPERCLASSES NPT-CLOS:CLASS-PRECEDENCE-LIST NPT-CLOS::EFFECTIVE-SLOTS</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a> NPT-CLOS::FINALIZED-P NPT-CLOS::PROTOTYPE NPT-CLOS::DEFAULT-INITARGS</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a> NPT-CLOS::DIRECT-DEFAULT-INITARGS NPT-CLOS::VERSION NPT-CLOS::DOCUMENTATION</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a> NPT-CLOS::REDEFINED-CLASS)</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h1 id="function-sysctl-recovery"><a id="sysctl-4">Function <code>sysctl</code>: <code>recovery</code></a></h1>
+<p><code>recovery</code> restores the specified content to its initial state.<br />
+The execution is done as follows.</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;recovery ...)</span></code></pre></div>
+<p>The <code>'recovery</code> argument is treated as a <code>string</code> and is checked with <code>equalp</code>.</p>
+<p>It will continue to accept the next argument.</p>
+<ul>
+<li><code>no-applicable-method</code></li>
+<li><code>no-next-method</code></li>
+</ul>
+<h2 id="sysctl-recovery-no-applicable-method"><code>sysctl</code>: <code>recovery</code>, <code>no-applicable-method</code></h2>
+<p>Restore the generic function <code>no-applicable-method</code> to its initial state.<br />
+The execution is as follows.</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;recovery &#39;no-applicable-method)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h2 id="sysctl-recovery-no-next-method"><code>sysctl</code>: <code>recovery</code>, <code>no-next-method</code></h2>
+<p>Restore the generic function <code>no-next-method</code> to its initial state.<br />
+The execution is as follows.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;recovery &#39;no-next-method)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h1 id="function-sysctl-structure"><a id="sysctl-5">Function <code>sysctl</code>: <code>structure</code></a></h1>
+<p><code>structure</code> performs operations on structures.<br />
+Execution is done as follows.</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure ...)</span></code></pre></div>
+<p>The <code>'structure</code> argument is treated as a <code>string</code> and is checked with <code>equalp</code>.</p>
+<p>It continues to accept the next argument.</p>
+<ul>
+<li><code>check</code></li>
+<li><code>delete</code></li>
+<li><code>type</code></li>
+</ul>
+<h2 id="sysctl-structure-check"><code>sysctl</code>: <code>structure</code>, <code>check</code></h2>
+<p>Checks for the existence of a structure with the specified name that does not belong to the <code>structure-class</code>.</p>
+<p>When you define a structure, a class belonging to the <code>structure-class</code> is normally generated.<br />
+However, if you specify <code>list</code> or <code>vector</code> as the <code>:type</code> argument of <code>defstruct</code>, a structure different from the class system will be generated, which cannot be checked by functions such as <code>find-class</code>.<br />
+<code>check</code> will check for the existence of such a structure.</p>
+<p>The execution is as follows.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defstruct</span><span class="fu"> </span>(aaa (<span class="bu">:type</span> <span class="kw">list</span>)))</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure &#39;check &#39;aaa)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defstruct</span><span class="fu"> bbb</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure &#39;check &#39;bbb)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h2 id="sysctl-structure-delete"><code>sysctl</code>: <code>structure</code>, <code>delete</code></h2>
+<p>Deletes the structure with the specified name.</p>
+<p>Removes both structures of <code>structure-class</code> and structures that do not belong to it.<br />
+Remove access functions, <code>constructor</code>, <code>copier</code>, and <code>print-object</code> for structures.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defstruct</span><span class="fu"> aaa</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure &#39;delete &#39;aaa)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">find-class</span> &#39;aaa <span class="kw">nil</span>)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defstruct</span><span class="fu"> </span>(bbb (<span class="bu">:type</span> <span class="kw">vector</span>)))</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure &#39;delete &#39;bbb)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure &#39;check &#39;bbb)</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>NIL</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">fboundp</span> &#39;make-bbb)</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>NIL</span></code></pre></div>
+<h2 id="sysctl-structure-type"><code>sysctl</code>: <code>structure</code>, <code>type</code></h2>
+<p>Returns the type of the structure with the specified name.</p>
+<p>The returned value is as follows</p>
+<ul>
+<li><code>class</code></li>
+<li><code>list</code></li>
+<li><code>vector</code></li>
+<li>(derivative of vector)</li>
+</ul>
+<p>An example of how to do this is shown below.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defstruct</span><span class="fu"> aaa</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">defstruct</span><span class="fu"> </span>(bbb (<span class="bu">:type</span> (<span class="kw">vector</span> (<span class="kw">unsigned-byte</span> <span class="dv">8</span>)))))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure &#39;type &#39;aaa)</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>CLASS</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;structure &#39;type &#39;bbb)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>(VECTOR (UNSIGNED-BYTE <span class="dv">8</span>))</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h1 id="function-sysctl-random-state"><a id="sysctl-6">Function <code>sysctl</code>: <code>random-state</code></a></h1>
+<p>Performs operations on <code>random-state</code> objects.<br />
+Execution is done as follows.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;random-state ...)</span></code></pre></div>
+<p>The <code>'random-state</code> argument is treated as a <code>string</code> and is checked with <code>equalp</code>.</p>
+<p>It continues to accept the next argument.</p>
+<ul>
+<li><code>integer</code></li>
+<li><code>make</code></li>
+<li><code>write</code></li>
+</ul>
+<h2 id="sysctl-random-state-integer"><code>sysctl</code>: <code>random-state</code>, <code>integer</code></h2>
+<p>Output the internal state of <code>random-state</code> as an integer.</p>
+<p>npt implements <code>xorshift</code> as a random number algorithm, and has 128-bit integer in the internal state of <code>random-state</code>.<br />
+This function outputs the internal state as an integer.<br />
+The output internal state can be restored by <code>make</code> and <code>write</code>.</p>
+<p>The following is an example of execution.</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> <span class="va">*print-base*</span> <span class="dv">16</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (<span class="kw">make-random-state</span> <span class="kw">t</span>))</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>#&lt;RANDOM-STATE <span class="ch">#x</span>F3F85807E6E2837033526396D518DAD1&gt;</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;random-state &#39;integer x)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>F3F85807E6E2837033526396D518DAD1</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h2 id="sysctl-random-state-make"><code>sysctl</code>: <code>random-state</code>, <code>make</code></h2>
+<p>Generates a <code>random-state</code> with the specified argument set to the internal state.</p>
+<p>Since the argument is obtained by 128 bits with <code>ldb</code>, negative values can be set.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> <span class="va">*print-base*</span> <span class="dv">16</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> x (sysctl &#39;random-state &#39;make <span class="ch">#x</span>ABCD))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>#&lt;RANDOM-STATE <span class="ch">#x</span>ABCD&gt;</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;random-state &#39;integer x)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>ABCD</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>T</span></code></pre></div>
+<h2 id="sysctl-random-state-write"><code>sysctl</code>: <code>random-state</code>, <code>write</code></h2>
+<p>Specifies the internal state of a <code>random-state</code> object.</p>
+<p>Since the argument is obtained by 128 bits with <code>ldb</code>, negative values can be set.</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> <span class="va">*random-state*</span> (<span class="kw">make-random-state</span> <span class="kw">t</span>))</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>#&lt;RANDOM-STATE <span class="ch">#x</span>14F392860E2329DE919C083F0B764EC5&gt;</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">setq</span> y (sysctl &#39;random-state &#39;integer <span class="va">*random-state*</span>))</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="dv">27849259905073490890992780948155027141</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">random</span> <span class="dv">10</span>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">random</span> <span class="dv">10</span>)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="dv">6</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">random</span> <span class="dv">10</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="dv">7</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (sysctl &#39;random-state &#39;write <span class="va">*random-state*</span> y)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>#&lt;RANDOM-STATE <span class="ch">#x</span>14F392860E2329DE919C083F0B764EC5&gt;</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>T</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">random</span> <span class="dv">10</span>)</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">random</span> <span class="dv">10</span>)</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="dv">6</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a><span class="op">*</span> (<span class="kw">random</span> <span class="dv">10</span>)</span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a><span class="dv">7</span></span></code></pre></div>
+</body>
+</html>

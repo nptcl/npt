@@ -47,10 +47,13 @@ It is distributed on github.
 
 - Lisp Function Specification
   - [Lisp Function: System Function](D1_System.html)
+  - [Lisp Function: sysctl](D2_Sysctl.html)
+  - [Lisp Function: terme](D3_Terme.html)
 
 
 This document is a translation from Japanese to English.  
-[https://nptcl.hatenablog.com/entry/2020/08/21/214057](https://nptcl.hatenablog.com/entry/2020/08/21/214057)
+[https://nptcl.github.io/npt-japanese/docs/npt/index.html](https://nptcl.github.io/npt-japanese/docs/npt/index.html)  
+[https://nptcl.github.io/npt-japanese/md/npt/index.html](https://nptcl.github.io/npt-japanese/md/npt/index.html)
 
 
 # License
