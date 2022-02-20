@@ -273,9 +273,41 @@ static int system_package_(const char *name, size_t size, constindex index)
 	return 0;
 }
 
+static int build_package_nicknames_(void)
+{
+	addr pos, table, name, cons;
+#ifdef LISP_DEBUG
+	addr check;
+#endif
+
+	/* package */
+	GetConst(PACKAGE_SYSTEM, &pos);
+	CheckType(pos, LISPTYPE_PACKAGE);
+
+	/* push nicknames */
+#ifdef LISP_DEBUG
+	GetPackage(pos, PACKAGE_INDEX_NICKNAME, &check);
+	Check(check != Nil, "nicknames error.");
+#endif
+	strvect_char_heap(&name, LISPNAME);
+	push_list_nicknames_package(pos, name);
+
+	/* intern */
+	PackageTable(&table);
+	Return(intern_hashheap_(table, name, &cons));
+#ifdef LISP_DEBUG
+	GetCdr(cons, &check);
+	Check(check != Nil, "package table error.");
+#endif
+	SetCdr(cons, pos);
+
+	return 0;
+}
+
 #define SystemPackage(x,y,z) { \
 	Return(system_package_(LISP_##x, LISP_PACKAGE_COUNT_##y, CONSTANT_PACKAGE_##z)); \
 }
+
 static int build_package_value_(void)
 {
 	addr root, user;
@@ -291,6 +323,7 @@ static int build_package_value_(void)
 	SystemPackage(CODE, CODE, CODE);
 	SystemPackage(CLOS, CLOS, CLOS);
 	SystemPackage(RT, RT, RT);
+	Return(build_package_nicknames_());
 	Return(package_char_heap_(&user, LISP_COMMON_USER));
 
 	/* symbol setting */

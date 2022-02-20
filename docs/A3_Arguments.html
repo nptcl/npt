@@ -158,7 +158,7 @@
 Prev: <a href="A2_Compilation.html">2. Compilation</a><br />
 Next: <a href="A4_Amalgamation.html">4. Amalgamation</a></p>
 <h1 id="arguments">3.1 Arguments</h1>
-<h2 id="help">–help</h2>
+<h2 id="help"><code>--help</code></h2>
 <p>The following message is displayed</p>
 <pre><code>$ npt --help
 npt -- ANSI Common Lisp Programming Language.
@@ -187,11 +187,11 @@ INPUTS:
   --eval &lt;cmd&gt;       Execute command.
 
 If inputs aren&#39;t appeared, load from a standard-input.</code></pre>
-<h2 id="version">–version</h2>
+<h2 id="version"><code>--version</code></h2>
 <p>Outputs compile information for npt.<br />
 There is also an argument <code>--version-script</code> that is formatted to be more machine-readable, such as a script.<br />
 The output is almost the same, but the script version contains slightly more information.</p>
-<h2 id="core">–core</h2>
+<h2 id="core"><code>--core</code></h2>
 <p>Mode for reading core files.<br />
 Cannot be specified with <code>--standalone</code>. The location of the core file is specified by the <code>--corefile</code> argument. If it is not specified, the standard core file is searched for in the following order.</p>
 <pre><code>FreeBSD / Linux
@@ -211,21 +211,21 @@ Windows
     %PROGRAMFILES%\npt\npt.core
     %ProgramFiles(x86)%\npt\npt.core</code></pre>
 <p>If the <code>--nocore</code> argument is specified, no standard core file is read. If the core file is not found, an error is returned.</p>
-<h2 id="standalone">–standalone</h2>
+<h2 id="standalone"><code>--standalone</code></h2>
 <p>Mode for creating a Lisp image.<br />
 If this argument is specified, the image of Common Lisp is created from the beginning without reading the core file.<br />
 Cannot be specified with <code>--core</code>.</p>
 <p>Because this mode is specified by default, the argument <code>----standalone</code> can be omitted. Since some npt compilations do not default to <code>----standalone</code>, this argument is intended for such special commands.</p>
-<h2 id="heap-size">–heap <code>&lt;size&gt;</code></h2>
+<h2 id="heap-size"><code>--heap &lt;size&gt;</code></h2>
 <p>Specify the size of the heap region.<br />
 The argument <code>&lt;size&gt;</code> specifies a decimal value. You can give the unit of K, M, G, T, P, or E. For example, if a user wants to specify 1 GByte, the following expression is used.</p>
 <pre><code>--heap 1G</code></pre>
 <p>If omitted, it is 1G.</p>
-<h2 id="local-size">–local <code>&lt;size&gt;</code></h2>
+<h2 id="local-size"><code>--local &lt;size&gt;</code></h2>
 <p>Specify the size of the local region.<br />
 As with <code>--heap</code>, the size of the region can be specified in decimal and the unit can be specified.<br />
 If omitted, it is 512M.</p>
-<h2 id="initfile-file">–initfile <code>&lt;file&gt;</code></h2>
+<h2 id="initfile-file"><code>--initfile &lt;file&gt;</code></h2>
 <p>Specifies a Lisp file to be loaded as an initialization file at startup.<br />
 It works the same way as <code>----load</code>, but this argument loads the file for the purpose of initialization. If it is not specified, the standard initialization file is searched in the following order.</p>
 <pre><code>FreeBSD / Linux
@@ -245,12 +245,26 @@ Windows
     %PROGRAMFILES%\npt\npt.lisp
     %ProgramFiles(x86)%\npt\npt.lisp</code></pre>
 <p>If the <code>--noinit</code> argument is specified, no standard initialization file is read. If the initialization file is not found, the command does not read the file and moves to the next step.</p>
-<h2 id="debugger-nodebugger">–debugger / –nodebugger</h2>
+<h2 id="debugger---nodebugger"><code>--debugger</code> / <code>--nodebugger</code></h2>
 <p>Enable/Disable the debugger.<br />
 If enabled, the debugger is started when an error occurs. If disabled, the program is aborted when an error occurs. The enable/disable of the debugger is set to the <code>boolean</code> value of <code>lisp-system::*enable-debugger*</code>.</p>
-<h2 id="quit">–quit</h2>
+<h2 id="quit"><code>--quit</code></h2>
 <p>This argument determines whether to exit or go to <code>eval-loop</code> after processing the INPUTS argument. If <code>----quit</code> is specified, the terminal exits. If it is not specified, the mode is changed to <code>eval-loop</code> and the program waits for input.</p>
-<h2 id="inputs">INPUTS</h2>
+<h1 id="color-settings">3.2 Color settings</h1>
+<p>If color output is supported, the following arguments can be used.<br />
+For details, see <a href="A6_Input.html">Input Module</a>.</p>
+<h2 id="color"><code>--color</code></h2>
+<p>Enables color output.</p>
+<h2 id="monochrome"><code>--monochrome</code></h2>
+<p>Disables color output.<br />
+At the same time, character types (e.g. Bold) will be disabled.</p>
+<h2 id="bright"><code>--bright</code></h2>
+<p>Brightens the color output.<br />
+This is useful when the background of the device is dark.</p>
+<h2 id="dark"><code>--dark</code></h2>
+<p>Darkens the color output.<br />
+This is useful when the background of the device is bright.</p>
+<h1 id="arguments-inputs">3.3 Arguments <code>INPUTS</code></h1>
 <p>INPUTS consists of the following three arguments</p>
 <ul>
 <li><code>--eval &lt;cmd&gt;</code></li>
@@ -258,7 +272,7 @@ If enabled, the debugger is started when an error occurs. If disabled, the progr
 <li><code>--script &lt;file&gt;</code></li>
 </ul>
 <p>These arguments can be listed many times.</p>
-<h3 id="eval-cmd">–eval <code>&lt;cmd&gt;</code></h3>
+<h2 id="eval-cmd"><code>--eval &lt;cmd&gt;</code></h2>
 <p>The <code>--eval</code> argument executes the next argument.<br />
 The following is an example.</p>
 <pre><code>$ npt --eval &#39;(format t &quot;Hello~%&quot;)&#39;
@@ -269,7 +283,7 @@ If you want to exit immediately after <code>--eval</code>, the <code>--quit</cod
 <pre><code>$ npt --quit --eval &#39;(format t &quot;Hello~%&quot;)&#39;
 Hello
 $</code></pre>
-<h3 id="load-script">–load / –script</h3>
+<h2 id="load---script"><code>--load</code> / <code>--script</code></h2>
 <p>There are two ways to load a Lisp file: <code>--load</code> and <code>--script</code>.<br />
 The command <code>----load</code> loads the file and transitions to the input mode.<br />
 The command <code>----script</code> exits immediately after loading the file.</p>
@@ -286,7 +300,7 @@ $ npt --load aaa.lisp
 Hello
 * (quit)
 $</code></pre>
-<h1 id="arguments---">3.2 Arguments <code>--</code></h1>
+<h2 id="arguments---">Arguments <code>--</code></h2>
 <p>If a <code>--</code> argument is specified, the following arguments are recognized as arguments to be passed to the npt program.</p>
 <p>Arguments are stored as an array in <code>npt-system::*arguments*</code>.</p>
 <p>Here’s an example.</p>
@@ -294,7 +308,7 @@ $</code></pre>
 * npt-system::*arguments*
 #(&quot;npt&quot; &quot;10&quot; &quot;20&quot; &quot;30&quot;)
 *</code></pre>
-<h1 id="arguments-for-development">3.3 Arguments for Development</h1>
+<h1 id="arguments-for-development">3.4 Arguments for Development</h1>
 <p>The argument <code>--build</code> is the same as <code>--standalone</code>.</p>
 <p>If only the <code>--degrade</code> argument is given, the test case is executed.<br />
 The argument <code>--core</code> and <code>--standalone</code> cannot be specified at the same time.</p>

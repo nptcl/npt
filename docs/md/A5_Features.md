@@ -318,7 +318,7 @@ It is converted correctly.
 
 ## <a id="specific-11">5.11 Using the `pathname`</a>
 
-The `pathmame` is an object for the name of a file.
+The `pathname` is an object for the name of a file.
 
 The `pathname-host` specifies the environment to which the file name belongs.  
 The following values are used by npt

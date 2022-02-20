@@ -1,6 +1,4 @@
 #include "package.c"
-
-#if 0
 #include <stdarg.h>
 #include "clos.h"
 #include "common.h"
@@ -12,6 +10,7 @@
 #include "type.h"
 #include "type_table.h"
 
+#if 0
 static int test_packagetable(void)
 {
 	addr pos;
@@ -3182,6 +3181,28 @@ static int testcase_package(void)
 	return 0;
 }
 
+#endif
+
+static int test_system_nickname(void)
+{
+	addr pos, check;
+
+	pos = Nil;
+	find_char_package_(LISP_SYSTEM, &pos);
+	test(GetType(pos) == LISPTYPE_PACKAGE, "system_nickname.1");
+	find_char_package_(LISPNAME, &check);
+	test(GetType(check) == LISPTYPE_PACKAGE, "system_nickname.2");
+	test(pos == check, "system_nickname.2");
+
+	RETURN;
+}
+
+static int testcase_package(void)
+{
+	TestBreak(test_system_nickname);
+	return 0;
+}
+
 static void testinit_package(Execute ptr)
 {
 	build_lisproot(ptr);
@@ -3197,14 +3218,10 @@ static void testinit_package(Execute ptr)
 	build_common();
 	build_reader();
 }
-#endif
 
 int test_package(void)
 {
-#if 0
 	DegradeTitle;
 	return DegradeCode(package);
-#endif
-	return 0;
 }
 

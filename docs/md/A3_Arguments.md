@@ -8,7 +8,7 @@ Next: [4. Amalgamation](A4_Amalgamation.html)
 
 
 # 3.1 Arguments
-## --help
+## `--help`
 
 The following message is displayed
 
@@ -43,7 +43,7 @@ If inputs aren't appeared, load from a standard-input.
 ```
 
 
-## --version
+## `--version`
 
 Outputs compile information for npt.  
 There is also an argument `--version-script`
@@ -52,7 +52,7 @@ The output is almost the same,
 but the script version contains slightly more information.
 
 
-## --core
+## `--core`
 
 Mode for reading core files.  
 Cannot be specified with `--standalone`.
@@ -82,7 +82,7 @@ If the `--nocore` argument is specified, no standard core file is read.
 If the core file is not found, an error is returned.
 
 
-## --standalone
+## `--standalone`
 
 Mode for creating a Lisp image.  
 If this argument is specified, the image of Common Lisp
@@ -95,7 +95,7 @@ Since some npt compilations do not default to `----standalone`,
 this argument is intended for such special commands.
 
 
-## --heap `<size>`
+## `--heap <size>`
 
 Specify the size of the heap region.  
 The argument `<size>` specifies a decimal value.
@@ -110,7 +110,7 @@ the following expression is used.
 If omitted, it is 1G.
 
 
-## --local `<size>`
+## `--local <size>`
 
 Specify the size of the local region.  
 As with `--heap`, the size of the region can be
@@ -118,7 +118,7 @@ specified in decimal and the unit can be specified.
 If omitted, it is 512M.
 
 
-## --initfile `<file>`
+## `--initfile <file>`
 
 Specifies a Lisp file to be loaded as an initialization file at startup.  
 It works the same way as ``----load``,
@@ -150,7 +150,7 @@ If the initialization file is not found,
 the command does not read the file and moves to the next step.
 
 
-## --debugger / --nodebugger
+## `--debugger` / `--nodebugger`
 
 Enable/Disable the debugger.  
 If enabled, the debugger is started when an error occurs.
@@ -158,7 +158,7 @@ If disabled, the program is aborted when an error occurs.
 The enable/disable of the debugger is set to the `boolean` value of `lisp-system::*enable-debugger*`.
 
 
-## --quit
+## `--quit`
 
 This argument determines whether to exit or go to `eval-loop`
 after processing the INPUTS argument.
@@ -167,7 +167,32 @@ If it is not specified, the mode is changed to
 `eval-loop` and the program waits for input.
 
 
-## INPUTS
+# 3.2 Color settings
+
+If color output is supported, the following arguments can be used.  
+For details, see [Input Module](A6_Input.html).
+
+## `--color`
+
+Enables color output.
+
+## `--monochrome`
+
+Disables color output.  
+At the same time, character types (e.g. Bold) will be disabled.
+
+## `--bright`
+
+Brightens the color output.  
+This is useful when the background of the device is dark.
+
+## `--dark`
+
+Darkens the color output.  
+This is useful when the background of the device is bright.
+
+
+# 3.3 Arguments `INPUTS`
 
 INPUTS consists of the following three arguments
 
@@ -178,7 +203,7 @@ INPUTS consists of the following three arguments
 These arguments can be listed many times.
 
 
-### --eval `<cmd>`
+## `--eval <cmd>`
 
 The `--eval` argument executes the next argument.  
 The following is an example.
@@ -200,7 +225,7 @@ $
 ```
 
 
-### --load / --script
+## `--load` / `--script`
 
 There are two ways to load a Lisp file: `--load` and `--script`.  
 The command `----load` loads the file and transitions to the input mode.  
@@ -230,7 +255,7 @@ $
 ```
 
 
-# 3.2 Arguments `--`
+## Arguments `--`
 
 If a `--` argument is specified, the following arguments are
 recognized as arguments to be passed to the npt program.
@@ -247,7 +272,7 @@ $ npt -- 10 20 30
 ```
 
 
-# 3.3 Arguments for Development
+# 3.4 Arguments for Development
 
 The argument ``--build`` is the same as ``--standalone``.
 
