@@ -25,9 +25,6 @@ void init_terme(void)
 	if (terme_arch_init()) {
 		Abort("terme_arch_init error.");
 	}
-	if (terme_call_init()) {
-		Abort("terme_call_init error.");
-	}
 	terme_input_init();
 	terme_output_init();
 }

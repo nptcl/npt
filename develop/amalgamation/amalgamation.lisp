@@ -44,7 +44,7 @@
     "intern_const.h" "intern_count.h"
     "intern_symbol_32.h" "intern_symbol_64.h"
     "process_unix.h" "process_windows.h"
-    "prompt_disable.h" "prompt_module.h" "prompt_terme.h"
+    "prompt_disable.h" "prompt_module.h" "prompt_terme.h" "terme_unix.h"
     "thread_disable.h" "thread_unix.h" "thread_single.h" "thread_windows.h"))
 
 (defparameter +lisp-header+

@@ -4,7 +4,6 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define terme_call_init _n(terme_call_init)
 #define terme_call_enable_p _n(terme_call_enable_p)
 #define terme_call_input_ _n(terme_call_input_)
 #define terme_call_output_ _n(terme_call_output_)
@@ -18,7 +17,6 @@
 #define terme_call_end_ _n(terme_call_end_)
 #define terme_call_signal_ _n(terme_call_signal_)
 
-int terme_call_init(void);
 int terme_call_enable_p(void);
 int terme_call_input_(addr args, addr *rtype, addr *rvalue);
 int terme_call_output_(addr args);

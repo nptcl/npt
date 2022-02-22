@@ -239,6 +239,14 @@ int terme_cursor_scroll_down(int n)
 
 /*
  *  font
+ *    (terme 'terme-font nil)
+ *    (terme 'terme-font 'code 3)
+ *    (terme 'terme-font 'code 'italic)
+ *    (terme 'terme-font 'fore 'red)
+ *    (terme 'terme-font 'back 'red)
+ *    (terme 'terme-font 'code 'italic 'fore 'red 'back 'black)
+ *    (terme 'terme-font 'palfore 10 'palback 20)
+ *    (terme 'terme-font 'rgbfore 30 40 50 'rgbback 60 70 80)
  */
 struct terme_font_struct {
 	const char *name;
