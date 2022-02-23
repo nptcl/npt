@@ -290,7 +290,7 @@ static int terme_readline_character_(Execute ptr, unicode c, addr *value, int *r
 
 static int terme_readline_code_(Execute ptr, TermeKeyboard *str, addr *value, int *ret)
 {
-	if (str->c < 0x20)
+	if (str->c < 0x20 || str->c == 0x7F)
 		return terme_readline_control_(ptr, str, value, ret);
 	else
 		return terme_readline_character_(ptr, str->c, value, ret);

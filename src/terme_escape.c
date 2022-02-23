@@ -140,14 +140,23 @@ static int terme_cursor_move_character(int n, byte c)
 	if (n == 1) {
 		if (terme_escape_operator("\x1B["))
 			return 1;
+		return terme_write_byte(c);
 	}
-	else {
+	if (n <= 255) {
 		snprintf(data, 64, "\x1B[%d", n);
 		if (terme_escape_operator(data))
 			return 1;
+		return terme_write_byte(c);
 	}
 
-	return terme_write_byte(c);
+	/* over 256 */
+	snprintf(data, 64, "\x1B[255");
+	if (terme_escape_operator(data))
+		return 1;
+	if (terme_write_byte(c))
+		return 1;
+
+	return terme_cursor_move_character(n - 255, c);
 }
 
 int terme_cursor_left(int n)
