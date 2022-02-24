@@ -86,7 +86,7 @@ enum TypeTable {
 	TypeTable_PromptStream,
 	TypeTable_PrettyStream,
 	TypeTable_MemoryStream,
-	TypeTable_TerminalStream,
+	TypeTable_PipeStream,
 	TypeTable_Quote,
 	TypeTable_ByteSpec,
 	TypeTable_PrintDispatch,

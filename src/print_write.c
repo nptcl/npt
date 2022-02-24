@@ -38,6 +38,7 @@
 #include "stream.h"
 #include "stream_common.h"
 #include "stream_function.h"
+#include "stream_pipe.h"
 #include "stream_pretty.h"
 #include "stream_string.h"
 #include "strtype.h"
@@ -2196,6 +2197,19 @@ static int WriteCall_pathname_(Execute ptr, addr stream, addr pos)
 /*
  *  stream
  */
+static int WriteBody_pipe_stream_(Execute ptr, addr stream, addr pos)
+{
+	char data[64];
+	enum StreamPipe type;
+
+	type = get_type_pipe_stream(pos);
+	snprintc(data, 64, "%d", (int)type);
+	Return(print_ascii_stream_(stream, "STREAM PIPE "));
+	Return(print_ascii_stream_(stream, data));
+
+	return 0;
+}
+
 static int WriteBody_stream_(Execute ptr, addr stream, addr pos)
 {
 	struct StructStream *str;
@@ -2267,6 +2281,9 @@ static int WriteBody_stream_(Execute ptr, addr stream, addr pos)
 
 		case StreamType_MemoryIO:
 			return print_ascii_stream_(stream, "STREAM MEMORY-IO");
+
+		case StreamType_Pipe:
+			return WriteBody_pipe_stream_(ptr, stream, pos);
 
 		default:
 			return print_ascii_stream_(stream, "STREAM");

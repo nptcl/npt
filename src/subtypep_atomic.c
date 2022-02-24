@@ -780,6 +780,7 @@ int subtypep_call_stream_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 		case LISPDECL_PROMPT_STREAM:
 		case LISPDECL_PRETTY_STREAM:
 		case LISPDECL_MEMORY_STREAM:
+		case LISPDECL_PIPE_STREAM:
 			return ReturnInclude(ret);
 
 		default:

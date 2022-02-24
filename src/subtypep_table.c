@@ -355,6 +355,7 @@ void init_subtypep_table(void)
 	TypeSubtypep[LISPDECL_PROMPT_STREAM] = subtypep_call_stream_type_;
 	TypeSubtypep[LISPDECL_PRETTY_STREAM] = subtypep_call_stream_type_;
 	TypeSubtypep[LISPDECL_MEMORY_STREAM] = subtypep_call_stream_type_;
+	TypeSubtypep[LISPDECL_PIPE_STREAM] = subtypep_call_stream_type_;
 	TypeSubtypep[LISPDECL_BYTESPEC] = subtypep_call_eqltype_;
 	TypeSubtypep[LISPDECL_PRINT_DISPATCH] = subtypep_call_eqltype_;
 	TypeSubtypep[LISPDECL_PAPER] = subtypep_call_eqltype_;

@@ -62,12 +62,20 @@ static void init_stream_extend_type(int type)
 	LispStreamTypeError(termsize, type);
 }
 
+static void init_stream_pipe(void)
+{
+	int i;
+
+	for (i = 0; i < StreamPipe_Size; i++)
+		init_stream_extend_type((int)StreamPipe_Index(i));
+}
+
 static void init_stream_extend(void)
 {
 	int i;
 
 	for (i = 0; i < LISP_STREAM_EXTEND; i++)
-		init_stream_extend_type(((int)StreamType_Size) + i);
+		init_stream_extend_type((int)StreamExtend_Index(i));
 }
 
 void init_stream(void)
@@ -91,6 +99,7 @@ void init_stream(void)
 	init_stream_echo();
 	init_stream_prompt();
 	init_stream_pretty();
+	init_stream_pipe();
 	init_stream_extend();
 	init_stream_memory_input();
 	init_stream_memory_output();

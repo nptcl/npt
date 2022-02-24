@@ -254,16 +254,16 @@ int write_memory_stream_p(addr stream)
 		|| check == StreamType_MemoryIO;
 }
 
-int terminal_stream_p(addr stream)
+int pipe_stream_p(addr stream)
 {
 	return streamp(stream)
-		&& getstreamtype(stream) == StreamType_Terminal;
+		&& getstreamtype(stream) == StreamType_Pipe;
 }
 
 int extend_stream_p(addr stream)
 {
 	return streamp(stream)
-		&& ((int)StreamType_Size) <= ((int)getstreamtype(stream));
+		&& ((int)StreamExtend_Index(0)) <= ((int)getstreamtype(stream));
 }
 
 int extend_type_stream_p(addr stream, int type)

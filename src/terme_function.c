@@ -181,7 +181,7 @@ static int terme_call_output_array_signed_(const struct array_value *str, int *r
 
 		case 32:
 			i32 = str->value.signed32;
-			if (i32 < 0 || isBaseType(i32))
+			if (i32 < 0 || isBaseType((uint32_t)i32))
 				goto error;
 			Return(terme_call_output_character_((unicode)i32));
 			break;
@@ -189,7 +189,7 @@ static int terme_call_output_array_signed_(const struct array_value *str, int *r
 #ifdef LISP_64BIT
 		case 64:
 			i64 = str->value.signed64;
-			if (i64 < 0 || isBaseType(i64))
+			if (i64 < 0 || isBaseType((uint64_t)i64))
 				goto error;
 			Return(terme_call_output_character_((unicode)i64));
 			break;

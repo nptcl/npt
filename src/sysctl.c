@@ -9,6 +9,7 @@
 #include "random_state.h"
 #include "stream_memory.h"
 #include "stream_object.h"
+#include "stream_pipe.h"
 #include "strtype.h"
 #include "structure.h"
 #include "structure_change.h"
@@ -84,7 +85,7 @@ static int sysctl_clos_slots_(Execute ptr, addr pos)
 	return 0;
 }
 
-static int sysctl_clos_(Execute ptr, addr pos, addr args)
+static int sysctl_clos_object_(Execute ptr, addr pos, addr args)
 {
 	int check;
 	addr car;
@@ -96,6 +97,21 @@ static int sysctl_clos_(Execute ptr, addr pos, addr args)
 	Return(string_designer_equalp_char_(car, "slots", &check));
 	if (check)
 		return sysctl_clos_slots_(ptr, pos);
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_clos_(Execute ptr, addr args)
+{
+	addr pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (! closp(pos))
+		goto error;
+	return sysctl_clos_object_(ptr, pos, args);
 
 error:
 	setvalues_control(ptr, Nil, Nil, NULL);
@@ -138,7 +154,7 @@ static int sysctl_memory_stream_cache_(Execute ptr, addr pos)
 	return 0;
 }
 
-static int sysctl_memory_stream_(Execute ptr, addr pos, addr args)
+static int sysctl_memory_stream_object_(Execute ptr, addr pos, addr args)
 {
 	int check;
 	addr car;
@@ -161,7 +177,21 @@ static int sysctl_memory_stream_(Execute ptr, addr pos, addr args)
 	if (check)
 		return sysctl_memory_stream_cache_(ptr, pos);
 
-	/* error */
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_memory_stream_(Execute ptr, addr args)
+{
+	addr pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (! memory_stream_p(pos))
+		goto error;
+	return sysctl_memory_stream_object_(ptr, pos, args);
+
 error:
 	setvalues_control(ptr, Nil, Nil, NULL);
 	return 0;
@@ -231,7 +261,7 @@ error:
 
 
 /*
- *  random
+ *  random-state
  */
 static int sysctl_random_state_integer_(Execute ptr, addr args)
 {
@@ -316,19 +346,132 @@ error:
 
 
 /*
+ *  stream
+ */
+static int sysctl_stream_pipe_make_(Execute ptr, addr args)
+{
+	fixnum value;
+	addr pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
+	if (! fixnump(pos))
+		goto error;
+	GetFixnum(pos, &value);
+	if (StreamPipe_Size <= value)
+		goto error;
+	open_pipe_stream(&pos, (enum StreamPipe)value);
+	setvalues_control(ptr, pos, T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_stream_pipe_type_(Execute ptr, addr args)
+{
+	enum StreamPipe type;
+	addr stream, pos;
+	fixnum value;
+
+	/* (sysctl 'stream 'pipe 'type x 10) */
+	if (! consp_getcons(args, &stream, &args))
+		goto error;
+	if (! pipe_stream_p(stream))
+		goto error;
+	if (consp_getcons(args, &pos, &args)) {
+		/* set */
+		if (! fixnump(pos))
+			goto error;
+		GetFixnum(pos, &value);
+		type = (enum StreamPipe)value;
+		if (StreamPipe_Size <= type)
+			goto error;
+		set_type_pipe_stream(stream, type);
+		setvalues_control(ptr, pos, T, NULL);
+	}
+	else {
+		/* get */
+		value = (fixnum)get_type_pipe_stream(stream);
+		fixnum_heap(&pos, value);
+		setvalues_control(ptr, pos, T, NULL);
+	}
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_stream_pipe_(Execute ptr, addr args)
+{
+	int check;
+	addr pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+
+	/* make */
+	Return(string_designer_equalp_char_(pos, "make", &check));
+	if (check)
+		return sysctl_stream_pipe_make_(ptr, args);
+
+	/* type */
+	Return(string_designer_equalp_char_(pos, "type", &check));
+	if (check)
+		return sysctl_stream_pipe_type_(ptr, args);
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_stream_(Execute ptr, addr args)
+{
+	int check;
+	addr pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+
+	/* pipe */
+	Return(string_designer_equalp_char_(pos, "pipe", &check));
+	if (check)
+		return sysctl_stream_pipe_(ptr, args);
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+
+/*
  *  sysctl
  */
 int sysctl_values_(Execute ptr, addr pos, addr args)
 {
 	int check;
 
-	/* memory stream */
+	/* memory-stream object */
 	if (memory_stream_p(pos))
-		return sysctl_memory_stream_(ptr, pos, args);
+		return sysctl_memory_stream_object_(ptr, pos, args);
 
 	/* clos object */
 	if (closp(pos))
-		return sysctl_clos_(ptr, pos, args);
+		return sysctl_clos_object_(ptr, pos, args);
+
+	/* memory-stream */
+	Return(string_designer_equalp_char_(pos, "memory-stream", &check));
+	if (check)
+		return sysctl_memory_stream_(ptr, args);
+
+	/* clos */
+	Return(string_designer_equalp_char_(pos, "clos", &check));
+	if (check)
+		return sysctl_clos_(ptr, args);
 
 	/* recovery */
 	Return(string_designer_equalp_char_(pos, "recovery", &check));
@@ -340,10 +483,15 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 	if (check)
 		return sysctl_structure_(ptr, args);
 
-	/* random */
+	/* random-state */
 	Return(string_designer_equalp_char_(pos, "random-state", &check));
 	if (check)
 		return sysctl_random_state_(ptr, args);
+
+	/* stream */
+	Return(string_designer_equalp_char_(pos, "stream", &check));
+	if (check)
+		return sysctl_stream_(ptr, args);
 
 	/* error */
 	setvalues_control(ptr, Nil, Nil, NULL);

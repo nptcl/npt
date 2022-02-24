@@ -114,7 +114,7 @@ DefTypeTable(0,  TWO_WAY_STREAM,       TwoWayStream         );
 DefTypeTable(0,  PROMPT_STREAM,        PromptStream         );
 DefTypeTable(0,  PRETTY_STREAM,        PrettyStream         );
 DefTypeTable(0,  MEMORY_STREAM,        MemoryStream         );
-DefTypeTable(0,  TERMINAL_STREAM,      TerminalStream       );
+DefTypeTable(0,  PIPE_STREAM,          PipeStream           );
 DefTypeTable(0,  QUOTE,                Quote                );
 DefTypeTable(0,  BYTESPEC,             ByteSpec             );
 DefTypeTable(0,  PRINT_DISPATCH,       PrintDispatch        );
@@ -2986,7 +2986,7 @@ void build_type_constant(void)
 	typetable_PromptStream();
 	typetable_PrettyStream();
 	typetable_MemoryStream();
-	typetable_TerminalStream();
+	typetable_PipeStream();
 	typetable_Quote();
 	typetable_ByteSpec();
 	typetable_PrintDispatch();

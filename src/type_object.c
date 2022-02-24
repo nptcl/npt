@@ -654,6 +654,7 @@ void init_type_object(void)
 	TypeObjectTable[LISPDECL_PROMPT_STREAM] = type_object_name;
 	TypeObjectTable[LISPDECL_PRETTY_STREAM] = type_object_name;
 	TypeObjectTable[LISPDECL_MEMORY_STREAM] = type_object_name;
+	TypeObjectTable[LISPDECL_PIPE_STREAM] = type_object_name;
 	TypeObjectTable[LISPDECL_QUOTE] = type_object_error;
 	TypeObjectTable[LISPDECL_BYTESPEC] = type_object_name;
 	TypeObjectTable[LISPDECL_PRINT_DISPATCH] = type_object_name;

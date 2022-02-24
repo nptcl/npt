@@ -362,6 +362,7 @@ stream_init.c
 stream_memory.c
 stream_object.c
 stream_open.c
+stream_pipe.c
 stream_pretty.c
 stream_prompt.c
 stream_string.c

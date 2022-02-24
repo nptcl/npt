@@ -1198,6 +1198,12 @@ static int typep_memory_stream_(Execute ptr, addr value, addr type, int *ret)
 	return 0;
 }
 
+static int typep_pipe_stream_(Execute ptr, addr value, addr type, int *ret)
+{
+	*ret = pipe_stream_p(value);
+	return 0;
+}
+
 static int typep_byte_(Execute ptr, addr value, addr type, int *ret)
 {
 	*ret = (GetType(value) == LISPTYPE_BYTESPEC);
@@ -1321,6 +1327,7 @@ void init_type_typep(void)
 	TypeTypep[LISPDECL_PROMPT_STREAM] = typep_prompt_stream_;
 	TypeTypep[LISPDECL_PRETTY_STREAM] = typep_pretty_stream_;
 	TypeTypep[LISPDECL_MEMORY_STREAM] = typep_memory_stream_;
+	TypeTypep[LISPDECL_PIPE_STREAM] = typep_pipe_stream_;
 	TypeTypep[LISPDECL_BYTESPEC] = typep_byte_;
 	TypeTypep[LISPDECL_PRINT_DISPATCH] = typep_print_dispatch_;
 	TypeTypep[LISPDECL_PAPER] = typep_paper_;

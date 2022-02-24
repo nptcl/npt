@@ -33,7 +33,7 @@ void lisp0_stream_define(addr *ret, int index, size_t size)
 		lisp_abortf("Too large stream size %zu.", size);
 		return;
 	}
-	stream_heap(&pos, (enum StreamType)(StreamType_Size + index), size);
+	stream_heap(&pos, (enum StreamType)StreamExtend_Index(index), size);
 	PtrStructStream(pos)->closed = 0;
 	*ret = pos;
 }
@@ -91,7 +91,7 @@ void lisp_setinfo_stream(addr stream, addr value)
 #define LispStreamExtendCallType(name) \
 	void lisp_stream_calltype_##name(int index, lisp_streamtype_##name call) { \
 		lisp_stream_exnted_check(index); \
-		Stream_##name[StreamType_Size + index] = call; \
+		Stream_##name[StreamExtend_Index(index)] = call; \
 	}
 LispStreamExtendCallType(close);
 LispStreamExtendCallType(read_byte);
@@ -128,7 +128,7 @@ LispStreamExtendCallType(termsize);
 #define LispStreamExtendCallTypeError(name) \
 	void lisp_stream_calltype_error_##name(int index) { \
 		lisp_stream_exnted_check(index); \
-		Stream_##name[StreamType_Size + index] = name##_stream_error; \
+		Stream_##name[StreamExtend_Index(index)] = name##_stream_error; \
 	}
 LispStreamExtendCallTypeError(close);
 LispStreamExtendCallTypeError(read_byte);

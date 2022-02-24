@@ -1,6 +1,7 @@
 #ifndef __STREAM_OBJECT_HEADER__
 #define __STREAM_OBJECT_HEADER__
 
+#include "memory.h"
 #include "execute.h"
 #include "typedef.h"
 
@@ -37,7 +38,7 @@
 #define read_memory_stream_p _n(read_memory_stream_p)
 #define write_memory_stream_p _n(write_memory_stream_p)
 #define memory_stream_p _n(memory_stream_p)
-#define terminal_stream_p _n(terminal_stream_p)
+#define pipe_stream_p _n(pipe_stream_p)
 #define extend_stream_p _n(extend_stream_p)
 #define extend_type_stream_p _n(extend_type_stream_p)
 
@@ -78,9 +79,20 @@ enum StreamType {
 	StreamType_MemoryInput,
 	StreamType_MemoryOutput,
 	StreamType_MemoryIO,
-	StreamType_Terminal,
+	StreamType_Pipe,
 	StreamType_Size
 };
+
+enum StreamPipe {
+	StreamPipe_Input,
+	StreamPipe_Output,
+	StreamPipe_Error,
+	StreamPipe_Size
+};
+
+#define Stream_Size  (StreamType_Size + StreamPipe_Size + LISP_STREAM_EXTEND)
+#define StreamPipe_Index(x)  (StreamType_Size + (x))
+#define StreamExtend_Index(x)  (StreamType_Size + StreamPipe_Size + (x))
 
 struct StructStream {
 	unsigned unread_check : 1;
@@ -174,7 +186,7 @@ int io_memory_stream_p(addr stream);
 int read_memory_stream_p(addr stream);
 int write_memory_stream_p(addr stream);
 int memory_stream_p(addr stream);
-int terminal_stream_p(addr stream);
+int pipe_stream_p(addr stream);
 int extend_stream_p(addr stream);
 int extend_type_stream_p(addr stream, int type);
 

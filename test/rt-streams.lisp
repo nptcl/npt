@@ -20,6 +20,7 @@
 (load #p"test/rtstreams-string.lisp")
 (load #p"test/rtstreams-synonym.lisp")
 (load #p"test/rtstreams-two-way.lisp")
+(load #p"test/rtstreams-pipe.lisp")
 
 
 ;;

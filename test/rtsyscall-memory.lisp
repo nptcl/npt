@@ -84,3 +84,8 @@
     (lisp-system:sysctl stream 'hello))
   nil nil)
 
+(deftest memory-stream-sysctl.6
+  (with-open-stream (stream (lisp-system:make-memory-io-stream :size 10))
+    (lisp-system:sysctl 'memory-stream stream 'size))
+  10 t)
+

@@ -96,8 +96,8 @@ static int type_name_stream_(addr pos, addr *value, int *ret)
 			GetConst(SYSTEM_MEMORY_STREAM, value);
 			goto normal;
 
-		case StreamType_Terminal:
-			GetConst(SYSTEM_TERMINAL_STREAM, value);
+		case StreamType_Pipe:
+			GetConst(SYSTEM_PIPE_STREAM, value);
 			goto normal;
 
 		default:

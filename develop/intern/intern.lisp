@@ -1419,7 +1419,7 @@ lisp-system::end
 lisp-system::prompt-stream
 lisp-system::pretty-stream
 lisp-system::memory-stream
-lisp-system::terminal-stream
+lisp-system::pipe-stream
 (lisp-system::*gchold* :name gchold :constant system)
 
 

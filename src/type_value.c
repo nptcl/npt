@@ -461,8 +461,8 @@ static int type_value_stream_(addr *ret, addr value)
 			GetTypeTable(ret, PrettyStream);
 			return 0;
 
-		case StreamType_Terminal:
-			GetTypeTable(ret, TerminalStream);
+		case StreamType_Pipe:
+			GetTypeTable(ret, PipeStream);
 			return 0;
 
 		default:

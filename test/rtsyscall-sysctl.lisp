@@ -26,6 +26,16 @@
     (sysctl x 'hello))
   nil nil)
 
+(deftest clos-sysctl.3
+  (let ((x (make-instance 'clos-sysctl-1)))
+    (sysctl 'clos x 'slots))
+  (aaa bbb ccc) t)
+
+(deftest clos-sysctl.4
+  (let ((x (make-instance 'clos-sysctl-1)))
+    (sysctl 'clos x 'hello))
+  nil nil)
+
 
 ;;  recovery
 (deftest recovery-sysctl.1
@@ -207,4 +217,14 @@
 (deftest random-state-sysctl.1
   (sysctl 'random-state 'hello)
   nil nil)
+
+
+;;
+;;  stream
+;;
+(deftest stream-sysctl.1
+  (typep
+    (sysctl 'stream 'pipe 'make 0)
+    'lisp-system::pipe-stream)
+  t)
 

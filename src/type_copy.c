@@ -429,6 +429,7 @@ void init_type_copy(void)
 	TypeCopyTable[LISPDECL_PROMPT_STREAM] = typecopy_empty;
 	TypeCopyTable[LISPDECL_PRETTY_STREAM] = typecopy_empty;
 	TypeCopyTable[LISPDECL_MEMORY_STREAM] = typecopy_empty;
+	TypeCopyTable[LISPDECL_PIPE_STREAM] = typecopy_empty;
 	TypeCopyTable[LISPDECL_QUOTE] = typecopy_empty;
 	TypeCopyTable[LISPDECL_BYTESPEC] = typecopy_empty;
 	TypeCopyTable[LISPDECL_PRINT_DISPATCH] = typecopy_empty;

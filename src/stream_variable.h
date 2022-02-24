@@ -47,38 +47,46 @@
 #define DefineStreamEql(x,y,z) Stream_##y[StreamType_##x] = z;
 #define DefineStreamChk(x,y,z) Stream_##y[StreamType_##x] = checkp_##z##_stream;
 
-#define StreamType_Array	(StreamType_Size + LISP_STREAM_EXTEND)
-extern lisp_streamtype_close Stream_close[StreamType_Array];
-extern lisp_streamtype_read_byte Stream_read_byte[StreamType_Array];
-extern lisp_streamtype_unread_byte Stream_unread_byte[StreamType_Array];
-extern lisp_streamtype_write_byte Stream_write_byte[StreamType_Array];
-extern lisp_streamtype_read_char Stream_read_char[StreamType_Array];
-extern lisp_streamtype_read_hang Stream_read_hang[StreamType_Array];
-extern lisp_streamtype_unread_char Stream_unread_char[StreamType_Array];
-extern lisp_streamtype_write_char Stream_write_char[StreamType_Array];
-extern lisp_streamtype_getleft Stream_getleft[StreamType_Array];
-extern lisp_streamtype_setleft Stream_setleft[StreamType_Array];
-extern lisp_streamtype_inputp Stream_inputp[StreamType_Array];
-extern lisp_streamtype_outputp Stream_outputp[StreamType_Array];
-extern lisp_streamtype_interactivep Stream_interactivep[StreamType_Array];
-extern lisp_streamtype_characterp Stream_characterp[StreamType_Array];
-extern lisp_streamtype_binaryp Stream_binaryp[StreamType_Array];
-extern lisp_streamtype_element_type Stream_element_type[StreamType_Array];
-extern lisp_streamtype_external_format Stream_external_format[StreamType_Array];
-extern lisp_streamtype_file_length Stream_file_length[StreamType_Array];
-extern lisp_streamtype_file_position Stream_file_position[StreamType_Array];
-extern lisp_streamtype_file_position_start Stream_file_position_start[StreamType_Array];
-extern lisp_streamtype_file_position_end Stream_file_position_end[StreamType_Array];
-extern lisp_streamtype_file_position_set Stream_file_position_set[StreamType_Array];
-extern lisp_streamtype_file_charlen Stream_file_charlen[StreamType_Array];
-extern lisp_streamtype_file_strlen Stream_file_strlen[StreamType_Array];
-extern lisp_streamtype_listen Stream_listen[StreamType_Array];
-extern lisp_streamtype_clear_input Stream_clear_input[StreamType_Array];
-extern lisp_streamtype_finish_output Stream_finish_output[StreamType_Array];
-extern lisp_streamtype_force_output Stream_force_output[StreamType_Array];
-extern lisp_streamtype_clear_output Stream_clear_output[StreamType_Array];
-extern lisp_streamtype_exitpoint Stream_exitpoint[StreamType_Array];
-extern lisp_streamtype_termsize Stream_termsize[StreamType_Array];
+#define PipeStreamArray(x,y) Stream_##y[StreamPipe_Index(StreamPipe_##x)]
+#define PipeStreamLet(x,y,z) PipeStreamArray(x, y) = y##_##z;
+#define PipeStreamSet(x,y) PipeStreamArray(x, y) = y##_##x;
+#define PipeStreamErr(x,y) PipeStreamArray(x, y) = y##_stream_error;
+#define PipeStream___(x,y) PipeStreamArray(x, y) = y##_stream_error;
+#define PipeStreamDef(x,y) PipeStreamArray(x, y) = y##_default_stream;
+#define PipeStreamEql(x,y,z) PipeStreamArray(x, y) = z;
+#define PipeStreamChk(x,y,z) PipeStreamArray(x, y) = checkp_##z##_stream;
+
+extern lisp_streamtype_close Stream_close[Stream_Size];
+extern lisp_streamtype_read_byte Stream_read_byte[Stream_Size];
+extern lisp_streamtype_unread_byte Stream_unread_byte[Stream_Size];
+extern lisp_streamtype_write_byte Stream_write_byte[Stream_Size];
+extern lisp_streamtype_read_char Stream_read_char[Stream_Size];
+extern lisp_streamtype_read_hang Stream_read_hang[Stream_Size];
+extern lisp_streamtype_unread_char Stream_unread_char[Stream_Size];
+extern lisp_streamtype_write_char Stream_write_char[Stream_Size];
+extern lisp_streamtype_getleft Stream_getleft[Stream_Size];
+extern lisp_streamtype_setleft Stream_setleft[Stream_Size];
+extern lisp_streamtype_inputp Stream_inputp[Stream_Size];
+extern lisp_streamtype_outputp Stream_outputp[Stream_Size];
+extern lisp_streamtype_interactivep Stream_interactivep[Stream_Size];
+extern lisp_streamtype_characterp Stream_characterp[Stream_Size];
+extern lisp_streamtype_binaryp Stream_binaryp[Stream_Size];
+extern lisp_streamtype_element_type Stream_element_type[Stream_Size];
+extern lisp_streamtype_external_format Stream_external_format[Stream_Size];
+extern lisp_streamtype_file_length Stream_file_length[Stream_Size];
+extern lisp_streamtype_file_position Stream_file_position[Stream_Size];
+extern lisp_streamtype_file_position_start Stream_file_position_start[Stream_Size];
+extern lisp_streamtype_file_position_end Stream_file_position_end[Stream_Size];
+extern lisp_streamtype_file_position_set Stream_file_position_set[Stream_Size];
+extern lisp_streamtype_file_charlen Stream_file_charlen[Stream_Size];
+extern lisp_streamtype_file_strlen Stream_file_strlen[Stream_Size];
+extern lisp_streamtype_listen Stream_listen[Stream_Size];
+extern lisp_streamtype_clear_input Stream_clear_input[Stream_Size];
+extern lisp_streamtype_finish_output Stream_finish_output[Stream_Size];
+extern lisp_streamtype_force_output Stream_force_output[Stream_Size];
+extern lisp_streamtype_clear_output Stream_clear_output[Stream_Size];
+extern lisp_streamtype_exitpoint Stream_exitpoint[Stream_Size];
+extern lisp_streamtype_termsize Stream_termsize[Stream_Size];
 
 #endif
 
