@@ -253,7 +253,7 @@ typedef struct terme_input_data TermeInputData;
  *    Page Up    ^[[5~
  *    Page Down  ^[[6~
  */
-static void terme_input_getc2_escape(TermeInputData *str)
+static void terme_input_getc_escape(TermeInputData *str)
 {
 	byte c;
 	int check, readp;
@@ -274,7 +274,7 @@ static void terme_input_getc2_escape(TermeInputData *str)
 	str->c = c;
 }
 
-static void terme_input_getc2(TermeBlocking *blocking, TermeInputData *str)
+static void terme_input_getc(TermeBlocking *blocking, TermeInputData *str)
 {
 	byte c;
 	int check, readp;
@@ -297,8 +297,8 @@ static void terme_input_getc2(TermeBlocking *blocking, TermeInputData *str)
 	str->c = c;
 }
 
-#define terme_table_getc2(blocking, str, c) { \
-	terme_input_getc2(blocking, &str); \
+#define terme_table_getc(blocking, str, c) { \
+	terme_input_getc(blocking, &str); \
 	if (str.signal) goto signal; \
 	if (str.error) goto error; \
 	if (str.readp) goto hang; \
@@ -334,7 +334,7 @@ static void terme_table_escape(TermeBlocking *blocking, TermeKeyboard *ret)
 	datai = 0;
 
 	terme_arch_escape_begin();
-	terme_input_getc2_escape(&str);
+	terme_input_getc_escape(&str);
 	if (str.signal)
 		goto signal;
 	if (str.error)
@@ -343,7 +343,7 @@ static void terme_table_escape(TermeBlocking *blocking, TermeKeyboard *ret)
 		terme_arch_escape_end(&check);
 		if (check)
 			goto escape0;
-		terme_table_getc2(blocking, str, c);
+		terme_table_getc(blocking, str, c);
 	}
 	else {
 		c = str.c;
@@ -360,7 +360,7 @@ static void terme_table_escape(TermeBlocking *blocking, TermeKeyboard *ret)
 	goto escape1;
 
 third_4F: /* O */
-	terme_table_getc2(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	if (0x50 <= c && c <= 0x53) /* PF1 - PF4 */
 		goto program;
 	goto invalid;
@@ -372,7 +372,7 @@ third_5B: /* [ */
 		goto parse_error;
 
 	/* read char */
-	terme_table_getc2(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 
 	/* digit */
 	if (isdigit(c)) {
@@ -518,37 +518,6 @@ parse_error:
 /*
  *  UTF-8 table
  */
-static void terme_input_getc1(TermeBlocking *blocking, TermeInputData *str)
-{
-	byte c;
-	int check, readp;
-
-	check = terme_getc_blocking(blocking, &c, &readp);
-	if (check < 0) {
-		str->signal = 1;
-		return;
-	}
-	if (check) {
-		str->error = 1;
-		return;
-	}
-	if (readp == 0) {
-		str->readp = 1;
-		return;
-	}
-	Check(TERME_INPUT_BUFFER <= str->index, "size error");
-	str->data[str->index++] = c;
-	str->c = c;
-}
-
-#define terme_table_getc1(blocking, str, c) { \
-	terme_input_getc1(blocking, &str); \
-	if (str.signal) goto signal; \
-	if (str.error) goto error; \
-	if (str.readp) goto hang; \
-	c = str.c; \
-}
-
 static int terme_table_utf8(TermeBlocking *blocking, unicode *value, int *ret)
 {
 	byte c;
@@ -560,7 +529,7 @@ static int terme_table_utf8(TermeBlocking *blocking, unicode *value, int *ret)
 	str.readp = 0;
 	str.index = 0;
 
-	terme_table_getc1(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	/* encode */
 	if (0x00 <= c && c <= 0x7F)
 		goto sequence1;
@@ -578,7 +547,7 @@ sequence1:
 
 sequence2:
 	merge = (0x1F & c) << 6;
-	terme_table_getc1(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	if (c < 0x80 || 0xBF < c)
 		goto invalid;
 	merge |= 0x3F & c;
@@ -588,11 +557,11 @@ sequence2:
 
 sequence3:
 	merge = (0x0F & c) << 12;
-	terme_table_getc1(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	if (c < 0x80 || 0xBF < c)
 		goto invalid;
 	merge |= (0x3F & c) << 6;
-	terme_table_getc1(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	if (c < 0x80 || 0xBF < c)
 		goto invalid;
 	merge |= 0x3F & c;
@@ -604,15 +573,15 @@ sequence3:
 
 sequence4:
 	merge = (0x07 & c) << 18;
-	terme_table_getc1(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	if (c < 0x80 || 0xBF < c)
 		goto invalid;
 	merge |= (0x3F & c) << 12;
-	terme_table_getc1(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	if (c < 0x80 || 0xBF < c)
 		goto invalid;
 	merge |= (0x3F & c) << 6;
-	terme_table_getc1(blocking, str, c);
+	terme_table_getc(blocking, str, c);
 	if (c < 0x80 || 0xBF < c)
 		goto invalid;
 	merge |= 0x3F & c;

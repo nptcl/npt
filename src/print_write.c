@@ -2201,11 +2201,19 @@ static int WriteBody_pipe_stream_(Execute ptr, addr stream, addr pos)
 {
 	char data[64];
 	enum StreamPipe type;
+	const char *name;
 
-	type = get_type_pipe_stream(pos);
-	snprintc(data, 64, "%d", (int)type);
-	Return(print_ascii_stream_(stream, "STREAM PIPE "));
-	Return(print_ascii_stream_(stream, data));
+	name = get_name_pipe_stream(pos);
+	if (name) {
+		Return(print_ascii_stream_(stream, "PIPE-STREAM "));
+		Return(print_ascii_stream_(stream, name));
+	}
+	else {
+		type = get_type_pipe_stream(pos);
+		snprintc(data, 64, "%d", (int)type);
+		Return(print_ascii_stream_(stream, "PIPE-STREAM "));
+		Return(print_ascii_stream_(stream, data));
+	}
 
 	return 0;
 }

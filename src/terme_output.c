@@ -41,6 +41,12 @@ int terme_finish_output(void)
 	return 0;
 }
 
+void terme_clear_output(void)
+{
+	terme_output_size = 0;
+	terme_output_x = 0;
+}
+
 int terme_write_byte(byte c)
 {
 	if (TERME_OUTPUT_SIZE <= terme_output_size) {

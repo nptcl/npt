@@ -5,6 +5,7 @@
 
 #define terme_output_init _n(terme_output_init)
 #define terme_finish_output _n(terme_finish_output)
+#define terme_clear_output _n(terme_clear_output)
 #define terme_write_byte _n(terme_write_byte)
 #define terme_write_char _n(terme_write_char)
 #define terme_output_char _n(terme_output_char)
@@ -13,6 +14,7 @@
 
 void terme_output_init(void);
 int terme_finish_output(void);
+void terme_clear_output(void);
 int terme_write_byte(byte c);
 int terme_write_char(unicode c, unsigned width);
 int terme_output_char(unicode c);

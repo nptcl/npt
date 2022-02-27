@@ -14,6 +14,7 @@
 #include "stream_function.h"
 #include "stream_init.h"
 #include "stream_memory.h"
+#include "stream_pipe.h"
 #include "stream_pretty.h"
 #include "stream_prompt.h"
 #include "stream_string.h"
@@ -62,7 +63,7 @@ static void init_stream_extend_type(int type)
 	LispStreamTypeError(termsize, type);
 }
 
-static void init_stream_pipe(void)
+static void init_stream_pipe_stream(void)
 {
 	int i;
 
@@ -100,6 +101,7 @@ void init_stream(void)
 	init_stream_prompt();
 	init_stream_pretty();
 	init_stream_pipe();
+	init_stream_pipe_stream();
 	init_stream_extend();
 	init_stream_memory_input();
 	init_stream_memory_output();

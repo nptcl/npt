@@ -1,13 +1,15 @@
 !include <src\source.mk>
+!include <develop\windows\windows.mk>
 object = $(source:.c=.obj)
+object_windows = $(windows:.c=.obj)
 output = npt.exe
 
-LISP_LIB = Shell32.lib
-LISP_C = /DLISP_WINDOWS /DLISP_TERME
+LISP_LIB = Shell32.lib User32.lib Gdi32.lib /SUBSYSTEM:WINDOWS
+LISP_C = /DLISP_WINDOWS /DLISP_TERME /DLISP_WINMAIN
 LISP_C = $(LISP_C) /DLISP_DEBUG /DLISP_DEGRADE /DLISP_MODE_DEGRADE
 CFLAGS = /Zi /GS /RTCscu /TC /W3 /Isrc /Itest /Idevelop\windows $(LISP_C)
 
-$(output) : $(object)
+$(output) : $(object) $(object_windows)
 	LINK.EXE /DEBUG /OUT:$(output) *.obj $(LISP_LIB)
 
 {src\}.c{}.obj::
