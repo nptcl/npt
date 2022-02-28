@@ -324,13 +324,40 @@ static struct windows_character *windows_display_get(unsigned x, unsigned y)
 }
 
 
+int windows_display_line_back(void)
+{
+	struct windows_line y0, *ptr1, *ptr2;
+	unsigned y;
+
+	if (Display_WriteY == 0)
+		return 0;
+	if (Display_WriteY == 1)
+		return windows_display_delete_x2(0, 0);
+
+	/* loop */
+	y = Display_WriteY - 1;
+	ptr2 = windows_display_get_y(y);
+	y0 = *ptr2;
+
+	for (; y; y--) {
+		ptr1 = windows_display_get_y(y - 1);
+		*ptr2 = *ptr1;
+		ptr2 = ptr1;
+	}
+	*ptr2 = y0;
+	ptr2->write = 0;
+
+	return 0;
+}
+
+
 /*
  *  Draw
  */
 int windows_display_character(unsigned x, unsigned y, unsigned width, unicode c)
 {
 	struct windows_character *ptr;
-	
+
 	ptr = windows_display_set(x, y);
 	if (ptr == NULL)
 		return 0;
@@ -368,4 +395,93 @@ void windows_display_paint_nolock(HDC hDC)
 			(void)windows_draw_character_nolock(hDC, x, y, ptr->c);
 		}
 	}
+}
+
+int windows_display_delete_x1(unsigned y, unsigned x)
+{
+	unsigned i;
+	struct windows_line *ptr;
+	struct windows_character *c;
+
+	ptr = windows_display_set_y(y);
+	if (ptr == NULL)
+		return 1;
+	if (Display_SizeX < x)
+		return 1;
+	c = ptr->ptr;
+	for (i = 0; i < x; i++)
+		c[i].empty = 1;
+	if (ptr->write < x)
+		ptr->write = x;
+
+	return 0;
+}
+
+int windows_display_delete_x2(unsigned y, unsigned x)
+{
+	struct windows_line *ptr;
+
+	ptr = windows_display_set_y(y);
+	if (ptr == NULL)
+		return 1;
+	if (Display_SizeX < x)
+		return 1;
+	ptr->write = x;
+
+	return 0;
+}
+
+int windows_display_delete_y1(unsigned y)
+{
+	unsigned i;
+	struct windows_line *ptr;
+
+	if (y == 0)
+		return 0;
+	if (Window_SizeY < y)
+		y = Window_SizeY;
+	for (i = 0; i < y; y++) {
+		ptr = windows_display_set_y(y);
+		if (ptr == NULL)
+			return 1;
+		ptr->write = 0;
+	}
+
+	return 0;
+}
+
+static int windows_display_delete_y_last(void)
+{
+	struct windows_line *ptr;
+
+	/* Delete */
+	if (Display_WriteY == 0)
+		return 1;
+	ptr = Display_Root + Display_Ring;
+	ptr->write = 0;
+
+	/* Decrement */
+	if (Display_Ring)
+		Display_Ring--;
+	else
+		Display_Ring = Display_AllocY - 1;
+	Display_RingSize--;
+	Display_WriteY--;
+
+	return 0;
+}
+
+int windows_display_delete_y2(unsigned y)
+{
+	while (y < Display_WriteY) {
+		if (windows_display_delete_y_last())
+			return 1;
+	}
+
+	return 0;
+}
+
+int windows_display_delete_all(void)
+{
+	return windows_display_delete_y2(0);
 }

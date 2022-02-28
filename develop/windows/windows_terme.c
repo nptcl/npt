@@ -1,4 +1,7 @@
+#include "condition.h"
 #include "object.h"
+#include "paper.h"
+#include "terme_output.h"
 #include "typedef.h"
 #include "windows_display.h"
 #include "windows_input.h"
@@ -7,9 +10,18 @@
 #include "windows_stream.h"
 #include "windows_terme.h"
 #include "windows_window.h"
+#include <Windows.h>
+
+#define TERME_WINDOWS_ESCAPE       98
+
+static int terme_windows_escape_p;
+static LARGE_INTEGER terme_windows_escape_timeval;
 
 int terme_windows_init(void)
 {
+	terme_windows_escape_p = 0;
+	cleartype(terme_windows_escape_timeval);
+
 	windows_display_init();
 	windows_input_init();
 	windows_output_init();
@@ -27,22 +39,26 @@ int terme_windows_begin(void)
 	if (windows_window_show_default())
 		return 1;
 #endif
+	windows_screen_begin();
 
 	return 0;
 }
 
 int terme_windows_end(void)
 {
+	windows_screen_end();
 	return 0;
 }
 
 int terme_windows_textmode(void)
 {
+	windows_screen_textmode();
 	return 0;
 }
 
 int terme_windows_rawmode(void)
 {
+	windows_screen_rawmode();
 	return 0;
 }
 
@@ -78,28 +94,110 @@ int terme_windows_write(const void *data, size_t size, size_t *ret)
 
 int terme_windows_escape_begin(void)
 {
+	int check;
+
+	if (terme_windows_escape_p)
+		return 0;
+	check = QueryPerformanceCounter(&terme_windows_escape_timeval);
+	if (check)
+		return 1;
+	terme_windows_escape_p = 1;
+
 	return 0;
 }
 
 int terme_windows_escape_end(int *ret)
 {
+	int check;
+	LONGLONG a, b, c, diff;
+	LARGE_INTEGER now, hz;
+
+	if (terme_windows_escape_p == 0)
+		goto error;
+	check = QueryPerformanceCounter(&now);
+	if (check)
+		goto error;
+	check = QueryPerformanceFrequency(&hz);
+	if (check)
+		goto error;
+	c = hz.QuadPart;
+	a = now.QuadPart * 10000 / c;
+	b = terme_windows_escape_timeval.QuadPart * 10000 / c;
+
+	/* minus */
+	if (a < b)
+		goto normal;
+
+	/* diff */
+	diff = a - b;
+	if (diff < TERME_WINDOWS_ESCAPE)
+		goto normal;
+
+	/* escape */
+	terme_windows_escape_p = 0;
+	*ret = 1;
+	return 0;
+
+normal:
+	terme_windows_escape_p = 0;
 	*ret = 0;
 	return 0;
+
+error:
+	terme_windows_escape_p = 0;
+	*ret = 0;
+	return 1;
+}
+
+static int terme_windows_begin_update_(int mode, addr *ret)
+{
+	addr pos;
+	size_t size;
+
+	/* flush */
+	if (terme_finish_output()) {
+		*ret = Nil;
+		return fmte_("terme_finish_output error.", NULL);
+	}
+
+	/* paper */
+	paper_body_heap(&pos, sizeoft(mode));
+	paper_set_memory(pos, 0, sizeoft(mode), (const void *)&mode, &size);
+	Check(size != sizeoft(mode), "size error");
+	return Result(ret, pos);
 }
 
 int terme_windows_begin_default_(addr *ret)
 {
-	*ret = Nil;
+	int mode;
+
+	mode = windows_screen_getmode();
+	Return(terme_windows_begin_update_(mode, ret));
+	windows_screen_textmode();
+
 	return 0;
 }
 
+
 int terme_windows_begin_rawmode_(addr *ret)
 {
-	*ret = Nil;
+	int mode;
+
+	mode = windows_screen_getmode();
+	Return(terme_windows_begin_update_(mode, ret));
+	windows_screen_rawmode();
+
 	return 0;
 }
 
 int terme_windows_restore_(addr pos)
 {
+	int mode;
+	size_t size;
+
+	paper_get_memory(pos, 0, sizeoft(mode), (void *)&mode, &size);
+	Check(size != sizeoft(mode), "size error");
+	windows_screen_setmode(mode);
+
 	return 0;
 }

@@ -281,44 +281,43 @@ int windows_write_move_xy_lock(int16_t x, int16_t y)
 	return 0;
 }
 
-static void windows_write_delete_page_0(void)
-{
-}
-
-static void windows_write_delete_page_1(void)
-{
-}
-
-static void windows_write_delete_page_2(void)
-{
-}
-
-int windows_write_delete_page_lock(int16_t s)
-{
-	windows_screen_enter();
-	windows_draw_cursor_off_nolock(NULL);
-	if (s <= 0)
-		windows_write_delete_page_0();
-	else if (s == 1)
-		windows_write_delete_page_1();
-	else if (s == 2)
-		windows_write_delete_page_2();
-	windows_draw_cursor_on_nolock(NULL);
-	windows_screen_leave();
-
-	return 0;
-}
-
 static void windows_write_delete_line_0(void)
 {
+	unsigned x, y, x1, y1, x2, y2;
+
+	x = Window_CursorX;
+	y = Window_CursorY;
+	if (x < Window_SizeX) {
+		x1 = x;
+		y1 = y;
+		x2 = Window_SizeX;
+		y2 = y1 + 1;
+		windows_draw_delete_nolock(NULL, x1, y1, x2, y2);
+		windows_display_delete_x2(y, x1);
+	}
 }
 
 static void windows_write_delete_line_1(void)
 {
+	unsigned y1, x2, y2;
+
+	y1 = Window_CursorY;
+	x2 = Window_CursorX;
+	y2 = Window_CursorY + 1;
+	windows_draw_delete_nolock(NULL, 0, y1, x2, y2);
+	windows_display_delete_x1(y1, x2);
 }
 
 static void windows_write_delete_line_2(void)
 {
+	unsigned y, y1, x2, y2;
+
+	y = Window_CursorY;
+	y1 = y;
+	x2 = Window_SizeX;
+	y2 = y1 + 1;
+	windows_draw_delete_nolock(NULL, 0, y1, x2, y2);
+	windows_display_delete_x2(y, 0);
 }
 
 int windows_write_delete_line_lock(int16_t s)
@@ -337,28 +336,123 @@ int windows_write_delete_line_lock(int16_t s)
 	return 0;
 }
 
-int windows_write_scroll_down_lock(int16_t s)
+static void windows_write_delete_page_0(void)
 {
-	unsigned u;
+	unsigned y, x2, y1, y2;
 
+	/* delete y */
+	y = Window_CursorY;
+	if (y < Window_SizeY) {
+		y1 = y + 1;
+		x2 = Window_SizeX;
+		y2 = Window_SizeY;
+		windows_draw_delete_nolock(NULL, 0, y1, x2, y2);
+		windows_display_delete_y2(y1);
+	}
+
+	/* delete x */
+	windows_write_delete_line_0();
+}
+
+static void windows_write_delete_page_1(void)
+{
+	unsigned x2, y2;
+
+	/* delete y */
+	x2 = Window_SizeX;
+	y2 = Window_CursorY;
+	windows_draw_delete_nolock(NULL, 0, 0, x2, y2);
+	windows_display_delete_y1(y2);
+
+	/* delete x */
+	windows_write_delete_line_1();
+}
+
+static void windows_write_delete_page_2(void)
+{
+	unsigned x2, y2;
+
+	x2 = Window_SizeX;
+	y2 = Window_SizeY;
+	windows_draw_delete_nolock(NULL, 0, 0, x2, y2);
+	windows_display_delete_all();
+}
+
+int windows_write_delete_page_lock(int16_t s)
+{
 	windows_screen_enter();
 	windows_draw_cursor_off_nolock(NULL);
-	u = (s < 0) ? 0 : (unsigned)s;
+	if (s <= 0)
+		windows_write_delete_page_0();
+	else if (s == 1)
+		windows_write_delete_page_1();
+	else if (s == 2)
+		windows_write_delete_page_2();
 	windows_draw_cursor_on_nolock(NULL);
 	windows_screen_leave();
 
 	return 0;
 }
 
-int windows_write_scroll_up_lock(int16_t s)
+static int windows_write_scroll_next_nolock(void)
 {
-	unsigned u;
+	if (windows_draw_line_feed_nolock())
+		return 1;
+	if (windows_display_line_feed())
+		return 1;
+
+	return 0;
+}
+
+static int windows_write_scroll_prev_nolock(void)
+{
+	if (windows_draw_line_back_nolock())
+		return 1;
+	if (windows_display_line_back())
+		return 1;
+
+	return 0;
+}
+
+int windows_write_scroll_next_lock(int16_t s)
+{
+	unsigned u, i;
 
 	windows_screen_enter();
 	windows_draw_cursor_off_nolock(NULL);
-	u = (s < 0) ? 0 : (unsigned)s;
+	u = (s < 0) ? 1 : (unsigned)s;
+	for (i = 0; i < u; i++) {
+		if (windows_write_scroll_next_nolock())
+			return 1;
+	}
 	windows_draw_cursor_on_nolock(NULL);
 	windows_screen_leave();
 
+	return 0;
+}
+
+int windows_write_scroll_prev_lock(int16_t s)
+{
+	unsigned u, i;
+
+	windows_screen_enter();
+	windows_draw_cursor_off_nolock(NULL);
+	u = (s < 0) ? 1 : (unsigned)s;
+	for (i = 0; i < u; i++) {
+		if (windows_write_scroll_prev_nolock())
+			return 1;
+	}
+	windows_draw_cursor_on_nolock(NULL);
+	windows_screen_leave();
+
+	return 0;
+}
+
+
+/*
+ *  font
+ */
+int windows_write_font_lock(int16_t *escape, unsigned size)
+{
 	return 0;
 }

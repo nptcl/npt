@@ -63,3 +63,8 @@ int getwidth_windows(unsigned *rx, unsigned *ry)
 	return 0;
 }
 
+int consolep_windows(void)
+{
+	return 1;
+}
+

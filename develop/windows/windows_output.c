@@ -133,21 +133,26 @@ static int windows_output_escape_delete_line(WindowsOutputData *str)
 	return windows_write_delete_line_lock(v);
 }
 
-static int windows_output_escape_scroll_down(WindowsOutputData *str)
+static int windows_output_escape_scroll_next(WindowsOutputData *str)
 {
 	int16_t v = str->escape[0];
-	return windows_write_scroll_down_lock(v);
+	return windows_write_scroll_next_lock(v);
 }
 
-static int windows_output_escape_scroll_up(WindowsOutputData *str)
+static int windows_output_escape_scroll_prev(WindowsOutputData *str)
 {
 	int16_t v = str->escape[0];
-	return windows_write_scroll_up_lock(v);
+	return windows_write_scroll_prev_lock(v);
 }
 
 static int windows_output_escape_font(WindowsOutputData *str)
 {
-	return 0;
+	int16_t *ptr;
+	unsigned size;
+
+	ptr = str->escape;
+	size = str->escape_size;
+	return windows_write_font_lock(ptr, size);
 }
 
 static int windows_output_escape_home(void)
@@ -274,9 +279,9 @@ third_5B: /* [ */
 	if (c == 0x4B) /* K */
 		goto escape_delete_line;
 	if (c == 0x53) /* S */
-		goto escape_scroll_down;
+		goto escape_scroll_next;
 	if (c == 0x54) /* T */
-		goto escape_scroll_up;
+		goto escape_scroll_prev;
 	if (c == 0x66) /* f */
 		goto escape_move_xy;
 	if (c == 0x6D) /* m */
@@ -341,13 +346,13 @@ escape_delete_line:
 	str->next_size = 0;
 	return windows_output_escape_delete_line(str);
 
-escape_scroll_down:
+escape_scroll_next:
 	str->next_size = 0;
-	return windows_output_escape_scroll_down(str);
+	return windows_output_escape_scroll_next(str);
 
-escape_scroll_up:
+escape_scroll_prev:
 	str->next_size = 0;
-	return windows_output_escape_scroll_up(str);
+	return windows_output_escape_scroll_prev(str);
 
 escape_font:
 	str->next_size = 0;

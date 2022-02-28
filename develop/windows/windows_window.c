@@ -92,7 +92,7 @@ static void windows_window_title(HWND hWnd)
 static void windows_window_paint_rectangle(HDC hDC)
 {
 	unsigned x, y, x1, y1, x2, y2;
-	
+
 	for (y = 0; y < Window_SizeY; y++) {
 		y1 = Window_SpaceY1 + (Window_FontY + Window_SpaceCharacterY) * y;
 		y2 = y1 + Window_FontY;
@@ -284,8 +284,8 @@ static int windows_window_class(void)
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = Window_hInstance;
-	wc.hIcon = LoadIconA(NULL, IDI_APPLICATION);
-	wc.hCursor = LoadCursorA(NULL, IDC_IBEAM);
+	wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	wc.hCursor = LoadCursor(NULL, IDC_IBEAM);
 	wc.hbrBackground = GetStockObject(BLACK_BRUSH);
 	wc.lpszMenuName = LispnameW;
 	wc.lpszClassName = LispnameW;
@@ -587,7 +587,7 @@ int windows_draw_character_nolock(HDC hDC, unsigned x, unsigned y, unicode c)
 		windows_draw_textout(hDC, x, y, data, size);
 	if (releasep)
 		ReleaseDC(Window_hWnd, hDC);
-	
+
 	return 0;
 }
 
@@ -627,28 +627,25 @@ int windows_draw_character_lock(HWND hWnd, unsigned x, unsigned y, unicode c)
 
 int windows_draw_line_feed_nolock(void)
 {
-	unsigned x, y, x1, y1, x2, y2, y3, y4, w, h;
+	unsigned x1, y1, x2, y2, y3, w, h;
 	HWND hWnd;
 	HDC hDC;
-	HPEN hPen;
-	HBRUSH hBrush;
-		
+	
 	if (Window_SizeX == 0)
 		return 0;
 	if (Window_SizeY == 0)
 		return 0;
 	hWnd = Window_hWnd;
-
 	hDC = GetDC(hWnd);
 	if (hDC == NULL)
 		return 1;
 
+	/* Scroll */
 	x1 = windows_draw_x(0);
 	x2 = windows_draw_x(Window_SizeX);
 	y1 = windows_draw_y(0);
 	y2 = windows_draw_y(1);
 	y3 = windows_draw_y(Window_SizeY - 1);
-	y4 = windows_draw_y(Window_SizeY);
 	if (Window_SizeY != 1) {
 		w = x2 - x1;
 		h = y3 - y1;
@@ -656,9 +653,85 @@ int windows_draw_line_feed_nolock(void)
 	}
 
 	/* Erase */
+	x2 = Window_SizeX;
+	y1 = Window_SizeY - 1;
+	y2 = Window_SizeY;
+	windows_draw_delete_nolock(hDC, 0, y1, x2, y2);
+
+	/* Release */
+	ReleaseDC(hWnd, hDC);
+	return 0;
+}
+
+int windows_draw_line_back_nolock(void)
+{
+	unsigned x1, y1, x2, y2, y3, w, h;
+	HWND hWnd;
+	HDC hDC;
+
+	if (Window_SizeX == 0)
+		return 0;
+	if (Window_SizeY == 0)
+		return 0;
+	hWnd = Window_hWnd;
+	hDC = GetDC(hWnd);
+	if (hDC == NULL)
+		return 1;
+
+	/* Scroll */
+	x1 = windows_draw_x(0);
+	x2 = windows_draw_x(Window_SizeX);
+	y1 = windows_draw_y(0);
+	y2 = windows_draw_y(1);
+	y3 = windows_draw_y(Window_SizeY);
+	if (Window_SizeY != 1) {
+		w = x2 - x1;
+		h = y3 - y2;
+		BitBlt(hDC, x1, y2, w, h, hDC, x1, y1, SRCCOPY);
+	}
+
+	/* Erase */
+	x2 = Window_SizeX;
+	windows_draw_delete_nolock(hDC, 0, 0, x2, 1);
+
+	/* Release */
+	ReleaseDC(hWnd, hDC);
+	return 0;
+}
+
+int windows_draw_delete_nolock(HDC hDC, unsigned x1, unsigned y1, unsigned x2, unsigned y2)
+{
+	int releasep;
+	unsigned a, b, c, d, x, y;
+	HPEN hPen;
+	HBRUSH hBrush;
+
+	if (! (x1 < Window_SizeX))
+		return 0;
+	if (! (x2 <= Window_SizeX))
+		x2 = Window_SizeX;
+	if (! (y1 < Window_SizeY))
+		return 0;
+	if (! (y2 <= Window_SizeY))
+		y2 = Window_SizeY;
+	if (x2 <= x1 || y2 <= y1)
+		return 0;
+	a = windows_draw_x(x1);
+	b = windows_draw_y(y1);
+	c = windows_draw_x(x2);
+	d = windows_draw_y(y2);
+
+	/* hDC */
+	releasep = (hDC == NULL);
+	if (releasep)
+		hDC = GetDC(Window_hWnd);
+	if (hDC == NULL)
+		return 1;
+
+	/* Erase */
 	hPen = SelectObject(hDC, Window_BkPen);
 	hBrush = SelectObject(hDC, Window_BkBrush);
-	Rectangle(hDC, x1, y3, x2, y4);
+	Rectangle(hDC, a, b, c, d);
 	SelectObject(hDC, hPen);
 	SelectObject(hDC, hBrush);
 
@@ -667,18 +740,21 @@ int windows_draw_line_feed_nolock(void)
 	hBrush = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
 	hPen = SelectObject(hDC, hPen);
 	hBrush = SelectObject(hDC, hBrush);
-	y = Window_SizeY - 1;
-	y1 = Window_SpaceY1 + (Window_FontY + Window_SpaceCharacterY) * y;
-	y2 = y1 + Window_FontY;
-	for (x = 0; x < Window_SizeX; x++) {
-		x1 = Window_SpaceX1 + (Window_FontX + Window_SpaceCharacterX) * x;
-		x2 = x1 + Window_FontX;
-		Rectangle(hDC, (int)x1, (int)y1, (int)x2, (int)y2);
+	for (y = y1; y < y2; y++) {
+		b = Window_SpaceY1 + (Window_FontY + Window_SpaceCharacterY) * y;
+		d = b + Window_FontY;
+		for (x = x1; x < x2; x++) {
+			a = Window_SpaceX1 + (Window_FontX + Window_SpaceCharacterX) * x;
+			c = a + Window_FontX;
+			Rectangle(hDC, a, b, c, d);
+		}
 	}
-	SelectObject(hDC, hPen);
-	SelectObject(hDC, hBrush);
 
 	/* Release */
-	ReleaseDC(hWnd, hDC);
+	SelectObject(hDC, hPen);
+	SelectObject(hDC, hBrush);
+	if (releasep)
+		ReleaseDC(Window_hWnd, hDC);
+
 	return 0;
 }

@@ -257,6 +257,7 @@ static int windows_ring_read(void *str, size_t size, size_t *ret)
 	return check;
 }
 
+
 /*
  *  Input Clipboard
  */
@@ -271,7 +272,7 @@ static int windows_input_unicode(unicode c)
 	size_t size;
 
 	if (encode_utf8(c, data, &size))
-		return 1 ; /* erorr */
+		return 1 ; /* error */
 	if (windows_write_char_lock(c))
 		return 1;
 	if (windows_input_escape((const void *)data, size))
@@ -346,7 +347,7 @@ static LRESULT windows_input_paste(HWND hWnd)
 static LRESULT windows_input_string(const char *str)
 {
 	size_t size;
-	
+
 	size = strlen(str);
 	if (windows_input_escape((const void *)str, size))
 		windows_error("windows_input_escape error.");
@@ -387,7 +388,7 @@ static LRESULT windows_input_insert(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	state1 = (GetKeyState(VK_SHIFT) < 0);
 	state2 = (GetKeyState(VK_CONTROL) < 0);
-	
+
 	if (state1 && (! state2))
 		return windows_input_paste(hWnd);
 	if ((! state1) && (! state2))

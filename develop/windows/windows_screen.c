@@ -3,6 +3,7 @@
 #include "typedef.h"
 #include <Windows.h>
 
+int Window_Mode;
 unsigned Window_SizeX;
 unsigned Window_SizeY;
 unsigned Window_CursorX;
@@ -11,12 +12,55 @@ static CRITICAL_SECTION Windows_Lock;
 
 void windows_screen_init(void)
 {
+	Window_Mode = 0;
 	Window_SizeX = 80;
 	Window_SizeY = 24;
 	Window_CursorX = 0;
 	Window_CursorY = 0;
 	terme_arch_size_update();
 	cleartype(Windows_Lock);
+}
+
+void windows_screen_begin(void)
+{
+	Window_Mode = 0;
+}
+
+void windows_screen_end(void)
+{
+	Window_Mode = 0;
+}
+
+void windows_screen_textmode(void)
+{
+	windows_screen_enter();
+	Window_Mode = 0;
+	windows_screen_leave();
+}
+
+void windows_screen_rawmode(void)
+{
+	windows_screen_enter();
+	Window_Mode = 1;
+	windows_screen_leave();
+}
+
+int windows_screen_getmode(void)
+{
+	int value;
+
+	windows_screen_enter();
+	value = Window_Mode;
+	windows_screen_leave();
+
+	return value;
+}
+
+void windows_screen_setmode(int mode)
+{
+	windows_screen_enter();
+	Window_Mode = mode;
+	windows_screen_leave();
 }
 
 void windows_screen_lock_init(void)

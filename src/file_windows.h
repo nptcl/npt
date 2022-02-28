@@ -15,6 +15,9 @@
 #include "pathname.h"
 #include "strtype.h"
 #include "typedef.h"
+#ifdef LISP_TERME_WINDOWS
+#include "windows_arch.h"
+#endif
 
 static int fileio_input_console_p;
 static int fileio_output_console_p;
@@ -97,9 +100,13 @@ void free_file(void)
 
 int consolep_file(void)
 {
+#ifdef LISP_TERME_WINDOWS
+	return consolep_windows();
+#else
 	return fileio_input_console_p
 		|| fileio_output_console_p
 		|| fileio_error_console_p;
+#endif
 }
 
 static inline int filename_encode_(LocalRoot local, addr name, LPCWSTR *ret)
