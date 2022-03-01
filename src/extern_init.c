@@ -264,6 +264,10 @@ int lisp_main_degrade(struct lispargv *ptr)
 #define EnvProgramFilesx86 "ProgramFiles(x86)"
 #endif
 
+#ifdef LISP_TERME_WINDOWS
+#define LISP_WINDOWS_PATHNAME_LENGTH	1024
+#endif
+
 /* load core */
 #ifndef LISP_WINDOWS_WIDE
 static int lisp_argv_core_load(const char *name)
@@ -332,11 +336,65 @@ static int lisp_argv_core_env(lisptableu env, const char *key, const char *name)
 	} \
 }
 
+#ifdef LISP_TERME_WINDOWS
+static int lisp_argv_core_windows(const WCHAR *name)
+{
+	int check;
+	errno_t err;
+	WCHAR path[LISP_WINDOWS_PATHNAME_LENGTH];
+	WCHAR data1[LISP_WINDOWS_PATHNAME_LENGTH];
+	WCHAR data2[LISP_WINDOWS_PATHNAME_LENGTH];
+	WCHAR data3[LISP_WINDOWS_PATHNAME_LENGTH];
+	DWORD size;
+	lispstringu file;
+
+	size = GetModuleFileNameW(NULL, path, LISP_WINDOWS_PATHNAME_LENGTH);
+	if (size == LISP_WINDOWS_PATHNAME_LENGTH)
+		return -1;
+	err = _wsplitpath_s(path,
+		data1, LISP_WINDOWS_PATHNAME_LENGTH,
+		data2, LISP_WINDOWS_PATHNAME_LENGTH,
+		NULL, 0,
+		NULL, 0);
+	if (err)
+		return -1;
+	check = swprintf(data3, LISP_WINDOWS_PATHNAME_LENGTH,
+		L"%s%s\\%s", data1, data2, name);
+	if (check < 0)
+		return -1;
+	file = wchar_stringu((const byte16 *)data3);
+	if (file == NULL)
+		return -1;
+	check = load_core(file->ptr, file->size);
+	free_stringu(file);
+	if (0 < check) {
+		lisperror("load_core error.");
+		return 1;
+	}
+
+	return check;
+}
+
+#define InitCodeEnvWindows(x) { \
+	int __result = lisp_argv_core_windows(x); \
+	if (__result == 0) { \
+		return 0; \
+	} \
+	if (0 < __result) { \
+		lisp_code = 1; \
+		return 1; \
+	} \
+}
+#endif
+
 static int lisp_argv_core_default(struct lispargv *ptr)
 {
 	lisptableu env;
 
 	env = ptr->env;
+#ifdef LISP_TERME_WINDOWS
+	InitCodeEnvWindows(LispnameW L".core");
+#endif
 #ifdef LISP_WINDOWS_WIDE
 	InitCoreEnv(env, EnvLispHome, "\\" Lispname ".core");
 	InitCoreEnv(env, EnvLispHome, "\\lib\\" Lispname ".core");
@@ -491,11 +549,55 @@ static int lisp_argv_file_env_(Execute ptr, lisptableu env, int *ret,
 	if (*(a) == 0) return 0; \
 }
 
+#ifdef LISP_TERME_WINDOWS
+static int lisp_argv_file_windows_(Execute ptr, int *ret, const WCHAR *name)
+{
+	int check;
+	errno_t err;
+	WCHAR path[LISP_WINDOWS_PATHNAME_LENGTH];
+	WCHAR data1[LISP_WINDOWS_PATHNAME_LENGTH];
+	WCHAR data2[LISP_WINDOWS_PATHNAME_LENGTH];
+	WCHAR data3[LISP_WINDOWS_PATHNAME_LENGTH];
+	DWORD size;
+	lispstringu file;
+
+	size = GetModuleFileNameW(NULL, path, LISP_WINDOWS_PATHNAME_LENGTH);
+	if (size == LISP_WINDOWS_PATHNAME_LENGTH)
+		return -1;
+	err = _wsplitpath_s(path,
+		data1, LISP_WINDOWS_PATHNAME_LENGTH,
+		data2, LISP_WINDOWS_PATHNAME_LENGTH,
+		NULL, 0,
+		NULL, 0);
+	if (err)
+		return -1;
+	check = swprintf(data3, LISP_WINDOWS_PATHNAME_LENGTH,
+		L"%s%s\\%s", data1, data2, name);
+	if (check < 0)
+		return -1;
+	file = wchar_stringu((const byte16 *)data3);
+	if (file == NULL)
+		return -1;
+	check = lisp_argv_load_(ptr, file, 0, ret);
+	free_stringu(file);
+
+	return check;
+}
+
+#define InitFileWindows(p,a,x) { \
+	Return(lisp_argv_file_windows_((p),(a),(x))); \
+	if (*(a) == 0) return 0; \
+}
+#endif
+
 static int lisp_argv_load_default_(Execute ptr, struct lispargv *argv, int *a)
 {
 	lisptableu env;
 
 	env = argv->env;
+#ifdef LISP_TERME_WINDOWS
+	InitFileWindows(ptr,a, LispnameW L".lisp");
+#endif
 #ifdef LISP_WINDOWS_WIDE
 	InitFileEnv(ptr,env,a, EnvUserProfile, "\\" Lispname ".lisp");
 	InitFileEnv(ptr,env,a, EnvLispHome, "\\" Lispname ".lisp");

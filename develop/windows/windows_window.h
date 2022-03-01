@@ -9,6 +9,7 @@
 #define windows_window_show_default _n(windows_window_show_default)
 #define windows_window_show_show _n(windows_window_show_show)
 #define windows_window_show_hide _n(windows_window_show_hide)
+#define windows_window_size_update _n(windows_window_size_update)
 #define windows_window_error _n(windows_window_error)
 #define windows_draw_cursor_on_nolock _n(windows_draw_cursor_on_nolock)
 #define windows_draw_cursor_off_nolock _n(windows_draw_cursor_off_nolock)
@@ -25,6 +26,7 @@ int windows_window(void);
 int windows_window_show_default(void);
 int windows_window_show_show(void);
 int windows_window_show_hide(void);
+int windows_window_size_update(unsigned x, unsigned y);
 void windows_window_error(const char *str);
 
 void windows_draw_cursor_on_nolock(HDC hDC);

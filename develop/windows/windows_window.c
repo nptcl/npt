@@ -14,6 +14,8 @@
 static HINSTANCE Window_hInstance;
 static HWND Window_hWnd;
 static int Window_Sizing;
+static int Window_Tile;
+static int Window_Show;
 static unsigned Window_SpaceX1;
 static unsigned Window_SpaceY1;
 static unsigned Window_SpaceX2;
@@ -29,8 +31,6 @@ static unsigned Window_FontSize;
 static unsigned Window_FontX;
 static unsigned Window_FontY;
 static HFONT Window_hFont;
-static COLORREF Window_Color1;
-static COLORREF Window_Color2;
 static HPEN Window_BkPen;
 static HBRUSH Window_BkBrush;
 
@@ -58,6 +58,8 @@ int windows_window_init(void)
 	Window_hInstance = NULL;
 	Window_hWnd = NULL;
 	Window_Sizing = 0;
+	Window_Tile = 0;
+	Window_Show = 0;
 	Window_SpaceX1 = 2;
 	Window_SpaceY1 = 2;
 	Window_SpaceX2 = 2;
@@ -74,22 +76,15 @@ int windows_window_init(void)
 	Window_hFont = NULL;
 	Window_BkPen = NULL;
 	Window_BkBrush = NULL;
-	Window_Color1 = RGB(0xFF, 0xFF, 0xFF);
-	Window_Color2 = RGB(0x00, 0x00, 0x00);
-	if (window_window_set_color2())
-		return 1;
-
-	return 0;
+	return window_window_set_color2();
 }
 
 static void windows_window_title(HWND hWnd)
 {
-	char data[64];
-	snprintf(data, 64, "%s-experimental", Lispname);
-	SetWindowTextA(hWnd, data);
+	SetWindowTextA(hWnd, Lispname);
 }
 
-static void windows_window_paint_rectangle(HDC hDC)
+static void windows_window_paint_tile_call(HDC hDC)
 {
 	unsigned x, y, x1, y1, x2, y2;
 
@@ -104,7 +99,7 @@ static void windows_window_paint_rectangle(HDC hDC)
 	}
 }
 
-static void windows_window_paint_call(HDC hDC)
+static void windows_window_paint_tile(HDC hDC)
 {
 	HFONT hFont1;
 	HPEN hPen, hPen1;
@@ -116,12 +111,45 @@ static void windows_window_paint_call(HDC hDC)
 	hPen1 = (HPEN)SelectObject(hDC, hPen);
 	hBrush1 = (HBRUSH)SelectObject(hDC, hBrush);
 	windows_draw_cursor_off_nolock(hDC);
-	windows_window_paint_rectangle(hDC);
+	windows_window_paint_tile_call(hDC);
 	windows_display_paint_nolock(hDC);
 	windows_draw_cursor_on_nolock(hDC);
 	SelectObject(hDC, hBrush1);
 	SelectObject(hDC, hPen1);
 	SelectObject(hDC, hFont1);
+}
+
+static void windows_window_paint_delete_call(HWND hWnd, HDC hDC)
+{
+	RECT rect;
+	GetClientRect(hWnd, &rect);
+	Rectangle(hDC, rect.left, rect.top, rect.right, rect.bottom);
+}
+
+static void windows_window_paint_delete(HWND hWnd, HDC hDC)
+{
+	HFONT hFont1;
+	HPEN hPen1;
+	HBRUSH hBrush1;
+
+	hFont1 = (HFONT)SelectObject(hDC, Window_hFont);
+	hPen1 = (HPEN)SelectObject(hDC, Window_BkPen);
+	hBrush1 = (HBRUSH)SelectObject(hDC, Window_BkBrush);
+	windows_draw_cursor_off_nolock(hDC);
+	windows_window_paint_delete_call(hWnd, hDC);
+	windows_display_paint_nolock(hDC);
+	windows_draw_cursor_on_nolock(hDC);
+	SelectObject(hDC, hBrush1);
+	SelectObject(hDC, hPen1);
+	SelectObject(hDC, hFont1);
+}
+
+static void windows_window_paint_call(HWND hWnd, HDC hDC)
+{
+	if (Window_Sizing || Window_Tile)
+		windows_window_paint_tile(hDC);
+	else
+		windows_window_paint_delete(hWnd, hDC);
 }
 
 static LRESULT windows_window_paint(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -131,7 +159,7 @@ static LRESULT windows_window_paint(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	windows_screen_enter();
 	hDC = BeginPaint(hWnd, &ps);
-	windows_window_paint_call(hDC);
+	windows_window_paint_call(hWnd, hDC);
 	EndPaint(hWnd, &ps);
 	windows_screen_leave();
 
@@ -220,6 +248,7 @@ static LRESULT windows_winodw_exitsizemove(HWND hWnd, UINT msg, WPARAM wp, LPARA
 	HDC hDC;
 	unsigned x, y;
 
+	Window_Sizing = 0;
 	windows_window_getsize(hWnd, &x, &y);
 	windows_window_setsize(hWnd, x, y);
 	windows_screen_enter();
@@ -230,15 +259,13 @@ static LRESULT windows_winodw_exitsizemove(HWND hWnd, UINT msg, WPARAM wp, LPARA
 	/* Redraw */
 	hDC = GetDC(hWnd);
 	if (hDC) {
-		windows_window_paint_call(hDC);
+		windows_window_paint_call(hWnd, hDC);
 		ReleaseDC(hWnd, hDC);
 	}
 	windows_screen_leave();
 
 	/* Text */
 	windows_window_title(hWnd);
-	Window_Sizing = 0;
-
 	return DefWindowProcW(hWnd, msg, wp, lp);
 
 }
@@ -448,8 +475,7 @@ static int windows_window_show_value(int mode)
 {
 	if (Window_hWnd == NULL)
 		return 1;
-
-	(void)ShowWindow(Window_hWnd, SW_SHOWDEFAULT);
+	ShowWindow(Window_hWnd, mode);
 	if (UpdateWindow(Window_hWnd) == 0)
 		return 1;
 
@@ -469,6 +495,30 @@ int windows_window_show_show(void)
 int windows_window_show_hide(void)
 {
 	return windows_window_show_value(SW_HIDE);
+}
+
+int windows_window_size_update(unsigned x, unsigned y)
+{
+	HDC hDC;
+	HWND hWnd;
+
+	hWnd = Window_hWnd;
+	windows_window_setsize(hWnd, x, y);
+	windows_screen_enter();
+	Window_SizeX = x;
+	Window_SizeY = y;
+	(void)windows_write_clear_nolock();
+
+	/* Redraw */
+	hDC = GetDC(hWnd);
+	if (hDC) {
+		windows_window_paint_call(hWnd, hDC);
+		ReleaseDC(hWnd, hDC);
+	}
+	windows_screen_leave();
+	windows_window_title(hWnd);
+
+	return 0;
 }
 
 void windows_window_error(const char *str)
@@ -736,23 +786,25 @@ int windows_draw_delete_nolock(HDC hDC, unsigned x1, unsigned y1, unsigned x2, u
 	SelectObject(hDC, hBrush);
 
 	/* Tile */
-	hPen = (HPEN)GetStockObject(BLACK_PEN);
-	hBrush = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
-	hPen = SelectObject(hDC, hPen);
-	hBrush = SelectObject(hDC, hBrush);
-	for (y = y1; y < y2; y++) {
-		b = Window_SpaceY1 + (Window_FontY + Window_SpaceCharacterY) * y;
-		d = b + Window_FontY;
-		for (x = x1; x < x2; x++) {
-			a = Window_SpaceX1 + (Window_FontX + Window_SpaceCharacterX) * x;
-			c = a + Window_FontX;
-			Rectangle(hDC, a, b, c, d);
+	if (Window_Tile) {
+		hPen = (HPEN)GetStockObject(BLACK_PEN);
+		hBrush = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
+		hPen = SelectObject(hDC, hPen);
+		hBrush = SelectObject(hDC, hBrush);
+		for (y = y1; y < y2; y++) {
+			b = Window_SpaceY1 + (Window_FontY + Window_SpaceCharacterY) * y;
+			d = b + Window_FontY;
+			for (x = x1; x < x2; x++) {
+				a = Window_SpaceX1 + (Window_FontX + Window_SpaceCharacterX) * x;
+				c = a + Window_FontX;
+				Rectangle(hDC, a, b, c, d);
+			}
 		}
+		SelectObject(hDC, hPen);
+		SelectObject(hDC, hBrush);
 	}
 
 	/* Release */
-	SelectObject(hDC, hPen);
-	SelectObject(hDC, hBrush);
 	if (releasep)
 		ReleaseDC(Window_hWnd, hDC);
 

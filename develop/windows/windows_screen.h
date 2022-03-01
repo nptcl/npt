@@ -2,11 +2,16 @@
 #define __WINDOWS_SCREEN_HEADER__
 
 #include "typedef.h"
+#include <Windows.h>
 
 #define Window_SizeX _n(Window_SizeX)
 #define Window_SizeY _n(Window_SizeY)
 #define Window_CursorX _n(Window_CursorX)
 #define Window_CursorY _n(Window_CursorY)
+#define Window_Color1_Default _n(Window_Color1_Default)
+#define Window_Color2_Default _n(Window_Color2_Default)
+#define Window_Color1 _n(Window_Color1)
+#define Window_Color2 _n(Window_Color2)
 
 #define windows_screen_init _n(windows_screen_init)
 #define windows_screen_begin _n(windows_screen_begin)
@@ -15,7 +20,6 @@
 #define windows_screen_rawmode _n(windows_screen_rawmode)
 #define windows_screen_getmode _n(windows_screen_getmode)
 #define windows_screen_setmode _n(windows_screen_setmode)
-
 #define windows_screen_lock_init _n(windows_screen_lock_init)
 #define windows_screen_lock_free _n(windows_screen_lock_free)
 #define windows_screen_enter _n(windows_screen_enter)
@@ -25,6 +29,10 @@ extern unsigned Window_SizeX;
 extern unsigned Window_SizeY;
 extern unsigned Window_CursorX;
 extern unsigned Window_CursorY;
+extern COLORREF Window_Color1_Default;
+extern COLORREF Window_Color2_Default;
+extern COLORREF Window_Color1;
+extern COLORREF Window_Color2;
 
 void windows_screen_init(void);
 void windows_screen_begin(void);
@@ -33,7 +41,6 @@ void windows_screen_textmode(void);
 void windows_screen_rawmode(void);
 int windows_screen_getmode(void);
 void windows_screen_setmode(int mode);
-
 void windows_screen_lock_init(void);
 void windows_screen_lock_free(void);
 void windows_screen_enter(void);

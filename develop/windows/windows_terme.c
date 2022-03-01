@@ -1,6 +1,9 @@
 #include "condition.h"
+#include "constant.h"
 #include "object.h"
+#include "package_import.h"
 #include "paper.h"
+#include "symbol.h"
 #include "terme_output.h"
 #include "typedef.h"
 #include "windows_display.h"
@@ -27,20 +30,12 @@ int terme_windows_init(void)
 	windows_output_init();
 	windows_screen_init();
 	windows_stream_init();
-	if (windows_window_init())
-		return 1;
-
-	return 0;
+	return windows_window_init();
 }
 
 int terme_windows_begin(void)
 {
-#ifndef LISP_TERME_HIDE
-	if (windows_window_show_default())
-		return 1;
-#endif
 	windows_screen_begin();
-
 	return 0;
 }
 
@@ -64,6 +59,15 @@ int terme_windows_rawmode(void)
 
 void terme_windows_build(void)
 {
+	addr package, symbol;
+
+	/* (import 'terme) */
+	GetConst(SPECIAL_PACKAGE, &package);
+	GetValueSymbol(package, &package);
+	GetConst(SYSTEM_TERME, &symbol);
+	import_package_(package, symbol);
+
+	/* Stream */
 	windows_stream_build();
 }
 

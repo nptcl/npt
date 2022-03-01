@@ -16,23 +16,13 @@
 #endif
 #define WINDOWS_DISPLAY_SIZE(x, y) (((x / y) + 1) * y)
 
-enum windows_color {
-	windows_color_default,
-	windows_color_index,
-	windows_color_mode,
-	windows_color_color_256,
-	windows_color_color_rgb
-};
-
 struct windows_character {
 	unsigned empty : 1;
 	unsigned data : 1;
 	unsigned wide : 1;
 	unsigned range : 1;
 	unsigned eol : 1;
-	enum windows_color am : 4;
-	enum windows_color bm : 4;
-	byte a1, a2, a3, b1, b2, b3;
+	COLORREF a, b;
 	unicode c : 24;
 };
 
@@ -60,8 +50,8 @@ void windows_display_init(void)
 	Display_Ring = 0;
 	Display_RingSize = 0;
 	cleartype(Display_Font);
-	Display_Font.am = windows_color_default;
-	Display_Font.bm = windows_color_default;
+	Display_Font.a = Window_Color1;
+	Display_Font.b = Window_Color2;
 }
 
 static int windows_display_malloc_y(unsigned y2, unsigned *ret)
@@ -365,6 +355,8 @@ int windows_display_character(unsigned x, unsigned y, unsigned width, unicode c)
 	ptr->c = c;
 	ptr->empty = 0;
 	ptr->data = 1;
+	ptr->a = Window_Color1;
+	ptr->b = Window_Color2;
 	if (width < 2) {
 		ptr->wide = 0;
 	}
@@ -384,7 +376,10 @@ void windows_display_paint_nolock(HDC hDC)
 {
 	unsigned x, y;
 	struct windows_character *ptr;
+	COLORREF color1, color2;
 
+	color1 = Window_Color1;
+	color2 = Window_Color2;
 	for (y = 0; y < Window_SizeY; y++) {
 		for (x = 0; x < Window_SizeX; x++) {
 			ptr = windows_display_get(x, y);
@@ -392,9 +387,13 @@ void windows_display_paint_nolock(HDC hDC)
 				break;
 			if (ptr->empty)
 				continue;
+			Window_Color1 = ptr->a;
+			Window_Color2 = ptr->b;
 			(void)windows_draw_character_nolock(hDC, x, y, ptr->c);
 		}
 	}
+	Window_Color1 = color1;
+	Window_Color2 = color2;
 }
 
 int windows_display_delete_x1(unsigned y, unsigned x)

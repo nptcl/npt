@@ -140,7 +140,7 @@ static int write_char_PipeOutput_(addr stream, unicode c)
 		return windows_write_char_lock(c);
 	if (c == '\n') {
 		if (windows_write_return_lock())
-			return fmte_("writens_write_return error.");
+			return fmte_("writens_write_return error.", NULL);
 	}
 
 	return 0;

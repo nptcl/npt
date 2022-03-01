@@ -449,10 +449,17 @@ static int loop_directory_files(struct directory_struct *str)
 
 int directory_files_(Execute ptr, addr *ret, addr pos)
 {
+	addr list, x, y;
 	struct directory_struct str;
 
 	Return(init_directory_struct_(ptr, &str, pos));
-	GetDirectoryPathname(str.pos, &str.front);
+	GetDirectoryPathname(str.pos, &list);
+	if (list == Nil) {
+		GetConst(KEYWORD_RELATIVE, &x);
+		strvect_char_heap(&y, ".");
+		list_heap(&list, x, y, NULL);
+	}
+	str.front = list;
 	Return(loop_directory_files(&str));
 	return Result(ret, str.root);
 }

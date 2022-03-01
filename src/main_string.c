@@ -207,6 +207,23 @@ lispstringu char_stringu(const char *str)
 	return ptr;
 }
 
+lispstringu wchar_stringu(const byte16 *str)
+{
+	lispstringu ptr;
+	unicode *a;
+	size_t size, i;
+
+	if (UTF16_null_strlen(str, &size))
+		return NULL;
+	ptr = make_stringu(size + 1UL);
+	a = ptr->ptr;
+	for (i = 0; i < size; i++)
+		a[i] = (unicode)str[i];
+	a[i] = 0;
+
+	return ptr;
+}
+
 lispstringu copy_stringu(lispstringu ptr)
 {
 	lispstringu copy;

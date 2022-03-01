@@ -273,8 +273,6 @@ static int windows_input_unicode(unicode c)
 
 	if (encode_utf8(c, data, &size))
 		return 1 ; /* error */
-	if (windows_write_char_lock(c))
-		return 1;
 	if (windows_input_escape((const void *)data, size))
 		return 1;
 
@@ -363,21 +361,13 @@ static LRESULT windows_input_byte(byte c)
 	return 0;
 }
 
-static LRESULT windows_input_echo(HWND hWnd, byte c)
-{
-	if (windows_input_byte(c))
-		windows_error("windows_input_byte error.");
-
-	return 0;
-}
-
 LRESULT windows_input_char(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	byte c;
 
 	c = (byte)wp;
 	if (c <= 0x7F)
-		return windows_input_echo(hWnd, c);
+		return windows_input_byte(c);
 	else
 		return DefWindowProcW(hWnd, msg, wp, lp);
 }

@@ -1,7 +1,9 @@
+#include "condition.h"
 #include "define_setjmp.h"
 #include "extern_error.h"
 #include "main_argv.h"
 #include "main_init.h"
+#include "typedef.h"
 #include "windows_error.h"
 #include "windows_main.h"
 #include "windows_output.h"
@@ -36,7 +38,7 @@ static void lisp_windows_output(const char *str)
 
 static void lisp_windows_loop(struct lispargv *args)
 {
-	char data[256];
+	char data[256], *str;
 	int finish, code;
 	fixnum result;
 	
@@ -48,10 +50,11 @@ static void lisp_windows_loop(struct lispargv *args)
 		result = 1;
 	}
 	lisp_windows_output("[LISP] *** LISP CLOSE ***\r\n");
-	snprintf(data, 256, "[LISP] EndCode = %d\r\n", (int)code);
+	snprintf(data, 256, "[LISP] Code = %d\r\n", code);
 	lisp_windows_output(data);
 	if (code == 0) {
-		snprintf(data, 256, "[Lisp] EndResult = %d\r\n", (int)result);
+		str = "[LISP] Result = %" PRIdF "\r\n";
+		snprintf(data, 256, str, result);
 		lisp_windows_output(data);
 	}
 	lisp_windows_output("[LISP]\r\n");
@@ -109,6 +112,16 @@ error:
 	return 1;
 }
 
+static int windows_main_call(void *ptr)
+{
+#ifndef LISP_TERME_HIDE
+	if (windows_window_show_default())
+		return fmte_("windows_window_show_default error.", NULL);
+#endif
+
+	return 0;
+}
+
 int windows_main(struct lispargv *ptr)
 {
 	if (ptr->mode_help)
@@ -119,6 +132,8 @@ int windows_main(struct lispargv *ptr)
 		windows_error("Cannot execute degrade mode.");
 		goto error;
 	}
+	ptr->call = windows_main_call;
+	ptr->call_ptr = NULL;
 	lisp_argv_init(ptr);
 
 	/* execute */

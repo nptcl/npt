@@ -7,6 +7,7 @@
 
 #define getsize_stringu _n(getsize_stringu)
 #define char_stringu _n(char_stringu)
+#define wchar_stringu _n(wchar_stringu)
 #define copy_stringu _n(copy_stringu)
 #define concatchar_stringu _n(concatchar_stringu)
 #define output_stringu _n(output_stringu)
@@ -24,6 +25,7 @@
 /* lispstringu */
 int getsize_stringu(lispstringu str, size_t *ret);
 lispstringu char_stringu(const char *str);
+lispstringu wchar_stringu(const byte16 *str);
 lispstringu copy_stringu(lispstringu ptr);
 lispstringu concatchar_stringu(lispstringu a, const char *b);
 void output_stringu(lispstringu ptr, FILE *file);

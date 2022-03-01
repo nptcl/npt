@@ -9,6 +9,10 @@ unsigned Window_SizeY;
 unsigned Window_CursorX;
 unsigned Window_CursorY;
 static CRITICAL_SECTION Windows_Lock;
+COLORREF Window_Color1_Default;
+COLORREF Window_Color2_Default;
+COLORREF Window_Color1;
+COLORREF Window_Color2;
 
 void windows_screen_init(void)
 {
@@ -19,6 +23,10 @@ void windows_screen_init(void)
 	Window_CursorY = 0;
 	terme_arch_size_update();
 	cleartype(Windows_Lock);
+	Window_Color1_Default = RGB(0xFF, 0xFF, 0xFF);
+	Window_Color2_Default = RGB(0x00, 0x00, 0x00);
+	Window_Color1 = Window_Color1_Default;
+	Window_Color2 = Window_Color2_Default;
 }
 
 void windows_screen_begin(void)
