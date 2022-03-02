@@ -14,6 +14,7 @@
 static HINSTANCE Window_hInstance;
 static HWND Window_hWnd;
 static int Window_Sizing;
+static int Window_Sized;
 static int Window_Tile;
 static int Window_Show;
 static unsigned Window_SpaceX1;
@@ -58,6 +59,7 @@ int windows_window_init(void)
 	Window_hInstance = NULL;
 	Window_hWnd = NULL;
 	Window_Sizing = 0;
+	Window_Sized = 0;
 	Window_Tile = 0;
 	Window_Show = 0;
 	Window_SpaceX1 = 2;
@@ -233,6 +235,7 @@ static LRESULT windows_window_size(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		snprintf(data, 64, "%s [%d x %d]", Lispname, x, y);
 		SetWindowTextA(hWnd, data);
 	}
+	Window_Sized = 1;
 
 	return DefWindowProcW(hWnd, msg, wp, lp);
 }
@@ -240,6 +243,7 @@ static LRESULT windows_window_size(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 static LRESULT windows_winodw_entersizemove(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	Window_Sizing = 1;
+	Window_Sized = 0;
 	return DefWindowProcW(hWnd, msg, wp, lp);
 }
 
@@ -249,6 +253,9 @@ static LRESULT windows_winodw_exitsizemove(HWND hWnd, UINT msg, WPARAM wp, LPARA
 	unsigned x, y;
 
 	Window_Sizing = 0;
+	if (Window_Sized == 0)
+		return DefWindowProcW(hWnd, msg, wp, lp);
+
 	windows_window_getsize(hWnd, &x, &y);
 	windows_window_setsize(hWnd, x, y);
 	windows_screen_enter();
@@ -637,40 +644,6 @@ int windows_draw_character_nolock(HDC hDC, unsigned x, unsigned y, unicode c)
 		windows_draw_textout(hDC, x, y, data, size);
 	if (releasep)
 		ReleaseDC(Window_hWnd, hDC);
-
-	return 0;
-}
-
-int windows_draw_character_lock(HWND hWnd, unsigned x, unsigned y, unicode c)
-{
-	WCHAR data[8];
-	HDC hDC;
-	int xp, yp;
-	size_t size;
-
-	if (c < 0x20)
-		return 0;
-	if (Window_SizeX <= x)
-		return 0;
-	if (Window_SizeY <= y)
-		return 0;
-	if (hWnd == NULL)
-		hWnd = Window_hWnd;
-
-	if (encode_utf16b(c, (byte16 *)data, &size))
-		return 1;
-	xp = windows_draw_x(x);
-	yp = windows_draw_y(y);
-
-	windows_screen_enter();
-	hDC = GetDC(hWnd);
-	if (hDC == NULL) {
-		windows_screen_leave();
-		return 1;
-	}
-	windows_draw_textout(hDC, x, y, data, size);
-	ReleaseDC(hWnd, hDC);
-	windows_screen_leave();
 
 	return 0;
 }

@@ -98,12 +98,12 @@ int terme_windows_write(const void *data, size_t size, size_t *ret)
 
 int terme_windows_escape_begin(void)
 {
-	int check;
+	BOOL check;
 
 	if (terme_windows_escape_p)
 		return 0;
 	check = QueryPerformanceCounter(&terme_windows_escape_timeval);
-	if (check)
+	if (check == 0)
 		return 1;
 	terme_windows_escape_p = 1;
 
@@ -112,17 +112,17 @@ int terme_windows_escape_begin(void)
 
 int terme_windows_escape_end(int *ret)
 {
-	int check;
+	BOOL check;
 	LONGLONG a, b, c, diff;
 	LARGE_INTEGER now, hz;
 
 	if (terme_windows_escape_p == 0)
 		goto error;
 	check = QueryPerformanceCounter(&now);
-	if (check)
+	if (check == 0)
 		goto error;
 	check = QueryPerformanceFrequency(&hz);
-	if (check)
+	if (check == 0)
 		goto error;
 	c = hz.QuadPart;
 	a = now.QuadPart * 10000 / c;

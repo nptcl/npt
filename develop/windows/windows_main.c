@@ -32,8 +32,11 @@ static int lisp_windows_call(struct lispargv *args)
 
 static void lisp_windows_output(const char *str)
 {
-	size_t size = strlen(str);
+	size_t size;
+	
+	size = strlen(str);
 	(void)windows_output_write(str, size, &size);
+	(void)windows_output_flush();
 }
 
 static void lisp_windows_loop(struct lispargv *args)

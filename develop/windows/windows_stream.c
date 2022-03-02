@@ -136,20 +136,16 @@ static void windows_stream_init_input(void)
  */
 static int write_char_PipeOutput_(addr stream, unicode c)
 {
-	if (0x20 <= c)
-		return windows_write_char_lock(c);
-	if (c == '\n') {
-		if (windows_write_return_lock())
-			return fmte_("writens_write_return error.", NULL);
-	}
-
-	return 0;
+	return windows_write_char_lock(c);
 }
 
 static int finish_output_PipeOutput_(addr stream)
 {
 	if (terme_finish_output())
-		return fmte_("terme finish-output error.", NULL);
+		return fmte_("terme_finish_output error.", NULL);
+	if (windows_output_flush())
+		return fmte_("windows_output_flush error.", NULL);
+
 	return 0;
 }
 

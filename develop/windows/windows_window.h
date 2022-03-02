@@ -16,7 +16,6 @@
 #define windows_draw_cursor_on_lock _n(windows_draw_cursor_on_lock)
 #define windows_draw_cursor_off_lock _n(windows_draw_cursor_off_lock)
 #define windows_draw_character_nolock _n(windows_draw_character_nolock)
-#define windows_draw_character_lock _n(windows_draw_character_lock)
 #define windows_draw_line_feed_nolock _n(windows_draw_line_feed_nolock)
 #define windows_draw_line_back_nolock _n(windows_draw_line_back_nolock)
 #define windows_draw_delete_nolock _n(windows_draw_delete_nolock)
@@ -35,7 +34,6 @@ void windows_draw_cursor_on_lock(HDC hDC);
 void windows_draw_cursor_off_lock(HDC hDC);
 
 int windows_draw_character_nolock(HDC hDC, unsigned x, unsigned y, unicode c);
-int windows_draw_character_lock(HWND hWnd, unsigned x, unsigned y, unicode c);
 int windows_draw_line_feed_nolock(void);
 int windows_draw_line_back_nolock(void);
 int windows_draw_delete_nolock(HDC hDC, unsigned x1, unsigned y1, unsigned x2, unsigned y2);

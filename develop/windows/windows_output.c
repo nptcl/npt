@@ -3,21 +3,31 @@
 #include "windows_display.h"
 #include "windows_error.h"
 #include "windows_output.h"
+#include "windows_screen.h"
 #include "windows_window.h"
 #include "windows_write.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
 
-#define WINDOWS_OUTPUT_BUFFER	1024
+#ifdef LISP_DEBUG
+#define WINDOWS_OUTPUT_SIZE		16
+#else
+#define WINDOWS_OUTPUT_SIZE		4096
+#endif
+
+#define WINDOWS_OUTPUT_DATA		32
 #define WINDOWS_OUTPUT_ESCAPE	32
-static byte Windows_Output_Data[WINDOWS_OUTPUT_BUFFER];
-static unsigned Windows_Output_size;
+static byte Windows_Output_Buffer[WINDOWS_OUTPUT_DATA];
+static byte Windows_Output_Data[WINDOWS_OUTPUT_DATA];
+static size_t Windows_Output_now;
+static unsigned Windows_Output_pos;
+static CRITICAL_SECTION Windows_Output_Lock;
 
 struct windows_output_data {
 	int16_t escape[WINDOWS_OUTPUT_ESCAPE];
-	byte prev[WINDOWS_OUTPUT_BUFFER];
-	byte next[WINDOWS_OUTPUT_BUFFER];
+	byte prev[WINDOWS_OUTPUT_DATA];
+	byte next[WINDOWS_OUTPUT_DATA];
 	const byte *ptr;
 	unsigned prev_now, prev_size;
 	unsigned escape_size;
@@ -28,7 +38,9 @@ typedef struct windows_output_data WindowsOutputData;
 
 void windows_output_init(void)
 {
-	Windows_Output_size = 0;
+	Windows_Output_now = 0;
+	Windows_Output_pos = 0;
+	InitializeCriticalSection(&Windows_Output_Lock);
 }
 
 static int windows_output_getc(WindowsOutputData *str, byte *ret)
@@ -36,7 +48,7 @@ static int windows_output_getc(WindowsOutputData *str, byte *ret)
 	byte c;
 
 	/* Buffer overflow */
-	if (WINDOWS_OUTPUT_BUFFER <= str->next_size) {
+	if (WINDOWS_OUTPUT_DATA <= str->next_size) {
 		str->next_size = 0;
 		*ret = 0;
 		return windows_error("WindowsOutputData buffer error.");
@@ -532,15 +544,20 @@ static int windows_output_table(WindowsOutputData *str)
 	return 0;
 }
 
-int windows_output_write(const void *data, size_t size, size_t *ret)
+static int windows_output_write_read(const void *data, size_t size, size_t *ret)
 {
 	struct windows_output_data str;
 
+	if (size == 0) {
+		*ret = 0;
+		return 0;
+	}
+
 	/* prev */
 	str.prev_now = 0;
-	str.prev_size = Windows_Output_size;
-	if (Windows_Output_size)
-		memcpy(str.prev, Windows_Output_Data, Windows_Output_size);
+	str.prev_size = Windows_Output_pos;
+	if (Windows_Output_pos)
+		memcpy(str.prev, Windows_Output_Data, Windows_Output_pos);
 
 	/* argument */
 	str.ptr = (const byte *)data;
@@ -556,12 +573,91 @@ int windows_output_write(const void *data, size_t size, size_t *ret)
 	}
 	if (str.next_size)
 		memcpy(Windows_Output_Data, str.next, str.next_size);
-	Windows_Output_size = str.next_size;
+	Windows_Output_pos = str.next_size;
 	*ret = size;
 	return 0;
 }
 
+static int windows_output_flush_nolock(void)
+{
+	int check;
+	size_t size;
+
+	if (Windows_Output_now == 0)
+		return 0;
+	check = windows_output_write_read(
+		Windows_Output_Buffer,
+		Windows_Output_now,
+		&size);
+	Windows_Output_now = 0;
+
+	return 0;
+}
+
+static int windows_output_write_rawmode(const void *data, size_t size, size_t *ret)
+{
+	if (Windows_Output_now) {
+		if (windows_output_flush_nolock())
+			return 1;
+	}
+
+	return windows_output_write_read(data, size, ret);
+}
+
+static int windows_output_write_textmode(const void *data, size_t size, size_t *ret)
+{
+	byte *ptr;
+	size_t now;
+
+	if (size == 0) {
+		*ret = 0;
+		return 0;
+	}
+	now = Windows_Output_now + size;
+	if (WINDOWS_OUTPUT_SIZE <= now)
+		return windows_output_write_rawmode(data, size, ret);
+
+	ptr = Windows_Output_Buffer + Windows_Output_now;
+	memcpy(ptr, data, size);
+	Windows_Output_now = now;
+	*ret = size;
+	return 0;
+}
+
+static int windows_output_write_nolock(const void *data, size_t size, size_t *ret)
+{
+	if (Window_Mode)
+		return windows_output_write_rawmode(data, size, ret);
+	else
+		return windows_output_write_textmode(data, size, ret);
+}
+
+int windows_output_write(const void *data, size_t size, size_t *ret)
+{
+	int check;
+
+	EnterCriticalSection(&Windows_Output_Lock);
+	check = windows_output_write_nolock(data, size, ret);
+	LeaveCriticalSection(&Windows_Output_Lock);
+
+	return check;
+}
+
+int windows_output_flush(void)
+{
+	int check;
+
+	EnterCriticalSection(&Windows_Output_Lock);
+	check = windows_output_flush_nolock();
+	LeaveCriticalSection(&Windows_Output_Lock);
+
+	return check;
+}
+
 void windows_output_clear(void)
 {
-	Windows_Output_size = 0;
+	EnterCriticalSection(&Windows_Output_Lock);
+	Windows_Output_now = 0;
+	Windows_Output_pos = 0;
+	LeaveCriticalSection(&Windows_Output_Lock);
 }

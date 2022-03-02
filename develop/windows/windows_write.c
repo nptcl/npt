@@ -49,20 +49,37 @@ static int windows_write_return_call_nolock(void)
 	return 0;
 }
 
-int windows_write_return_lock(void)
+static int windows_write_unicode_rawmode(unicode c)
 {
-	int check;
+	unsigned width, x, y;
 
-	windows_screen_enter();
-	windows_draw_cursor_off_nolock(NULL);
-	check = windows_write_return_call_nolock();
-	windows_draw_cursor_on_nolock(NULL);
-	windows_screen_leave();
+	x = Window_CursorX;
+	y = Window_CursorY;
+	width = eastasian_width(c);
+	if (Window_SizeX < x + width)
+		return 0;
+	if (windows_display_character(x, y, width, c))
+		return 1;
+	if (windows_draw_character_nolock(NULL, x, y, c))
+		return 1;
+	Window_CursorX += width;
 
-	return check;
+	return 0;
 }
 
-static int windows_write_character_nolock(unicode c)
+static int windows_write_char_rawmode(unicode c)
+{
+	if (c == 0x0A)
+		return windows_write_line_feed_nolock();
+	if (c == 0x0D)
+		return windows_write_carriage_return_nolock();
+	if (0x20 <= c)
+		return windows_write_unicode_rawmode(c);
+
+	return 0; /* ignore */
+}
+
+static int windows_write_unicode_textmode(unicode c)
 {
 	unsigned width, x, y;
 
@@ -82,28 +99,22 @@ static int windows_write_character_nolock(unicode c)
 	return 0;
 }
 
-static int windows_write_control_nolock(unicode c)
+static int windows_write_char_textmode(unicode c)
 {
-	switch (c) {
-	case 0x0A: /* Line Feed */
-		return windows_write_line_feed_nolock();
+	if (c == 0x0A)
+		return windows_write_return_call_nolock();
+	if (0x20 <= c)
+		return windows_write_unicode_textmode(c);
 
-	case 0x0D: /* Carriage Return */
-		return windows_write_carriage_return_nolock();
-
-	case 0x08: /* BackSpace */
-	case 0x7F: /* Delete */
-	default:
-		return 0;
-	}
+	return 0; /* ignore */
 }
 
-static int windows_write_char_lock_call(unicode c)
+static int windows_write_char_nolock(unicode c)
 {
-	if (c < 0x20 || c == 0x7F)
-		return windows_write_control_nolock(c);
+	if (Window_Mode)
+		return windows_write_char_rawmode(c);
 	else
-		return windows_write_character_nolock(c);
+		return windows_write_char_textmode(c);
 }
 
 int windows_write_char_lock(unicode c)
@@ -112,7 +123,7 @@ int windows_write_char_lock(unicode c)
 
 	windows_screen_enter();
 	windows_draw_cursor_off_nolock(NULL);
-	check = windows_write_char_lock_call(c);
+	check = windows_write_char_nolock(c);
 	windows_draw_cursor_on_nolock(NULL);
 	windows_screen_leave();
 
@@ -254,7 +265,7 @@ int windows_write_move_x_lock(int16_t s)
 	return 0;
 }
 
-int windows_write_move_xy_lock(int16_t x, int16_t y)
+int windows_write_move_xy_lock(int16_t y, int16_t x)
 {
 	unsigned u;
 
@@ -551,7 +562,7 @@ static void windows_write_font_mode(struct windows_write_font *str, COLORREF *re
 		return;
 
 	/* Color 256 */
-	if (m == 2) {
+	if (m == 5) {
 		if (window_write_getfont(str, &m))
 			m = 0;
 		if (m < 0 || 0xFF < m)
@@ -561,7 +572,7 @@ static void windows_write_font_mode(struct windows_write_font *str, COLORREF *re
 	}
 
 	/* Color RGB */
-	if (m == 5) {
+	if (m == 2) {
 		if (window_write_getfont(str, &r))
 			r = 0;
 		if (r < 0 || 0xFF < r)

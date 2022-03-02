@@ -4,6 +4,7 @@
 #include "typedef.h"
 #include <Windows.h>
 
+#define Window_Mode _n(Window_Mode)
 #define Window_SizeX _n(Window_SizeX)
 #define Window_SizeY _n(Window_SizeY)
 #define Window_CursorX _n(Window_CursorX)
@@ -25,6 +26,7 @@
 #define windows_screen_enter _n(windows_screen_enter)
 #define windows_screen_leave _n(windows_screen_leave)
 
+extern int Window_Mode;
 extern unsigned Window_SizeX;
 extern unsigned Window_SizeY;
 extern unsigned Window_CursorX;

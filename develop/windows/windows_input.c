@@ -136,32 +136,20 @@ static int windows_ring_write_loop(const byte *str, size_t size, size_t *ret)
 	return 0;
 }
 
-static int windows_ring_write_call(const byte *str, size_t size)
+static int windows_ring_write(const byte *str, size_t size)
 {
+	int check;
 	size_t value;
 
 	while (size) {
-		if (windows_ring_write_loop(str, size, &value))
-			return 1;
+		EnterCriticalSection(&Windows_Input_Lock);
+		check = windows_ring_write_loop(str, size, &value);
+		LeaveCriticalSection(&Windows_Input_Lock);
+		if (check)
+			return check;
+		WakeConditionVariable(&Windows_Input_Condition);
 		str += value;
 		size -= value;
-	}
-
-	return 0;
-}
-
-static int windows_ring_write(const void *str, size_t size)
-{
-	int check;
-
-	if (size) {
-		EnterCriticalSection(&Windows_Input_Lock);
-		check = windows_ring_write_call(str, size);
-		LeaveCriticalSection(&Windows_Input_Lock);
-		if (check == 0)
-			WakeConditionVariable(&Windows_Input_Condition);
-
-		return check;
 	}
 
 	return 0;
@@ -171,7 +159,7 @@ static int windows_ring_select_call(int *ret, DWORD wait)
 {
 	BOOL check;
 
-	while (windows_ring_space() == 0 && Windows_Input_Break == 0) {
+	while (Windows_Input_Size == 0 && Windows_Input_Break == 0) {
 		check = SleepConditionVariableCS(
 			&Windows_Input_Condition,
 			&Windows_Input_Lock,
