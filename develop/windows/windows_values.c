@@ -68,11 +68,13 @@ mode_hide:
 static int windows_values_size_(Execute ptr, addr args)
 {
 	int s;
-	unsigned x, y;
+	unsigned x0, y0, x, y;
 	addr v1, v2;
 
 	/* empty */
-	getwidth_windows(&x, &y);
+	getwidth_windows(&x0, &y0);
+	x = x0;
+	y = y0;
 	if (args == Nil)
 		goto finish;
 
@@ -88,6 +90,8 @@ static int windows_values_size_(Execute ptr, addr args)
 		Return(getint_unsigned_(v2, &s));
 		y = (unsigned)s;
 	}
+	if (x == x0 && y == y0)
+		goto finish;
 	if (windows_window_size_update(x, y))
 		return fmte_("windows_window_size_update error", NULL);
 

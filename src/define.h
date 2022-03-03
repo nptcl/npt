@@ -650,6 +650,13 @@
 #define LISP_ABORT_SETJMP
 #endif
 
+/* dynamic-link */
+#ifdef LISP_FREEBSD
+#ifndef LISP_DYNAMIC_LINK
+#define LISP_DYNAMIC_LINK
+#endif
+#endif
+
 /* end of header file */
 #endif
 

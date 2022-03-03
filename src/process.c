@@ -2,9 +2,11 @@
 #include "clos_class.h"
 #include "condition.h"
 #include "cons.h"
+#include "hold.h"
 #include "pathname.h"
 #include "process.h"
 #include "process_arch.h"
+#include "process_calltype.h"
 #include "stream.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -343,5 +345,112 @@ int run_process_(Execute ptr, addr var, addr args, addr rest, addr *ret)
 	Return(process_defclass_(ptr->local));
 	Return(process_instance_(ptr, var, args, rest, &var));
 	return run_process_arch_(ptr, var, ret);
+}
+
+
+/*
+ *  dynamic link
+ */
+static int dlfile_open_process_(Execute ptr, addr args, addr *ret)
+{
+	addr pos, list;
+	LocalHold hold;
+
+	Return_getcons(args, &pos, &list);
+	if (list != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
+	hold = LocalHold_array(ptr, 1);
+	Return(pathname_designer_heap_(ptr, pos, &pos));
+	localhold_set(hold, 0, pos);
+	Return(dlopen_arch_(ptr, pos, &pos));
+	localhold_end(hold);
+
+	return Result(ret, pos);
+}
+
+static int dlfile_close_process_(Execute ptr, addr args, addr *ret)
+{
+	int check;
+	addr pos, list;
+
+	Return_getcons(args, &pos, &list);
+	if (list != Nil) {
+		*ret = Nil;
+		return fmte_("Invalid arguments, ~S.", args, NULL);
+	}
+	Return(dlfile_check_arch_(pos, &check));
+	if (! check) {
+		*ret = Nil;
+		return fmte_("Invalid arguments, ~S.", pos, NULL);
+	}
+
+	return dlclose_arch_(ptr, pos, ret);
+}
+
+static int dlfile_type_process_(addr args, enum CallBind_index *ret)
+{
+	addr pos;
+
+	*ret = CallBind_dynamic;
+	if (args == Nil)
+		return 0;
+	Return_getcons(args, &pos, &args);
+	if (args != Nil)
+		return fmte_("Invalid arguments, ~S.", args, NULL);
+	Return(string_designer_heap_(&pos, pos, NULL));
+	return process_calltype_(pos, ret);
+}
+
+static int dlfile_call_process_(Execute ptr, addr args, addr *ret)
+{
+	int check;
+	enum CallBind_index type;
+	addr paper, name;
+
+	/* paper */
+	Return_getcons(args, &paper, &args);
+	Return(dlfile_check_arch_(paper, &check));
+	if (! check) {
+		*ret = Nil;
+		return fmte_("Invalid arguments, ~S.", paper, NULL);
+	}
+
+	/* name */
+	Return_getcons(args, &name, &args);
+	Return(string_designer_heap_(&name, name, NULL));
+
+	/* type */
+	Return(dlfile_type_process_(args, &type));
+
+	return dlsym_arch_(ptr, paper, name, type, ret);
+}
+
+int dlfile_process_(Execute ptr, addr type, addr args, addr *ret)
+{
+	int check;
+
+	/* :open */
+	Return(string_designer_equalp_char_(type, "OPEN", &check));
+	if (check)
+		return dlfile_open_process_(ptr, args, ret);
+
+	/* :close  */
+	Return(string_designer_equalp_char_(type, "CLOSE", &check));
+	if (check)
+		return dlfile_close_process_(ptr, args, ret);
+
+	/* :call  */
+	Return(string_designer_equalp_char_(type, "CALL", &check));
+	if (check)
+		return dlfile_call_process_(ptr, args, ret);
+
+	/* error */
+	*ret = Nil;
+	return fmte_("Invalid argument, ~S.", type, NULL);
+}
+
+int dlcall_process_(Execute ptr, addr paper, addr args)
+{
+	return dlcall_arch_(ptr, paper, args);
 }
 

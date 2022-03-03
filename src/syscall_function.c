@@ -1852,6 +1852,77 @@ static void defun_body_paper(void)
 }
 
 
+/* (defun dlfile (type &rest args) -> *
+ *   type  symbol
+ */
+static int syscall_dlfile(Execute ptr, addr pos, addr args)
+{
+	Return(dlfile_syscode_(ptr, pos, args, &pos));
+	setresult_control(ptr, pos);
+	return 0;
+}
+
+static void type_syscall_dlfile(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, T);
+	typeargs_var1rest(&args, args, args);
+	GetTypeValues(&values, T);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_dlfile(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_DLFILE, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_dlfile);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_dlfile(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun dlcall (paper &rest args) -> (values &rest t)
+ *   paper  paper
+ */
+static int syscall_dlcall(Execute ptr, addr paper, addr args)
+{
+	return dlcall_syscode_(ptr, paper, args);
+}
+
+static void type_syscall_dlcall(addr *ret)
+{
+	addr args, values;
+
+	GetTypeTable(&args, Paper);
+	GetTypeTable(&values, T);
+	typeargs_var1rest(&args, args, values);
+	typevalues_rest(&values, values);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_dlcall(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_DLCALL, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_dlcall);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_dlcall(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
 /*
  *  function
  */
@@ -1916,6 +1987,8 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, var2opt1, info_paper);
 	SetPointerSysCall(defun, var2opt1, array_paper);
 	SetPointerSysCall(defun, var2opt1, body_paper);
+	SetPointerSysCall(defun, var1dynamic, dlfile);
+	SetPointerSysCall(defun, var1dynamic, dlcall);
 }
 
 void build_syscall_function(void)
@@ -1980,5 +2053,7 @@ void build_syscall_function(void)
 	defun_info_paper();
 	defun_array_paper();
 	defun_body_paper();
+	defun_dlfile();
+	defun_dlcall();
 }
 

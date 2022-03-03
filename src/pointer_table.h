@@ -1324,6 +1324,8 @@ enum pointer_index {
 	p_defun_syscall_info_paper,
 	p_defun_syscall_array_paper,
 	p_defun_syscall_body_paper,
+	p_defun_syscall_dlfile,
+	p_defun_syscall_dlcall,
 	/* size */
 	p_size
 };

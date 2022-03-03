@@ -214,6 +214,7 @@ struct callbind_struct {
 		callbind_extend_var1dynamic extend_var1dynamic;
 		callbind_extend_var2dynamic extend_var2dynamic;
 		callbind_extend_var3dynamic extend_var3dynamic;
+		void *pvoid;
 	} call;
 };
 

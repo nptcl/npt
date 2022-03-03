@@ -282,6 +282,7 @@ print_pretty.c
 print_write.c
 print.c
 process_arch.c
+process_calltype.c
 process_ed.c
 process.c
 prompt_arch.c

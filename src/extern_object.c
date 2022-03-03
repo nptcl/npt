@@ -920,7 +920,7 @@ int lisp_paper_body_unsafe_(addr x, byte **ptr, size_t *ret)
 	}
 
 	if (ptr) {
-		posbody(x, &x);
+		paper_ptr_body_unsafe(x, (void **)&x);
 		*ptr = (byte *)x;
 	}
 	if (ret)

@@ -619,14 +619,9 @@ static int lisp_argv_load_default_(Execute ptr, struct lispargv *argv, int *a)
 	return 0;
 }
 
-static int lisp_argv_loadinit_(Execute ptr, struct lispargv *argv, int *ret)
+static int lisp_argv_loadinit_call_(Execute ptr, struct lispargv *argv, int *ret)
 {
-	int value;
 	lispstringu file;
-
-	/* --debugger */
-	value = argv->debuggerp? argv->debugger: consolep_file();
-	set_enable_debugger(ptr, value);
 
 	/* --noinit */
 	if (argv->noinit)
@@ -638,6 +633,21 @@ static int lisp_argv_loadinit_(Execute ptr, struct lispargv *argv, int *ret)
 		return lisp_argv_load_(ptr, file, 1, ret);
 	else
 		return lisp_argv_load_default_(ptr, argv, ret);
+}
+
+static int lisp_argv_loadinit_(Execute ptr, struct lispargv *argv, int *ret)
+{
+	int value, check;
+
+	/* initialize */
+	set_enable_debugger(ptr, 0);
+	Return(lisp_argv_loadinit_call_(ptr, argv, &check));
+
+	/* --debugger */
+	value = argv->debuggerp? argv->debugger: consolep_file();
+	set_enable_debugger(ptr, value);
+
+	return Result(ret, check);
 }
 
 static int lisp_argv_eval_(Execute ptr, lispstringu str)
@@ -728,23 +738,30 @@ static void lisp_argv_intern(addr table, constindex index)
 
 static int lisp_argv_environment_(struct lispargv *argv)
 {
+	enum HASHTABLE_TEST test;
 	addr table, key, value, cons;
 	lisptableu env;
 	lispstringu k, v;
 	struct lispkeyvalueu *kv;
 	size_t size, i;
 
+#ifdef LISP_WINDOWS
+	test = HASHTABLE_TEST_EQUALP;
+#else
+	test = HASHTABLE_TEST_EQUAL;
+#endif
+
 	/* make hashtable */
 	env = argv->env;
 	if (env == NULL) {
 		hashtable_heap(&table);
-		settest_hashtable(table, HASHTABLE_TEST_EQUAL);
+		settest_hashtable(table, test);
 	}
 	else {
 		kv = env->table;
 		size = env->size;
 		hashtable_size_heap(&table, env->size);
-		settest_hashtable(table, HASHTABLE_TEST_EQUAL);
+		settest_hashtable(table, test);
 
 		/* intern hashtable */
 		for (i = 0; i < size; i++) {

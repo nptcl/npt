@@ -148,7 +148,7 @@ static void windows_window_paint_delete(HWND hWnd, HDC hDC)
 
 static void windows_window_paint_call(HWND hWnd, HDC hDC)
 {
-	if (Window_Sizing || Window_Tile)
+	if (Window_Tile)
 		windows_window_paint_tile(hDC);
 	else
 		windows_window_paint_delete(hWnd, hDC);
@@ -297,6 +297,9 @@ static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 		case WM_EXITSIZEMOVE:
 			return windows_winodw_exitsizemove(hWnd, msg, wp, lp);
+
+		case WM_RBUTTONDOWN:
+			return windows_input_paste(hWnd);
 
 		case WM_DESTROY:
 			PostQuitMessage(0);

@@ -5,6 +5,7 @@
 #include "main_init.h"
 #include "typedef.h"
 #include "windows_error.h"
+#include "windows_input.h"
 #include "windows_main.h"
 #include "windows_output.h"
 #include "windows_window.h"
@@ -39,7 +40,7 @@ static void lisp_windows_output(const char *str)
 	(void)windows_output_flush();
 }
 
-static void lisp_windows_loop(struct lispargv *args)
+static int lisp_windows_loop(struct lispargv *args)
 {
 	char data[256], *str;
 	int finish, code;
@@ -48,20 +49,24 @@ static void lisp_windows_loop(struct lispargv *args)
 	finish = lisp_windows_call(args);
 	code = lisp_code;
 	result = lisp_result;
-	if (finish == 0) {
-		code = 1;
-		result = 1;
-	}
-	lisp_windows_output("[LISP] *** LISP CLOSE ***\r\n");
-	snprintf(data, 256, "[LISP] Code = %d\r\n", code);
-	lisp_windows_output(data);
-	if (code == 0) {
-		str = "[LISP] Result = %" PRIdF "\r\n";
-		snprintf(data, 256, str, result);
+	if (finish) {
+		lisp_windows_output("[LISP] *** LISP CLOSE ***\r\n");
+		snprintf(data, 256, "[LISP] Code = %d\r\n", code);
 		lisp_windows_output(data);
+		if (code == 0) {
+			str = "[LISP] Result = %" PRIdF "\r\n";
+			snprintf(data, 256, str, result);
+			lisp_windows_output(data);
+		}
+		lisp_windows_output("[LISP]\r\n");
+		lisp_windows_output("[LISP] *** LISP RESTART ***\r\n");
+		return 0;
 	}
-	lisp_windows_output("[LISP]\r\n");
-	lisp_windows_output("[LISP] *** LISP RESTART ***\r\n");
+	else {
+		(void)windows_window_show_show();
+		lisp_windows_output("[LISP] *** LISP ABORT ***\r\n");
+		return 1;
+	}
 }
 
 static DWORD WINAPI Windows_ThreadProc(LPVOID ptr)
@@ -70,12 +75,13 @@ static DWORD WINAPI Windows_ThreadProc(LPVOID ptr)
 
 	args = (struct lispargv *)ptr;
 	for (;;) {
-		lisp_windows_loop(args);
+		if (lisp_windows_loop(args))
+			break;
 		lisp_code = 0;
 		lisp_result = 0;
 	}
 
-	return 0;
+	return windows_input_discard();
 }
 
 static int windows_main_thread(struct lispargv *ptr)

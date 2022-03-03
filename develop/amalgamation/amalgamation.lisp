@@ -19,7 +19,7 @@
   '(;;  C++
     "cmath" "complex"
     ;;  Unix
-    "dirent.h" "fcntl.h" "pthread.h" "pwd.h" "semaphore.h" "sys/ioctl.h"
+    "dirent.h" "dlfcn.h" "fcntl.h" "pthread.h" "pwd.h" "semaphore.h" "sys/ioctl.h"
     "sys/select.h" "sys/stat.h" "sys/time.h" "sys/types.h" "sys/utsname.h"
     "sys/wait.h" "termios.h" "unistd.h"
     ;;  Windows

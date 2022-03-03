@@ -2132,6 +2132,8 @@ lisp-system::paper
 (lisp-system::info-paper :export t)
 (lisp-system::array-paper :export t)
 (lisp-system::body-paper :export t)
+(lisp-system::dlfile :export t)
+(lisp-system::dlcall :export t)
 
 (lisp-system::*standard-input* :name standard-input :constant system)
 (lisp-system::*standard-output* :name standard-output :constant system)

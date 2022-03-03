@@ -303,7 +303,62 @@ static int windows_input_utf16(uint16_t *ptr)
 	return 0;
 }
 
-static LRESULT windows_input_paste(HWND hWnd)
+static int windows_input_paste_multiline(uint16_t *ptr)
+{
+	for (; *ptr; ptr++) {
+		if (*ptr == 0x0A)
+			return 1;
+		if (*ptr == 0x0D)
+			return 1;
+	}
+
+	return 0;
+}
+
+#define WINDOWS_INPUT_PASTE_SIZE		256
+static int windows_input_paste_larger(uint16_t *ptr)
+{
+	return WINDOWS_INPUT_PASTE_SIZE < wcslen(ptr);
+}
+
+static int windows_input_paste_query(HWND hWnd, uint16_t *ptr)
+{
+	int cr, id;
+	WCHAR c, data[WINDOWS_INPUT_PASTE_SIZE * 2];
+	UINT x, y;
+
+	swprintf(data, WINDOWS_INPUT_PASTE_SIZE,
+		L"Would you like to paste the following message?\r\n\r\n");
+	y = (UINT)wcslen(data);
+	cr = 0;
+	x = 0;
+	for (;;) {
+		if (10 <= cr)
+			break;
+		if (WINDOWS_INPUT_PASTE_SIZE <= y)
+			break;
+		c = ptr[x++];
+		if (c == 0x0A)
+			cr++;
+		data[y++] = c;
+	}
+	data[y] = 0;
+
+	id = MessageBoxW(hWnd, data, LispnameW, MB_ICONQUESTION | MB_YESNO);
+	return id == IDYES;
+}
+
+static int windows_input_paste_p(HWND hWnd, uint16_t *ptr)
+{
+	if (windows_input_paste_multiline(ptr))
+		return windows_input_paste_query(hWnd, ptr);
+	if (windows_input_paste_larger(ptr))
+		return windows_input_paste_query(hWnd, ptr);
+
+	return 1;
+}
+
+LRESULT windows_input_paste(HWND hWnd)
 {
 	BOOL check;
 	HANDLE handle;
@@ -316,8 +371,10 @@ static LRESULT windows_input_paste(HWND hWnd)
 	if (handle) {
 		ptr = (uint16_t *)GlobalLock(handle);
 		if (ptr) {
-			if (windows_input_utf16(ptr))
-				windows_error("windows_input_utf16 error.");
+			if (windows_input_paste_p(hWnd, ptr)) {
+				if (windows_input_utf16(ptr))
+					windows_error("windows_input_utf16 error.");
+			}
 			GlobalUnlock(handle);
 		}
 	}
@@ -481,4 +538,17 @@ int windows_input_wait_float(int *ret, double value)
 int windows_input_read(void *data, size_t size, size_t *ret)
 {
 	return windows_ring_read(data, size, ret);
+}
+
+int windows_input_discard(void)
+{
+	byte data[1024];
+	size_t size;
+
+	for (;;) {
+		if (windows_ring_read(data, 1024, &size))
+			return 1;
+	}
+
+	return 0;
 }

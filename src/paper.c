@@ -223,6 +223,12 @@ void paper_set_body(addr pos, size_t index, byte value)
 	body[index] = value;
 }
 
+void paper_ptr_body_unsafe(addr pos, void **ret)
+{
+	Check(! paper_body_p(pos), "type error");
+	posbody(pos, (addr *)ret);
+}
+
 void paper_get_memory(addr pos, size_t a, size_t b, void *ptr, size_t *ret)
 {
 	addr body;

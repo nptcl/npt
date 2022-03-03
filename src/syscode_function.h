@@ -63,6 +63,8 @@
 #define info_paper_syscode_ _n(info_paper_syscode_)
 #define array_paper_syscode_ _n(array_paper_syscode_)
 #define body_paper_syscode_ _n(body_paper_syscode_)
+#define dlfile_syscode_ _n(dlfile_syscode_)
+#define dlcall_syscode_ _n(dlcall_syscode_)
 
 int hello_syscode_(Execute ptr);
 void infobit_syscode(addr rest, addr *ret);
@@ -123,6 +125,8 @@ int make_paper_syscode_(addr array, addr body, addr rest, addr *ret);
 int info_paper_syscode_(addr pos, addr symbol, addr second, addr *ret);
 int array_paper_syscode_(addr pos, addr index, addr value, addr *ret);
 int body_paper_syscode_(addr pos, addr index, addr value, addr *ret);
+int dlfile_syscode_(Execute ptr, addr type, addr args, addr *ret);
+int dlcall_syscode_(Execute ptr, addr paper, addr args);
 
 #endif
 

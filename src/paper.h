@@ -25,6 +25,7 @@
 #define paper_set_array _n(paper_set_array)
 #define paper_get_body _n(paper_get_body)
 #define paper_set_body _n(paper_set_body)
+#define paper_ptr_body_unsafe _n(paper_ptr_body_unsafe)
 #define paper_get_memory _n(paper_get_memory)
 #define paper_set_memory _n(paper_set_memory)
 #define paper_length_body_ _n(paper_length_body_)
@@ -61,6 +62,7 @@ void paper_get_array(addr pos, size_t index, addr *ret);
 void paper_set_array(addr pos, size_t index, addr value);
 void paper_get_body(addr pos, size_t index, byte *ret);
 void paper_set_body(addr pos, size_t index, byte value);
+void paper_ptr_body_unsafe(addr pos, void **ret);
 void paper_get_memory(addr pos, size_t a, size_t b, void *ptr, size_t *ret);
 void paper_set_memory(addr pos, size_t a, size_t b, const void *ptr, size_t *ret);
 

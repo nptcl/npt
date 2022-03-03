@@ -955,3 +955,15 @@ int body_paper_syscode_(addr pos, addr index, addr value, addr *ret)
 	}
 }
 
+/* dlfile */
+int dlfile_syscode_(Execute ptr, addr type, addr args, addr *ret)
+{
+	return dlfile_process_(ptr, type, args, ret);
+}
+
+/* dlcall */
+int dlcall_syscode_(Execute ptr, addr paper, addr args)
+{
+	return dlcall_process_(ptr, paper, args);
+}
+
