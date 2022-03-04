@@ -33,6 +33,21 @@ int terme_windows_init(void)
 	return windows_window_init();
 }
 
+int terme_windows_signal_p_(int *ret)
+{
+	if (Window_Exit) {
+		abort_execute();
+		return Result(ret, 0);
+	}
+
+	if (Window_Update) {
+		Window_Update = 0;
+		return Result(ret, 0);  /*1*/
+	}
+
+	return Result(ret, 0);
+}
+
 int terme_windows_begin(void)
 {
 	windows_screen_begin();

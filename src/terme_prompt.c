@@ -114,7 +114,7 @@ static int terme_readline_sigint_(TermeKeyboard *str)
 		return terme_fmte_("terme_arch_rawmode error.", NULL);
 
 	/* ignore */
-	str->type = terme_escape_error;
+	str->type = terme_escape_ignore;
 	return 0;
 }
 
@@ -138,7 +138,7 @@ static int terme_readline_ctrl_c_(Execute ptr, TermeKeyboard *str)
 	/* continue */
 	if (ptr->throw_handler == restart1) {
 		normal_throw_control(ptr);
-		str->type = terme_escape_error;
+		str->type = terme_escape_ignore;
 		goto escape;
 	}
 
@@ -163,11 +163,10 @@ static int terme_readline_signal_(Execute ptr)
 {
 	int check;
 
-	check = terme_arch_signal_p();
-	if (check) {
-		terme_arch_signal_clear();
+	check = 0;
+	Return(terme_arch_signal_p_(&check));
+	if (check)
 		return terme_screen_update_(ptr);
-	}
 
 	return 0;
 }
@@ -190,7 +189,7 @@ static int terme_readline_ctrl_z_(TermeKeyboard *str)
 		return terme_fmte_("terme_arch_rawmode error.", NULL);
 
 	/* ignore */
-	str->type = terme_escape_error;
+	str->type = terme_escape_ignore;
 	return 0;
 }
 
@@ -264,7 +263,7 @@ static int terme_readline_control_(Execute ptr,
 			break;
 
 		default:
-			str->type = terme_escape_error;
+			str->type = terme_escape_ignore;
 			break;
 	}
 
@@ -434,6 +433,9 @@ static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, in
 	*ret = 0;
 	switch (str->type) {
 		case terme_escape_error:
+			return fmte_("readline error", NULL);
+
+		case terme_escape_ignore:
 			break;
 
 		case terme_escape_signal:

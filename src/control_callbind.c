@@ -19,7 +19,7 @@ static void getname_callbind(addr pos, addr *ret)
 		GetNameFunction(pos, ret);
 	}
 	else {
-		*ret = Nil;
+		*ret = pos;
 	}
 }
 
@@ -1556,14 +1556,14 @@ int call_compiled_function_(Execute ptr, addr compiled)
 	return (*call)(ptr, compiled, str);
 }
 
-int call_callbind_function_(Execute ptr, struct callbind_struct *str)
+int call_callbind_function_(Execute ptr, addr name, struct callbind_struct *str)
 {
 	callbind_control call;
 
 	Check(CallBind_size <= str->type, "index error");
 	call = CallBindTable[str->type];
 	Check(call == NULL, "call error. (build_control?)");
-	return (*call)(ptr, Nil, str);
+	return (*call)(ptr, name, str);
 }
 
 void init_callbind_control(void)

@@ -4,6 +4,7 @@
 #include "typedef.h"
 
 #define terme_windows_init _n(terme_windows_init)
+#define terme_windows_signal_p_ _n(terme_windows_signal_p_)
 #define terme_windows_begin _n(terme_windows_begin)
 #define terme_windows_end _n(terme_windows_end)
 #define terme_windows_textmode _n(terme_windows_textmode)
@@ -21,6 +22,7 @@
 #define terme_windows_restore_ _n(terme_windows_restore_)
 
 int terme_windows_init(void);
+int terme_windows_signal_p_(int *ret);
 int terme_windows_begin(void);
 int terme_windows_end(void);
 int terme_windows_textmode(void);

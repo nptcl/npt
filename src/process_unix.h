@@ -95,10 +95,17 @@ int run_process_arch_(Execute ptr, addr instance, addr *ret)
  *  dlfile
  */
 #define LISP_PROCESS_FILE		(('S' << 8U) | 'O')
+#define LISP_PROCESS_CALL		(('S' << 16U) | ('Y' << 8U) | 'M')
+
 struct dlfile_struct {
 	uint32_t magic;
 	int closed;
 	void *handle;
+};
+
+struct dlcall_struct {
+	uint32_t magic;
+	struct callbind_struct call;
 };
 
 int dlfile_check_arch_(addr pos, int *ret)
@@ -175,7 +182,7 @@ int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr
 	LocalRoot local;
 	LocalStack stack;
 	struct dlfile_struct str;
-	struct callbind_struct call;
+	struct dlcall_struct call;
 
 	/* dlfile */
 	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, NULL);
@@ -198,11 +205,13 @@ int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr
 
 	/* call */
 	cleartype(call);
-	call.type = type;
-	call.call.pvoid = (void *)sym;
-	Return(paper_arraybody_heap_(&paper, 1, sizeof(struct callbind_struct)));
+	call.magic = LISP_PROCESS_CALL;
+	call.call.type = type;
+	call.call.call.pvoid = (void *)sym;
+	Return(paper_arraybody_heap_(&paper, 2, sizeof(struct dlcall_struct)));
 	paper_set_array(paper, 0, pos);
-	paper_set_memory(paper, 0, sizeof(struct callbind_struct), &call, NULL);
+	paper_set_array(paper, 1, name);
+	paper_set_memory(paper, 0, sizeof(struct dlcall_struct), &call, NULL);
 	return Result(ret, paper);
 }
 
@@ -212,9 +221,24 @@ int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr
  */
 int dlcall_arch_(Execute ptr, addr pos, addr args)
 {
-	struct callbind_struct *call;
+	addr dlfile, name;
+	struct dlfile_struct *str;
+	struct dlcall_struct *call;
+
+	/* sym */
 	paper_ptr_body_unsafe(pos, (void **)&call);
-	return call_callbind_function_(ptr, call);
+	if (call->magic != LISP_PROCESS_CALL)
+		return fmte_("Invalid dlsym object, ~S.", pos, NULL);
+	paper_get_array(pos, 0, &dlfile);
+	paper_get_array(pos, 1, &name);
+
+	/* dlfile */
+	paper_ptr_body_unsafe(dlfile, (void **)&str);
+	if (str->closed)
+		return fmte_("dlfile ~S is already closed.", dlfile, NULL);
+
+	/* call */
+	return call_callbind_function_(ptr, name, &(call->call));
 }
 
 #else

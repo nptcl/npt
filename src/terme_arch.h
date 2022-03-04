@@ -8,8 +8,7 @@
 #define terme_arch_init _n(terme_arch_init)
 #define terme_arch_size_update _n(terme_arch_size_update)
 #define terme_arch_size_get _n(terme_arch_size_get)
-#define terme_arch_signal_p _n(terme_arch_signal_p)
-#define terme_arch_signal_clear _n(terme_arch_signal_clear)
+#define terme_arch_signal_p_ _n(terme_arch_signal_p_)
 #define terme_arch_begin _n(terme_arch_begin)
 #define terme_arch_end _n(terme_arch_end)
 #define terme_arch_textmode _n(terme_arch_textmode)
@@ -35,8 +34,7 @@
 int terme_arch_init(void);
 int terme_arch_size_update(void);
 void terme_arch_size_get(unsigned *ret_x, unsigned *ret_y);
-int terme_arch_signal_p(void);
-void terme_arch_signal_clear(void);
+int terme_arch_signal_p_(int *ret);
 int terme_arch_begin(void);
 int terme_arch_end(void);
 int terme_arch_textmode(int *ret);

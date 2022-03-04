@@ -7,6 +7,7 @@
 #include "windows_error.h"
 #include "windows_input.h"
 #include "windows_main.h"
+#include "windows_screen.h"
 #include "windows_output.h"
 #include "windows_window.h"
 #include <Windows.h>
@@ -34,7 +35,7 @@ static int lisp_windows_call(struct lispargv *args)
 static void lisp_windows_output(const char *str)
 {
 	size_t size;
-	
+
 	size = strlen(str);
 	(void)windows_output_write(str, size, &size);
 	(void)windows_output_flush();
@@ -45,10 +46,13 @@ static int lisp_windows_loop(struct lispargv *args)
 	char data[256], *str;
 	int finish, code;
 	fixnum result;
-	
+
 	finish = lisp_windows_call(args);
 	code = lisp_code;
 	result = lisp_result;
+	if (Window_Exit)
+		return 1;
+
 	if (finish) {
 		lisp_windows_output("[LISP] *** LISP CLOSE ***\r\n");
 		snprintf(data, 256, "[LISP] Code = %d\r\n", code);

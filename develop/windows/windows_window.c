@@ -15,7 +15,6 @@ static HINSTANCE Window_hInstance;
 static HWND Window_hWnd;
 static int Window_Sizing;
 static int Window_Sized;
-static int Window_Tile;
 static int Window_Show;
 static unsigned Window_SpaceX1;
 static unsigned Window_SpaceY1;
@@ -32,8 +31,8 @@ static unsigned Window_FontSize;
 static unsigned Window_FontX;
 static unsigned Window_FontY;
 static HFONT Window_hFont;
-static HPEN Window_BkPen;
-static HBRUSH Window_BkBrush;
+static HPEN Window_hPen;
+static HBRUSH Window_hBrush;
 
 static int window_window_set_color2(void)
 {
@@ -48,8 +47,8 @@ static int window_window_set_color2(void)
 		DeleteObject(hPen);
 		return 1;
 	}
-	Window_BkPen = hPen;
-	Window_BkBrush = hBrush;
+	Window_hPen = hPen;
+	Window_hBrush = hBrush;
 
 	return 0;
 }
@@ -60,7 +59,6 @@ int windows_window_init(void)
 	Window_hWnd = NULL;
 	Window_Sizing = 0;
 	Window_Sized = 0;
-	Window_Tile = 0;
 	Window_Show = 0;
 	Window_SpaceX1 = 2;
 	Window_SpaceY1 = 2;
@@ -76,8 +74,8 @@ int windows_window_init(void)
 	Window_FontX = 0;
 	Window_FontY = 0;
 	Window_hFont = NULL;
-	Window_BkPen = NULL;
-	Window_BkBrush = NULL;
+	Window_hPen = NULL;
+	Window_hBrush = NULL;
 	return window_window_set_color2();
 }
 
@@ -86,72 +84,18 @@ static void windows_window_title(HWND hWnd)
 	SetWindowTextA(hWnd, Lispname);
 }
 
-static void windows_window_paint_tile_call(HDC hDC)
-{
-	unsigned x, y, x1, y1, x2, y2;
-
-	for (y = 0; y < Window_SizeY; y++) {
-		y1 = Window_SpaceY1 + (Window_FontY + Window_SpaceCharacterY) * y;
-		y2 = y1 + Window_FontY;
-		for (x = 0; x < Window_SizeX; x++) {
-			x1 = Window_SpaceX1 + (Window_FontX + Window_SpaceCharacterX) * x;
-			x2 = x1 + Window_FontX;
-			Rectangle(hDC, (int)x1, (int)y1, (int)x2, (int)y2);
-		}
-	}
-}
-
-static void windows_window_paint_tile(HDC hDC)
-{
-	HFONT hFont1;
-	HPEN hPen, hPen1;
-	HBRUSH hBrush, hBrush1;
-
-	hPen = (HPEN)GetStockObject(BLACK_PEN);
-	hBrush = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
-	hFont1 = (HFONT)SelectObject(hDC, Window_hFont);
-	hPen1 = (HPEN)SelectObject(hDC, hPen);
-	hBrush1 = (HBRUSH)SelectObject(hDC, hBrush);
-	windows_draw_cursor_off_nolock(hDC);
-	windows_window_paint_tile_call(hDC);
-	windows_display_paint_nolock(hDC);
-	windows_draw_cursor_on_nolock(hDC);
-	SelectObject(hDC, hBrush1);
-	SelectObject(hDC, hPen1);
-	SelectObject(hDC, hFont1);
-}
-
-static void windows_window_paint_delete_call(HWND hWnd, HDC hDC)
-{
-	RECT rect;
-	GetClientRect(hWnd, &rect);
-	Rectangle(hDC, rect.left, rect.top, rect.right, rect.bottom);
-}
-
-static void windows_window_paint_delete(HWND hWnd, HDC hDC)
-{
-	HFONT hFont1;
-	HPEN hPen1;
-	HBRUSH hBrush1;
-
-	hFont1 = (HFONT)SelectObject(hDC, Window_hFont);
-	hPen1 = (HPEN)SelectObject(hDC, Window_BkPen);
-	hBrush1 = (HBRUSH)SelectObject(hDC, Window_BkBrush);
-	windows_draw_cursor_off_nolock(hDC);
-	windows_window_paint_delete_call(hWnd, hDC);
-	windows_display_paint_nolock(hDC);
-	windows_draw_cursor_on_nolock(hDC);
-	SelectObject(hDC, hBrush1);
-	SelectObject(hDC, hPen1);
-	SelectObject(hDC, hFont1);
-}
-
 static void windows_window_paint_call(HWND hWnd, HDC hDC)
 {
-	if (Window_Tile)
-		windows_window_paint_tile(hDC);
-	else
-		windows_window_paint_delete(hWnd, hDC);
+	RECT rect;
+	HPEN hPen;
+	HBRUSH hBrush;
+
+	GetClientRect(hWnd, &rect);
+	hPen = SelectObject(hDC, Window_hPen);
+	hBrush = SelectObject(hDC, Window_hBrush);
+	Rectangle(hDC, rect.left, rect.top, rect.right, rect.bottom);
+	SelectObject(hDC, hPen);
+	SelectObject(hDC, hBrush);
 }
 
 static LRESULT windows_window_paint(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -161,7 +105,10 @@ static LRESULT windows_window_paint(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 	windows_screen_enter();
 	hDC = BeginPaint(hWnd, &ps);
+	windows_draw_cursor_off_nolock(hDC);
 	windows_window_paint_call(hWnd, hDC);
+	windows_display_paint_nolock(hDC);
+	windows_draw_cursor_on_nolock(hDC);
 	EndPaint(hWnd, &ps);
 	windows_screen_leave();
 
@@ -330,51 +277,75 @@ static int windows_window_class(void)
 	return RegisterClassW(&wc) == 0;
 }
 
-static int windows_window_resource(HWND hWnd)
+static int windows_window_rosource_size(HDC hDC, HFONT hFont)
 {
-	HDC hDC;
-	HFONT hFont, handle;
 	SIZE a, b;
 	LONG x, y;
 
-	hFont = CreateFontW(Window_FontSize, 0, 0, 0, FW_NORMAL,
-			FALSE, FALSE, FALSE,
-			DEFAULT_CHARSET,
-			OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
-			DEFAULT_QUALITY,
-			FIXED_PITCH | FF_MODERN,
-			Window_FontName[0]? Window_FontName: NULL);
-	if (hFont == NULL)
-		return 1;
-	hDC = GetDC(hWnd);
-	if (hDC == NULL)
-		goto error1;
-	handle = SelectObject(hDC, hFont);
-	if (handle == NULL)
-		goto error2;
 	x = y = 0;
 	if (GetTextExtentPoint32A(hDC, "M", 1, &a) == 0)
-		goto error3;
+		return 1;
 	if (GetTextExtentPoint32A(hDC, "W", 1, &b) == 0)
-		goto error3;
+		return 1;
 	x = (a.cx < b.cx) ? b.cx : a.cx;
 	y = (a.cy < b.cy) ? b.cy : a.cy;
+	Window_hFont = hFont;
 	Window_FontX = (unsigned)x;
 	Window_FontY = (unsigned)y;
-	SelectObject(hDC, handle);
-	ReleaseDC(hWnd, hDC);
-	if (Window_hFont)
-		DeleteObject(Window_hFont);
-	Window_hFont = hFont;
-	return 0;
 
-error3:
-	SelectObject(hDC, handle);
-error2:
+	return 0;
+}
+
+static int windows_window_resource_select(HDC hDC, HFONT hFont)
+{
+	int check;
+	HFONT rollback;
+
+	rollback = SelectObject(hDC, hFont);
+	if (rollback == NULL)
+		return 1;
+	check = windows_window_rosource_size(hDC, hFont);
+	SelectObject(hDC, rollback);
+
+	return check;
+}
+
+static int windows_window_rosource_font(HDC hDC)
+{
+	int check;
+	HFONT hFont;
+
+	hFont = CreateFontW(Window_FontSize, 0, 0, 0, FW_NORMAL,
+		FALSE, FALSE, FALSE,
+		DEFAULT_CHARSET,
+		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
+		DEFAULT_QUALITY,
+		FIXED_PITCH | FF_MODERN,
+		Window_FontName[0] ? Window_FontName : NULL);
+	if (hFont == NULL)
+		return 1;
+
+	check = windows_window_resource_select(hDC, hFont);
+	if (check) {
+		DeleteObject(hFont);
+		return 1;
+	}
+
+	return 0;
+}
+
+static int windows_window_resource(HWND hWnd)
+{
+	int check;
+	HDC hDC;
+
+	hDC = GetDC(hWnd);
+	if (hDC == NULL)
+		return 1;
+	check = windows_window_rosource_font(hDC);
 	ReleaseDC(hWnd, hDC);
-error1:
-	DeleteObject(hFont);
-	return 1;
+
+	return check;
 }
 
 static void windows_window_resource_free(void)
@@ -383,13 +354,13 @@ static void windows_window_resource_free(void)
 		DeleteObject(Window_hFont);
 		Window_hFont = NULL;
 	}
-	if (Window_BkPen) {
-		DeleteObject(Window_BkPen);
-		Window_BkPen = NULL;
+	if (Window_hPen) {
+		DeleteObject(Window_hPen);
+		Window_hPen = NULL;
 	}
-	if (Window_BkBrush) {
-		DeleteObject(Window_BkBrush);
-		Window_BkBrush = NULL;
+	if (Window_hBrush) {
+		DeleteObject(Window_hBrush);
+		Window_hBrush = NULL;
 	}
 }
 
@@ -436,6 +407,9 @@ static int windows_main_loop(void)
 	}
 	Window_hWnd = NULL;
 
+	/* Exit */
+	Window_Exit = 1;
+	windows_input_wake();
 	return (int)msg.wParam;
 }
 
@@ -611,19 +585,17 @@ static void windows_draw_textout(HDC hDC,
 	unsigned x, unsigned y, WCHAR *data, size_t size)
 {
 	int xp, yp;
-	HANDLE hFont;
+	HFONT hFont;
 
 	xp = windows_draw_x(x);
 	yp = windows_draw_y(y);
 
-	if (Window_hFont)
-		hFont = SelectObject(hDC, Window_hFont);
 	SetTextColor(hDC, Window_Color1);
 	SetBkColor(hDC, Window_Color2);
 	SetBkMode(hDC, OPAQUE);
+	hFont = SelectObject(hDC, Window_hFont);
 	TextOutW(hDC, xp, yp, data, (int)size);
-	if (Window_hFont)
-		SelectObject(hDC, hFont);
+	SelectObject(hDC, hFont);
 }
 
 int windows_draw_character_nolock(HDC hDC, unsigned x, unsigned y, unicode c)
@@ -656,7 +628,7 @@ int windows_draw_line_feed_nolock(void)
 	unsigned x1, y1, x2, y2, y3, w, h;
 	HWND hWnd;
 	HDC hDC;
-	
+
 	if (Window_SizeX == 0)
 		return 0;
 	if (Window_SizeY == 0)
@@ -728,10 +700,7 @@ int windows_draw_line_back_nolock(void)
 int windows_draw_delete_nolock(HDC hDC, unsigned x1, unsigned y1, unsigned x2, unsigned y2)
 {
 	int releasep;
-	unsigned a, b, c, d, x, y;
-	HPEN hPen;
-	HBRUSH hBrush;
-
+	unsigned a, b, c, d;
 	if (! (x1 < Window_SizeX))
 		return 0;
 	if (! (x2 <= Window_SizeX))
@@ -755,30 +724,9 @@ int windows_draw_delete_nolock(HDC hDC, unsigned x1, unsigned y1, unsigned x2, u
 		return 1;
 
 	/* Erase */
-	hPen = SelectObject(hDC, Window_BkPen);
-	hBrush = SelectObject(hDC, Window_BkBrush);
+	SelectObject(hDC, Window_hPen);
+	SelectObject(hDC, Window_hBrush);
 	Rectangle(hDC, a, b, c, d);
-	SelectObject(hDC, hPen);
-	SelectObject(hDC, hBrush);
-
-	/* Tile */
-	if (Window_Tile) {
-		hPen = (HPEN)GetStockObject(BLACK_PEN);
-		hBrush = (HBRUSH)GetStockObject(DKGRAY_BRUSH);
-		hPen = SelectObject(hDC, hPen);
-		hBrush = SelectObject(hDC, hBrush);
-		for (y = y1; y < y2; y++) {
-			b = Window_SpaceY1 + (Window_FontY + Window_SpaceCharacterY) * y;
-			d = b + Window_FontY;
-			for (x = x1; x < x2; x++) {
-				a = Window_SpaceX1 + (Window_FontX + Window_SpaceCharacterX) * x;
-				c = a + Window_FontX;
-				Rectangle(hDC, a, b, c, d);
-			}
-		}
-		SelectObject(hDC, hPen);
-		SelectObject(hDC, hBrush);
-	}
 
 	/* Release */
 	if (releasep)

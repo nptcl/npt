@@ -11,7 +11,6 @@ static unsigned terme_arch_x;
 static unsigned terme_arch_y;
 static int terme_arch_textmode_p;
 static int terme_arch_enable_p;
-static int terme_arch_signal_value;
 
 #if defined(LISP_TERME_UNIX)
 #include "terme_unix.h"
@@ -29,7 +28,6 @@ int terme_arch_init(void)
 	terme_arch_y = 0;
 	terme_arch_textmode_p = 0;
 	terme_arch_enable_p = 0;
-	terme_arch_signal_value = 0;
 
 #if defined(LISP_TERME_UNIX)
 	return terme_unix_init();
@@ -69,14 +67,17 @@ void terme_arch_size_get(unsigned *ret_x, unsigned *ret_y)
 /*
  *  terme-signal
  */
-int terme_arch_signal_p(void)
+int terme_arch_signal_p_(int *ret)
 {
-	return terme_arch_signal_value;
-}
-
-void terme_arch_signal_clear(void)
-{
-	terme_arch_signal_value = 0;
+	if (! terme_arch_enable_p)
+		return Result(ret, 0);
+#if defined(LISP_TERME_UNIX)
+	return terme_unix_signal_p_(ret);
+#elif defined(LISP_TERME_WINDOWS)
+	return terme_windows_signal_p_(ret);
+#else
+	return Result(ret, 0);
+#endif
 }
 
 
@@ -111,6 +112,8 @@ int terme_arch_end(void)
 {
 	if (! terme_arch_enable_p)
 		return 0;
+	terme_arch_enable_p = 0;
+
 #if defined(LISP_TERME_UNIX)
 	return terme_unix_end();
 #elif defined(LISP_TERME_WINDOWS)

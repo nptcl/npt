@@ -11,7 +11,7 @@
 #define init_callbind_control _n(init_callbind_control)
 
 int call_compiled_function_(Execute ptr, addr compiled);
-int call_callbind_function_(Execute ptr, struct callbind_struct *str);
+int call_callbind_function_(Execute ptr, addr name, struct callbind_struct *str);
 void init_callbind_control(void);
 
 #endif

@@ -3,6 +3,7 @@
 #include "typedef.h"
 #include "windows_error.h"
 #include "windows_input.h"
+#include "windows_screen.h"
 #include "windows_window.h"
 #include "windows_write.h"
 #include <Windows.h>
@@ -19,7 +20,6 @@ static CRITICAL_SECTION Windows_Input_Lock;
 static unsigned Windows_Input_Begin;
 static unsigned Windows_Input_End;
 static unsigned Windows_Input_Size;
-static int Windows_Input_Break;
 static byte Windows_Input_Data[WINDOWS_INPUT_SIZE];
 
 void windows_input_init(void)
@@ -29,7 +29,6 @@ void windows_input_init(void)
 	Windows_Input_Begin = 0;
 	Windows_Input_End = 0;
 	Windows_Input_Size = 0;
-	Windows_Input_Break = 0;
 }
 
 
@@ -118,11 +117,17 @@ static void windows_ring_pop(byte *str, size_t size, size_t *ret)
 	*ret = (size_t)size0;
 }
 
+static int windows_ring_write_loop_p(void)
+{
+	return windows_ring_space() == 0
+		&& Window_Exit == 0;
+}
+
 static int windows_ring_write_loop(const byte *str, size_t size, size_t *ret)
 {
 	BOOL check;
 
-	while (windows_ring_space() == 0) {
+	while (windows_ring_write_loop_p()) {
 		check = SleepConditionVariableCS(
 			&Windows_Input_Condition,
 			&Windows_Input_Lock,
@@ -132,6 +137,11 @@ static int windows_ring_write_loop(const byte *str, size_t size, size_t *ret)
 			return 1;
 		}
 	}
+	if (Window_Exit) {
+		*ret = 0;
+		return 1;
+	}
+
 	windows_ring_push(str, size, ret);
 	return 0;
 }
@@ -155,11 +165,18 @@ static int windows_ring_write(const byte *str, size_t size)
 	return 0;
 }
 
+static int windows_ring_select_call_p(void)
+{
+	return Windows_Input_Size == 0
+		&& Window_Exit == 0
+		&& Window_Update == 0;
+}
+
 static int windows_ring_select_call(int *ret, DWORD wait)
 {
 	BOOL check;
 
-	while (Windows_Input_Size == 0 && Windows_Input_Break == 0) {
+	while (windows_ring_select_call_p()) {
 		check = SleepConditionVariableCS(
 			&Windows_Input_Condition,
 			&Windows_Input_Lock,
@@ -175,11 +192,11 @@ static int windows_ring_select_call(int *ret, DWORD wait)
 			}
 		}
 	}
-	if (Windows_Input_Break) {
-		Windows_Input_Break = 0;
+	if (Window_Exit || Window_Update) {
 		*ret = 0;
 		return -1;
 	}
+
 	*ret = 1;
 	return 0;
 }
@@ -195,6 +212,13 @@ static int windows_ring_select(int *ret, DWORD wait)
 	return check;
 }
 
+static int windows_ring_read_call_p(void)
+{
+	return Windows_Input_Size == 0
+		&& Window_Exit == 0
+		&& Window_Update == 0;
+}
+
 static int windows_ring_read_call(byte *str, size_t size, size_t *ret)
 {
 	BOOL check;
@@ -206,7 +230,7 @@ static int windows_ring_read_call(byte *str, size_t size, size_t *ret)
 	}
 
 	/* wait */
-	while (Windows_Input_Size == 0 && Windows_Input_Break == 0) {
+	while (windows_ring_read_call_p()) {
 		check = SleepConditionVariableCS(
 			&Windows_Input_Condition,
 			&Windows_Input_Lock,
@@ -216,8 +240,7 @@ static int windows_ring_read_call(byte *str, size_t size, size_t *ret)
 			return 1;
 		}
 	}
-	if (Windows_Input_Break) {
-		Windows_Input_Break = 0;
+	if (Window_Exit || Window_Update) {
 		*ret = 0;
 		return -1;
 	}
@@ -372,8 +395,7 @@ LRESULT windows_input_paste(HWND hWnd)
 		ptr = (uint16_t *)GlobalLock(handle);
 		if (ptr) {
 			if (windows_input_paste_p(hWnd, ptr)) {
-				if (windows_input_utf16(ptr))
-					windows_error("windows_input_utf16 error.");
+				(void)windows_input_utf16(ptr);
 			}
 			GlobalUnlock(handle);
 		}
@@ -392,17 +414,14 @@ static LRESULT windows_input_string(const char *str)
 	size_t size;
 
 	size = strlen(str);
-	if (windows_input_escape((const void *)str, size))
-		windows_error("windows_input_escape error.");
+	(void)windows_input_escape((const void *)str, size);
 
 	return 0;
 }
 
 static LRESULT windows_input_byte(byte c)
 {
-	if (windows_input_escape((const void *)&c, 1))
-		windows_error("windows_input_escape error.");
-
+	(void)windows_input_escape((const void *)&c, 1);
 	return 0;
 }
 
@@ -545,10 +564,15 @@ int windows_input_discard(void)
 	byte data[1024];
 	size_t size;
 
-	for (;;) {
+	while (Window_Exit == 0) {
 		if (windows_ring_read(data, 1024, &size))
 			return 1;
 	}
 
 	return 0;
+}
+
+void windows_input_wake(void)
+{
+	WakeAllConditionVariable(&Windows_Input_Condition);
 }

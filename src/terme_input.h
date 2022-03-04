@@ -12,6 +12,7 @@
 
 enum terme_escape {
 	terme_escape_error,
+	terme_escape_ignore,
 	terme_escape_signal,
 	terme_escape_hang,
 	terme_escape_code,

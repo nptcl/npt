@@ -13,6 +13,7 @@
 #define windows_input_wait_float _n(windows_input_wait_float)
 #define windows_input_read _n(windows_input_read)
 #define windows_input_discard _n(windows_input_discard)
+#define windows_input_wake _n(windows_input_wake)
 
 void windows_input_init(void);
 LRESULT windows_input_paste(HWND hWnd);
@@ -23,6 +24,7 @@ int windows_input_wait_integer(int *ret, int value);
 int windows_input_wait_float(int *ret, double value);
 int windows_input_read(void *data, size_t size, size_t *ret);
 int windows_input_discard(void);
+void windows_input_wake(void);
 
 #endif
 

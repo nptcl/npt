@@ -18,6 +18,7 @@
  *  terme-init
  */
 static int terme_unix_escape_p;
+static int terme_unix_signal_value;
 static struct timeval terme_unix_escape_timeval;
 static struct termios terme_unix_default_v;
 
@@ -38,6 +39,7 @@ static int terme_unix_init(void)
 		return 1;
 	}
 	terme_unix_escape_p = 0;
+	terme_unix_signal_value = 0;
 	cleartype(terme_unix_escape_timeval);
 
 	return 0;
@@ -47,9 +49,19 @@ static int terme_unix_init(void)
 /*
  *  terme-signal
  */
+static int terme_unix_signal_p_(int *ret)
+{
+	if (terme_unix_signal_value) {
+		terme_unix_signal_value = 0;
+		return Result(ret, 1);
+	}
+
+	return Result(ret, 0);
+}
+
 static void terme_unix_handler(int sig)
 {
-	terme_arch_signal_value = 1;
+	terme_unix_signal_value = 1;
 }
 
 static int terme_unix_signal(void)

@@ -4,6 +4,8 @@
 #include <Windows.h>
 
 int Window_Mode;
+int Window_Exit;
+int Window_Update;
 unsigned Window_SizeX;
 unsigned Window_SizeY;
 unsigned Window_CursorX;
@@ -17,6 +19,8 @@ COLORREF Window_Color2;
 void windows_screen_init(void)
 {
 	Window_Mode = 0;
+	Window_Exit = 0;
+	Window_Update = 0;
 	Window_SizeX = 80;
 	Window_SizeY = 24;
 	Window_CursorX = 0;

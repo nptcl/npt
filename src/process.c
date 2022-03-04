@@ -421,7 +421,6 @@ static int dlfile_call_process_(Execute ptr, addr args, addr *ret)
 
 	/* type */
 	Return(dlfile_type_process_(args, &type));
-
 	return dlsym_arch_(ptr, paper, name, type, ret);
 }
 

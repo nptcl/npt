@@ -487,7 +487,7 @@ escape1:
 
 invalid:
 	terme_unbyte_clear();
-	ret->type = terme_escape_error;
+	ret->type = terme_escape_ignore;
 	return;
 
 finish:
