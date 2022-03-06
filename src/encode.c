@@ -958,7 +958,7 @@ int UTF32_length_utf8(const unicode *ptr, size_t size, size_t *ret)
 	return 0;
 }
 
-static int UTF8_length_(addr pos, size_t *rsize, int *ret)
+int UTF8_length_clang_(addr pos, size_t *rsize, int *ret)
 {
 	int check;
 	unicode c;
@@ -996,7 +996,7 @@ int UTF32_length_utf16(const unicode *ptr, size_t size, size_t *ret)
 	return 0;
 }
 
-static int UTF16_length_(addr pos, size_t *rsize, int *ret)
+int UTF16_length_clang_(addr pos, size_t *rsize, int *ret)
 {
 	int check;
 	unicode c;
@@ -1059,7 +1059,7 @@ int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string)
 	addr pos, body;
 	size_t size;
 
-	Return(UTF8_length_(string, &size, &check));
+	Return(UTF8_length_clang_(string, &size, &check));
 	if (check)
 		return Result(ret, Unbound);
 	local_body(local, &pos, LISPSYSTEM_UNICODE, size + 1);
@@ -1077,7 +1077,7 @@ int UTF16_buffer_clang_(LocalRoot local, addr *ret, addr string)
 	addr pos, body;
 	size_t size;
 
-	Return(UTF16_length_(string, &size, &check));
+	Return(UTF16_length_clang_(string, &size, &check));
 	if (check)
 		return Result(ret, Unbound);
 	local_body(local, &pos, LISPSYSTEM_UNICODE, (size + 1) * 2);

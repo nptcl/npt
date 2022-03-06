@@ -11,6 +11,9 @@
 #define windows_window_show_hide _n(windows_window_show_hide)
 #define windows_window_size_update _n(windows_window_size_update)
 #define windows_window_error _n(windows_window_error)
+#define windows_window_setfont_ _n(windows_window_setfont_)
+#define windows_window_color_integer_ _n(windows_window_color_integer_)
+#define windows_window_color_rgb_ _n(windows_window_color_rgb_)
 #define windows_draw_cursor_on_nolock _n(windows_draw_cursor_on_nolock)
 #define windows_draw_cursor_off_nolock _n(windows_draw_cursor_off_nolock)
 #define windows_draw_cursor_on_lock _n(windows_draw_cursor_on_lock)
@@ -27,6 +30,9 @@ int windows_window_show_show(void);
 int windows_window_show_hide(void);
 int windows_window_size_update(unsigned x, unsigned y);
 void windows_window_error(const char *str);
+int windows_window_setfont_(addr name, int size);
+int windows_window_color_integer_(unsigned v, int forep);
+int windows_window_color_rgb_(unsigned r, unsigned g, unsigned b, int forep);
 
 void windows_draw_cursor_on_nolock(HDC hDC);
 void windows_draw_cursor_off_nolock(HDC hDC);

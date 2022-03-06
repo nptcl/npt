@@ -23,7 +23,7 @@ static int lisp_windows_call(struct lispargv *args)
 
 	lisp_set_abort_setjmp_handler();
 	finish = 0;
-	Lisp_abort_Begin{
+	Lisp_abort_Begin {
 		lisp_argv_run(args);
 		finish = 1;
 	}

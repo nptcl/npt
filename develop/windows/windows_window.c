@@ -1,4 +1,9 @@
+#include "condition.h"
+#include "encode.h"
 #include "encode_unicode.h"
+#include "local.h"
+#include "memory.h"
+#include "strtype.h"
 #include "typedef.h"
 #include "windows_display.h"
 #include "windows_error.h"
@@ -25,7 +30,7 @@ static unsigned Window_SpaceCharacterY;
 static int Window_Cursor;
 
 /* Font */
-#define WINDOWS_WINDOW_FONT_SIZE	64
+#define WINDOWS_WINDOW_FONT_SIZE	128
 static WCHAR Window_FontName[WINDOWS_WINDOW_FONT_SIZE];
 static unsigned Window_FontSize;
 static unsigned Window_FontX;
@@ -34,21 +39,22 @@ static HFONT Window_hFont;
 static HPEN Window_hPen;
 static HBRUSH Window_hBrush;
 
-static int window_window_set_color2(void)
+static int window_window_set_color2(COLORREF c)
 {
 	HPEN hPen;
 	HBRUSH hBrush;
 
-	hPen = CreatePen(PS_SOLID, 1, Window_Color2);
+	hPen = CreatePen(PS_SOLID, 1, c);
 	if (hPen == NULL)
 		return 1;
-	hBrush = CreateSolidBrush(Window_Color2);
+	hBrush = CreateSolidBrush(c);
 	if (hBrush == NULL) {
 		DeleteObject(hPen);
 		return 1;
 	}
 	Window_hPen = hPen;
 	Window_hBrush = hBrush;
+	Window_Color2 = c;
 
 	return 0;
 }
@@ -76,7 +82,7 @@ int windows_window_init(void)
 	Window_hFont = NULL;
 	Window_hPen = NULL;
 	Window_hBrush = NULL;
-	return window_window_set_color2();
+	return window_window_set_color2(Window_Color2);
 }
 
 static void windows_window_title(HWND hWnd)
@@ -221,7 +227,6 @@ static LRESULT windows_winodw_exitsizemove(HWND hWnd, UINT msg, WPARAM wp, LPARA
 	/* Text */
 	windows_window_title(hWnd);
 	return DefWindowProcW(hWnd, msg, wp, lp);
-
 }
 
 static LRESULT CALLBACK WndProc(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -310,18 +315,26 @@ static int windows_window_resource_select(HDC hDC, HFONT hFont)
 	return check;
 }
 
-static int windows_window_rosource_font(HDC hDC)
+static int windows_window_rosource_font(HDC hDC, const WCHAR *ptr, int size)
 {
 	int check;
 	HFONT hFont;
 
-	hFont = CreateFontW(Window_FontSize, 0, 0, 0, FW_NORMAL,
+	if (ptr) {
+		ptr = ptr[0] ? ptr : NULL;
+	}
+	if (size < 0)
+		size = Window_FontSize;
+	if (size < 0)
+		size = 14;
+
+	hFont = CreateFontW(size, 0, 0, 0, FW_NORMAL,
 		FALSE, FALSE, FALSE,
 		DEFAULT_CHARSET,
 		OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS,
 		DEFAULT_QUALITY,
 		FIXED_PITCH | FF_MODERN,
-		Window_FontName[0] ? Window_FontName : NULL);
+		ptr);
 	if (hFont == NULL)
 		return 1;
 
@@ -331,21 +344,37 @@ static int windows_window_rosource_font(HDC hDC)
 		return 1;
 	}
 
+	/* Switch */
+	if (ptr)
+		wcscpy(Window_FontName, ptr);
+	else
+		Window_FontName[0] = 0;
+	Window_FontSize = size;
+
 	return 0;
 }
 
-static int windows_window_resource(HWND hWnd)
+static int windows_window_resource_value(HWND hWnd, const WCHAR *ptr, int size)
 {
 	int check;
 	HDC hDC;
 
+	if (hWnd == NULL)
+		hWnd = Window_hWnd;
 	hDC = GetDC(hWnd);
 	if (hDC == NULL)
 		return 1;
-	check = windows_window_rosource_font(hDC);
+	check = windows_window_rosource_font(hDC, ptr, size);
 	ReleaseDC(hWnd, hDC);
 
 	return check;
+}
+
+static int windows_window_resource(HWND hWnd)
+{
+	return windows_window_resource_value(hWnd,
+		Window_FontName,
+		Window_FontSize);
 }
 
 static void windows_window_resource_free(void)
@@ -508,6 +537,115 @@ int windows_window_size_update(unsigned x, unsigned y)
 void windows_window_error(const char *str)
 {
 	(void)MessageBoxA(Window_hWnd, str, LispName, MB_ICONERROR | MB_OK);
+}
+
+static int windows_window_get_fontname_(addr name, WCHAR *ptr)
+{
+	addr pos, body;
+	size_t size;
+	LocalRoot local;
+	LocalStack stack;
+
+	if (name == Nil) {
+		ptr[0] = 0;
+		return 0;
+	}
+	if (! stringp(name))
+		return fmte_("Name ~S must be a string type.", name, NULL);
+	string_length(name, &size);
+	if (32 <= size)
+		return fmte_("Length of the name ~S must be less than 32.", name, NULL);
+	local = Local_Thread;
+	push_local(local, &stack);
+	Return(UTF16_buffer_clang_(local, &pos, name));
+	if (pos == Unbound)
+		return fmte_("Invalid UTF-16 format, ~S.", name, NULL);
+	posbody(pos, &body);
+	wcscpy(ptr, (const wchar_t *)body);
+	rollback_local(local, stack);
+
+	return 0;
+}
+
+static void windows_window_setfont_draw(HWND hWnd)
+{
+	HDC hDC;
+
+	windows_window_setsize(hWnd, Window_SizeX, Window_SizeY);
+	windows_screen_enter();
+	(void)windows_write_clear_nolock();
+
+	/* Redraw */
+	hDC = GetDC(hWnd);
+	if (hDC) {
+		windows_window_paint_call(hWnd, hDC);
+		ReleaseDC(hWnd, hDC);
+	}
+	windows_screen_leave();
+}
+
+static int windows_window_setfont_p(const WCHAR *ptr, int size)
+{
+	/* name */
+	if (ptr == NULL) {
+		if (Window_FontName[0] != 0)
+			return 1;
+	}
+	if (wcscmp(ptr, Window_FontName) != 0)
+		return 1;
+
+	/* size */
+	if (size < 0)
+		return 0;
+
+	return Window_FontSize != (unsigned)size;
+}
+
+int windows_window_setfont_(addr name, int fontsize)
+{
+	WCHAR fontname[WINDOWS_WINDOW_FONT_SIZE];
+
+	Return(windows_window_get_fontname_(name, fontname));
+	if (! windows_window_setfont_p(fontname, fontsize))
+		return 0;
+	if (windows_window_resource_value(NULL, fontname, fontsize))
+		return fmte_("Invalid fontname, ~S.", name, NULL);
+	windows_window_setfont_draw(Window_hWnd);
+
+	return 0;
+}
+
+static int windows_window_color_update_(COLORREF c, int forep)
+{
+	if (forep) {
+		if (Window_Color1_Default == c)
+			return 0;
+		Window_Color1 = c;
+	}
+	else {
+		if (Window_Color2_Default == c)
+			return 0;
+		if (! window_window_set_color2(c))
+			return 0; /* error */
+	}
+	windows_window_setfont_draw(Window_hWnd);
+
+	return 0;
+}
+
+
+int windows_window_color_integer_(unsigned v, int forep)
+{
+	COLORREF c;
+	c = windows_write_getcolor(v);
+	return windows_window_color_update_(c, forep);
+}
+
+int windows_window_color_rgb_(unsigned r, unsigned g, unsigned b, int forep)
+{
+	COLORREF c;
+	c = RGB(r, g, b);
+	return windows_window_color_update_(c, forep);
 }
 
 

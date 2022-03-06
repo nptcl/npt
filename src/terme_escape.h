@@ -24,6 +24,10 @@
 #define terme_cursor_delete_page _n(terme_cursor_delete_page)
 #define terme_cursor_scroll_up _n(terme_cursor_scroll_up)
 #define terme_cursor_scroll_down _n(terme_cursor_scroll_down)
+#define terme_color_symbol_ _n(terme_color_symbol_)
+#define terme_color_not_symbol_ _n(terme_color_not_symbol_)
+#define terme_color_dark_ _n(terme_color_dark_)
+#define terme_color_bright_ _n(terme_color_bright_)
 #define terme_font_parser_ _n(terme_font_parser_)
 #define terme_font_update_ _n(terme_font_update_)
 
@@ -46,6 +50,10 @@ int terme_cursor_delete_page_right(void);
 int terme_cursor_delete_page(void);
 int terme_cursor_scroll_up(int n);
 int terme_cursor_scroll_down(int n);
+int terme_color_symbol_(Execute ptr, addr pos, int *ret, int *brightp);
+int terme_color_not_symbol_(Execute ptr, addr pos, int *ret, int *brightp);
+int terme_color_dark_(addr pos, int *ret);
+int terme_color_bright_(addr pos, int *ret);
 int terme_font_parser_(addr args);
 int terme_font_update_(Execute ptr, addr args);
 

@@ -14,6 +14,8 @@
 #define write_char_encode_ _n(write_char_encode_)
 #define length_char_encode _n(length_char_encode)
 #define length_string_encode_ _n(length_string_encode_)
+#define UTF8_length_clang_ _n(UTF8_length_clang_)
+#define UTF16_length_clang_ _n(UTF16_length_clang_)
 #define UTF8_buffer_clang_ _n(UTF8_buffer_clang_)
 #define UTF16_buffer_clang_ _n(UTF16_buffer_clang_)
 #define UTF8_null_strlen _n(UTF8_null_strlen)
@@ -54,6 +56,8 @@ int length_char_encode(filestream fm, unicode c);
 int length_string_encode_(filestream fm, addr pos, size_t *rsize, int *ret);
 
 /* unicode buffer */
+int UTF8_length_clang_(addr pos, size_t *rsize, int *ret);
+int UTF16_length_clang_(addr pos, size_t *rsize, int *ret);
 int UTF8_buffer_clang_(LocalRoot local, addr *ret, addr string);
 int UTF16_buffer_clang_(LocalRoot local, addr *ret, addr string);
 

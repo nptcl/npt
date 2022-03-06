@@ -317,23 +317,10 @@ static int terme_call_output_vector_(addr x)
 	return 0;
 }
 
-int terme_call_output_(addr args)
+static int terme_call_output_call_(addr x)
 {
-	/* (terme 'terme-output &optional x) */
-	addr x;
 	unicode c;
 	fixnum intvalue;
-
-	Return(terme_call_enable_());
-	/* &optional */
-	if (args == Nil) {
-		x = Nil;
-	}
-	else {
-		Return_getcons(args, &x, &args);
-		if (args != Nil)
-			return fmte_("Invalid arguments, ~S.", args, NULL);
-	}
 
 	/* flush */
 	if (x == Nil) {
@@ -362,6 +349,26 @@ int terme_call_output_(addr args)
 	}
 
 	return fmte_("Invalid output value, ~S.", x, NULL);
+}
+
+int terme_call_output_(addr args)
+{
+	/* (terme 'terme-output &rest args) */
+	addr x;
+
+	Return(terme_call_enable_());
+	if (args == Nil) {
+		if (terme_finish_output())
+			return fmte_("terme_finish_output error.", NULL);
+		return 0;
+	}
+
+	while (args != Nil) {
+		Return_getcons(args, &x, &args);
+		Return(terme_call_output_call_(x));
+	}
+
+	return 0;
 }
 
 

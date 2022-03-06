@@ -653,3 +653,9 @@ int windows_write_font_lock(int16_t *escape, unsigned size)
 
 	return 0;
 }
+
+COLORREF windows_write_getcolor(unsigned index)
+{
+	Check(0xFF < index, "index error");
+	return Window_RGB[index];
+}

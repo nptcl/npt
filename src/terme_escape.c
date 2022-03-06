@@ -313,6 +313,19 @@ static struct terme_font_struct terme_struct_bright[] = {
 	{ NULL,              0 }
 };
 
+static struct terme_font_struct terme_struct_not_color[] = {
+	{ "NOT-BLACK",       0 },
+	{ "NOT-RED",         1 },
+	{ "NOT-GREEN",       2 },
+	{ "NOT-YELLOW",      3 },
+	{ "NOT-BLUE",        4 },
+	{ "NOT-MAGENTA",     5 },
+	{ "NOT-CYAN",        6 },
+	{ "NOT-WHITE",       7 },
+	{ "NOT-DEFAULT",     9 },
+	{ NULL,              0 }
+};
+
 static int terme_struct_find_(struct terme_font_struct *array,
 		addr pos, int *ret, int *value)
 {
@@ -337,6 +350,45 @@ static int terme_struct_find_(struct terme_font_struct *array,
 
 error:
 	return Result(ret, 0);
+}
+
+static int terme_font_bright_mode(Execute ptr)
+{
+	addr pos;
+
+	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
+	getspecial_local(ptr, pos, &pos);
+	if (pos == Unbound)
+		pos = Nil;
+
+	return pos != Nil;
+}
+
+static int terme_struct_integer_(struct terme_font_struct *array, addr pos, int *ret)
+{
+	int value, check;
+	Return(terme_struct_find_(array, pos, &check, &value));
+	return Result(ret, check? value: -1);
+}
+int terme_color_symbol_(Execute ptr, addr pos, int *ret, int *brightp)
+{
+	if (brightp)
+		*brightp = terme_font_bright_mode(ptr);
+	return terme_struct_integer_(terme_struct_color, pos, ret);
+}
+int terme_color_not_symbol_(Execute ptr, addr pos, int *ret, int *brightp)
+{
+	if (brightp)
+		*brightp = ! terme_font_bright_mode(ptr);
+	return terme_struct_integer_(terme_struct_not_color, pos, ret);
+}
+int terme_color_dark_(addr pos, int *ret)
+{
+	return terme_struct_integer_(terme_struct_dark, pos, ret);
+}
+int terme_color_bright_(addr pos, int *ret)
+{
+	return terme_struct_integer_(terme_struct_bright, pos, ret);
 }
 
 static int terme_font_parser_list_code_(addr list, addr *ret)
@@ -371,18 +423,23 @@ static int terme_font_parser_list_color_(addr list, addr *ret)
 	Return_getcons(list, &pos, ret);
 
 	/* color */
-	Return(terme_struct_find_(terme_struct_color, pos, &check, NULL));
-	if (check)
+	Return(terme_color_symbol_(NULL, pos, &check, NULL));
+	if (0 <= check)
+		return 0;
+
+	/* not-color */
+	Return(terme_color_not_symbol_(NULL, pos, &check, NULL));
+	if (0 <= check)
 		return 0;
 
 	/* dark */
-	Return(terme_struct_find_(terme_struct_dark, pos, &check, NULL));
-	if (check)
+	Return(terme_color_dark_(pos, &check));
+	if (0 <= check)
 		return 0;
 
 	/* bright */
-	Return(terme_struct_find_(terme_struct_bright, pos, &check, NULL));
-	if (check)
+	Return(terme_color_bright_(pos, &check));
+	if (0 <= check)
 		return 0;
 
 	/* error */
@@ -522,44 +579,33 @@ static int terme_font_update_list_code_(addr list, addr *ret)
 	return fmte_("Invalid value, ~S.", pos, NULL);
 }
 
-static int terme_font_bright_mode(Execute ptr)
-{
-	addr pos;
-
-	GetConst(SYSTEM_PROMPT_BRIGHT, &pos);
-	getspecial_local(ptr, pos, &pos);
-	if (pos == Unbound)
-		pos = Nil;
-
-	return pos != Nil;
-}
-
 static int terme_font_update_list_color_mode_(Execute ptr,
 		addr list, addr *ret, int dark, int bright)
 {
-	int check, value;
+	int check, brightp;
 	addr pos;
 
 	Return_getcons(list, &pos, ret);
 
 	/* color */
-	Return(terme_struct_find_(terme_struct_color, pos, &check, &value));
-	if (check) {
-		if (terme_font_bright_mode(ptr))
-			return terme_font_update_single_(value + bright);
-		else
-			return terme_font_update_single_(value + dark);
-	}
+	Return(terme_color_symbol_(ptr, pos, &check, &brightp));
+	if (0 <= check)
+		return terme_font_update_single_(check + (brightp? bright: dark));
+
+	/* not-color */
+	Return(terme_color_not_symbol_(ptr, pos, &check, &brightp));
+	if (0 <= check)
+		return terme_font_update_single_(check + (brightp? bright: dark));
 
 	/* dark */
-	Return(terme_struct_find_(terme_struct_dark, pos, &check, &value));
-	if (check)
-		return terme_font_update_single_(value + dark);
+	Return(terme_color_dark_(pos, &check));
+	if (0 <= check)
+		return terme_font_update_single_(check + dark);
 
 	/* bright */
-	Return(terme_struct_find_(terme_struct_bright, pos, &check, &value));
-	if (check)
-		return terme_font_update_single_(value + bright);
+	Return(terme_color_bright_(pos, &check));
+	if (0 <= check)
+		return terme_font_update_single_(check + bright);
 
 	/* error */
 	return fmte_("Invalid value, ~S.", pos, NULL);

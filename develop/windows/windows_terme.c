@@ -197,7 +197,6 @@ int terme_windows_begin_default_(addr *ret)
 	return 0;
 }
 
-
 int terme_windows_begin_rawmode_(addr *ret)
 {
 	int mode;
