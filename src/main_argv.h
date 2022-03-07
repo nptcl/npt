@@ -36,6 +36,7 @@ struct lispargv {
 	unsigned debugger : 1;
 	unsigned debuggerp : 1;
 	unsigned quit : 1;
+	unsigned reload : 1;
 	unsigned terme_bright : 1;
 	unsigned terme_dark : 1;
 	unsigned terme_color : 1;
@@ -45,6 +46,7 @@ struct lispargv {
 	lispstringu init;
 	lisparrayu argv;
 	lisptableu env;
+	lispstringu reload_core;
 	struct lispargv_input *input;
 	int (*call)(void *);
 	void *call_ptr;

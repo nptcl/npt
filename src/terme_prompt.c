@@ -258,6 +258,12 @@ static int terme_readline_control_(Execute ptr,
 			str->type = terme_escape_search;
 			break;
 
+#ifdef LISP_DEBUG
+		case 0x1D:  /* ], refresh */
+			str->type = terme_escape_refresh;
+			break;
+#endif
+
 		case 0x1A:  /* Z */
 			Return(terme_readline_ctrl_z_(str));
 			break;
@@ -476,6 +482,11 @@ static int terme_readline_loop_(Execute ptr, TermeKeyboard *str, addr *value, in
 
 		case terme_escape_update:
 			return terme_readline_update_(ptr);
+
+#ifdef LISP_DEBUG
+		case terme_escape_refresh:
+			return terme_screen_refresh_(ptr);
+#endif
 
 		case terme_escape_rmleft:
 			return terme_readline_rmleft_(ptr);

@@ -526,3 +526,13 @@ int terme_display_delete_page_(Execute ptr)
 	return 0;
 }
 
+
+/*
+ *  restore
+ */
+int terme_display_restore_(Execute ptr, unsigned *rx, unsigned *ry)
+{
+	*rx = *ry = 0;
+	return 0;
+}
+

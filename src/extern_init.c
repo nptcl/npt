@@ -352,14 +352,14 @@ static int lisp_argv_core_windows(const WCHAR *name)
 	if (size == LISP_WINDOWS_PATHNAME_LENGTH)
 		return -1;
 	err = _wsplitpath_s(path,
-		data1, LISP_WINDOWS_PATHNAME_LENGTH,
-		data2, LISP_WINDOWS_PATHNAME_LENGTH,
-		NULL, 0,
-		NULL, 0);
+			data1, LISP_WINDOWS_PATHNAME_LENGTH,
+			data2, LISP_WINDOWS_PATHNAME_LENGTH,
+			NULL, 0,
+			NULL, 0);
 	if (err)
 		return -1;
 	check = swprintf(data3, LISP_WINDOWS_PATHNAME_LENGTH,
-		L"%s%s\\%s", data1, data2, name);
+			L"%s%s\\%s", data1, data2, name);
 	if (check < 0)
 		return -1;
 	file = wchar_stringu((const byte16 *)data3);
@@ -565,14 +565,14 @@ static int lisp_argv_file_windows_(Execute ptr, int *ret, const WCHAR *name)
 	if (size == LISP_WINDOWS_PATHNAME_LENGTH)
 		return -1;
 	err = _wsplitpath_s(path,
-		data1, LISP_WINDOWS_PATHNAME_LENGTH,
-		data2, LISP_WINDOWS_PATHNAME_LENGTH,
-		NULL, 0,
-		NULL, 0);
+			data1, LISP_WINDOWS_PATHNAME_LENGTH,
+			data2, LISP_WINDOWS_PATHNAME_LENGTH,
+			NULL, 0,
+			NULL, 0);
 	if (err)
 		return -1;
 	check = swprintf(data3, LISP_WINDOWS_PATHNAME_LENGTH,
-		L"%s%s\\%s", data1, data2, name);
+			L"%s%s\\%s", data1, data2, name);
 	if (check < 0)
 		return -1;
 	file = wchar_stringu((const byte16 *)data3);
@@ -828,11 +828,14 @@ static void lisp_argv_makunbound(constindex index)
 	SetValueSymbol(symbol, Unbound);
 }
 
-static int lisp_argv_core_(Execute ptr)
+static int lisp_argv_core_(Execute ptr, struct lispargv *argv)
 {
+	int check;
+
 	lisp_argv_makunbound(CONSTANT_SYSTEM_SPECIAL_ENVIRONMENT);
 	lisp_argv_makunbound(CONSTANT_SYSTEM_SPECIAL_ARGUMENTS);
-	lisp_result = save_core(ptr);
+	Return(save_and_load_core_(ptr, argv, &check));
+	lisp_result = check;
 
 	return 0;
 }
@@ -902,7 +905,7 @@ static int lisp_argv_switch_(Execute ptr, struct lispargv *argv)
 	if (check) {
 		normal_throw_control(ptr);
 		Return(pop_control_(ptr, control));
-		return lisp_argv_core_(ptr);
+		return lisp_argv_core_(ptr, argv);
 	}
 
 	/* exit */
@@ -939,6 +942,28 @@ static void lisp_argv_terme(struct lispargv *argv)
 }
 
 /* runcode */
+static int lisp_argv_reload(Execute ptr, struct lispargv *argv)
+{
+	int check;
+	lispstringu file;
+
+	file = argv->reload_core;
+	if (file == NULL)
+		goto reload;
+	check = load_core(file->ptr, file->size);
+	if (0 < check) {
+		lisperror("load_core error.");
+		return 1;
+	}
+	free_stringu(file);
+
+reload:
+	argv->reload = 0;
+	argv->reload_core = NULL;
+
+	return 0;
+}
+
 static int lisp_argv_code(struct lispargv *argv)
 {
 	Execute ptr;
@@ -951,10 +976,21 @@ static int lisp_argv_code(struct lispargv *argv)
 	if (argv->nocore) {
 		buildlisp(ptr);
 	}
+
+execute:
 	lisp_argv_terme(argv);
 	if (lisp_argv_switch_(ptr, argv)) {
 		abort_execute();
 		return 1;
+	}
+
+	/* load core */
+	if (argv->reload) {
+		if (lisp_argv_reload(ptr, argv)) {
+			abort_execute();
+			return 1;
+		}
+		goto execute;
 	}
 
 	/* result */

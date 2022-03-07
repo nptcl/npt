@@ -22,6 +22,7 @@
 #define terme_display_previous_ _n(terme_display_previous_)
 #define terme_display_getlast_ _n(terme_display_getlast_)
 #define terme_display_delete_page_ _n(terme_display_delete_page_)
+#define terme_display_restore_ _n(terme_display_restore_)
 
 void terme_display_build(addr *ret);
 int terme_display_clear_(Execute ptr);
@@ -40,6 +41,7 @@ int terme_display_getwidth_(Execute ptr, unsigned *ret);
 int terme_display_previous_(Execute ptr, int *ret);
 int terme_display_getlast_(Execute ptr, unsigned *ret);
 int terme_display_delete_page_(Execute ptr);
+int terme_display_restore_(Execute ptr, unsigned *rx, unsigned *ry);
 
 #endif
 

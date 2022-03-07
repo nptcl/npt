@@ -31,6 +31,7 @@ enum terme_escape {
 	terme_escape_first,      /* ^A */
 	terme_escape_last,       /* ^E */
 	terme_escape_update,     /* ^L */
+	terme_escape_refresh,    /* ^]  (debug) */
 	terme_escape_delete,     /* ^D */
 	terme_escape_rmleft,     /* ^U */
 	terme_escape_rmright,    /* ^K */

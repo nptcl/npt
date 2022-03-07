@@ -170,7 +170,7 @@ error:
 /*
  *  lispstringu
  */
-static lispstringu make_stringu(size_t size)
+lispstringu make_stringu(size_t size)
 {
 	lispstringu ptr;
 	unicode *data;

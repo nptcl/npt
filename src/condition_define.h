@@ -129,6 +129,9 @@
 #define instance_savecore_condition_ _n(instance_savecore_condition_)
 #define call_savecore_condition_ _n(call_savecore_condition_)
 
+#define instance_loadcore_condition_ _n(instance_loadcore_condition_)
+#define call_loadcore_condition_ _n(call_loadcore_condition_)
+
 #define instance_exit_condition_ _n(instance_exit_condition_)
 #define call_exit_condition_ _n(call_exit_condition_)
 #define exit_condition_value_ _n(exit_condition_value_)
@@ -316,8 +319,8 @@ int instance_undefined_function_(addr *ret, addr name);
 int call_undefined_function_(Execute ptr, addr name);
 
 /* savecore */
-int instance_savecore_condition_(addr *ret, addr file);
-int call_savecore_condition_(Execute ptr, addr file);
+int instance_savecore_condition_(addr *ret);
+int call_savecore_condition_(Execute ptr);
 
 /* exit */
 int instance_exit_condition_(addr *ret, addr value);

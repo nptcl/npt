@@ -643,6 +643,7 @@ void lispargv_free(struct lispargv *ptr)
 	if (ptr) {
 		free_stringu(ptr->core);
 		free_stringu(ptr->init);
+		free_stringu(ptr->reload_core);
 		free_arrayu(ptr->argv);
 		free_tableu(ptr->env);
 		lispargv_free_input(ptr->input);

@@ -2,12 +2,16 @@
 #include "core.h"
 #include "execute.h"
 #include "file_memory.h"
+#include "files.h"
 #include "format.h"
 #include "gc.h"
+#include "main_string.h"
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
 #include "stream.h"
+#include "strtype.h"
+#include "strvect.h"
 #include "symbol.h"
 
 #define CoreHeader (LISPNAME "CORE\0")
@@ -22,7 +26,7 @@ struct lisp_core_header {
 	uint16_t endian, a, b, c, arch;
 };
 
-static int save_coreheader(filestream fm)
+static int savecore_header(filestream fm)
 {
 	struct lisp_core_header header;
 
@@ -44,7 +48,7 @@ static int save_coreheader(filestream fm)
 
 	return 0;
 }
-static int load_coreheader(filestream fm)
+static int loadcore_header(filestream fm)
 {
 	struct lisp_core_header header;
 
@@ -53,27 +57,27 @@ static int load_coreheader(filestream fm)
 		return 1;
 	}
 	if (memcmp(header.magic, CoreHeader, CoreHeaderSize) != 0) {
-		Debug("load_coreheader: magic error");
+		Debug("loadcore_header: magic error");
 		return 1;
 	}
 	if (header.endian != 1) {
-		Debug("load_coreheader: endian error");
+		Debug("loadcore_header: endian error");
 		return 1;
 	}
 	if (header.a != LISP_VERSION_A ||
 			header.b != LISP_VERSION_B ||
 			header.c != LISP_VERSION_C) {
-		Debug("load_coreheader: version error");
+		Debug("loadcore_header: version error");
 		return 1;
 	}
 #ifdef LISP_64BIT
 	if (header.arch != 1) {
-		Debug("load_coreheader: arch error");
+		Debug("loadcore_header: arch error");
 		return 1;
 	}
 #else
 	if (header.arch != 0) {
-		Debug("load_coreheader: arch error");
+		Debug("loadcore_header: arch error");
 		return 1;
 	}
 #endif
@@ -82,10 +86,10 @@ static int load_coreheader(filestream fm)
 }
 
 /* save/load corefile */
-static int save_corefile(filestream fm)
+static int savecore_file(filestream fm)
 {
-	if (save_coreheader(fm)) {
-		Debug("save_coreheader error.");
+	if (savecore_header(fm)) {
+		Debug("savecore_header error.");
 		return 1;
 	}
 	if (save_lisp(fm)) {
@@ -95,10 +99,10 @@ static int save_corefile(filestream fm)
 
 	return 0;
 }
-static int load_corefile(filestream fm)
+static int loadcore_file(filestream fm)
 {
-	if (load_coreheader(fm)) {
-		Debug("load_coreheader error.");
+	if (loadcore_header(fm)) {
+		Debug("loadcore_header error.");
 		return 1;
 	}
 	if (load_lisp(fm)) {
@@ -111,7 +115,7 @@ static int load_corefile(filestream fm)
 
 
 /* save/load root */
-static int save_root(filestream fm)
+static int savecore_root(filestream fm)
 {
 	unsigned i;
 
@@ -124,7 +128,7 @@ static int save_root(filestream fm)
 
 	return 0;
 }
-static int load_root(filestream fm)
+static int loadcore_root(filestream fm)
 {
 	unsigned i;
 
@@ -147,55 +151,88 @@ static int load_root(filestream fm)
 /*
  *  make-core
  */
-int savecore_execute_(Execute ptr, addr file)
+int savecore_execute_(Execute ptr, addr output, addr input, int exitp)
 {
-	addr symbol;
+	addr symbol, file;
 
 	if (Index_Thread != 0)
 		return fmte_("Thread Index must be 0.", NULL);
 	if (count_execute() != 1)
 		return fmte_("Any child thread must be destroyed.", NULL);
-	/* (setq system::*savecore* file) */
-	Return(name_physical_heap_(ptr, file, &file));
-	GetConst(SYSTEM_SAVECORE_VALUE, &symbol);
+
+	/* (setq system::*core-output* output) */
+	if (output != Nil) {
+		Return(name_physical_heap_(ptr, output, &file));
+		Return(strvect_value_heap_(&file, file));
+	}
+	else {
+		file = Nil;
+	}
+	GetConst(SYSTEM_CORE_OUTPUT, &symbol);
 	setspecial_symbol(symbol);
 	SetValueSymbol(symbol, file);
 
+	/* (setq system::*core-input* input) */
+	if (input != Nil) {
+		Return(name_physical_heap_(ptr, input, &file));
+		Return(strvect_value_heap_(&file, file));
+	}
+	else {
+		file = exitp? Nil: T;
+	}
+	GetConst(SYSTEM_CORE_INPUT, &symbol);
+	setspecial_symbol(symbol);
+	SetValueSymbol(symbol, file);
+
+	/* input check */
+	if (input != Nil) {
+		Return(probe_file_files_(ptr, &file, input));
+		if (file == Nil)
+			return fmte_("File is not found, ~S.", input, NULL);
+	}
+
 	/* invoke */
-	return call_savecore_condition_(ptr, file);
+	return call_savecore_condition_(ptr);
 }
 
-static void save_core_stream(Execute ptr, filestream fm)
+static int savecore_stream(Execute ptr, filestream fm)
 {
 	int check;
 	addr pos;
 
-	GetConst(SYSTEM_SAVECORE_VALUE, &pos);
+	GetConst(SYSTEM_CORE_OUTPUT, &pos);
 	GetValueSymbol(pos, &pos);
+	if (pos == Nil)
+		return 1;
 	if (open_output_filememory_(ptr->local, fm, pos, FileOutput_supersede, &check))
 		Abort("file open error.");
 	if (check)
 		Abort("file open error.");
+
+	return 0;
 }
 
-static void save_core_result(Execute ptr)
+static void savecore_result(Execute ptr)
 {
 	addr pos;
 
-	GetConst(SYSTEM_SAVECORE_VALUE, &pos);
+	GetConst(SYSTEM_CORE_OUTPUT, &pos);
 	GetValueSymbol(pos, &pos);
 	format_stdout_(ptr, "~&Core file: ~A~%", pos, NULL);
 }
 
-static void open_corefile(Execute ptr, filestream fm)
+static int savecore_open(Execute ptr, filestream fm)
 {
+	int check;
 	LocalRoot local;
 	LocalStack stack;
 
 	local = ptr->local;
 	push_local(local, &stack);
-	save_core_stream(ptr, fm);
+	check = savecore_stream(ptr, fm);
 	rollback_local(local, stack);
+
+	return check;
 }
 
 int save_core(Execute ptr)
@@ -203,18 +240,19 @@ int save_core(Execute ptr)
 	struct filememory fm;
 
 	/* open file */
-	open_corefile(ptr, &fm);
+	if (savecore_open(ptr, &fm))
+		return 0;
 
 	/* write file */
 	gcexec(GcMode_Full);
-	if (save_corefile(&fm)) {
-		Debug("save_corefile error.");
+	if (savecore_file(&fm)) {
+		Debug("savecore_file error.");
 		goto error;
 	}
 
 	/* root */
-	if (save_root(&fm)) {
-		Debug("save_root error.");
+	if (savecore_root(&fm)) {
+		Debug("savecore_root error.");
 		goto error;
 	}
 
@@ -225,7 +263,7 @@ int save_core(Execute ptr)
 	}
 
 	/* result output */
-	save_core_result(ptr);
+	savecore_result(ptr);
 	return 0;
 
 error:
@@ -243,14 +281,14 @@ int load_core(const unicode *name, size_t size)
 		/* Read error, try next core file */
 		return -1;
 	}
-	if (load_corefile(&fm)) {
-		Debug("load_corefile error.");
+	if (loadcore_file(&fm)) {
+		Debug("loadcore_file error.");
 		goto error;
 	}
 
 	/* root */
-	if (load_root(&fm)) {
-		Debug("load_root error.");
+	if (loadcore_root(&fm)) {
+		Debug("loadcore_root error.");
 		goto error;
 	}
 
@@ -272,5 +310,50 @@ error:
 		Debug("close_filememory error.");
 	}
 	return 1;
+}
+
+static int loadcore_reload_(Execute ptr, struct lispargv *argv)
+{
+	addr symbol, input;
+	lispstringu file;
+	unicode *str, c;
+	size_t size, i;
+
+	GetConst(SYSTEM_CORE_INPUT, &symbol);
+	GetValueSymbol(symbol, &input);
+	if (input == Unbound || input == Nil)
+		return 0;
+	if (input == T) {
+		argv->reload = 1;
+		argv->reload_core = NULL;
+		return 0;
+	}
+
+	/* make lispstringu */
+	if (! strvectp(input))
+		return fmte_("The object ~S must be a strvect type.", input, NULL);
+	strvect_length(input, &size);
+	file = make_stringu(size + 1UL);
+	if (file == NULL)
+		return fmte_("make_stringu error.", NULL);
+	str = file->ptr;
+	for (i = 0; i < size; i++) {
+		strvect_getc(input, i, &c);
+		str[i] = c;
+	}
+	str[i] = 0;
+
+	/* argv */
+	argv->reload = 1;
+	argv->reload_core = file;
+
+	return 0;
+}
+
+int save_and_load_core_(Execute ptr, struct lispargv *argv, int *ret)
+{
+	Return(loadcore_reload_(ptr, argv));
+	*ret = save_core(ptr);
+	return 0;
 }
 

@@ -675,6 +675,24 @@ int terme_screen_update_(Execute ptr)
 	return terme_write_flush_();
 }
 
+int terme_screen_refresh_(Execute ptr)
+{
+	unsigned x, y;
+	addr screen;
+	struct terme_screen_struct *str;
+
+	Return(terme_root_screen_(ptr, &screen));
+	str = struct_terme_screen(screen);
+	x = str->now_x;
+	y = str->now_y;
+	str->now_x = 0;
+	str->now_y = 0;
+	Return(terme_write_delete_page_(ptr));
+	Return(terme_display_restore_(ptr, &x, &y));
+	Return(terme_screen_move_(ptr, x, y));
+	return terme_write_flush_();
+}
+
 int terme_screen_rmleft_(Execute ptr)
 {
 	addr data, screen;

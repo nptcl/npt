@@ -1745,8 +1745,7 @@ static int build_clos_class_system_(LocalRoot local)
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* savecore (serious-condition) */
-	SlotMakeCondition1(&slots, PATHNAME);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClass1_(local, metaclass,
 			SYSTEM_SAVECORE,
 			CONDITION_SAVECORE,
 			CONDITION_SERIOUS_CONDITION);

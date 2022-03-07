@@ -6,6 +6,7 @@
 #include "typedef.h"
 
 #define getsize_stringu _n(getsize_stringu)
+#define make_stringu _n(make_stringu)
 #define char_stringu _n(char_stringu)
 #define wchar_stringu _n(wchar_stringu)
 #define copy_stringu _n(copy_stringu)
@@ -24,6 +25,7 @@
 
 /* lispstringu */
 int getsize_stringu(lispstringu str, size_t *ret);
+lispstringu make_stringu(size_t size);
 lispstringu char_stringu(const char *str);
 lispstringu wchar_stringu(const byte16 *str);
 lispstringu copy_stringu(lispstringu ptr);

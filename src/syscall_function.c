@@ -144,20 +144,28 @@ static void defun_gc(void)
 }
 
 
-/* (defun savecore (pathname-designer) ...) -> null */
-static int syscall_savecore(Execute ptr, addr file)
+/* (defun savecore (file &key input (exit t)) ...) -> null
+ *   file    pathname-designer
+ *   input   pathname-designer
+ */
+static int syscall_savecore(Execute ptr, addr file, addr rest)
 {
-	Return(savecore_syscode_(ptr, file));
+	Return(savecore_syscode_(ptr, file, rest));
 	setresult_control(ptr, Nil);
 	return 0;
 }
 
 static void type_syscall_savecore(addr *ret)
 {
-	addr args, values;
+	addr args, values, key, key1, key2;
 
+	/* key */
+	KeyTypeTable(&key1, INPUT, PathnameDesigner);
+	KeyTypeTable(&key2, EXIT, T);
+	list_heap(&key, key1, key2, NULL);
+	/* type */
 	GetTypeTable(&args, PathnameDesigner);
-	typeargs_var1(&args, args);
+	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
 }
@@ -169,10 +177,52 @@ static void defun_savecore(void)
 	/* function */
 	GetConst(SYSTEM_SAVECORE, &symbol);
 	compiled_system(&pos, symbol);
-	setcompiled_var1(pos, p_defun_syscall_savecore);
+	setcompiled_var1dynamic(pos, p_defun_syscall_savecore);
 	SetFunctionSymbol(symbol, pos);
 	/* type */
 	type_syscall_savecore(&type);
+	settype_function(pos, type);
+	settype_function_symbol(symbol, type);
+}
+
+
+/* (defun loadcore (file &key output (exit t)) ...) -> null
+ *  file    pathname-designer
+ *  output  pathname-designer
+ */
+static int syscall_loadcore(Execute ptr, addr file, addr rest)
+{
+	Return(loadcore_syscode_(ptr, file, rest));
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static void type_syscall_loadcore(addr *ret)
+{
+	addr args, values, key, key1, key2;
+
+	/* key */
+	KeyTypeTable(&key1, OUTPUT, PathnameDesigner);
+	KeyTypeTable(&key2, EXIT, T);
+	list_heap(&key, key1, key2, NULL);
+	/* type */
+	GetTypeTable(&args, PathnameDesigner);
+	typeargs_var1key(&args, args, key);
+	GetTypeValues(&values, Null);
+	type_compiled_heap(args, values, ret);
+}
+
+static void defun_loadcore(void)
+{
+	addr symbol, pos, type;
+
+	/* function */
+	GetConst(SYSTEM_LOADCORE, &symbol);
+	compiled_system(&pos, symbol);
+	setcompiled_var1dynamic(pos, p_defun_syscall_loadcore);
+	SetFunctionSymbol(symbol, pos);
+	/* type */
+	type_syscall_loadcore(&type);
 	settype_function(pos, type);
 	settype_function_symbol(symbol, type);
 }
@@ -1933,7 +1983,8 @@ void init_syscall_function(void)
 	SetPointerSysCall(defun, dynamic, infobit);
 	SetPointerSysCall(defun, dynamic, infoprint);
 	SetPointerSysCall(defun, dynamic, gc);
-	SetPointerSysCall(defun, var1, savecore);
+	SetPointerSysCall(defun, var1dynamic, savecore);
+	SetPointerSysCall(defun, var1dynamic, loadcore);
 	SetPointerSysCall(defun, var1, package_export_list);
 	SetPointerSysCall(defun, var1, specialp);
 	SetPointerSysCall(defun, var1, array_general_p);
@@ -1999,6 +2050,7 @@ void build_syscall_function(void)
 	defun_infoprint();
 	defun_gc();
 	defun_savecore();
+	defun_loadcore();
 	defun_package_export_list();
 	defun_specialp();
 	defun_array_general_p();

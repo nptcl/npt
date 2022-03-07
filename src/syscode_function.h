@@ -10,6 +10,7 @@
 #define infoprint_syscode _n(infoprint_syscode)
 #define gc_syscode _n(gc_syscode)
 #define savecore_syscode_ _n(savecore_syscode_)
+#define loadcore_syscode_ _n(loadcore_syscode_)
 #define package_export_list_syscode_ _n(package_export_list_syscode_)
 #define specialp_syscode _n(specialp_syscode)
 #define array_general_p_syscode _n(array_general_p_syscode)
@@ -70,7 +71,8 @@ int hello_syscode_(Execute ptr);
 void infobit_syscode(addr rest, addr *ret);
 void infoprint_syscode(addr rest, addr *ret);
 void gc_syscode(addr rest);
-int savecore_syscode_(Execute ptr, addr file);
+int savecore_syscode_(Execute ptr, addr output, addr rest);
+int loadcore_syscode_(Execute ptr, addr input, addr rest);
 int package_export_list_syscode_(addr var, addr *ret);
 void specialp_syscode(addr var, addr *ret);
 void array_general_p_syscode(addr var, addr *ret);

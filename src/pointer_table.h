@@ -1271,6 +1271,7 @@ enum pointer_index {
 	p_defun_syscall_infoprint,
 	p_defun_syscall_gc,
 	p_defun_syscall_savecore,
+	p_defun_syscall_loadcore,
 	p_defun_syscall_package_export_list,
 	p_defun_syscall_specialp,
 	p_defun_syscall_array_general_p,

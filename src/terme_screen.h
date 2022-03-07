@@ -16,6 +16,7 @@
 #define terme_screen_first_ _n(terme_screen_first_)
 #define terme_screen_last_ _n(terme_screen_last_)
 #define terme_screen_update_ _n(terme_screen_update_)
+#define terme_screen_refresh_ _n(terme_screen_refresh_)
 #define terme_screen_rmleft_ _n(terme_screen_rmleft_)
 #define terme_screen_rmright_ _n(terme_screen_rmright_)
 
@@ -31,6 +32,7 @@ int terme_screen_backspace_(Execute ptr, unsigned width);
 int terme_screen_first_(Execute ptr);
 int terme_screen_last_(Execute ptr);
 int terme_screen_update_(Execute ptr);
+int terme_screen_refresh_(Execute ptr);
 int terme_screen_rmleft_(Execute ptr);
 int terme_screen_rmright_(Execute ptr);
 

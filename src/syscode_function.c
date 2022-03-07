@@ -17,6 +17,7 @@
 #include "files.h"
 #include "format_radix.h"
 #include "float_object.h"
+#include "hold.h"
 #include "integer.h"
 #include "integer_calc.h"
 #include "integer_common.h"
@@ -95,10 +96,52 @@ void gc_syscode(addr rest)
 
 
 /* savecore */
-int savecore_syscode_(Execute ptr, addr file)
+int savecore_syscode_(Execute ptr, addr output, addr rest)
 {
-	Return(pathname_designer_local_(ptr, file, &file));
-	return savecore_execute_(ptr, file);
+	addr input, exitp;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 2);
+	if (GetKeyArgs(rest, KEYWORD_EXIT, &exitp))
+		exitp = T;
+	Return(pathname_designer_heap_(ptr, output, &output));
+	localhold_set(hold, 0, output);
+	if (GetKeyArgs(rest, KEYWORD_INPUT, &input)) {
+		input = Nil;
+	}
+	else {
+		Return(pathname_designer_heap_(ptr, input, &input));
+		localhold_set(hold, 1, input);
+	}
+	Return(savecore_execute_(ptr, output, input, (exitp != Nil)));
+	localhold_end(hold);
+
+	return 0;
+}
+
+
+/* loadcore */
+int loadcore_syscode_(Execute ptr, addr input, addr rest)
+{
+	addr output, exitp;
+	LocalHold hold;
+
+	hold = LocalHold_array(ptr, 2);
+	if (GetKeyArgs(rest, KEYWORD_EXIT, &exitp))
+		exitp = T;
+	Return(pathname_designer_heap_(ptr, input, &input));
+	localhold_set(hold, 0, input);
+	if (GetKeyArgs(rest, KEYWORD_OUTPUT, &output)) {
+		output = Nil;
+	}
+	else {
+		Return(pathname_designer_heap_(ptr, output, &output));
+		localhold_set(hold, 1, output);
+	}
+	Return(savecore_execute_(ptr, output, input, (exitp != Nil)));
+	localhold_end(hold);
+
+	return 0;
 }
 
 

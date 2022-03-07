@@ -749,16 +749,15 @@ int call_undefined_function_(Execute ptr, addr name)
 
 
 /* savecore */
-int instance_savecore_condition_(addr *ret, addr file)
+int instance_savecore_condition_(addr *ret)
 {
-	return instance_condition1_(ret, CONSTANT_CONDITION_SAVECORE,
-			CONSTANT_CLOSNAME_PATHNAME, file);
+	return instance_condition_(ret, CONSTANT_CONDITION_SAVECORE);
 }
 
-int call_savecore_condition_(Execute ptr, addr file)
+int call_savecore_condition_(Execute ptr)
 {
 	addr instance;
-	Return(instance_savecore_condition_(&instance, file));
+	Return(instance_savecore_condition_(&instance));
 	return error_function_(ptr, instance);
 }
 
