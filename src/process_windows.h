@@ -3,7 +3,9 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "control_callbind.h"
+#include "control_object.h"
 #include "execute.h"
+#include "extern_dlfile.h"
 #include "encode.h"
 #include "hold.h"
 #include "local.h"
@@ -205,6 +207,8 @@ int dlfile_check_arch_(addr pos, int *ret)
 	struct dlfile_struct str;
 	size_t size;
 
+	if (! paperp(pos))
+		return fmte_("Invalid object, ~S.", pos, NULL);
 	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, &size);
 	if (size != sizeof(struct dlfile_struct))
 		return Result(ret, 0);
@@ -212,6 +216,30 @@ int dlfile_check_arch_(addr pos, int *ret)
 		return Result(ret, 0);
 
 	return Result(ret, 1);
+}
+
+static HMODULE dlopen_open_handle_(const WCHAR *utf16)
+{
+	HMODULE handle;
+	lisp_dlfile_array array;
+	FARPROC proc;
+	int (*call)(lisp_dllmain_array);
+
+	handle = LoadLibraryW(utf16);
+	if (handle == NULL)
+		return NULL;
+	proc = GetProcAddress(handle, "lisp_dllmain");
+	if (proc == NULL)
+		goto error;
+	call = (int (*)(lisp_dlfile_array))proc;
+	lisp_dlfile_make(array);
+	if ((*call)(array))
+		goto error;
+	return handle;
+
+error:
+	FreeLibrary(handle);
+	return NULL;
 }
 
 int dlopen_arch_(Execute ptr, addr pos, addr *ret)
@@ -230,7 +258,7 @@ int dlopen_arch_(Execute ptr, addr pos, addr *ret)
 	gchold_push_local(local, file);
 
 	Return(run_process_utf16_(local, file, (wchar_t **)&utf16));
-	handle = LoadLibraryW(utf16);
+	handle = dlopen_open_handle_(utf16);
 	rollback_local(local, stack);
 	if (handle == NULL) {
 		*ret = Nil;
@@ -310,6 +338,18 @@ int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr
 /*
  *  dlcall
  */
+static int dlcall_arch_callbind_(Execute ptr,
+	addr name, addr args, struct callbind_struct *bind)
+{
+	addr control;
+
+	push_control(ptr, &control);
+	SetControl(ptr->control, Control_Cons, args);
+	SetControl(ptr->control, Control_ConsTail, Nil);
+	(void)call_callbind_function_(ptr, name, bind);
+	return pop_control_(ptr, control);
+}
+
 int dlcall_arch_(Execute ptr, addr pos, addr args)
 {
 	addr dlfile, name;
@@ -329,5 +369,5 @@ int dlcall_arch_(Execute ptr, addr pos, addr args)
 		return fmte_("dlfile ~S is already closed.", dlfile, NULL);
 
 	/* call */
-	return call_callbind_function_(ptr, name, &(call->call));
+	return dlcall_arch_callbind_(ptr, name, args, &(call->call));
 }

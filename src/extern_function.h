@@ -1,6 +1,7 @@
 #ifndef __LISP_EXTERN_FUNCTION_HEADER__
 #define __LISP_EXTERN_FUNCTION_HEADER__
 
+#include "extern_typedef.h"
 #include "typedef_basic.h"
 
 /* function */
@@ -28,36 +29,6 @@ int lisp_get_setf16_(addr x, const void *str);
 int lisp_get_setf32_(addr x, const void *str);
 
 /* compiled */
-typedef int (*lisp_calltype_macro)(addr form, addr env);
-typedef int (*lisp_calltype_rest)(addr args);
-typedef int (*lisp_calltype_dynamic)(addr args);
-typedef int (*lisp_calltype_any)(void);
-typedef int (*lisp_calltype_empty)(void);
-typedef int (*lisp_calltype_var1)(addr);
-typedef int (*lisp_calltype_var2)(addr, addr);
-typedef int (*lisp_calltype_var3)(addr, addr, addr);
-typedef int (*lisp_calltype_var4)(addr, addr, addr, addr);
-typedef int (*lisp_calltype_var5)(addr, addr, addr, addr, addr);
-typedef int (*lisp_calltype_var6)(addr, addr, addr, addr, addr, addr);
-typedef int (*lisp_calltype_opt1)(addr);
-typedef int (*lisp_calltype_opt2)(addr, addr);
-typedef int (*lisp_calltype_opt3)(addr, addr, addr);
-typedef int (*lisp_calltype_var1opt1)(addr, addr);
-typedef int (*lisp_calltype_var1opt2)(addr, addr, addr);
-typedef int (*lisp_calltype_var1opt3)(addr, addr, addr, addr);
-typedef int (*lisp_calltype_var2opt1)(addr, addr, addr);
-typedef int (*lisp_calltype_var2opt2)(addr, addr, addr, addr);
-typedef int (*lisp_calltype_var2opt3)(addr, addr, addr, addr, addr);
-typedef int (*lisp_calltype_var3opt1)(addr, addr, addr, addr);
-typedef int (*lisp_calltype_var3opt2)(addr, addr, addr, addr, addr);
-typedef int (*lisp_calltype_var3opt3)(addr, addr, addr, addr, addr, addr);
-typedef int (*lisp_calltype_var1rest)(addr, addr);
-typedef int (*lisp_calltype_var2rest)(addr, addr, addr);
-typedef int (*lisp_calltype_var3rest)(addr, addr, addr, addr);
-typedef int (*lisp_calltype_var1dynamic)(addr, addr);
-typedef int (*lisp_calltype_var2dynamic)(addr, addr, addr);
-typedef int (*lisp_calltype_var3dynamic)(addr, addr, addr, addr);
-
 void lisp_compiled_macro(int index, lisp_calltype_macro call);
 void lisp_compiled_rest(int index, lisp_calltype_rest call);
 void lisp_compiled_dynamic(int index, lisp_calltype_dynamic call);

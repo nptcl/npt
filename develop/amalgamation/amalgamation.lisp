@@ -57,6 +57,7 @@
     "main_typedef.h"
     "main_argv.h"
     "main_init.h"
+    "extern_typedef.h"
     "extern_control.h"
     "extern_error.h"
     "extern_execute.h"

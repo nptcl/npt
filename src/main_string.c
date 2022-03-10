@@ -270,7 +270,8 @@ void output_stringu(lispstringu ptr, FILE *file)
 	data = ptr->ptr;
 	for (i = 0; i < size; i++) {
 		u = data[i];
-		fprintf(file, "%c", (u < 0x80 && isgraph((int)u))? (int)u: '.');
+		if (u)
+			fprintf(file, "%c", (u < 0x80 && isgraph((int)u))? (int)u: '.');
 	}
 }
 

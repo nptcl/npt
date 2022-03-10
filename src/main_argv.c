@@ -495,7 +495,9 @@ static int mainparse_loop(struct lispargv *ptr)
 			lisperror("--version-script must be only one argument.");
 			return 1;
 		}
-		lisperror("Illegal argument.");
+		lisperror_noeol("Invalid argument, ");
+		output_stringu(s, lisperror_stream());
+		lisperror(".");
 		return 1;
 	}
 inputs:

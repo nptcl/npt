@@ -1,17 +1,8 @@
 #ifndef __LISP_EXTERN_UNICODE_HEADER__
 #define __LISP_EXTERN_UNICODE_HEADER__
 
+#include "extern_typedef.h"
 #include "typedef_basic.h"
-
-enum LispEastAsianType {
-	LispEastAsianType_error,
-	LispEastAsianType_N,
-	LispEastAsianType_A,
-	LispEastAsianType_H,
-	LispEastAsianType_W,
-	LispEastAsianType_F,
-	LispEastAsianType_NA
-};
 
 /* eastasian */
 int lisp_eastasian_set(enum LispEastAsianType type, unsigned width);

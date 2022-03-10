@@ -391,7 +391,7 @@ static int dlfile_type_process_(addr args, enum CallBind_index *ret)
 {
 	addr pos;
 
-	*ret = CallBind_dynamic;
+	*ret = CallBind_extend_rest;
 	if (args == Nil)
 		return 0;
 	Return_getcons(args, &pos, &args);

@@ -155,6 +155,7 @@ execute_values.c
 execute.c
 extern_control.c
 extern_develop.c
+extern_dlfile.c
 extern_error.c
 extern_execute.c
 extern_function.c

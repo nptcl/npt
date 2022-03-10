@@ -1,16 +1,8 @@
 #ifndef __LISP_EXTERN_EXECUTE_HEADER__
 #define __LISP_EXTERN_EXECUTE_HEADER__
 
+#include "extern_typedef.h"
 #include "typedef_basic.h"
-
-enum lisp_escape {
-	lisp_escape_normal,
-	lisp_escape_tagbody,
-	lisp_escape_block,
-	lisp_escape_catch,
-	lisp_escape_handler_case,
-	lisp_escape_restart_case
-};
 
 /* eval */
 int lisp0_eval_(addr *ret, addr pos);
