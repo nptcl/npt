@@ -104,12 +104,16 @@ int savecore_syscode_(Execute ptr, addr output, addr rest)
 	hold = LocalHold_array(ptr, 2);
 	if (GetKeyArgs(rest, KEYWORD_EXIT, &exitp))
 		exitp = T;
-	Return(pathname_designer_heap_(ptr, output, &output));
-	localhold_set(hold, 0, output);
-	if (GetKeyArgs(rest, KEYWORD_INPUT, &input)) {
+	if (GetKeyArgs(rest, KEYWORD_INPUT, &input))
 		input = Nil;
+	localhold_set(hold, 0, output);
+	localhold_set(hold, 1, input);
+
+	if (output != Nil) {
+		Return(pathname_designer_heap_(ptr, output, &output));
+		localhold_set(hold, 0, output);
 	}
-	else {
+	if (input != Nil && input != T) {
 		Return(pathname_designer_heap_(ptr, input, &input));
 		localhold_set(hold, 1, input);
 	}
@@ -129,14 +133,18 @@ int loadcore_syscode_(Execute ptr, addr input, addr rest)
 	hold = LocalHold_array(ptr, 2);
 	if (GetKeyArgs(rest, KEYWORD_EXIT, &exitp))
 		exitp = T;
-	Return(pathname_designer_heap_(ptr, input, &input));
-	localhold_set(hold, 0, input);
-	if (GetKeyArgs(rest, KEYWORD_OUTPUT, &output)) {
+	if (GetKeyArgs(rest, KEYWORD_OUTPUT, &output))
 		output = Nil;
-	}
-	else {
+	localhold_set(hold, 0, output);
+	localhold_set(hold, 1, input);
+
+	if (output != Nil) {
 		Return(pathname_designer_heap_(ptr, output, &output));
-		localhold_set(hold, 1, output);
+		localhold_set(hold, 0, output);
+	}
+	if (input != Nil && input != T) {
+		Return(pathname_designer_heap_(ptr, input, &input));
+		localhold_set(hold, 1, input);
 	}
 	Return(savecore_execute_(ptr, output, input, (exitp != Nil)));
 	localhold_end(hold);

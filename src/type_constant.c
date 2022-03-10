@@ -461,6 +461,28 @@ static void typetable_pathnamedesigner(void)
 	SetTypeTable(PathnameDesigner, pos);
 }
 
+static void typetable_pathnamedesignernull(void)
+{
+	/* (or pathname-designer null) */
+	addr type1, type2, pos;
+
+	GetTypeTable(&type1, PathnameDesigner);
+	GetTypeTable(&type2, Null);
+	type2or_heap(type1, type2, &pos);
+	SetTypeTable(PathnameDesignerNull, pos);
+}
+
+static void typetable_pathnamedesignerboolean(void)
+{
+	/* (or pathname-designer boolean) */
+	addr type1, type2, pos;
+
+	GetTypeTable(&type1, PathnameDesigner);
+	GetTypeTable(&type2, Boolean);
+	type2or_heap(type1, type2, &pos);
+	SetTypeTable(PathnameDesignerBoolean, pos);
+}
+
 static void typetable_streamdesigner(void)
 {
 	/* (or stream boolean) */
@@ -3025,6 +3047,8 @@ void build_type_constant(void)
 	typetable_functiondesigner();
 	typetable_restartdesigner();
 	typetable_pathnamedesigner();
+	typetable_pathnamedesignernull();
+	typetable_pathnamedesignerboolean();
 	typetable_streamdesigner();
 	typetable_readtabledesigner();
 	typetable_conditiondesigner();

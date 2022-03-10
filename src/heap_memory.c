@@ -3,15 +3,17 @@
 #include "heap_memory.h"
 #include "memory.h"
 
-/* static varibales */
-static size_t            Size = 0;
-static addr              FrontMax = 0;
-
-static size_t            GcCounter = 0;
-static addr              GcCheck1 = 0;
-static addr              GcCheck2 = 0;
-static addr              GcCheck3 = 0;
-static addr              GcCheck4 = 0;
+/*
+ *  varibales
+ */
+static size_t heap_size_init = 0;
+static size_t heap_size = 0;
+static addr   heap_front_max = 0;
+static size_t heap_GcCounter = 0;
+static addr   heap_GcCheck1 = 0;
+static addr   heap_GcCheck2 = 0;
+static addr   heap_GcCheck3 = 0;
+static addr   heap_GcCheck4 = 0;
 
 
 /*
@@ -130,8 +132,8 @@ static addr allocfront_expand(size_t size)
 	}
 	result = heap_front;
 	heap_pos = heap_front = check;
-	if (FrontMax < heap_front)
-		FrontMax = heap_front;
+	if (heap_front_max < heap_front)
+		heap_front_max = heap_front;
 
 	return result;
 }
@@ -177,7 +179,7 @@ static addr allocfront_object(size_t size)
  */
 static void gccheck_execute_heap(void)
 {
-	GcCounter = 0;
+	heap_GcCounter = 0;
 	gcstate_execute(GcMode_Default);
 }
 
@@ -185,39 +187,39 @@ static void gccheck_heap(void)
 {
 	if (lisp_gcsync != GcMode_Off)
 		return;
-	GcCounter++;
+	heap_GcCounter++;
 
-	/* GcCheck1 */
-	if (heap_pos < GcCheck1)
+	/* heap_GcCheck1 */
+	if (heap_pos < heap_GcCheck1)
 		return;
-	if (GcCounter & (1UL << 8UL)) {
+	if (heap_GcCounter & (1UL << 8UL)) {
 		gccheck_execute_heap();
 		if (lisp_gcsync != GcMode_Off)
 			return;
 	}
 
-	/* GcCheck2 */
-	if (heap_pos < GcCheck2)
+	/* heap_GcCheck2 */
+	if (heap_pos < heap_GcCheck2)
 		return;
-	if (GcCounter & (1UL << 7UL)) {
+	if (heap_GcCounter & (1UL << 7UL)) {
 		gccheck_execute_heap();
 		if (lisp_gcsync != GcMode_Off)
 			return;
 	}
 
-	/* GcCheck3 */
-	if (heap_pos < GcCheck3)
+	/* heap_GcCheck3 */
+	if (heap_pos < heap_GcCheck3)
 		return;
-	if (GcCounter & (1UL << 6UL)) {
+	if (heap_GcCounter & (1UL << 6UL)) {
 		gccheck_execute_heap();
 		if (lisp_gcsync != GcMode_Off)
 			return;
 	}
 
-	/* GcCheck4 */
-	if (heap_pos < GcCheck4)
+	/* heap_GcCheck4 */
+	if (heap_pos < heap_GcCheck4)
 		return;
-	if (GcCounter & (1UL << 5UL)) {
+	if (heap_GcCounter & (1UL << 5UL)) {
 		gccheck_execute_heap();
 		if (lisp_gcsync != GcMode_Off)
 			return;
@@ -304,7 +306,7 @@ void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2)
  */
 static void tailheap(void)
 {
-	heap_tail = (addr)Align8Cut(Size + (uintptr_t)heap_root);
+	heap_tail = (addr)Align8Cut(heap_size + (uintptr_t)heap_root);
 	heap_range = heap_tail;
 }
 
@@ -315,20 +317,20 @@ static void frontheap(void *ptr, size_t size)
 
 	/* memory */
 	align = Align8Space(ptr);
-	Size = size - align;
-	heap_pos = heap_front = FrontMax = heap_root = align + (addr)ptr;
+	heap_size = size - align;
+	heap_pos = heap_front = heap_front_max = heap_root = align + (addr)ptr;
 	heap_object = 0;
 	heap_count = 0;
 	heap_gc_count = 0;
 	CheckAlign8(heap_pos, "align8 error");
 
 	/* gccheck */
-	q = Size / 0x10;
-	GcCheck1 = heap_root + (q * 0x08);
-	GcCheck2 = heap_root + (q * 0x0A);
-	GcCheck3 = heap_root + (q * 0x0C);
-	GcCheck4 = heap_root + (q * 0x0E);
-	GcCounter = 0;
+	q = heap_size / 0x10;
+	heap_GcCheck1 = heap_root + (q * 0x08);
+	heap_GcCheck2 = heap_root + (q * 0x0A);
+	heap_GcCheck3 = heap_root + (q * 0x0C);
+	heap_GcCheck4 = heap_root + (q * 0x0E);
+	heap_GcCounter = 0;
 }
 
 int alloc_heap(size_t size)
@@ -343,6 +345,7 @@ int alloc_heap(size_t size)
 		Debug("heap size must be greater than 1MByte.");
 		return 1;
 	}
+	heap_size_init = size;
 
 	ptr = malloc(size);
 	if (ptr == NULL) {
@@ -364,31 +367,60 @@ int alloc_heap(size_t size)
 	return 0;
 }
 
+static void free_value_heap(void)
+{
+	heap_root = 0;
+	heap_front = 0;
+	heap_pos = 0;
+	heap_tail = 0;
+	heap_range = 0;
+	heap_object = 0;
+	heap_count = 0;
+	heap_gc_count = 0;
+	heap_gc_partial = 0;
+	heap_gc_full = 0;
+	heap_cons_count = 0;
+	heap_symbol_count = 0;
+	heap_size = 0;
+	heap_size_init = 0;
+	heap_front_max = 0;
+	heap_GcCounter = 0;
+	heap_GcCheck1 = 0;
+	heap_GcCheck2 = 0;
+	heap_GcCheck3 = 0;
+	heap_GcCheck4 = 0;
+	heap_alloc = 0;
+}
+
 void free_heap(void)
 {
 	if (heap_alloc) {
 		free(heap_alloc);
-		heap_root = 0;
-		heap_front = 0;
-		heap_pos = 0;
-		heap_tail = 0;
-		heap_range = 0;
-		heap_object = 0;
-		heap_count = 0;
-		heap_gc_count = 0;
-		heap_gc_partial = 0;
-		heap_gc_full = 0;
-		heap_cons_count = 0;
-		heap_symbol_count = 0;
-		Size = 0;
-		FrontMax = 0;
-		GcCounter = 0;
-		GcCheck1 = 0;
-		GcCheck2 = 0;
-		GcCheck3 = 0;
-		GcCheck4 = 0;
-		heap_alloc = 0;
+		free_value_heap();
 	}
+}
+
+void reload_heap(void)
+{
+	void *ptr;
+	size_t size;
+
+	if (heap_alloc == NULL)
+		return;
+
+	/* clear */
+	size = heap_size_init;
+	ptr = heap_alloc;
+	free_value_heap();
+	heap_size_init = size;
+#ifdef LISP_MEMORY_INIT
+	memset(ptr, 0xAA, size);
+#endif
+
+	/* make */
+	frontheap(ptr, size);
+	tailheap();
+	heap_alloc = ptr;
 }
 
 
@@ -417,6 +449,6 @@ size_t get_heap_gc_count(void)
 
 size_t get_heap_size(void)
 {
-	return Size;
+	return heap_size;
 }
 

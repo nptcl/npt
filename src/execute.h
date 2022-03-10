@@ -8,6 +8,7 @@
 
 #define init_execute _n(init_execute)
 #define free_execute _n(free_execute)
+#define reload_execute _n(reload_execute)
 #define set_execute_local _n(set_execute_local)
 #define make_execute _n(make_execute)
 #define setstate_execute _n(setstate_execute)
@@ -45,6 +46,7 @@
 /* function */
 int init_execute(size_t);
 void free_execute(void);
+int reload_execute(void);
 void set_execute_local(struct execute *ptr);
 int make_execute(execfunction, struct execute **, size_t);
 void setstate_execute(struct execute *, enum ThreadState);

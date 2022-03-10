@@ -21,8 +21,9 @@
 #define RANDOM_DEVICE "/dev/urandom"
 #define RANDOM_DEVICE_SIZE 256
 
-static int InitRandomState = 0;
-static mutexlite RandomStateMutex;
+static int RandomState_Init = 0;
+static mutexlite RandomState_Mutex;
+static volatile int RandomState_Counter = 0;
 
 struct random_state *struct_random_state(addr pos)
 {
@@ -278,24 +279,24 @@ static void random_seed_os(struct md5encode *md5)
  */
 int init_random_state(void)
 {
-	if (InitRandomState) {
-		Debug("InitRandomState error.");
+	if (RandomState_Init) {
+		Debug("RandomState_Init error.");
 		return 1;
 	}
-	if (lispd_make_mutexlite(&RandomStateMutex)) {
+	if (lispd_make_mutexlite(&RandomState_Mutex)) {
 		Debug("lispd_make_mutexlite error.");
 		return 1;
 	}
-	InitRandomState = 1;
+	RandomState_Init = 1;
 
 	return 0;
 }
 
 void free_random_state(void)
 {
-	if (InitRandomState) {
-		lispd_destroy_mutexlite(&RandomStateMutex);
-		InitRandomState = 0;
+	if (RandomState_Init) {
+		lispd_destroy_mutexlite(&RandomState_Mutex);
+		RandomState_Init = 0;
 	}
 }
 
@@ -303,15 +304,14 @@ static void make_random_seed(struct md5encode *md5)
 {
 	volatile const void *ptr;
 	void (*call)(struct md5encode *);
-	static volatile int counter = 0;
 
 	/* environment */
 	random_seed_os(md5);
 	/* counter */
-	lispd_lock_mutexlite(&RandomStateMutex);
-	counter++;
-	lispd_unlock_mutexlite(&RandomStateMutex);
-	readmd5(md5, &counter, sizeof(counter));
+	lispd_lock_mutexlite(&RandomState_Mutex);
+	RandomState_Counter++;
+	lispd_unlock_mutexlite(&RandomState_Mutex);
+	readmd5(md5, &RandomState_Counter, sizeof(RandomState_Counter));
 	/* function pointer */
 	call = make_random_seed;
 	memcpy((void *)&ptr, (const void *)&call, sizeof(ptr));

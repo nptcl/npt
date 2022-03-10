@@ -1,3 +1,4 @@
+#include "clos.h"
 #include "condition.h"
 #include "core.h"
 #include "execute.h"
@@ -9,6 +10,7 @@
 #include "object.h"
 #include "package.h"
 #include "pathname.h"
+#include "pathname_object.h"
 #include "stream.h"
 #include "strtype.h"
 #include "strvect.h"
@@ -148,12 +150,80 @@ static int loadcore_root(filestream fm)
 }
 
 
+/* clos */
+static int savecore_clos(filestream fm)
+{
+	int i;
+	addr value;
+	addr array[] = {
+		Clos_standard_class,
+		Clos_standard_generic,
+		Clos_standard_method,
+		Clos_standard_combination,
+		Clos_standard_specializer,
+		NULL
+	};
+	for (i = 0; ; i++) {
+		value = array[i];
+		if (value == NULL)
+			break;
+		if (writeaddr_filememory(fm, value)) {
+			Debug("writeaddr error: root");
+			return 1;
+		}
+	}
+	Check(i != 5, "index error");
+
+	return 0;
+}
+static int loadcore_clos(filestream fm)
+{
+	int i;
+	addr *value;
+	addr *array[] = {
+		&Clos_standard_class,
+		&Clos_standard_generic,
+		&Clos_standard_method,
+		&Clos_standard_combination,
+		&Clos_standard_specializer,
+		NULL
+	};
+	for (i = 0; ; i++) {
+		value = array[i];
+		if (value == NULL)
+			break;
+		if (readaddr_filememory(fm, value)) {
+			Debug("writeaddr error: root");
+			return 1;
+		}
+	}
+	Check(i != 5, "index error");
+
+	return 0;
+}
+
+
 /*
  *  make-core
  */
+static int savecore_execute_probe_file_(addr input, addr output, int *ret)
+{
+	int check;
+
+	if (input == Nil)
+		return Result(ret, 0);
+	if (input == T)
+		return Result(ret, 0);
+	if (output == Nil)
+		return Result(ret, 1);
+	Return(pathname_equal_(input, output, &check));
+	return Result(ret, ! check);
+}
+
 int savecore_execute_(Execute ptr, addr output, addr input, int exitp)
 {
-	addr symbol, file;
+	int check;
+	addr symbol, file_output, file_input;
 
 	if (Index_Thread != 0)
 		return fmte_("Thread Index must be 0.", NULL);
@@ -161,33 +231,37 @@ int savecore_execute_(Execute ptr, addr output, addr input, int exitp)
 		return fmte_("Any child thread must be destroyed.", NULL);
 
 	/* (setq system::*core-output* output) */
-	if (output != Nil) {
-		Return(name_physical_heap_(ptr, output, &file));
-		Return(strvect_value_heap_(&file, file));
+	if (output == Nil) {
+		file_output = Nil;
 	}
 	else {
-		file = Nil;
+		Return(name_physical_heap_(ptr, output, &file_output));
+		Return(strvect_value_heap_(&file_output, file_output));
 	}
 	GetConst(SYSTEM_CORE_OUTPUT, &symbol);
 	setspecial_symbol(symbol);
-	SetValueSymbol(symbol, file);
+	SetValueSymbol(symbol, file_output);
 
 	/* (setq system::*core-input* input) */
-	if (input != Nil) {
-		Return(name_physical_heap_(ptr, input, &file));
-		Return(strvect_value_heap_(&file, file));
+	if (input == Nil) {
+		file_input = exitp? Nil: T;
+	}
+	else if (input == T) {
+		file_input = file_output;
 	}
 	else {
-		file = exitp? Nil: T;
+		Return(name_physical_heap_(ptr, input, &file_input));
+		Return(strvect_value_heap_(&file_input, file_input));
 	}
 	GetConst(SYSTEM_CORE_INPUT, &symbol);
 	setspecial_symbol(symbol);
-	SetValueSymbol(symbol, file);
+	SetValueSymbol(symbol, file_input);
 
 	/* input check */
-	if (input != Nil) {
-		Return(probe_file_files_(ptr, &file, input));
-		if (file == Nil)
+	Return(savecore_execute_probe_file_(input, output, &check));
+	if (check) {
+		Return(probe_file_files_(ptr, &file_input, input));
+		if (file_input == Nil)
 			return fmte_("File is not found, ~S.", input, NULL);
 	}
 
@@ -256,6 +330,12 @@ int save_core(Execute ptr)
 		goto error;
 	}
 
+	/* clos */
+	if (savecore_clos(&fm)) {
+		Debug("savecore_clos error.");
+		goto error;
+	}
+
 	/* close file */
 	if (close_filememory(&fm)) {
 		Debug("close_filememory error.");
@@ -289,6 +369,12 @@ int load_core(const unicode *name, size_t size)
 	/* root */
 	if (loadcore_root(&fm)) {
 		Debug("loadcore_root error.");
+		goto error;
+	}
+
+	/* clos */
+	if (loadcore_clos(&fm)) {
+		Debug("loadcore_clos error.");
 		goto error;
 	}
 

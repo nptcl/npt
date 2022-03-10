@@ -979,23 +979,28 @@ static int lisp_argv_code(struct lispargv *argv)
 
 execute:
 	lisp_argv_terme(argv);
-	if (lisp_argv_switch_(ptr, argv)) {
-		abort_execute();
-		return 1;
-	}
+	if (lisp_argv_switch_(ptr, argv))
+		goto abort;
 
 	/* load core */
 	if (argv->reload) {
-		if (lisp_argv_reload(ptr, argv)) {
-			abort_execute();
-			return 1;
-		}
+		if (reloadlisp())
+			goto abort;
+		if (lisp_argv_reload(ptr, argv))
+			goto abort;
+		ptr = getexecute(0);
+		Check(ptr == NULL, "getexecute error.");
+		ptr->result = 0;
 		goto execute;
 	}
 
 	/* result */
 	lisp_result = ptr->result;
 	return 0;
+
+abort:
+	abort_execute();
+	return 1;
 }
 
 int lisp_argv_run(struct lispargv *ptr)

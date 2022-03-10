@@ -18,6 +18,7 @@
 #define setlisproot _n(setlisproot)
 #define build_lisproot _n(build_lisproot)
 #define buildlisp _n(buildlisp)
+#define reloadlisp _n(reloadlisp)
 #define save_lisp _n(save_lisp)
 #define load_lisp _n(load_lisp)
 
@@ -33,6 +34,7 @@ extern enum GcMode lisp_gcsync;
 void initlisp(void);
 int alloclisp(size_t heap, size_t stack);
 void freelisp(void);
+int reloadlisp(void);
 int degradelisp(void);
 
 void setlisproot(enum LISPINDEX index, addr value);

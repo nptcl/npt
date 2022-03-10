@@ -163,6 +163,8 @@ enum TypeTable {
 	TypeTable_FunctionDesigner,
 	TypeTable_RestartDesigner,
 	TypeTable_PathnameDesigner,
+	TypeTable_PathnameDesignerNull,
+	TypeTable_PathnameDesignerBoolean,
 	TypeTable_StreamDesigner,
 	TypeTable_ReadtableDesigner,
 	TypeTable_ConditionDesigner,

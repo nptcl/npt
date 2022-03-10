@@ -4,9 +4,9 @@
 
 static int test_GcCheck(void)
 {
-	test(GcCheck1 <= GcCheck2, "GcCheck.1");
-	test(GcCheck2 <= GcCheck3, "GcCheck.2");
-	test(GcCheck3 <= GcCheck4, "GcCheck.3");
+	test(heap_GcCheck1 <= heap_GcCheck2, "heap_GcCheck.1");
+	test(heap_GcCheck2 <= heap_GcCheck3, "heap_GcCheck.2");
+	test(heap_GcCheck3 <= heap_GcCheck4, "heap_GcCheck.3");
 
 	RETURN;
 }
@@ -169,12 +169,12 @@ static int test_allocfront_expand(void)
 	aatype(mem);
 	heap_pos = NULL;
 	heap_front = mem;
-	FrontMax = mem;
+	heap_front_max = mem;
 	heap_tail = mem + 0x1000;
 	test(allocfront_expand(80) == mem, "allocfront_expand.1");
 	test(heap_pos == mem + 80, "allocfront_expand.2");
 	test(heap_front == mem + 80, "allocfront_expand.3");
-	test(FrontMax == mem + 80, "allocfront_expand.4");
+	test(heap_front_max == mem + 80, "allocfront_expand.4");
 
 	heap_front = mem;
 	heap_tail = mem + 80;
@@ -252,8 +252,9 @@ static int test_alloctail(void)
 #define heap_debug_size  0x10000
 static void gccheck_debug(void)
 {
-	GcCounter = 0;
-	GcCheck1 = GcCheck2 = GcCheck3 = GcCheck4 = (heap_pos + heap_debug_size - 80);
+	heap_GcCounter = 0;
+	heap_GcCheck1 = heap_GcCheck2 = heap_GcCheck3 = heap_GcCheck4
+		= (heap_pos + heap_debug_size - 80);
 }
 
 static int test_allocheap(void)

@@ -160,11 +160,11 @@ static void type_syscall_savecore(addr *ret)
 	addr args, values, key, key1, key2;
 
 	/* key */
-	KeyTypeTable(&key1, INPUT, PathnameDesigner);
+	KeyTypeTable(&key1, INPUT, PathnameDesignerBoolean);
 	KeyTypeTable(&key2, EXIT, T);
 	list_heap(&key, key1, key2, NULL);
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignerNull);
 	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -202,11 +202,11 @@ static void type_syscall_loadcore(addr *ret)
 	addr args, values, key, key1, key2;
 
 	/* key */
-	KeyTypeTable(&key1, OUTPUT, PathnameDesigner);
+	KeyTypeTable(&key1, OUTPUT, PathnameDesignerNull);
 	KeyTypeTable(&key2, EXIT, T);
 	list_heap(&key, key1, key2, NULL);
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignerBoolean);
 	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);

@@ -23,6 +23,7 @@
 #define allocheap _n(allocheap)
 #define alloc_heap _n(alloc_heap)
 #define free_heap _n(free_heap)
+#define reload_heap _n(reload_heap)
 #define makespace_heap _n(makespace_heap)
 #define valid_heap _n(valid_heap)
 #define get_heap_object _n(get_heap_object)
@@ -55,6 +56,7 @@ void allocheap(size_t size, enum LISPTYPE type, addr *root, int size2);
 /* function */
 int alloc_heap(size_t);
 void free_heap(void);
+void reload_heap(void);
 
 /* gc */
 void makespace_heap(addr pos, size_t size);

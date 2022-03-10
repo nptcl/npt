@@ -194,6 +194,24 @@ void freelisp(void)
 	lisp_initialize = 0;
 }
 
+int reloadlisp(void)
+{
+	int i;
+
+	if (reload_execute())
+		return 1;
+	reload_heap();
+
+	/* variable */
+	for (i = 0; i < LISPINDEX_SIZE; i++)
+		lisp_root[i] = 0;
+	lisp_nil_object = 0;
+	lisp_t_object = 0;
+	lisp_gcsync = GcMode_Off;
+
+	return 0;
+}
+
 
 /*
  *  buildlisp
