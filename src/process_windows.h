@@ -207,8 +207,10 @@ int dlfile_check_arch_(addr pos, int *ret)
 	struct dlfile_struct str;
 	size_t size;
 
-	if (! paperp(pos))
+	if (! paperp(pos)) {
+		*ret = 0;
 		return fmte_("Invalid object, ~S.", pos, NULL);
+	}
 	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, &size);
 	if (size != sizeof(struct dlfile_struct))
 		return Result(ret, 0);

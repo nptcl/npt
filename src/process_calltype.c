@@ -1,14 +1,48 @@
+#include "character_check.h"
 #include "condition.h"
 #include "process_calltype.h"
 #include "strtype.h"
+#include "symbol.h"
 #include "typedef.h"
 
 #define ProcessCallType(pos, ret, name) { \
 	int __check; \
-	Return(string_designer_equalp_char_(pos, #name, &__check)); \
+	Return(process_calltype_p_(pos, #name, &__check)); \
 	if (__check) { \
 		return Result(ret, CallBind_##name); \
 	} \
+}
+
+static int process_calltype_equalp_(addr pos, const byte *str, int *ret)
+{
+	unicode x, y;
+	size_t size, i;
+
+	string_length(pos, &size);
+	for (i = 0; i < size; i++) {
+		Return(string_getc_(pos, i, &x));
+		y = (unicode)str[i];
+		if (y == 0)
+			return Result(ret, 0);
+		if (x == '-' && y == '_')
+			continue;
+		x = toUpperUnicode(x);
+		y = toUpperUnicode(y);
+		if (x != y)
+			return Result(ret, 0);
+	}
+
+	return Result(ret, 1);
+}
+
+static int process_calltype_p_(addr pos, const char *str, int *ret)
+{
+	if (symbolp(pos))
+		GetNameSymbol(pos, &pos);
+	if (stringp(pos))
+		return process_calltype_equalp_(pos, (const byte *)str, ret);
+
+	return Result(ret, 0);
 }
 
 int process_calltype_(addr pos, enum CallBind_index *ret)

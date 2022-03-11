@@ -24,7 +24,7 @@ static void windows_stream_build_input()
 
 	GetConst(SPECIAL_STANDARD_INPUT, &symbol);
 	open_pipe_stream(&pos, StreamPipe_Input);
-	set_name_pipe_stream(pos, "INPUT");
+	set_name_pipe_stream(pos, pipe_stream_input);
 	SetValueSymbol(symbol, pos);
 }
 
@@ -34,7 +34,7 @@ static void windows_stream_build_output()
 
 	GetConst(SPECIAL_STANDARD_OUTPUT, &symbol);
 	open_pipe_stream(&pos, StreamPipe_Output);
-	set_name_pipe_stream(pos, "OUTPUT");
+	set_name_pipe_stream(pos, pipe_stream_output);
 	SetValueSymbol(symbol, pos);
 }
 
@@ -44,7 +44,7 @@ static void windows_stream_build_error()
 
 	GetConst(SPECIAL_ERROR_OUTPUT, &symbol);
 	open_pipe_stream(&pos, StreamPipe_Error);
-	set_name_pipe_stream(pos, "ERROR");
+	set_name_pipe_stream(pos, pipe_stream_error);
 	SetValueSymbol(symbol, pos);
 }
 

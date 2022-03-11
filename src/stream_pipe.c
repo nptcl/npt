@@ -6,7 +6,7 @@
 
 struct stream_pipe_struct {
 	enum StreamPipe type;
-	const char *name;
+	enum pipe_stream_name name;
 };
 
 #define CheckPipeStream(stream) { \
@@ -21,7 +21,7 @@ void open_pipe_stream(addr *stream, enum StreamPipe type)
 
 	stream_heap(&pos, StreamType_Pipe, sizeoft(struct stream_pipe_struct));
 	str = PtrStreamPipeStruct(pos);
-	str->name = NULL;
+	str->name = pipe_stream_default;
 	str->type = type;
 	force_open_stream(pos);
 	*stream = pos;
@@ -51,10 +51,23 @@ const char *get_name_pipe_stream(addr stream)
 
 	CheckPipeStream(stream);
 	str = PtrStreamPipeStruct(stream);
-	return str->name;
+	switch (str->name) {
+		case pipe_stream_input:
+			return "INPUT";
+
+		case pipe_stream_output:
+			return "OUTPUT";
+
+		case pipe_stream_error:
+			return "ERROR";
+
+		case pipe_stream_default:
+		default:
+			return "STREAM";
+	}
 }
 
-void set_name_pipe_stream(addr stream, const char *name)
+void set_name_pipe_stream(addr stream, enum pipe_stream_name name)
 {
 	struct stream_pipe_struct *str;
 
