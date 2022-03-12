@@ -231,6 +231,11 @@ int lisp_main_version_script(FILE *file)
 	fprintf(file, "%s\t%s\n", "prompt-bright", LISP_TERME_COLOR1);
 	fprintf(file, "%s\t%s\n", "prompt-color", LISP_TERME_COLOR2);
 #endif
+#ifdef LISP_DYNAMIC_LINK
+	fprintf(file, "%s\t%s\n", "dynamic-link", "true");
+#else
+	fprintf(file, "%s\t%s\n", "dynamic-link", "false");
+#endif
 	lisp_result = 0;
 
 	return 0;

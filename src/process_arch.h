@@ -14,7 +14,7 @@
 #define dlcall_arch_ _n(dlcall_arch_)
 
 int run_process_arch_(Execute ptr, addr instance, addr *ret);
-int dlfile_check_arch_(addr pos, int *ret);
+int dlfile_check_arch_(addr pos, addr *ret, int *openp);
 int dlopen_arch_(Execute ptr, addr pos, addr *ret);
 int dlclose_arch_(Execute ptr, addr pos, addr *ret);
 int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr *ret);

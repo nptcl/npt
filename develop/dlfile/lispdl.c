@@ -528,7 +528,7 @@ unicode (*lisp_utf16_merge)(byte16 first, byte16 second);
 
 
 /*
- * lisp_dlfiles
+ *  lisp_dlfiles
  */
 #define LispdlLet(ptr, x, type) (x = (type)ptr[lispdl_##x])
 int lisp_dlfile_update(lisp_dlfile_array ptr)

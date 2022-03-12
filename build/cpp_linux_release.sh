@@ -9,13 +9,14 @@ cat << __EOF__ > Makefile
 VPATH = src:test
 CC = c++
 CFLAGS = -g -O3 -Wall -Wno-deprecated -fstack-protector -Isrc -Itest
-CFLAGS += -DLISP_LINUX -DLISP_READLINE -DLISP_MODE_STANDARD
+CFLAGS += -DLISP_LINUX -DLISP_MODE_STANDARD
+CFLAGS += -DLISP_DYNAMIC_LINK
 a.out = npt
 source = ${files}
 object = \$(source:.c=.o)
 
 \$(a.out) : \$(object)
-	\$(CC) \$(CFLAGS) -o \$(a.out) \$(object) -lm -lreadline
+	\$(CC) \$(CFLAGS) -o \$(a.out) \$(object) -lm -ldl -lreadline
 
 .PHONY : clean
 clean :

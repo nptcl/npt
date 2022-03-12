@@ -2019,6 +2019,9 @@ lisp-system::fp-zero
 ;;  paper
 lisp-system::paper
 
+;;  dlfile
+(lisp-system::*dlfile* :constant system :name special-dlfile)
+
 ;; syscall_common.c
  lisp-system::define-symbol-macro
  lisp-system::symbol-macro-expander

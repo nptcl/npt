@@ -678,7 +678,7 @@
 #endif
 
 /* dynamic-link */
-#ifdef LISP_FREEBSD
+#ifdef LISP_WINDOWS
 #ifndef LISP_DYNAMIC_LINK
 #define LISP_DYNAMIC_LINK
 #endif

@@ -264,7 +264,7 @@
 
 (defun lispdl-c-function (s)
   (format s "~%/*~%")
-  (format s " * lisp_dlfiles~%")
+  (format s " *  lisp_dlfiles~%")
   (format s " */~%")
   (format s "#define LispdlLet(ptr, x, type) (x = (type)ptr[lispdl_##x])~%")
   (format s "int lisp_dlfile_update(lisp_dlfile_array ptr)~%")

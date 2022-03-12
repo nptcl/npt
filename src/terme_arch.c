@@ -360,30 +360,12 @@ int terme_arch_escape_end(int *ret)
 /*
  *  font
  */
-int font_arch_terme(Execute ptr, PrintFont value)
-{
-	if (! terme_arch_enable_p)
-		return 0;
-
-	return terme_font(ptr, value)
-		|| terme_finish_output();
-}
-
 int text_color_arch_terme(Execute ptr, PrintColor value)
 {
 	if (! terme_arch_enable_p)
 		return 0;
 
 	return terme_text_color(ptr, value)
-		|| terme_finish_output();
-}
-
-int back_color_arch_terme(Execute ptr, PrintColor value)
-{
-	if (! terme_arch_enable_p)
-		return 0;
-
-	return terme_back_color(ptr, value)
 		|| terme_finish_output();
 }
 

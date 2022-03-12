@@ -24,9 +24,7 @@
 #define terme_arch_enable _n(terme_arch_enable)
 #define terme_arch_escape_begin _n(terme_arch_escape_begin)
 #define terme_arch_escape_end _n(terme_arch_escape_end)
-#define font_arch_terme _n(font_arch_terme)
 #define text_color_arch_terme _n(text_color_arch_terme)
-#define back_color_arch_terme _n(back_color_arch_terme)
 #define terme_arch_begin_default_ _n(terme_arch_begin_default_)
 #define terme_arch_begin_rawmode_ _n(terme_arch_begin_rawmode_)
 #define terme_arch_restore_ _n(terme_arch_restore_)
@@ -52,9 +50,7 @@ int terme_arch_enable(void);
 int terme_arch_escape_begin(void);
 int terme_arch_escape_end(int *ret);
 
-int font_arch_terme(Execute ptr, PrintFont value);
 int text_color_arch_terme(Execute ptr, PrintColor value);
-int back_color_arch_terme(Execute ptr, PrintColor value);
 
 int terme_arch_begin_default_(addr *ret);
 int terme_arch_begin_rawmode_(addr *ret);

@@ -7,7 +7,8 @@ a.out = npt
 
 LISP_C = -DLISP_FREEBSD -DLISP_READLINE
 LISP_C += -DLISP_MODE_STANDALONE -O3
-LISP_LIB = -lm -lreadline -L/usr/local/lib
+LISP_C += -DLISP_DYNAMIC_LINK
+LISP_LIB = -lm -ldl -lreadline -L/usr/local/lib
 CFLAGS = -std=c99 -Wall -Isrc -Itest -I/usr/local/include ${LISP_C}
 
 build : ${object}

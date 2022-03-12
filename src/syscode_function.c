@@ -1007,9 +1007,9 @@ int body_paper_syscode_(addr pos, addr index, addr value, addr *ret)
 }
 
 /* dlfile */
-int dlfile_syscode_(Execute ptr, addr type, addr args, addr *ret)
+int dlfile_syscode_(Execute ptr, addr type, addr args, addr *ret, addr *retp)
 {
-	return dlfile_process_(ptr, type, args, ret);
+	return dlfile_process_(ptr, type, args, ret, retp);
 }
 
 /* dlcall */

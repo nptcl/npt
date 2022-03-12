@@ -702,6 +702,31 @@ int delete_list_eq_unsafe(addr key, addr cons, addr *ret)
 	return update;
 }
 
+int delete_list_eq_safe(addr key, addr cons, addr *ret)
+{
+	int update;
+	addr check, cons1, cons2;
+
+	update = 0;
+	*ret = cons;
+	cons2 = Nil;
+	while (consp_getcons(cons, &check, &cons1)) {
+		if (eq_function(check, key)) {
+			if (cons2 == Nil)
+				*ret = cons1;
+			else
+				SetCdr(cons2, cons1);
+			update = 1;
+		}
+		else {
+			cons2 = cons;
+		}
+		cons = cons1;
+	}
+
+	return update;
+}
+
 int delete_list_equal_unsafe_(addr key, addr cons, addr *root, int *ret)
 {
 	int check, update;

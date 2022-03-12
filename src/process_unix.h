@@ -5,6 +5,7 @@
 #include "control_callbind.h"
 #include "control_object.h"
 #include "execute.h"
+#include "extern_dlfile.h"
 #include "encode.h"
 #include "hold.h"
 #include "local.h"
@@ -91,7 +92,6 @@ int run_process_arch_(Execute ptr, addr instance, addr *ret)
 }
 
 
-#ifdef LISP_DYNAMIC_LINK
 /*
  *  dlfile
  */
@@ -100,7 +100,7 @@ int run_process_arch_(Execute ptr, addr instance, addr *ret)
 
 struct dlfile_struct {
 	uint32_t magic;
-	int closed;
+	int openp;
 	void *handle;
 };
 
@@ -109,22 +109,66 @@ struct dlcall_struct {
 	struct callbind_struct call;
 };
 
-int dlfile_check_arch_(addr pos, int *ret)
+int dlfile_check_arch_(addr pos, addr *ret, int *openp)
 {
 	struct dlfile_struct str;
 	size_t size;
 
-	if (! paperp(pos)) {
-		*ret = 0;
-		return fmte_("Invalid object, ~S.", pos, NULL);
-	}
+	*openp = 0;
+	if (! paperp(pos))
+		return Result(ret, Nil);
 	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, &size);
 	if (size != sizeof(struct dlfile_struct))
-		return Result(ret, 0);
+		return Result(ret, Nil);
 	if (str.magic != LISP_PROCESS_FILE)
-		return Result(ret, 0);
+		return Result(ret, Nil);
 
-	return Result(ret, 1);
+	*openp = (str.openp != 0);
+	paper_get_array(pos, 1, ret);
+	return 0;
+}
+
+static void *dlopen_open_handle_(const char *utf8)
+{
+	int callp;
+	void *handle;
+	void *proc;
+	lisp_dlfile_array array;
+	int (*call)(lisp_dlfile_array);
+
+	/* open */
+	handle = dlopen(utf8, RTLD_LAZY);
+	if (handle == NULL)
+		return NULL;
+	callp = 0;
+	lisp_dlfile_make(array);
+
+	/* lisp_dlfile_main */
+	proc = dlsym(handle, "lisp_dlfile_main");
+	if (proc) {
+		call = (int (*)(lisp_dlfile_array))proc;
+		if ((*call)(array))
+			goto error;
+		callp = 1;
+	}
+
+	/* lisp_somain */
+	proc = dlsym(handle, "lisp_somain");
+	if (proc) {
+		call = (int (*)(lisp_dlfile_array))proc;
+		if ((*call)(array))
+			goto error;
+		callp = 1;
+	}
+
+	/* error check */
+	if (callp == 0)
+		goto error;
+	return handle;
+
+error:
+	dlclose(handle);
+	return NULL;
 }
 
 int dlopen_arch_(Execute ptr, addr pos, addr *ret)
@@ -139,11 +183,12 @@ int dlopen_arch_(Execute ptr, addr pos, addr *ret)
 	/* dlopen */
 	local = ptr->local;
 	push_local(local, &stack);
-	Return(name_physical_heap_(ptr, pos, &file));
+	Return(physical_pathname_local_(ptr, pos, &pos));
+	Return(name_pathname_heap_(ptr, pos, &file));
 	gchold_push_local(local, file);
 
 	Return(run_process_utf8_(local, file, (char **)&utf8));
-	handle = dlopen(utf8, RTLD_LAZY);
+	handle = dlopen_open_handle_(utf8);
 	rollback_local(local, stack);
 	if (handle == NULL) {
 		*ret = Nil;
@@ -153,10 +198,11 @@ int dlopen_arch_(Execute ptr, addr pos, addr *ret)
 	/* paper */
 	cleartype(str);
 	str.magic = LISP_PROCESS_FILE;
-	str.closed = 0;
+	str.openp = 1;
 	str.handle = handle;
-	Return(paper_arraybody_heap_(&paper, 1, sizeof(struct dlfile_struct)));
+	Return(paper_arraybody_heap_(&paper, 2, sizeof(struct dlfile_struct)));
 	paper_set_array(paper, 0, file);
+	paper_set_array(paper, 1, pos);
 	paper_set_memory(paper, 0, sizeof(struct dlfile_struct), &str, NULL);
 	return Result(ret, paper);
 }
@@ -164,18 +210,18 @@ int dlopen_arch_(Execute ptr, addr pos, addr *ret)
 int dlclose_arch_(Execute ptr, addr pos, addr *ret)
 {
 	addr file;
-	struct dlfile_struct str;
+	struct dlfile_struct *str;
 
-	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, NULL);
-	if (str.closed)
+	paper_ptr_body_unsafe(pos, (void **)&str);
+	if (! str->openp)
 		return Result(ret, Nil); /* already closed */
 
-	if (dlclose(str.handle) != 0) {
+	if (dlclose(str->handle) != 0) {
 		*ret = Nil;
 		paper_get_array(pos, 0, &file);
 		return fmte_("dlclose error, ~S.", file, NULL);
 	}
-	str.closed = 1;
+	str->openp = 0;
 	return Result(ret, T);
 }
 
@@ -191,7 +237,7 @@ int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr
 
 	/* dlfile */
 	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, NULL);
-	if (str.closed) {
+	if (! str.openp) {
 		*ret = Nil;
 		paper_get_array(pos, 0, &file);
 		return fmte_("dlfile is already closed, ~S.", file, NULL);
@@ -251,44 +297,10 @@ int dlcall_arch_(Execute ptr, addr pos, addr args)
 
 	/* dlfile */
 	paper_ptr_body_unsafe(dlfile, (void **)&str);
-	if (str->closed)
+	if (! str->openp)
 		return fmte_("dlfile ~S is already closed.", dlfile, NULL);
 
 	/* call */
 	return dlcall_arch_callbind_(ptr, name, args, &(call->call));
 }
-
-#else
-/*
- *  Error
- */
-int dlfile_check_arch_(addr pos, int *ret)
-{
-	*ret = 0;
-	return fmte_("This implementation does not support DLFILE.", NULL);
-}
-
-int dlopen_arch_(Execute ptr, addr pos, addr *ret)
-{
-	*ret = Nil;
-	return fmte_("This implementation does not support DLFILE.", NULL);
-}
-
-int dlclose_arch_(Execute ptr, addr pos, addr *ret)
-{
-	*ret = Nil;
-	return fmte_("This implementation does not support DLFILE.", NULL);
-}
-
-int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr *ret)
-{
-	*ret = Nil;
-	return fmte_("This implementation does not support DLFILE.", NULL);
-}
-
-int dlcall_arch_(Execute ptr, addr pos, addr args)
-{
-	return fmte_("This implementation does not support DLCALL.", NULL);
-}
-#endif
 

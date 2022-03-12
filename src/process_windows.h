@@ -193,7 +193,7 @@ int run_process_arch_(Execute ptr, addr instance, addr *ret)
 
 struct dlfile_struct {
 	uint32_t magic;
-	int closed;
+	int openp;
 	HMODULE handle;
 };
 
@@ -202,40 +202,60 @@ struct dlcall_struct {
 	struct callbind_struct call;
 };
 
-int dlfile_check_arch_(addr pos, int *ret)
+int dlfile_check_arch_(addr pos, addr *ret, int *openp)
 {
 	struct dlfile_struct str;
 	size_t size;
 
-	if (! paperp(pos)) {
-		*ret = 0;
-		return fmte_("Invalid object, ~S.", pos, NULL);
-	}
+	*openp = 0;
+	if (! paperp(pos))
+		return Result(ret, Nil);
 	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, &size);
 	if (size != sizeof(struct dlfile_struct))
-		return Result(ret, 0);
+		return Result(ret, Nil);
 	if (str.magic != LISP_PROCESS_FILE)
-		return Result(ret, 0);
+		return Result(ret, Nil);
 
-	return Result(ret, 1);
+	*openp = (str.openp != 0);
+	paper_get_array(pos, 1, ret);
+	return 0;
 }
 
 static HMODULE dlopen_open_handle_(const WCHAR *utf16)
 {
+	int callp;
 	HMODULE handle;
-	lisp_dlfile_array array;
 	FARPROC proc;
-	int (*call)(lisp_dllmain_array);
+	lisp_dlfile_array array;
+	int (*call)(lisp_dlfile_array);
 
+	/* open */
 	handle = LoadLibraryW(utf16);
 	if (handle == NULL)
 		return NULL;
-	proc = GetProcAddress(handle, "lisp_dllmain");
-	if (proc == NULL)
-		goto error;
-	call = (int (*)(lisp_dlfile_array))proc;
+	callp = 0;
 	lisp_dlfile_make(array);
-	if ((*call)(array))
+
+	/* lisp_dlfile_main */
+	proc = GetProcAddress(handle, "lisp_dlfile_main");
+	if (proc) {
+		call = (int (*)(lisp_dlfile_array))proc;
+		if ((*call)(array))
+			goto error;
+		callp = 1;
+	}
+
+	/* lisp_dllmain */
+	proc = GetProcAddress(handle, "lisp_dllmain");
+	if (proc) {
+		call = (int (*)(lisp_dlfile_array))proc;
+		if ((*call)(array))
+			goto error;
+		callp = 1;
+	}
+
+	/* error check */
+	if (callp == 0)
 		goto error;
 	return handle;
 
@@ -256,7 +276,8 @@ int dlopen_arch_(Execute ptr, addr pos, addr *ret)
 	/* dlopen */
 	local = ptr->local;
 	push_local(local, &stack);
-	Return(name_physical_heap_(ptr, pos, &file));
+	Return(physical_pathname_local_(ptr, pos, &pos));
+	Return(name_pathname_heap_(ptr, pos, &file));
 	gchold_push_local(local, file);
 
 	Return(run_process_utf16_(local, file, (wchar_t **)&utf16));
@@ -270,10 +291,11 @@ int dlopen_arch_(Execute ptr, addr pos, addr *ret)
 	/* paper */
 	cleartype(str);
 	str.magic = LISP_PROCESS_FILE;
-	str.closed = 0;
+	str.openp = 1;
 	str.handle = handle;
-	Return(paper_arraybody_heap_(&paper, 1, sizeof(struct dlfile_struct)));
+	Return(paper_arraybody_heap_(&paper, 2, sizeof(struct dlfile_struct)));
 	paper_set_array(paper, 0, file);
+	paper_set_array(paper, 1, pos);
 	paper_set_memory(paper, 0, sizeof(struct dlfile_struct), &str, NULL);
 	return Result(ret, paper);
 }
@@ -281,18 +303,18 @@ int dlopen_arch_(Execute ptr, addr pos, addr *ret)
 int dlclose_arch_(Execute ptr, addr pos, addr *ret)
 {
 	addr file;
-	struct dlfile_struct str;
+	struct dlfile_struct *str;
 
-	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, NULL);
-	if (str.closed)
+	paper_ptr_body_unsafe(pos, (void **)&str);
+	if (! str->openp)
 		return Result(ret, Nil); /* already closed */
 
-	if (FreeLibrary(str.handle) == 0) {
+	if (FreeLibrary(str->handle) == 0) {
 		*ret = Nil;
 		paper_get_array(pos, 0, &file);
 		return fmte_("FreeLibrary error, ~S.", file, NULL);
 	}
-	str.closed = 1;
+	str->openp = 0;
 	return Result(ret, T);
 }
 
@@ -308,7 +330,7 @@ int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr
 
 	/* dlfile */
 	paper_get_memory(pos, 0, sizeof(struct dlfile_struct), &str, NULL);
-	if (str.closed) {
+	if (! str.openp) {
 		*ret = Nil;
 		paper_get_array(pos, 0, &file);
 		return fmte_("dlfile is already closed, ~S.", file, NULL);
@@ -326,6 +348,7 @@ int dlsym_arch_(Execute ptr, addr pos, addr name, enum CallBind_index type, addr
 	}
 
 	/* call */
+	cleartype(call);
 	call.magic = LISP_PROCESS_CALL;
 	call.call.type = type;
 	call.call.call.pvoid = (void *)sym;
@@ -367,7 +390,7 @@ int dlcall_arch_(Execute ptr, addr pos, addr args)
 
 	/* dlfile */
 	paper_ptr_body_unsafe(dlfile, (void **)&str);
-	if (str->closed)
+	if (! str->openp)
 		return fmte_("dlfile ~S is already closed.", dlfile, NULL);
 
 	/* call */

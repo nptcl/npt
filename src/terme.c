@@ -90,18 +90,8 @@ int clear_terme_(Execute ptr)
 	return 0;
 }
 
-int font_terme(Execute ptr, PrintFont value)
-{
-	return font_arch_terme(ptr, value);
-}
-
 int text_color_terme(Execute ptr, PrintColor value)
 {
 	return text_color_arch_terme(ptr, value);
-}
-
-int back_color_terme(Execute ptr, PrintColor value)
-{
-	return back_color_arch_terme(ptr, value);
 }
 

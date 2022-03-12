@@ -127,7 +127,7 @@ int make_paper_syscode_(addr array, addr body, addr rest, addr *ret);
 int info_paper_syscode_(addr pos, addr symbol, addr second, addr *ret);
 int array_paper_syscode_(addr pos, addr index, addr value, addr *ret);
 int body_paper_syscode_(addr pos, addr index, addr value, addr *ret);
-int dlfile_syscode_(Execute ptr, addr type, addr args, addr *ret);
+int dlfile_syscode_(Execute ptr, addr type, addr args, addr *ret, addr *retp);
 int dlcall_syscode_(Execute ptr, addr paper, addr args);
 
 #endif

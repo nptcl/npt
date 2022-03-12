@@ -8,7 +8,8 @@ a.out = npt
 
 LISP_C = -m64 -DLISP_64BIT -DLISP_LINUX
 LISP_C += -g -DLISP_DEGRADE -DLISP_DEBUG -DLISP_MODE_DEGRADE
-LISP_LIB = -lm
+LISP_C += -DLISP_DYNAMIC_LINK
+LISP_LIB = -lm -ldl
 CFLAGS = -Wall -Isrc -Itest ${LISP_C}
 
 build : ${object}

@@ -1907,8 +1907,11 @@ static void defun_body_paper(void)
  */
 static int syscall_dlfile(Execute ptr, addr pos, addr args)
 {
-	Return(dlfile_syscode_(ptr, pos, args, &pos));
-	setresult_control(ptr, pos);
+	Return(dlfile_syscode_(ptr, pos, args, &pos, &args));
+	if (args != Unbound)
+		setvalues_control(ptr, pos, args, NULL);
+	else
+		setresult_control(ptr, pos);
 	return 0;
 }
 

@@ -27,12 +27,12 @@ void abort_execute(void)
 
 	/* default */
 	(void)text_color_terme(NULL, print_color_bright_red);
-	(void)end_terme();
 	stderr_arch("\n\n");
 	stderr_arch("**************\n");
 	stderr_arch("  LISP ABORT  \n");
 	stderr_arch("**************\n");
 	(void)text_color_terme(NULL, print_color_reset);
+	(void)end_terme();
 	abort_shutdown();
 }
 

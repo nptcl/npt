@@ -52,6 +52,7 @@
 #define copy_list_local_safe _n(copy_list_local_safe)
 #define copy_list_alloc_safe _n(copy_list_alloc_safe)
 #define delete_list_eq_unsafe _n(delete_list_eq_unsafe)
+#define delete_list_eq_safe _n(delete_list_eq_safe)
 #define delete_list_equal_unsafe_ _n(delete_list_equal_unsafe_)
 #define delete1_list_eq_unsafe _n(delete1_list_eq_unsafe)
 #define remove_list_eq_unsafe_heap _n(remove_list_eq_unsafe_heap)
@@ -127,6 +128,7 @@ void copy_list_alloc_safe(LocalRoot local, addr *ret, addr cons);
 
 /* delete / remove */
 int delete_list_eq_unsafe(addr key, addr cons, addr *ret);
+int delete_list_eq_safe(addr key, addr cons, addr *ret);
 int delete_list_equal_unsafe_(addr key, addr cons, addr *root, int *ret);
 int delete1_list_eq_unsafe(addr key, addr cons, addr *ret);
 void remove_list_eq_unsafe_heap(addr key, addr cons, addr *ret);

@@ -41,7 +41,9 @@ static int restart_shadow_report_use_package_(
 	if (type == PACKAGE_TYPE_NIL)
 		pos = name;
 
-	return format_string_(ptr, ret, "Make the symbol ~S shadowing.", pos, NULL);
+	return format_string_(ptr, ret,
+			"Use the original ~S, and make shadowing.",
+			pos, NULL);
 }
 
 static int restart_shadow_use_package_(Execute ptr, addr pg, addr name, addr *ret)
@@ -66,16 +68,65 @@ static int restart_shadow_use_package_(Execute ptr, addr pg, addr name, addr *re
 	return Result(ret, restart);
 }
 
+static int unintern_execute_use_package_(addr pg, addr name)
+{
+	enum PACKAGE_TYPE ignore1;
+	int ignore2;
+	addr pos;
+
+	Return(intern_package_(pg, name, &pos, &ignore1));
+	return unintern_package_(pg, pos, &ignore2);
+}
+
+static int restart_unintern_report_use_package_(
+		Execute ptr, addr pg, addr name, addr *ret)
+{
+	enum PACKAGE_TYPE type;
+	addr pos;
+
+	Return(find_symbol_package_(pg, name, &pos, &type));
+	if (type == PACKAGE_TYPE_NIL)
+		pos = name;
+
+	return format_string_(ptr, ret,
+			"Use the inherited ~S, and unintern the original symbol.",
+			pos, NULL);
+}
+
+static int restart_unintern_use_package_(Execute ptr, addr pg, addr name, addr *ret)
+{
+	addr restart, pos;
+
+	/* name */
+	GetConst(COMMON_UNINTERN, &pos);
+	restart_heap(&restart, pos);
+	/* report */
+	Return(restart_unintern_report_use_package_(ptr, pg, name, &pos));
+	setreport_restart(restart, pos);
+	/* function */
+	GetConst(FUNCTION_NIL, &pos);
+	setfunction_restart(restart, pos);
+	/* condition */
+	GetConst(CONDITION_PACKAGE_ERROR, &pos);
+	setcondition_restart(restart, pos);
+	/* restart-case */
+	setescape_restart(restart, 1);
+
+	return Result(ret, restart);
+}
+
 static int shadow_use_package_(addr pg, addr name)
 {
 	Execute ptr;
-	addr restart, control;
+	addr restart1, restart2, control;
 
 	ptr = Execute_Thread;
-	Return(restart_shadow_use_package_(ptr, pg, name, &restart));
+	Return(restart_unintern_use_package_(ptr, pg, name, &restart1));
+	Return(restart_shadow_use_package_(ptr, pg, name, &restart2));
 
 	push_control(ptr, &control);
-	pushrestart_control(ptr, restart);
+	pushrestart_control(ptr, restart2);
+	pushrestart_control(ptr, restart1);
 
 	(void)call_simple_package_error_va_(NULL,
 			"The name ~S causes a conflict in the ~S package.",
@@ -86,8 +137,15 @@ static int shadow_use_package_(addr pg, addr name)
 	if (ptr->throw_control != control)
 		goto escape;
 
+	/* unintern */
+	if (ptr->throw_handler == restart1) {
+		normal_throw_control(ptr);
+		Return(unintern_execute_use_package_(pg, name));
+		goto escape;
+	}
+
 	/* shadow */
-	if (ptr->throw_handler == restart) {
+	if (ptr->throw_handler == restart2) {
 		normal_throw_control(ptr);
 		Return(shadow_execute_use_package_(pg, name));
 		goto escape;
