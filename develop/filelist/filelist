@@ -129,6 +129,9 @@ declare.c
 degrade.c
 develop.c
 document.c
+document_call.c
+document_contents.c
+document_search.c
 eastasian_table.c
 eastasian_unicode.c
 eastasian.c

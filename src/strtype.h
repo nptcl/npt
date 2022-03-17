@@ -1,6 +1,7 @@
 #ifndef __STRTYPE_HEADER__
 #define __STRTYPE_HEADER__
 
+#include "local.h"
 #include "typedef.h"
 
 #define array_stringp _n(array_stringp)

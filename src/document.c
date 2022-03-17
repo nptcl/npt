@@ -1,26 +1,19 @@
 #include "callname.h"
 #include "clos.h"
-#include "clos_class.h"
-#include "clos_combination.h"
 #include "clos_defgeneric.h"
+#include "clos_generic.h"
 #include "clos_method.h"
 #include "clos_type.h"
-#include "condition.h"
 #include "cons.h"
-#include "cons_list.h"
 #include "constant.h"
-#include "control_execute.h"
-#include "control_operator.h"
 #include "document.h"
+#include "document_call.h"
+#include "execute_values.h"
 #include "function.h"
 #include "lambda.h"
-#include "mop.h"
-#include "package_object.h"
-#include "structure.h"
-#include "structure_access.h"
 #include "symbol.h"
-#include "type_deftype.h"
 #include "type_table.h"
+#include "typedef.h"
 
 /*
  *  generic function
@@ -192,17 +185,17 @@ static int mop_argument_method_setf_documentation_(addr *ret,
  *  (function (eql 't))
  */
 static int method_documentation_function_t(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(get_documentation_function_object_(object, &object));
-	setresult_control(ptr, object);
+	Return(document_function_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_function_t(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(set_documentation_function_object_(object, value));
+	Return(document_function_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -276,24 +269,18 @@ static int setf_documentation_function_function_(Execute ptr, addr name, addr ge
  *  (list (eql 'function))
  */
 static int method_documentation_list_function(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(parse_callname_error_(&object, object));
-	Return(getglobalcheck_callname_(object, &object));
-	Return(get_documentation_function_object_(object, &object));
-	setresult_control(ptr, object);
-
+	Return(document_function_setf_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_list_function(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(parse_callname_error_(&object, object));
-	Return(getglobalcheck_callname_(object, &object));
-	Return(set_documentation_function_object_(object, value));
+	Return(document_function_setf_set_(pos, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 
@@ -332,33 +319,18 @@ static int setf_documentation_list_function_(Execute ptr, addr name, addr gen)
  *  (list (eql 'compiler-macro))
  */
 static int method_documentation_list_compiler_macro(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(parse_callname_error_(&object, object));
-	GetCallName(object, &object);
-	get_setf_compiler_macro_symbol(object, &object);
-	if (object != Nil) {
-		Return(get_documentation_function_object_(object, &object));
-	}
-	setresult_control(ptr, object);
-
+	Return(document_compiler_macro_setf_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_list_compiler_macro(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	addr pos;
-
-	Return(parse_callname_error_(&object, object));
-	GetCallName(object, &object);
-	get_setf_compiler_macro_symbol(object, &pos);
-	if (pos == Nil) {
-		return fmte_("There is no compiler-macro, ~S.", object, NULL);
-	}
-	Return(set_documentation_function_object_(pos, value));
+	Return(document_compiler_macro_setf_set_(pos, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 
@@ -396,39 +368,19 @@ static int setf_documentation_list_compiler_macro_(Execute ptr, addr name, addr 
 /*
  *  (symbol (eql 'function))
  */
-static int getfunction_global_document_(addr pos, addr *ret)
-{
-	/* function */
-	GetFunctionSymbol(pos, ret);
-	if (*ret != Unbound)
-		return 0;
-
-	/* macro-function */
-	getmacro_symbol(pos, ret);
-	if (*ret != Unbound)
-		return 0;
-
-	/* error */
-	return call_undefined_function_(NULL, pos);
-}
-
 static int method_documentation_symbol_function(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(getfunction_global_document_(object, &object));
-	Return(get_documentation_function_object_(object, &object));
-	setresult_control(ptr, object);
-
+	Return(document_function_symbol_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_symbol_function(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(getfunction_global_(object, &object));
-	Return(set_documentation_function_object_(object, value));
+	Return(document_function_symbol_set_(pos, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 
@@ -464,32 +416,21 @@ static int setf_documentation_symbol_function_(Execute ptr, addr name, addr gen)
 
 
 /*
- *  (symbol (eql 'compiler-function))
+ *  (symbol (eql 'compiler-macro))
  */
 static int method_documentation_symbol_compiler_macro(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	get_compiler_macro_symbol(object, &object);
-	if (object != Nil) {
-		Return(get_documentation_function_object_(object, &object));
-	}
-	setresult_control(ptr, object);
-
+	Return(document_compiler_macro_symbol_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_symbol_compiler_macro(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	addr pos;
-
-	get_compiler_macro_symbol(object, &pos);
-	if (pos == Nil) {
-		return fmte_("There is no compiler-macro, ~S.", object, NULL);
-	}
-	Return(set_documentation_function_object_(pos, value));
+	Return(document_compiler_macro_symbol_set_(pos, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 
@@ -530,38 +471,18 @@ static int setf_documentation_symbol_compiler_macro_(
  *  (symbol (eql 'setf))
  */
 static int method_documentation_symbol_setf(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	addr pos;
-
-	/* define-setf-expander, defsetf */
-	getsetfmacro_symbol(object, &pos);
-	/* setf-function */
-	if (pos == Unbound) {
-		Return(getsetf_global_(object, &pos));
-	}
-	/* get documentation */
-	Return(get_documentation_function_object_(pos, &pos));
+	Return(document_defsetf_symbol_get_(pos, &pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
 static int method_setf_documentation_symbol_setf(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	addr pos;
-
-	/* define-setf-expander, defsetf */
-	getsetfmacro_symbol(object, &pos);
-	/* setf-function */
-	if (pos == Unbound) {
-		Return(getsetf_global_(object, &pos));
-	}
-	/* set documentation */
-	Return(set_documentation_function_object_(pos, value));
+	Return(document_defsetf_symbol_set_(pos, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 
@@ -600,17 +521,17 @@ static int setf_documentation_symbol_setf_(Execute ptr, addr name, addr gen)
  *  (method-combination (eql 't))
  */
 static int method_documentation_method_combination_t(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(stdget_longcomb_document_(object, &object));
-	setresult_control(ptr, object);
+	Return(document_method_combination_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_method_combination_t(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(stdset_longcomb_document_(object, value));
+	Return(document_method_combination_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -688,22 +609,18 @@ static int setf_documentation_method_combination_method_combination_(
  *  (symbol (eql 'method-combination))
  */
 static int method_documentation_symbol_method_combination(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(clos_find_combination_(object, &object));
-	Return(stdget_longcomb_document_(object, &object));
-	setresult_control(ptr, object);
-
+	Return(document_method_combination_symbol_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_symbol_method_combination(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(clos_find_combination_(object, &object));
-	Return(stdset_longcomb_document_(object, value));
+	Return(document_method_combination_symbol_set_(pos, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 
@@ -744,17 +661,17 @@ static int setf_documentation_symbol_method_combination_(
  *  (standard-method (eql 't))
  */
 static int method_documentation_standard_method_t(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(methodget_document_(object, &object));
-	setresult_control(ptr, object);
+	Return(document_standard_method_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_standard_method_t(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(methodset_document_(object, value));
+	Return(document_standard_method_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -794,17 +711,17 @@ static int setf_documentation_standard_method_t_(Execute ptr, addr name, addr ge
  *  (package (eql 't))
  */
 static int method_documentation_package_t(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	getdocument_package(object, &object);
-	setresult_control(ptr, object);
+	Return(document_package_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_package_t(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	setdocument_package(object, value);
+	Return(document_package_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -844,17 +761,17 @@ static int setf_documentation_package_t_(Execute ptr, addr name, addr gen)
  *  (standard-class (eql 't))
  */
 static int method_documentation_standard_class_t(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(stdget_class_document_(object, &object));
-	setresult_control(ptr, object);
+	Return(document_standard_class_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_standard_class_t(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(stdset_class_document_(object, value));
+	Return(document_standard_class_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -928,17 +845,17 @@ static int setf_documentation_standard_class_type_(Execute ptr, addr name, addr 
  *  (structure-class (eql 't))
  */
 static int method_documentation_structure_class_t(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(stdget_structure_documentation_(object, &object));
-	setresult_control(ptr, object);
+	Return(document_structure_class_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_structure_class_t(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(stdset_structure_documentation_(object, value));
+	Return(document_structure_class_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -1012,48 +929,18 @@ static int setf_documentation_structure_class_type_(Execute ptr, addr name, addr
  *  (symbol (eql 'type))
  */
 static int method_documentation_symbol_type(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	addr clos, pos;
-
-	/* clos object */
-	clos_find_class_nil(object, &clos);
-	if (clos != Nil) {
-		GetConst(COMMON_DOCUMENTATION, &pos);
-		Return(getfunction_global_document_(pos, &pos));
-		return funcall_control_(ptr, pos, clos, doc_type, NULL);
-	}
-
-	/* deftype */
-	getdeftype(object, &pos);
-	if (pos == Nil)
-		return fmte_("The symbol ~S don't have a deftype function.", object, NULL);
-	Return(get_documentation_function_object_(pos, &pos));
+	Return(document_type_symbol_get_(ptr, pos, doc_type, &pos));
 	setresult_control(ptr, pos);
-
 	return 0;
 }
 
 static int method_setf_documentation_symbol_type(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	addr clos, pos;
-
-	/* clos object */
-	clos_find_class_nil(object, &clos);
-	if (clos != Nil) {
-		GetConst(COMMON_DOCUMENTATION, &pos);
-		Return(getsetf_global_(pos, &pos));
-		return funcall_control_(ptr, pos, value, clos, doc_type, NULL);
-	}
-
-	/* deftype */
-	getdeftype(object, &pos);
-	if (pos == Nil)
-		return fmte_("The symbol ~S don't have a deftype function.", object, NULL);
-	Return(set_documentation_function_object_(pos, value));
+	Return(document_type_symbol_set_(ptr, pos, doc_type, value));
 	setresult_control(ptr, value);
-
 	return 0;
 }
 
@@ -1092,17 +979,17 @@ static int setf_documentation_symbol_type_(Execute ptr, addr name, addr gen)
  *  (symbol (eql 'structure))
  */
 static int method_documentation_symbol_structure(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	Return(getdoc_structure_(object, &object));
-	setresult_control(ptr, object);
+	Return(document_structure_symbol_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_symbol_structure(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	Return(setdoc_structure_(object, value));
+	Return(document_structure_symbol_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
@@ -1142,17 +1029,17 @@ static int setf_documentation_symbol_structure_(Execute ptr, addr name, addr gen
  *  (symbol (eql 'variable))
  */
 static int method_documentation_symbol_variable(Execute ptr,
-		addr method, addr next, addr object, addr doc_type)
+		addr method, addr next, addr pos, addr doc_type)
 {
-	getdocument_variable_symbol(object, &object);
-	setresult_control(ptr, object);
+	Return(document_variable_symbol_get_(pos, &pos));
+	setresult_control(ptr, pos);
 	return 0;
 }
 
 static int method_setf_documentation_symbol_variable(Execute ptr,
-		addr method, addr next, addr value, addr object, addr doc_type)
+		addr method, addr next, addr value, addr pos, addr doc_type)
 {
-	setdocument_variable_symbol(object, value);
+	Return(document_variable_symbol_set_(pos, value));
 	setresult_control(ptr, value);
 	return 0;
 }
