@@ -21,10 +21,6 @@
 (load #p"test/rtobjects-combination.lisp")
 (load #p"test/rtobjects-redefine.lisp")
 
-(load #p"test/rtmop-readers.lisp")
-(load #p"test/rtmop-protocols.lisp")
-(load #p"test/rtmop-misc.lisp")
-
 
 ;;
 ;;  do-tests

@@ -82,6 +82,8 @@
 (loadrt #p"rt-division.lisp")
 ;; subtypep
 (loadrt #p"rt-subtypep.lisp")
+;; MetaObject Protocol
+(loadrt #p"rt-mop.lisp")
 ;; finish
 (format t "~&OK.~%")
 

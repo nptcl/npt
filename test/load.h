@@ -62,6 +62,8 @@ static int loadrt_files(void)
 	loadrt_file("rt-division.lisp");
 	/* subtypep */
 	loadrt_file("rt-subtypep.lisp");
+	/* MetaObject Protocol */
+	loadrt_file("rt-mop.lisp");
 #if 0
 #endif
 

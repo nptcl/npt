@@ -1047,43 +1047,54 @@ static int clos_stdclass_single_(LocalRoot local, addr pos, addr clos, addr supe
 static int clos_stdclass_metaclass_(LocalRoot local, addr *ret)
 {
 	addr slots, name;
-	addr builtin, tc, stdobject, classc, stdclass;
+	addr builtin, tc, stdobject, classc, stdclass, metaobject, specializer;
 
-	/* make dummy metaclass */
+	/* dummy metaclass */
 	clos_stdclass_slots(&slots);
 	Return(clos_stdclass_dummy_(&stdclass, slots));
-	/* make class class */
-	GetConst(COMMON_CLASS, &name);
+	/* class */
 	slot_vector_clear(slots);
+	GetConst(COMMON_CLASS, &name);
 	Return(clos_stdclass_make_(&classc, stdclass, name, slots));
 	Return(clos_stdclass_inherit_(local, classc, classc, Nil));
-	/* make t class */
+
+	/* object */
 	Return(clos_stdclass_empty_(&tc, classc, T));
-	Return(clos_stdclass_inherit_(local, tc, classc, Nil));
 	GetConst(COMMON_STANDARD_OBJECT, &name);
-	/* make standard-object */
 	Return(clos_stdclass_empty_(&stdobject, classc, name));
-	Return(clos_stdclass_single_(local, stdobject, classc, tc));
-	Return(clos_stdclass_single_(local, classc, classc, stdobject));
-	/* make standard-class */
+	GetConst(CLOSNAME_METAOBJECT, &name);
+	Return(clos_stdclass_empty_(&metaobject, classc, name));
+	GetConst(CLOSNAME_SPECIALIZER, &name);
+	Return(clos_stdclass_empty_(&specializer, classc, name));
 	GetConst(COMMON_STANDARD_CLASS, &name);
 	Return(clos_stdclass_empty_(&stdclass, classc, name));
-	Return(clos_stdclass_single_(local, stdclass, stdclass, classc));
-	Clos_standard_class = stdclass;
-	/* make built-in-class */
 	GetConst(COMMON_BUILT_IN_CLASS, &name);
 	Return(clos_stdclass_empty_(&builtin, classc, name));
+
+	/* inheritance */
+	Return(clos_stdclass_inherit_(local, tc, classc, Nil));
+	Return(clos_stdclass_single_(local, stdobject, classc, tc));
+	Return(clos_stdclass_single_(local, metaobject, classc, stdobject));
+	Return(clos_stdclass_single_(local, specializer, classc, metaobject));
+	Return(clos_stdclass_single_(local, classc, classc, specializer));
+	Return(clos_stdclass_single_(local, stdclass, stdclass, classc));
 	Return(clos_stdclass_single_(local, builtin, stdclass, classc));
+	Clos_standard_class = stdclass;
+
 	/* update class-of */
 	clos_stdclass_class_of(tc, builtin);
-	clos_stdclass_class_of(classc, stdclass);
 	clos_stdclass_class_of(stdobject, stdclass);
+	clos_stdclass_class_of(metaobject, stdclass);
+	clos_stdclass_class_of(specializer, stdclass);
+	clos_stdclass_class_of(classc, stdclass);
 	clos_stdclass_class_of(stdclass, stdclass);
 	clos_stdclass_class_of(builtin, stdclass);
 	/* constant */
 	SetConst(CLOS_T, tc);
-	SetConst(CLOS_CLASS, classc);
 	SetConst(CLOS_STANDARD_OBJECT, stdobject);
+	SetConst(CLOS_METAOBJECT, metaobject);
+	SetConst(CLOS_SPECIALIZER, specializer);
+	SetConst(CLOS_CLASS, classc);
 	SetConst(CLOS_STANDARD_CLASS, stdclass);
 	SetConst(CLOS_BUILT_IN_CLASS, builtin);
 	/* constant */
@@ -1176,6 +1187,33 @@ static int clos_stdclass_slotsconstant_(LocalRoot local, addr metaclass, addr sl
 				CONSTANT_##a,CONSTANT_##b,CONSTANT_##c)); \
 }
 
+static int clos_stdclass2_slotsconstant_(LocalRoot local,
+		addr metaclass, addr slots,
+		constindex n, constindex c,
+		constindex x, constindex y)
+{
+	addr name, supers, c1, c2, clos;
+
+	GetConstant(n, &name);
+	Check(! symbolp(name), "type error");
+
+	GetConstant(x, &c1);
+	GetConstant(y, &c2);
+	CheckType(c1, LISPTYPE_CLOS);
+	CheckType(c2, LISPTYPE_CLOS);
+	list_heap(&supers, c1, c2, NULL);
+	Return(clos_stdclass_supers_(local, &clos, metaclass, name, slots, supers));
+	clos_define_class(name, clos);
+	SetConstant(c, clos);
+
+	return 0;
+}
+#define ClosMakeClass2Slot_(p,m,s,a,b,x,y) { \
+	Return(clos_stdclass2_slotsconstant_((p),(m),(s), \
+				CONSTANT_##a, CONSTANT_##b, \
+				CONSTANT_##x, CONSTANT_##y)); \
+}
+
 static void clos_structure_slots(addr *ret)
 {
 	addr slots;
@@ -1258,27 +1296,27 @@ static int build_clos_class_generic_(LocalRoot local)
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	GetConst(CLOS_BUILT_IN_CLASS, &builtin);
-	/* funcallable-standard-object */
-	ClosMakeClass1_(local, metaclass,
-			CLOSNAME_FUNCALLABLE_STANDARD_OBJECT,
-			CLOS_FUNCALLABLE_STANDARD_OBJECT,
-			CLOS_STANDARD_OBJECT);
-	/* funcallable-standard-class */
-	ClosMakeClass2_(local, metaclass,
-			CLOSNAME_FUNCALLABLE_STANDARD_CLASS,
-			CLOS_FUNCALLABLE_STANDARD_CLASS,
-			CLOS_CLASS,
-			CLOS_FUNCALLABLE_STANDARD_OBJECT);
 	/* function */
 	ClosMakeClass1_(local, builtin,
 			COMMON_FUNCTION,
 			CLOS_FUNCTION,
 			CLOS_T);
+	/* funcallable-standard-object */
+	ClosMakeClass2_(local, metaclass,
+			CLOSNAME_FUNCALLABLE_STANDARD_OBJECT,
+			CLOS_FUNCALLABLE_STANDARD_OBJECT,
+			CLOS_FUNCTION,
+			CLOS_STANDARD_OBJECT);
+	/* funcallable-standard-class */
+	ClosMakeClass1_(local, metaclass,
+			CLOSNAME_FUNCALLABLE_STANDARD_CLASS,
+			CLOS_FUNCALLABLE_STANDARD_CLASS,
+			CLOS_CLASS);
 	/* generic-function */
 	ClosMakeClass2_(local, metaclass,
 			COMMON_GENERIC_FUNCTION,
 			CLOS_GENERIC_FUNCTION,
-			CLOS_FUNCTION,
+			CLOS_METAOBJECT,
 			CLOS_FUNCALLABLE_STANDARD_OBJECT);
 	/* standard-generic-function */
 	clos_stdgeneric_slots(&slots);
@@ -1317,13 +1355,28 @@ static int build_clos_class_method_(LocalRoot local)
 	ClosMakeClass1_(local, metaclass,
 			COMMON_METHOD,
 			CLOS_METHOD,
-			CLOS_STANDARD_OBJECT);
+			CLOS_METAOBJECT);
 	/* standard-method */
 	clos_stdmethod_slots(&slots);
 	ClosMakeClassSlot_(local, metaclass, slots,
 			COMMON_STANDARD_METHOD,
 			CLOS_STANDARD_METHOD,
 			CLOS_METHOD);
+	/* standard-accessor-method */
+	ClosMakeClass1_(local, metaclass,
+			CLOSNAME_STANDARD_ACCESSOR_METHOD,
+			CLOS_STANDARD_ACCESSOR_METHOD,
+			CLOS_STANDARD_METHOD);
+	/* standard-reader-method */
+	ClosMakeClass1_(local, metaclass,
+			CLOSNAME_STANDARD_READER_METHOD,
+			CLOS_STANDARD_READER_METHOD,
+			CLOS_STANDARD_ACCESSOR_METHOD);
+	/* standard-writer-method */
+	ClosMakeClass1_(local, metaclass,
+			CLOSNAME_STANDARD_WRITER_METHOD,
+			CLOS_STANDARD_WRITER_METHOD,
+			CLOS_STANDARD_ACCESSOR_METHOD);
 
 	return 0;
 }
@@ -1402,7 +1455,7 @@ static int build_clos_class_combination_(LocalRoot local)
 	ClosMakeClass1_(local, metaclass,
 			COMMON_METHOD_COMBINATION,
 			CLOS_METHOD_COMBINATION,
-			CLOS_STANDARD_OBJECT);
+			CLOS_METAOBJECT);
 	/* long-method-combination */
 	clos_stdlongcomb_slots(&slots);
 	ClosMakeClassSlot_(local, metaclass, slots,
@@ -1456,12 +1509,12 @@ static int build_clos_class_specializer_(LocalRoot local)
 	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
-	/* specializer */
+	/* eql-specializer */
 	clos_stdspecializer_slots(&slots);
 	ClosMakeClassSlot_(local, metaclass, slots,
 			CLOSNAME_EQL_SPECIALIZER,
 			CLOS_EQL_SPECIALIZER,
-			CLOS_STANDARD_OBJECT);
+			CLOS_SPECIALIZER);
 
 	return 0;
 }
@@ -1901,13 +1954,16 @@ static void clos_mop_slot_definition_slots(addr *ret)
 {
 	addr slots;
 
-	slot_vector_heap(&slots, 6);
+	slot_vector_heap(&slots, 9);
 	SlotMakeNameSymbol_number(slots, NAME, 0);
 	SlotMakeName_number(slots, TYPE, 1);
 	SlotMakeName_number(slots, ALLOCATION, 2);
 	SlotMakeName_number(slots, INITARGS, 3);
 	SlotMakeName_number(slots, INITFORM, 4);
 	SlotMakeForm_number(slots, INITFUNCTION, 5);
+	SlotMakeForm_number(slots, DOCUMENTATION, 6);
+	SlotMakeForm_number(slots, READERS, 7);
+	SlotMakeForm_number(slots, WRITERS, 8);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
@@ -1921,13 +1977,37 @@ static int build_clos_class_mop_(LocalRoot local)
 	ClosMakeClass1_(local, metaclass,
 			CLOSNAME_SLOT_DEFINITION,
 			CLOS_SLOT_DEFINITION,
-			CLOS_STANDARD_OBJECT);
+			CLOS_METAOBJECT);
+	/* direct-slot-definition */
+	ClosMakeClass1_(local, metaclass,
+			CLOSNAME_DIRECT_SLOT_DEFINITION,
+			CLOS_DIRECT_SLOT_DEFINITION,
+			CLOS_SLOT_DEFINITION);
+	/* effective-slot-definition */
+	ClosMakeClass1_(local, metaclass,
+			CLOSNAME_EFFECTIVE_SLOT_DEFINITION,
+			CLOS_EFFECTIVE_SLOT_DEFINITION,
+			CLOS_SLOT_DEFINITION);
 	/* standard-slot-definition */
 	clos_mop_slot_definition_slots(&slots);
 	ClosMakeClassSlot_(local, metaclass, slots,
 			CLOSNAME_STANDARD_SLOT_DEFINITION,
 			CLOS_STANDARD_SLOT_DEFINITION,
 			CLOS_SLOT_DEFINITION);
+	/* standard-direct-slot-definition */
+	clos_mop_slot_definition_slots(&slots);
+	ClosMakeClass2Slot_(local, metaclass, slots,
+			CLOSNAME_STANDARD_DIRECT_SLOT_DEFINITION,
+			CLOS_STANDARD_DIRECT_SLOT_DEFINITION,
+			CLOS_STANDARD_SLOT_DEFINITION,
+			CLOS_DIRECT_SLOT_DEFINITION);
+	/* standard-effective-slot-definition */
+	clos_mop_slot_definition_slots(&slots);
+	ClosMakeClass2Slot_(local, metaclass, slots,
+			CLOSNAME_STANDARD_EFFECTIVE_SLOT_DEFINITION,
+			CLOS_STANDARD_EFFECTIVE_SLOT_DEFINITION,
+			CLOS_STANDARD_SLOT_DEFINITION,
+			CLOS_EFFECTIVE_SLOT_DEFINITION);
 
 	return 0;
 }

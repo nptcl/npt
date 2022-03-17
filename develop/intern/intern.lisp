@@ -1796,12 +1796,21 @@ lisp-code::optcode-cons
 ;;
 ;;  clos
 ;;
+lisp-clos::metaobject
+lisp-clos::specializer
+lisp-clos::eql-specializer
+lisp-clos::forward-referenced-class
 lisp-clos::funcallable-standard-object
 lisp-clos::funcallable-standard-class
-lisp-clos::forward-referenced-class
-lisp-clos::eql-specializer
+lisp-clos::standard-reader-method
+lisp-clos::standard-writer-method
+lisp-clos::standard-accessor-method
 lisp-clos::slot-definition
+lisp-clos::direct-slot-definition
+lisp-clos::effective-slot-definition
 lisp-clos::standard-slot-definition
+lisp-clos::standard-direct-slot-definition
+lisp-clos::standard-effective-slot-definition
 
 
 ;;

@@ -125,7 +125,8 @@
           (lisp-clos:class-precedence-list
             (find-class 'generic-function)))
   (generic-function
-    function lisp-clos::funcallable-standard-object standard-object t))
+    lisp-clos::metaobject lisp-clos::funcallable-standard-object
+    function standard-object t))
 
 (deftest generic-function-type.3
   (typep 10 'generic-function)
@@ -155,8 +156,9 @@
           (lisp-clos:class-precedence-list
             (find-class 'standard-generic-function)))
   (standard-generic-function
-    generic-function function
-    lisp-clos::funcallable-standard-object standard-object t))
+    generic-function lisp-clos::metaobject
+    lisp-clos::funcallable-standard-object
+    function standard-object t))
 
 (deftest standard-generic-function-type.3
   (typep 10 'standard-generic-function)
@@ -189,7 +191,7 @@
   (mapcar #'class-name
           (lisp-clos:class-precedence-list
             (find-class 'class)))
-  (class standard-object t))
+  (class lisp-clos::specializer lisp-clos::metaobject standard-object t))
 
 (deftest class-type.3
   (typep 10 'class)
@@ -224,7 +226,8 @@
   (mapcar #'class-name
           (lisp-clos:class-precedence-list
             (find-class 'built-in-class)))
-  (built-in-class class standard-object t))
+  (built-in-class
+    class lisp-clos::specializer lisp-clos::metaobject standard-object t))
 
 (deftest built-in-class-type.3
   (typep 10 'built-in-class)
@@ -299,7 +302,8 @@
   (mapcar #'class-name
           (lisp-clos:class-precedence-list
             (find-class 'structure-class)))
-  (structure-class class standard-object t))
+  (structure-class
+    class lisp-clos::specializer lisp-clos::metaobject standard-object t))
 
 (deftest structure-class-type.3
   (typep 10 'structure-class)
@@ -334,7 +338,8 @@
   (mapcar #'class-name
           (lisp-clos:class-precedence-list
             (find-class 'standard-class)))
-  (standard-class class standard-object t))
+  (standard-class
+    class lisp-clos::specializer lisp-clos::metaobject standard-object t))
 
 (deftest standard-class-type.3
   (typep 10 'standard-class)
@@ -369,7 +374,7 @@
   (mapcar #'class-name
           (lisp-clos:class-precedence-list
             (find-class 'method)))
-  (method standard-object t))
+  (method lisp-clos::metaobject standard-object t))
 
 (deftest method-type.3
   (typep 10 'method)
@@ -402,7 +407,7 @@
   (mapcar #'class-name
           (lisp-clos:class-precedence-list
             (find-class 'standard-method)))
-  (standard-method method standard-object t))
+  (standard-method method lisp-clos::metaobject standard-object t))
 
 (deftest standard-method-type.3
   (typep 10 'standard-method)
@@ -513,7 +518,7 @@
   (mapcar #'class-name
           (lisp-clos:class-precedence-list
             (find-class 'method-combination)))
-  (method-combination standard-object t))
+  (method-combination lisp-clos::metaobject standard-object t))
 
 (deftest method-combination-type.3
   (typep 10 'method-combination)

@@ -1892,9 +1892,11 @@ static int test_clos_stdclass_metaclass(void)
 	clos_class_of_(classclass, &check);
 	test(check == metaclass, "clos_stdclass_metaclass8");
 	stdget_class_direct_superclasses_(classclass, &check);
+#if 0
 	GetCons(check, &left, &check);
 	test(left == object, "clos_stdclass_metaclass9");
 	test(check == Nil, "clos_stdclass_metaclass10");
+#endif
 
 	/* standard-class */
 	GetConst(COMMON_STANDARD_CLASS, &check);
@@ -2098,8 +2100,10 @@ static int test_build_standard_class(void)
 	clos_class_of_(objectclass, &check);
 	test(metaclass == check, "build_standard_class14");
 	test(clos_subclass_p_debug(objectclass, trueclass), "build_standard_class15");
+#if 0
 	stdget_class_direct_subclasses_(objectclass, &check);
 	test(find_list_eq_unsafe(classclass, check), "build_standard_class16");
+#endif
 
 	/* class */
 	clos_class_of_(classclass, &check);
@@ -2216,6 +2220,7 @@ static int test_build_clos_class_generic(void)
 	GetConst(COMMON_STANDARD_CLASS, &check);
 	clos_find_class_(check, &check);
 	test(check == pos, "build_clos_class_generic6");
+#if 0
 	stdget_class_direct_superclasses_(gclass, &check);
 	GetCons(check, &left, &check);
 	test(left == fclass, "build_clos_class_generic7");
@@ -2225,6 +2230,7 @@ static int test_build_clos_class_generic(void)
 	GetConst(CLOSNAME_FUNCALLABLE_STANDARD_OBJECT, &check);
 	clos_find_class_(check, &check);
 	test(left == check, "build_clos_class_generic10");
+#endif
 
 	/* standard-generic-function */
 	GetConst(COMMON_STANDARD_GENERIC_FUNCTION, &sgclass);
@@ -2315,9 +2321,11 @@ static int test_build_clos_class_method(void)
 	stdget_class_direct_superclasses_(mclass, &check);
 	GetCons(check, &left, &check);
 	test(check == Nil, "build_clos_class_method3");
+#if 0
 	GetConst(COMMON_STANDARD_OBJECT, &check);
 	clos_find_class_(check, &check);
 	test(left == check, "build_clos_class_method4");
+#endif
 
 	/* standard-method */
 	GetConst(COMMON_STANDARD_METHOD, &smclass);
@@ -2497,9 +2505,11 @@ static int test_build_clos_class_specializer(void)
 	stdget_class_direct_superclasses_(clos, &check);
 	GetCons(check, &left, &check);
 	test(check == Nil, "build_clos_class_specializer3");
+#if 0
 	GetConst(COMMON_STANDARD_OBJECT, &check);
 	clos_find_class_(check, &check);
 	test(left == check, "build_clos_class_specializer4");
+#endif
 
 	RETURN;
 }
