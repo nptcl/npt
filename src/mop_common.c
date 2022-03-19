@@ -1,5 +1,6 @@
 #include "execute.h"
 #include "mop_common.h"
+#include "mop_reader.h"
 #include "typedef.h"
 
 void init_metaobject_protocol(void)

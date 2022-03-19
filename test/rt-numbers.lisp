@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 12. Numbers
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtnumbers-include.lisp")
 
 ;;

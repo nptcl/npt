@@ -8,6 +8,7 @@
 #include "eval_load.h"
 #include "function.h"
 #include "require.h"
+#include "require_clos.h"
 #include "restart_value.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -19,12 +20,33 @@ int provide_common_(Execute ptr, addr var)
 {
 	addr symbol, list;
 
-	/* string-designer */
 	Return(string_designer_heap_(&var, var, NULL));
-	/* push *modules */
 	GetConst(SPECIAL_MODULES, &symbol);
 	Return(getspecialcheck_local_(ptr, symbol, &list));
 	Return(pushnew_equal_heap_(list, var, &list));
+	setspecial_local(ptr, symbol, list);
+
+	return 0;
+}
+
+int modules_find_(Execute ptr, addr var, int *ret)
+{
+	addr symbol, list;
+
+	Return(string_designer_heap_(&var, var, NULL));
+	GetConst(SPECIAL_MODULES, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &list));
+	return find_list_equal_safe_(var, list, ret);
+}
+
+int modules_delete_(Execute ptr, addr var)
+{
+	addr symbol, list;
+
+	Return(string_designer_heap_(&var, var, NULL));
+	GetConst(SPECIAL_MODULES, &symbol);
+	Return(getspecialcheck_local_(ptr, symbol, &list));
+	remove_list_equal_safe_heap_(var, list, &list);
 	setspecial_local(ptr, symbol, list);
 
 	return 0;
@@ -107,9 +129,29 @@ int require_common_(Execute ptr, addr var, addr opt)
 /*
  *  require default
  */
+int require_append_(Execute ptr, addr var, int forcep, int *ret)
+{
+	int check;
+
+	/* string-designer */
+	Return(string_designer_heap_(&var, var, NULL));
+
+	/* clos */
+	Return(require_clos_(ptr, var, forcep, &check));
+	if (check)
+		return Result(ret, 1);
+
+	/* next function */
+	return Result(ret, 0);
+}
+
 static int function_require_default_(Execute ptr, addr var)
 {
-	setresult_control(ptr, Nil);
+	int check;
+
+	Return(string_designer_heap_(&var, var, NULL));
+	Return(require_append_(ptr, var, 0, &check));
+	setbool_control(ptr, check);
 	return 0;
 }
 
@@ -120,6 +162,26 @@ static void make_require_default(addr *ret)
 	compiled_heap(&pos, Nil);
 	setcompiled_var1(pos, p_function_require_default);
 	*ret = pos;
+}
+
+
+/*
+ *  unrequire
+ */
+int require_delete_(Execute ptr, addr var, int forcep, int *ret)
+{
+	int check;
+
+	/* string-designer */
+	Return(string_designer_heap_(&var, var, NULL));
+
+	/* clos */
+	Return(unrequire_clos_(ptr, var, forcep, &check));
+	if (check)
+		return Result(ret, 1);
+
+	/* error */
+	return Result(ret, 0);
 }
 
 

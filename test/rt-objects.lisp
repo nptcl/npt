@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 7. Objects
 ;;
+(load #p"test/rtmop-require.lisp")
 (import 'lisp-system::closp)
 (import 'lisp-system:sysctl)
 (import 'lisp-clos::referenced-class)

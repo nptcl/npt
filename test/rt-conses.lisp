@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 14. Conses
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtconses-type.lisp")
 (load #p"test/rtconses-cons.lisp")
 (load #p"test/rtconses-tree.lisp")

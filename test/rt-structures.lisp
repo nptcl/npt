@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 8. Structures
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtstructure-slots.lisp")
 (load #p"test/rtstructure-include.lisp")
 (load #p"test/rtstructure-predicate.lisp")

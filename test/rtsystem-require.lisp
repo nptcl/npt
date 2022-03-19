@@ -10,8 +10,8 @@
   t)
 
 (deftest special-modules.2
-  *modules*
-  nil)
+  (listp *modules*)
+  t)
 
 
 ;;

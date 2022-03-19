@@ -124,8 +124,10 @@ int package_designer_(addr pos, addr *ret)
 int package_designer_update_p_(addr pos, addr *ret)
 {
 	Return(package_designer_(pos, &pos));
-	if (get_readonly_package(pos))
-		return fmte_("~S is a readonly package.", pos, NULL);
+	if (get_readonly_package(pos)) {
+		return call_simple_package_error_va_(NULL,
+				"~S is a readonly package.", pos, NULL);
+	}
 
 	return Result(ret, pos);
 }

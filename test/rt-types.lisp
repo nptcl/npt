@@ -1,10 +1,11 @@
 ;;
 ;;  ANSI COMMON LISP: 4. Types and Classes
 ;;
-(load #p"test/rtnumbers-include.lisp")
 (import 'lisp-system::array-general-p)
 (import 'lisp-system::array-specialized-p)
 
+(load #p"test/rtnumbers-include.lisp")
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rttypes-type.lisp")
 (load #p"test/rttypes-specifier.lisp")
 (load #p"test/rttypes-test.lisp")

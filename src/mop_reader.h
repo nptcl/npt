@@ -1,0 +1,76 @@
+#ifndef __MOP_READER_HEADER__
+#define __MOP_READER_HEADER__
+
+#include "execute.h"
+#include "typedef.h"
+
+#define init_mop_reader _n(init_mop_reader)
+#define build_mop_reader_ _n(build_mop_reader_)
+
+#define defgeneric_class_slots_ _n(defgeneric_class_slots_)
+#define defgeneric_class_direct_slots_ _n(defgeneric_class_direct_slots_)
+#define defgeneric_class_default_initargs_ _n(defgeneric_class_default_initargs_)
+#define defgeneric_class_direct_default_initargs_ _n(defgeneric_class_direct_default_initargs_)
+#define defgeneric_class_precedence_list_ _n(defgeneric_class_precedence_list_)
+#define defgeneric_class_direct_superclasses_ _n(defgeneric_class_direct_superclasses_)
+#define defgeneric_class_direct_subclasses_ _n(defgeneric_class_direct_subclasses_)
+#define defgeneric_class_finalized_p_ _n(defgeneric_class_finalized_p_)
+#define defgeneric_class_prototype_ _n(defgeneric_class_prototype_)
+#define defgeneric_slot_definition_name_ _n(defgeneric_slot_definition_name_)
+#define defgeneric_slot_definition_type_ _n(defgeneric_slot_definition_type_)
+#define defgeneric_slot_definition_allocation_ _n(defgeneric_slot_definition_allocation_)
+#define defgeneric_slot_definition_initargs_ _n(defgeneric_slot_definition_initargs_)
+#define defgeneric_slot_definition_initform_ _n(defgeneric_slot_definition_initform_)
+#define defgeneric_slot_definition_initfunction_ _n(defgeneric_slot_definition_initfunction_)
+#define defgeneric_generic_function_name_ _n(defgeneric_generic_function_name_)
+#define defgeneric_setf_generic_function_name_ _n(defgeneric_setf_generic_function_name_)
+#define defgeneric_generic_function_methods_ _n(defgeneric_generic_function_methods_)
+#define defgeneric_generic_function_lambda_list_ _n(defgeneric_generic_function_lambda_list_)
+#define defgeneric_generic_function_argument_precedence_order_ _n(defgeneric_generic_function_argument_precedence_order_)
+#define defgeneric_generic_function_declarations_ _n(defgeneric_generic_function_declarations_)
+#define defgeneric_generic_function_method_class_ _n(defgeneric_generic_function_method_class_)
+#define defgeneric_generic_function_method_combination_ _n(defgeneric_generic_function_method_combination_)
+#define defgeneric_method_function_ _n(defgeneric_method_function_)
+#define defgeneric_method_generic_function_ _n(defgeneric_method_generic_function_)
+#define defgeneric_method_lambda_list_ _n(defgeneric_method_lambda_list_)
+#define defgeneric_method_specializers_ _n(defgeneric_method_specializers_)
+#define defgeneric_accessor_method_slot_definition_ _n(defgeneric_accessor_method_slot_definition_)
+
+void init_mop_reader(void);
+int build_mop_reader_(Execute ptr);
+
+/* class */
+int defgeneric_class_slots_(Execute ptr);
+int defgeneric_class_direct_slots_(Execute ptr);
+int defgeneric_class_default_initargs_(Execute ptr);
+int defgeneric_class_direct_default_initargs_(Execute ptr);
+int defgeneric_class_precedence_list_(Execute ptr);
+int defgeneric_class_direct_superclasses_(Execute ptr);
+int defgeneric_class_direct_subclasses_(Execute ptr);
+int defgeneric_class_finalized_p_(Execute ptr);
+int defgeneric_class_prototype_(Execute ptr);
+/* slot-definition */
+int defgeneric_slot_definition_name_(Execute ptr);
+int defgeneric_slot_definition_type_(Execute ptr);
+int defgeneric_slot_definition_allocation_(Execute ptr);
+int defgeneric_slot_definition_initargs_(Execute ptr);
+int defgeneric_slot_definition_initform_(Execute ptr);
+int defgeneric_slot_definition_initfunction_(Execute ptr);
+/* generic-functions */
+int defgeneric_generic_function_name_(Execute ptr);
+int defgeneric_setf_generic_function_name_(Execute ptr);
+int defgeneric_generic_function_methods_(Execute ptr);
+int defgeneric_generic_function_lambda_list_(Execute ptr);
+int defgeneric_generic_function_argument_precedence_order_(Execute ptr);
+int defgeneric_generic_function_declarations_(Execute ptr);
+int defgeneric_generic_function_method_class_(Execute ptr);
+int defgeneric_generic_function_method_combination_(Execute ptr);
+/* methods */
+int defgeneric_method_function_(Execute ptr);
+int defgeneric_method_generic_function_(Execute ptr);
+int defgeneric_method_lambda_list_(Execute ptr);
+int defgeneric_method_specializers_(Execute ptr);
+int defgeneric_accessor_method_slot_definition_(Execute ptr);
+
+#endif
+

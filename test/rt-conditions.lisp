@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 9. Conditions
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtcondition-condition.lisp")
 (load #p"test/rtcondition-handler.lisp")
 (load #p"test/rtcondition-restart.lisp")

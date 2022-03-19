@@ -324,6 +324,7 @@ real_round.c
 real_truncate.c
 real.c
 require.c
+require_clos.c
 restart_value.c
 restart.c
 rt_load.c

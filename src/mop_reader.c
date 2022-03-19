@@ -14,6 +14,7 @@
 #include "lambda.h"
 #include "mop.h"
 #include "mop_common.h"
+#include "mop_reader.h"
 #include "symbol.h"
 #include "type_object.h"
 #include "type_table.h"
@@ -271,7 +272,7 @@ static int defmethod_class_slots_(Execute ptr, addr name, addr gen, constindex i
 }
 
 /* (defgeneric class-slots (class)) -> t */
-static int defgeneric_class_slots_(Execute ptr)
+int defgeneric_class_slots_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -325,7 +326,7 @@ static int defmethod_class_direct_slots_(Execute ptr,
 }
 
 /* (defgeneric class-direct-slots (class)) -> t */
-static int defgeneric_class_direct_slots_(Execute ptr)
+int defgeneric_class_direct_slots_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -377,7 +378,7 @@ static int defmethod_class_default_initargs_(Execute ptr,
 }
 
 /* (defgeneric class-default-initargs (class)) -> t */
-static int defgeneric_class_default_initargs_(Execute ptr)
+int defgeneric_class_default_initargs_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -430,7 +431,7 @@ static int defmethod_class_direct_default_initargs_(Execute ptr,
 }
 
 /* (defgeneric class-direct-default-initargs (class)) -> t */
-static int defgeneric_class_direct_default_initargs_(Execute ptr)
+int defgeneric_class_direct_default_initargs_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -483,7 +484,7 @@ static int defmethod_class_precedence_list_(Execute ptr,
 }
 
 /* (defgeneric class-precedence-list (class)) -> t */
-static int defgeneric_class_precedence_list_(Execute ptr)
+int defgeneric_class_precedence_list_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -538,7 +539,7 @@ static int defmethod_class_direct_superclasses_(Execute ptr,
 }
 
 /* (defgeneric class-direct-superclasses (class)) -> t */
-static int defgeneric_class_direct_superclasses_(Execute ptr)
+int defgeneric_class_direct_superclasses_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -591,7 +592,7 @@ static int defmethod_class_direct_subclasses_(Execute ptr,
 }
 
 /* (defgeneric class-direct-subclasses (class)) -> t */
-static int defgeneric_class_direct_subclasses_(Execute ptr)
+int defgeneric_class_direct_subclasses_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -644,7 +645,7 @@ static int defmethod_class_finalized_p_(Execute ptr,
 }
 
 /* (defgeneric class-finalized-p (class)) -> t */
-static int defgeneric_class_finalized_p_(Execute ptr)
+int defgeneric_class_finalized_p_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -697,7 +698,7 @@ static int defmethod_class_prototype_(Execute ptr,
 }
 
 /* (defgeneric class-prototype (class)) -> t */
-static int defgeneric_class_prototype_(Execute ptr)
+int defgeneric_class_prototype_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -766,7 +767,7 @@ static int defmethod_slot_definition_name_(Execute ptr, addr name, addr gen)
 
 
 /* (defgeneric slot-definition-name (class)) -> symbol */
-static int defgeneric_slot_definition_name_(Execute ptr)
+int defgeneric_slot_definition_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -817,7 +818,7 @@ static int defmethod_slot_definition_type_(Execute ptr, addr name, addr gen)
 
 
 /* (defgeneric slot-definition-type (class)) -> type */
-static int defgeneric_slot_definition_type_(Execute ptr)
+int defgeneric_slot_definition_type_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -880,7 +881,7 @@ static int defmethod_slot_definition_allocation_(Execute ptr, addr name, addr ge
 
 
 /* (defgeneric slot-definition-allocation (class)) -> symbol */
-static int defgeneric_slot_definition_allocation_(Execute ptr)
+int defgeneric_slot_definition_allocation_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -932,7 +933,7 @@ static int defmethod_slot_definition_initargs_(Execute ptr, addr name, addr gen)
 
 
 /* (defgeneric slot-definition-initargs (class)) -> t */
-static int defgeneric_slot_definition_initargs_(Execute ptr)
+int defgeneric_slot_definition_initargs_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -984,7 +985,7 @@ static int defmethod_slot_definition_initform_(Execute ptr, addr name, addr gen)
 
 
 /* (defgeneric slot-definition-initform (class)) -> t */
-static int defgeneric_slot_definition_initform_(Execute ptr)
+int defgeneric_slot_definition_initform_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1036,7 +1037,7 @@ static int defmethod_slot_definition_initfunction_(Execute ptr, addr name, addr 
 
 
 /* (defgeneric slot-definition-initfunction (class)) -> t */
-static int defgeneric_slot_definition_initfunction_(Execute ptr)
+int defgeneric_slot_definition_initfunction_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1082,7 +1083,7 @@ static int defmethod_generic_function_name_(Execute ptr, addr name, addr gen)
 }
 
 /* (defgeneric generic-function-name (clos)) -> symbol */
-static int defgeneric_generic_function_name_(Execute ptr)
+int defgeneric_generic_function_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1162,7 +1163,7 @@ static int defmethod_setf_generic_function_name_(Execute ptr, addr name, addr ge
 }
 
 /* (defgeneric (setf generic-function-name) (t class)) -> t */
-static int defgeneric_setf_generic_function_name_(Execute ptr)
+int defgeneric_setf_generic_function_name_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1220,7 +1221,7 @@ static int defmethod_generic_function_methods_(Execute ptr, addr name, addr gen)
 }
 
 /* (defgeneric generic-function-methods (clos)) -> symbol */
-static int defgeneric_generic_function_methods_(Execute ptr)
+int defgeneric_generic_function_methods_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1266,7 +1267,7 @@ static int defmethod_generic_function_lambda_list_(Execute ptr, addr name, addr 
 }
 
 /* (defgeneric generic-function-lambda-list (clos)) -> symbol */
-static int defgeneric_generic_function_lambda_list_(Execute ptr)
+int defgeneric_generic_function_lambda_list_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1311,7 +1312,7 @@ static int defmethod_generic_function_argument_precedence_order_(
 }
 
 /* (defgeneric generic-function-argument-precedence-order (clos)) -> symbol */
-static int defgeneric_generic_function_argument_precedence_order_(Execute ptr)
+int defgeneric_generic_function_argument_precedence_order_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1355,7 +1356,7 @@ static int defmethod_generic_function_declarations_(Execute ptr, addr name, addr
 }
 
 /* (defgeneric generic-function-declarations (clos)) -> symbol */
-static int defgeneric_generic_function_declarations_(Execute ptr)
+int defgeneric_generic_function_declarations_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1399,7 +1400,7 @@ static int defmethod_generic_function_method_class_(Execute ptr, addr name, addr
 }
 
 /* (defgeneric generic-function-method-class (clos)) -> symbol */
-static int defgeneric_generic_function_method_class_(Execute ptr)
+int defgeneric_generic_function_method_class_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1447,7 +1448,7 @@ static int defmethod_generic_function_method_combination_(
 }
 
 /* (defgeneric generic-function-method-combination (clos)) -> symbol */
-static int defgeneric_generic_function_method_combination_(Execute ptr)
+int defgeneric_generic_function_method_combination_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1490,7 +1491,7 @@ static int defmethod_method_function_(Execute ptr, addr name, addr gen)
 }
 
 /* (defgeneric method-function (clos)) -> symbol */
-static int defgeneric_method_function_(Execute ptr)
+int defgeneric_method_function_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1534,7 +1535,7 @@ static int defmethod_method_generic_function_(Execute ptr, addr name, addr gen)
 }
 
 /* (defgeneric method-generic-function (clos)) -> symbol */
-static int defgeneric_method_generic_function_(Execute ptr)
+int defgeneric_method_generic_function_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1581,7 +1582,7 @@ static int defmethod_method_lambda_list_(Execute ptr, addr name, addr gen)
 }
 
 /* (defgeneric method-lambda-list (clos)) -> symbol */
-static int defgeneric_method_lambda_list_(Execute ptr)
+int defgeneric_method_lambda_list_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1624,7 +1625,7 @@ static int defmethod_method_specializers_(Execute ptr, addr name, addr gen)
 }
 
 /* (defgeneric method-specializers (clos)) -> symbol */
-static int defgeneric_method_specializers_(Execute ptr)
+int defgeneric_method_specializers_(Execute ptr)
 {
 	addr symbol, name, gen;
 
@@ -1708,11 +1709,10 @@ static int defmethod_accessor_method_slot_definition_(Execute ptr, addr name, ad
 	return common_method_add_(ptr, gen, pos);
 }
 
-static int defgeneric_accessor_method_slot_definition_(Execute ptr)
+int defgeneric_accessor_method_slot_definition_(Execute ptr)
 {
 	addr symbol, name, gen;
 
-	GetConst(COMMON_METHOD_QUALIFIERS, &symbol);
 	GetConst(CLOSNAME_ACCESSOR_METHOD_SLOT_DEFINITION, &symbol);
 	mop_argument_generic_var1(&gen);
 	Return(parse_callname_error_(&name, symbol));
@@ -1728,11 +1728,9 @@ static int defgeneric_accessor_method_slot_definition_(Execute ptr)
 /***********************************************************************
  *  function
  ***********************************************************************/
-void init_mop_reader(void)
+static void init_require_mop_reader(void)
 {
 	/* Classes */
-	SetPointerType(var3, method_class_name);
-	SetPointerType(var4, method_setf_class_name);
 	SetPointerType(empty, make_slot_definition_call);
 	SetPointerType(var3, method_class_slots);
 	SetPointerType(var3, method_class_direct_slots);
@@ -1764,8 +1762,18 @@ void init_mop_reader(void)
 	SetPointerType(var3, method_method_generic_function);
 	SetPointerType(var3, method_method_lambda_list);
 	SetPointerType(var3, method_method_specializers);
-	SetPointerType(var3, method_method_qualifiers);
 	SetPointerType(var3, method_accessor_method_slot_definition);
+}
+
+void init_mop_reader(void)
+{
+	/* Classes */
+	SetPointerType(var3, method_class_name);
+	SetPointerType(var4, method_setf_class_name);
+	/* Method */
+	SetPointerType(var3, method_method_qualifiers);
+	/* Require */
+	init_require_mop_reader();
 }
 
 int build_mop_reader_(Execute ptr)
@@ -1773,38 +1781,8 @@ int build_mop_reader_(Execute ptr)
 	/* Classes */
 	Return(defgeneric_class_name_(ptr));
 	Return(defgeneric_setf_class_name_(ptr));
-	Return(defgeneric_class_slots_(ptr));
-	Return(defgeneric_class_direct_slots_(ptr));
-	Return(defgeneric_class_default_initargs_(ptr));
-	Return(defgeneric_class_direct_default_initargs_(ptr));
-	Return(defgeneric_class_precedence_list_(ptr));
-	Return(defgeneric_class_direct_superclasses_(ptr));
-	Return(defgeneric_class_direct_subclasses_(ptr));
-	Return(defgeneric_class_finalized_p_(ptr));
-	Return(defgeneric_class_prototype_(ptr));
-	/* Slot definitions */
-	Return(defgeneric_slot_definition_name_(ptr));
-	Return(defgeneric_slot_definition_type_(ptr));
-	Return(defgeneric_slot_definition_allocation_(ptr));
-	Return(defgeneric_slot_definition_initargs_(ptr));
-	Return(defgeneric_slot_definition_initform_(ptr));
-	Return(defgeneric_slot_definition_initfunction_(ptr));
-	/* Generic functions */
-	Return(defgeneric_generic_function_name_(ptr));
-	Return(defgeneric_setf_generic_function_name_(ptr));
-	Return(defgeneric_generic_function_methods_(ptr));
-	Return(defgeneric_generic_function_lambda_list_(ptr));
-	Return(defgeneric_generic_function_argument_precedence_order_(ptr));
-	Return(defgeneric_generic_function_declarations_(ptr));
-	Return(defgeneric_generic_function_method_class_(ptr));
-	Return(defgeneric_generic_function_method_combination_(ptr));
-	/* Methods */
-	Return(defgeneric_method_function_(ptr));
-	Return(defgeneric_method_generic_function_(ptr));
-	Return(defgeneric_method_lambda_list_(ptr));
-	Return(defgeneric_method_specializers_(ptr));
+	/* Method */
 	Return(defgeneric_method_qualifiers_(ptr));
-	Return(defgeneric_accessor_method_slot_definition_(ptr));
 
 	return 0;
 }

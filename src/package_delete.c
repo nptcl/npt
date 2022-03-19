@@ -1,11 +1,12 @@
-#include "condition.h"
 #include "cons.h"
+#include "condition_define.h"
 #include "control_object.h"
 #include "execute_object.h"
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
 #include "package_delete.h"
+#include "package_designer.h"
 #include "package_use.h"
 #include "restart.h"
 #include "strvect.h"
@@ -145,18 +146,6 @@ static int delete_package_used_(addr pos)
 
 
 /*
- *  readonly
- */
-static int delete_package_readonly_(addr pos)
-{
-	if (! get_readonly_package(pos))
-		return 0;
-
-	return fmte_("~S is a readonly package.", pos, NULL);
-}
-
-
-/*
  *  delete_package
  */
 static int allunintern_uselist_package_(addr pos)
@@ -228,7 +217,7 @@ int delete_package_(addr pos, int *ret)
 	}
 
 	/* readonly */
-	Return(delete_package_readonly_(pos));
+	Return(package_designer_update_p_(pos, &pos));
 
 	/* used-by-list */
 	Return(delete_package_used_(pos));

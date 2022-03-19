@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 22. Printer
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtprinter-tools.lisp")
 (load #p"test/rtprinter-common.lisp")
 (load #p"test/rtprinter-format1.lisp")

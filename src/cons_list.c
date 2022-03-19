@@ -381,6 +381,21 @@ int find_list_eql_unsafe(addr key, addr cons)
 	return 0;
 }
 
+int find_list_equal_safe_(addr key, addr cons, int *ret)
+{
+	int check;
+	addr pos;
+
+	*ret = 0;
+	while (consp_getcons(cons, &pos, &cons)) {
+		Return(equal_function_(pos, key, &check));
+		if (check)
+			return Result(ret, 1);
+	}
+
+	return Result(ret, 0);
+}
+
 int position_list_eq_unsafe(addr key, addr cons, size_t *ret)
 {
 	addr check;
@@ -801,5 +816,21 @@ void remove_list_eq_unsafe_local(LocalRoot local,
 {
 	Check(local == NULL, "local error");
 	remove_list_eq_unsafe_alloc(local, key, cons, ret);
+}
+
+int remove_list_equal_safe_heap_(addr key, addr cons, addr *ret)
+{
+	int check;
+	addr root, pos;
+
+	root = Nil;
+	while (consp_getcons(cons, &pos, &cons)) {
+		Return(equal_function_(pos, key, &check));
+		if (! check)
+			cons_heap(&root, pos, root);
+	}
+	nreverse(ret, root);
+
+	return 0;
 }
 

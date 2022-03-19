@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 25. Environment
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtenvironment-apropos.lisp")
 (load #p"test/rtenvironment-time.lisp")
 (load #p"test/rtenvironment-test.lisp")

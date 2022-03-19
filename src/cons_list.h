@@ -28,6 +28,8 @@
 #define find_list_eq_unsafe _n(find_list_eq_unsafe)
 #define find_list_eq_safe_ _n(find_list_eq_safe_)
 #define find_list_eql_unsafe _n(find_list_eql_unsafe)
+#define find_list_equal_safe_ _n(find_list_equal_safe_)
+#define find_list_equal_safe _n(find_list_equal_safe)
 #define position_list_eq_unsafe _n(position_list_eq_unsafe)
 #define find_assoc_eq_unsafe _n(find_assoc_eq_unsafe)
 #define pushnew_alloc _n(pushnew_alloc)
@@ -58,6 +60,7 @@
 #define remove_list_eq_unsafe_heap _n(remove_list_eq_unsafe_heap)
 #define remove_list_eq_unsafe_local _n(remove_list_eq_unsafe_local)
 #define remove_list_eq_unsafe_alloc _n(remove_list_eq_unsafe_alloc)
+#define remove_list_equal_safe_heap_ _n(remove_list_equal_safe_heap_)
 
 /* nth */
 void getnth_abort(addr cons, size_t index, addr *ret);
@@ -90,6 +93,7 @@ int setlastcdr_safe_(addr list, addr cdr);
 int find_list_eq_unsafe(addr key, addr cons);
 int find_list_eq_safe_(addr key, addr cons, int *ret);
 int find_list_eql_unsafe(addr key, addr cons);
+int find_list_equal_safe_(addr key, addr cons, int *ret);
 int position_list_eq_unsafe(addr key, addr cons, size_t *ret);
 int find_assoc_eq_unsafe(addr key, addr list, addr *ret);
 
@@ -136,6 +140,7 @@ void remove_list_eq_unsafe_local(LocalRoot local,
 		addr key, addr cons, addr *ret);
 void remove_list_eq_unsafe_alloc(LocalRoot local,
 		addr key, addr cons, addr *ret);
+int remove_list_equal_safe_heap_(addr key, addr cons, addr *ret);
 
 #endif
 

@@ -1,4 +1,4 @@
-#include "condition.h"
+#include "condition_define.h"
 #include "heap.h"
 #include "hashtable.h"
 #include "package_bittype.h"
@@ -100,7 +100,8 @@ static int intern_read_bitpackage_(addr package, addr name, addr *value, int *re
 	if (cons == Nil) {
 		*value = Nil;
 		*ret = 0;
-		return fmte_("Cannot intern the symbol ~S because ~S is a readonly package.",
+		return call_simple_package_error_va_(NULL,
+				"Cannot intern the symbol ~S because ~S is a readonly package.",
 				name, package, NULL);
 	}
 	GetCdr(cons, value);

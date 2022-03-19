@@ -1,16 +1,8 @@
 ;;
 ;;  ANSI COMMON LISP: 17. Sequences
 ;;
-
-;;  function
-(defun eqlf (v)
-  (lambda (x) (eql v x)))
-
-(defun noteqlf (v)
-  (lambda (x) (not (eql v x))))
-
-
-;;  load
+(load #p"test/rtmop-require.lisp")
+(load #p"test/rtsequences-init.lisp")
 (load #p"test/rtsequences-type.lisp")
 (load #p"test/rtsequences-test.lisp")
 (load #p"test/rtsequences-map.lisp")

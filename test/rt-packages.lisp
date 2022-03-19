@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 11. Packages
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtpackages.lisp")
 (load #p"test/rtpackages-object.lisp")
 (load #p"test/rtpackages-package.lisp")

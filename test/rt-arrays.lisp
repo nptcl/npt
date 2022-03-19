@@ -1,6 +1,7 @@
 ;;
 ;;  ANSI COMMON LISP: 15. Arrays
 ;;
+(load #p"test/rtmop-require.lisp")
 (load #p"test/rtarrays-array.lisp")
 (load #p"test/rtarrays-type.lisp")
 (load #p"test/rtarrays-make.lisp")

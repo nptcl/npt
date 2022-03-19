@@ -9,6 +9,7 @@
 #include "package_designer.h"
 #include "package_object.h"
 #include "random_state.h"
+#include "require.h"
 #include "stream_memory.h"
 #include "stream_object.h"
 #include "stream_pipe.h"
@@ -493,10 +494,95 @@ static int sysctl_package_(Execute ptr, addr args)
 	if (! consp_getcons(args, &pos, &args))
 		goto error;
 
-	/* pipe */
+	/* readonly */
 	Return(string_designer_equalp_char_(pos, "readonly", &check));
 	if (check)
 		return sysctl_package_readonly_(ptr, args);
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+
+/*
+ *  require
+ */
+static int sysctl_require_append_(Execute ptr, addr args)
+{
+	int check, forcep;
+	addr pos, opt;
+
+	/* require */
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (args == Nil) {
+		forcep = 0;
+	}
+	else {
+		if (! consp_getcons(args, &opt, &args))
+			goto error;
+		if (args != Nil)
+			goto error;
+		forcep = (opt != Nil);
+	}
+
+	/* get */
+	Return(require_append_(ptr, pos, forcep, &check));
+	setvalues_control(ptr, (check? T: Nil), T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_require_delete_(Execute ptr, addr args)
+{
+	int check, forcep;
+	addr pos, opt;
+
+	/* require */
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (args == Nil) {
+		forcep = 0;
+	}
+	else {
+		if (! consp_getcons(args, &opt, &args))
+			goto error;
+		if (args != Nil)
+			goto error;
+		forcep = (opt != Nil);
+	}
+
+	/* get */
+	Return(require_delete_(ptr, pos, forcep, &check));
+	setvalues_control(ptr, (check? T: Nil), T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_require_(Execute ptr, addr args)
+{
+	int check;
+	addr pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+
+	/* append */
+	Return(string_designer_equalp_char_(pos, "append", &check));
+	if (check)
+		return sysctl_require_append_(ptr, args);
+
+	/* delete */
+	Return(string_designer_equalp_char_(pos, "delete", &check));
+	if (check)
+		return sysctl_require_delete_(ptr, args);
 
 error:
 	setvalues_control(ptr, Nil, Nil, NULL);
@@ -553,6 +639,11 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 	Return(string_designer_equalp_char_(pos, "package", &check));
 	if (check)
 		return sysctl_package_(ptr, args);
+
+	/* require */
+	Return(string_designer_equalp_char_(pos, "require", &check));
+	if (check)
+		return sysctl_require_(ptr, args);
 
 	/* error */
 	setvalues_control(ptr, Nil, Nil, NULL);
