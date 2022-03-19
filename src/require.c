@@ -6,6 +6,7 @@
 #include "control_object.h"
 #include "control_operator.h"
 #include "eval_load.h"
+#include "function.h"
 #include "require.h"
 #include "restart_value.h"
 #include "strtype.h"
@@ -104,12 +105,43 @@ int require_common_(Execute ptr, addr var, addr opt)
 
 
 /*
+ *  require default
+ */
+static int function_require_default_(Execute ptr, addr var)
+{
+	setresult_control(ptr, Nil);
+	return 0;
+}
+
+static void make_require_default(addr *ret)
+{
+	addr pos;
+
+	compiled_heap(&pos, Nil);
+	setcompiled_var1(pos, p_function_require_default);
+	*ret = pos;
+}
+
+
+/*
  *  build
  */
 void build_require(void)
 {
-	addr symbol;
+	addr symbol, pos, list;
+
 	GetConst(SYSTEM_MODULE_PROVIDER_FUNCTIONS, &symbol);
-	SetValueSymbol(symbol, Nil);
+	make_require_default(&pos);
+	list_heap(&list, pos, NULL);
+	SetValueSymbol(symbol, list);
+}
+
+
+/*
+ *  init
+ */
+void init_require(void)
+{
+	SetPointerType_(var1, function_require_default);
 }
 

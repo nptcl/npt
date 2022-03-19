@@ -515,7 +515,7 @@ int unintern_package_(addr package, addr symbol, int *ret)
 	int check, value;
 
 	Check(! symbolp(symbol), "type error");
-	Return(package_designer_(package, &package));
+	Return(package_designer_update_p_(package, &package));
 
 	/* check */
 	Return(check_unintern_package_(package, symbol, &check, &value));

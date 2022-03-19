@@ -1,3 +1,4 @@
+#include "condition.h"
 #include "heap.h"
 #include "hashtable.h"
 #include "package_bittype.h"
@@ -89,7 +90,25 @@ void shadowimport_bitpackage(addr bit, addr symbol)
 	str->inherit = 0;
 }
 
-int intern_bitpackage_(addr package, addr name, addr *value, int *ret)
+static int intern_read_bitpackage_(addr package, addr name, addr *value, int *ret)
+{
+	addr table, cons;
+
+	Check(! get_readonly_package(package), "readonly error.");
+	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
+	Return(findcons_hashtable_(table, name, &cons));
+	if (cons == Nil) {
+		*value = Nil;
+		*ret = 0;
+		return fmte_("Cannot intern the symbol ~S because ~S is a readonly package.",
+				name, package, NULL);
+	}
+	GetCdr(cons, value);
+	Check(*value == Nil, "bitpackage error.");
+	return Result(ret, 0); /* exist */
+}
+
+static int intern_write_bitpackage_(addr package, addr name, addr *value, int *ret)
 {
 	addr table, cons, bit;
 
@@ -104,6 +123,14 @@ int intern_bitpackage_(addr package, addr name, addr *value, int *ret)
 	}
 	*value = bit;
 	return Result(ret, 0); /* exist */
+}
+
+int intern_bitpackage_(addr package, addr name, addr *value, int *ret)
+{
+	if (get_readonly_package(package))
+		return intern_read_bitpackage_(package, name, value, ret);
+	else
+		return intern_write_bitpackage_(package, name, value, ret);
 }
 
 int find_bitpackage_(addr package, addr name, addr *ret)

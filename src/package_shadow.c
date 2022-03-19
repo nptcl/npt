@@ -67,7 +67,7 @@ int shadow_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_(package, &package));
+	Return(package_designer_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_CHARACTER:
@@ -205,7 +205,7 @@ int shadowing_import_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_(package, &package));
+	Return(package_designer_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:

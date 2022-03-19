@@ -130,6 +130,21 @@
     (import (intern "X" 'import-restart-5c) 'import-restart-5b))
   package-error)
 
+(deftest-error import-readonly.1
+  (let* ((x (make-package 'import-readonly-1))
+         (y (make-package 'import-readonly-2))
+         (z (intern "IMPORT-AAA" y)))
+    (package-readonly x t)
+    (import z x)))
+
+(deftest import-readonly.2
+  (let* ((x (make-package 'import-readonly-3))
+         (y (make-package 'import-readonly-4))
+         (z (intern "IMPORT-AAA" y)))
+    (package-readonly y t)
+    (import z x))
+  t)
+
 (deftest-error import-error.1
   (eval '(import 10))
   type-error)
@@ -230,6 +245,11 @@
     (eq (car (member symbol (package-shadowing-symbols *package*)))
         symbol))
   t)
+
+(deftest-error shadow.10
+  (let ((x (make-package 'shadow-10)))
+    (package-readonly x t)
+    (shadow "SHADOW8" x)))
 
 (deftest shadow-list.1
   (shadow '("SHADOW-LIST-1" "SHADOW-LIST-2") 'test1)
@@ -354,6 +374,21 @@
     (shadowing-import (intern "SHADOWING6" 'test1))
     (find-symbol-list "SHADOWING6" *package*))
   ("TEST1" "SHADOWING6" :internal))
+
+(deftest-error shadowing-import-readonly.1
+  (let* ((x (make-package 'shadowing-import-readonly-1))
+         (y (make-package 'shadowing-import-readonly-2))
+         (z (intern "SHADOWING-AAA" y)))
+    (package-readonly x t)
+    (shadowing-import z x)))
+
+(deftest shadowing-import-readonly.2
+  (let* ((x (make-package 'shadowing-import-readonly-3))
+         (y (make-package 'shadowing-import-readonly-4))
+         (z (intern "SHADOWING-AAA" y)))
+    (package-readonly y t)
+    (shadowing-import z x))
+  t)
 
 (deftest shadowing-import-list.1
   (shadowing-import
@@ -548,6 +583,31 @@
   (intern-list "INTERN-6")
   "COMMON-LISP-USER" "INTERN-6" :internal)
 
+(deftest-error intern-readonly.1
+  (let ((x (make-package 'intern-readonly-1)))
+    (package-readonly x t)
+    (intern "AAA" x)))
+
+(deftest intern-readonly.2
+  (let ((x (make-package 'intern-readonly-2)))
+    (intern "AAA" x)
+    (package-readonly x t)
+    (intern-list "AAA" 'intern-readonly-2))
+  "INTERN-READONLY-2" "AAA" :internal)
+
+(deftest-error intern-readonly.3
+  (let ((x (make-package 'intern-readonly-3)))
+    (package-readonly x t)
+    (read-from-string "intern-readonly-3::aaa")))
+
+(deftest intern-readonly.4
+  (let ((x (make-package 'intern-readonly-4)))
+    (intern "AAA" x)
+    (package-readonly x t)
+    (symbolp
+      (read-from-string "intern-readonly-4::aaa")))
+  t)
+
 (deftest intern-keyword.1
   (intern-list "KEYWORD-TEST" "KEYWORD")
   "KEYWORD" "KEYWORD-TEST" nil)
@@ -652,6 +712,12 @@
 (deftest unintern.7
   (find-symbol-list "X" 'unintern-package-6)
   ("UNINTERN-PACKAGE-7" "X" :inherited))
+
+(deftest-error unintern-readonly.1
+  (let* ((x (make-package 'unintern-readonly-1))
+         (y (intern "AAA" x)))
+    (package-readonly x t)
+    (unintern y x)))
 
 (deftest-error unintern-conflict.1
   (progn

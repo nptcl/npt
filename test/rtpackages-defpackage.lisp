@@ -21,6 +21,12 @@
     (packagep (find-package 'defpackage-3)))
   t)
 
+(deftest-error defpackage.4
+  (progn
+    (defpackage defpackage-4)
+    (package-readonly 'defpackage-4 t)
+    (defpackage defpackage-4)))
+
 
 ;;
 ;;  name

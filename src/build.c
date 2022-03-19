@@ -91,6 +91,7 @@ void initlisp(void)
 	init_package();
 	init_print();
 	init_reader();
+	init_require();
 	init_restart();
 	init_rt();
 	init_scope();
@@ -235,6 +236,24 @@ void build_lisproot(Execute ptr)
 	ptr->control = Nil;
 }
 
+static void build_finalize_package(constindex index)
+{
+	addr package;
+
+	GetConstant(index, &package);
+	CheckType(package, LISPTYPE_PACKAGE);
+	set_readonly_package(package, 1);
+}
+
+static void build_finalize(void)
+{
+	build_finalize_package(CONSTANT_PACKAGE_COMMON_LISP);
+	build_finalize_package(CONSTANT_PACKAGE_SYSTEM);
+	build_finalize_package(CONSTANT_PACKAGE_CODE);
+	build_finalize_package(CONSTANT_PACKAGE_CLOS);
+	build_finalize_package(CONSTANT_PACKAGE_RT);
+}
+
 static void push_features(const char *name)
 {
 	addr symbol, keyword, cons;
@@ -362,6 +381,7 @@ void buildlisp(Execute ptr)
 	build_code();
 	build_require();
 	build_rt();
+	build_finalize();
 	set_features();
 	set_pretty_printing();
 	gcexec(GcMode_Full);

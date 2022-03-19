@@ -46,6 +46,12 @@
     (count "EXPORT6" (package-export-list 'test1) :test #'equal))
   1)
 
+(deftest-error export-readonly.1
+  (let* ((x (make-package 'export-readonly-1))
+         (y (intern "AAA" x)))
+    (package-readonly x t)
+    (export y x)))
+
 ;;  list
 (deftest export-list.1
   (let ((x (list (intern "EXPORT-LIST-1A" 'test1)
@@ -333,6 +339,13 @@
       (values x (find-symbol-list "X" 'unexport-13b))))
   ("UNEXPORT-13A" "X" :inherited)
   nil)
+
+(deftest-error unexport-readonly.1
+  (let* ((x (make-package 'unexport-readonly-1))
+         (y (intern "AAA" x)))
+    (export y x)
+    (package-readonly x t)
+    (unexport y x)))
 
 (deftest unexport-list.1
   (let ((x (list (intern "UNEXPORT-LIST-1" 'test1)

@@ -709,6 +709,7 @@ int defpackage_execute_(Execute ptr, addr var, addr rest, addr *ret)
 		Return(defpackage_execute_make_(ptr, var, rest, sizep, size, &pos));
 	}
 	else {
+		Return(package_designer_update_p_(pos, &pos));
 		Return(defpackage_execute_update_(ptr, pos, rest, sizep, size));
 	}
 	setdocument_package(pos, doc);

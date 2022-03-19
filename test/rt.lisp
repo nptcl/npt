@@ -3,10 +3,23 @@
 ;;
 (in-package #:common-lisp-user)
 
-(defun rt-package (symbol &optional (type (lisp-implementation-type)))
-  (let ((name (format nil "~A-~A" type symbol))
-        (lisp (format nil "~A-~A" 'lisp symbol)))
-    (rename-package name name (list lisp))))
+(defun rt-package-readonly (&rest args)
+  (let* ((type (lisp-implementation-type))
+         (name (format nil "~A-SYSTEM" type))
+         (call (intern "SYSCTL" name)))
+    (apply call 'package 'readonly args)))
+
+(defun rt-rename-package (p x y)
+  (let ((value (rt-package-readonly p)))
+    (rt-package-readonly p nil)
+    (rename-package p x y)
+    (rt-package-readonly p value)))
+
+(defun rt-package (symbol)
+  (let* ((type (lisp-implementation-type))
+         (name (format nil "~A-~A" type symbol))
+         (lisp (format nil "~A-~A" 'lisp symbol)))
+    (rt-rename-package name name (list lisp))))
 
 (rt-package 'system)
 (rt-package 'clos)

@@ -6,6 +6,8 @@
 #include "integer.h"
 #include "mop_generic.h"
 #include "object.h"
+#include "package_designer.h"
+#include "package_object.h"
 #include "random_state.h"
 #include "stream_memory.h"
 #include "stream_object.h"
@@ -449,6 +451,60 @@ error:
 
 
 /*
+ *  package
+ */
+static int sysctl_package_readonly_(Execute ptr, addr args)
+{
+	int check;
+	addr pos, value;
+
+	/* package */
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	Return(package_designer_(pos, &pos));
+
+	/* get */
+	if (args == Nil) {
+		value = get_readonly_package(pos)? T: Nil;
+		setvalues_control(ptr, value, T, NULL);
+		return 0;
+	}
+
+	/* set */
+	if (! consp_getcons(args, &value, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
+	check = (value != Nil);
+	set_readonly_package(pos, check);
+	setvalues_control(ptr, value, T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+static int sysctl_package_(Execute ptr, addr args)
+{
+	int check;
+	addr pos;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+
+	/* pipe */
+	Return(string_designer_equalp_char_(pos, "readonly", &check));
+	if (check)
+		return sysctl_package_readonly_(ptr, args);
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
+
+/*
  *  sysctl
  */
 int sysctl_values_(Execute ptr, addr pos, addr args)
@@ -492,6 +548,11 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 	Return(string_designer_equalp_char_(pos, "stream", &check));
 	if (check)
 		return sysctl_stream_(ptr, args);
+
+	/* package */
+	Return(string_designer_equalp_char_(pos, "package", &check));
+	if (check)
+		return sysctl_package_(ptr, args);
 
 	/* error */
 	setvalues_control(ptr, Nil, Nil, NULL);

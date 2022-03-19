@@ -19,6 +19,7 @@
 #include "hold.h"
 #include "integer.h"
 #include "package.h"
+#include "package_designer.h"
 #include "package_intern.h"
 #include "package_use.h"
 #include "pathname.h"
@@ -115,6 +116,22 @@ static int loadrt_execute(Execute ptr, const char *name)
 	return pop_control_(ptr, control);
 }
 
+static int loadrt_nickname_force_(addr package, addr x, addr y)
+{
+	int check;
+
+	Return(package_designer_(package, &package));
+	if (! get_readonly_package(package))
+		return rename_package_(package, x, y, &x);
+
+	/* readonly */
+	set_readonly_package(package, 0);
+	check = rename_package_(package, x, y, &x);
+	set_readonly_package(package, 1);
+
+	return check;
+}
+
 static int loadrt_nickname_(const char *str1, const char *str2)
 {
 	addr name1, name2;
@@ -122,7 +139,7 @@ static int loadrt_nickname_(const char *str1, const char *str2)
 	strvect_char_heap(&name1, str1);
 	strvect_char_heap(&name2, str2);
 	conscar_heap(&name2, name2);
-	return rename_package_(name1, name1, name2, &name1);
+	return loadrt_nickname_force_(name1, name1, name2);
 }
 
 static int loadrt_nicknames_(void)

@@ -41,3 +41,8 @@
       (count name list)
       (count name list :key #'symbol-name :test #'equal))))
 
+(defun package-readonly (x &optional (y nil y-p))
+  (if y-p
+    (lisp-system:sysctl 'package 'readonly x y)
+    (lisp-system:sysctl 'package 'readonly x)))
+

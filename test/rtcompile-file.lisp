@@ -77,13 +77,6 @@
       (prog1 *result*
         (setq *result* nil)))))
 
-(defun calltype-compile (x)
-  (lisp-system::type-object
-    (type-compile-load x)))
-
-(defmacro type-compile (x)
-  `(calltype-compile ',x))
-
 
 ;;
 ;;  exec

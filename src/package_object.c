@@ -101,6 +101,18 @@ void getexport_package_unsafe(addr pos, addr *ret)
 	GetPackage(pos, PACKAGE_INDEX_EXPORT, ret);
 }
 
+int get_readonly_package(addr pos)
+{
+	CheckType(pos, LISPTYPE_PACKAGE);
+	return GetUser(pos);
+}
+
+void set_readonly_package(addr pos, int value)
+{
+	CheckType(pos, LISPTYPE_PACKAGE);
+	SetUser(pos, value != 0);
+}
+
 
 /*
  *  push package list

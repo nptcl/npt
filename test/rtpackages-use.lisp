@@ -45,6 +45,19 @@
 (deftest-error use-package.6
   (use-package '(keywrod) 'test1))
 
+(deftest use-package-readonly.1
+  (let ((x (make-package 'use-package-readonly-1))
+        (y (make-package 'use-package-readonly-2)))
+    (package-readonly x t)
+    (use-package x y))
+  t)
+
+(deftest-error use-package-readonly.2
+  (let ((x (make-package 'use-package-readonly-3))
+        (y (make-package 'use-package-readonly-4)))
+    (package-readonly y t)
+    (use-package x y)))
+
 (deftest use-package-uninit.6
   (progn
     (unuse-package 'test1 'test2)
@@ -204,6 +217,20 @@
     (find-symbol "X" 'unuse-package-2))
   nil nil)
 
+(deftest unuse-package-readonly.1
+  (let ((x (make-package 'unuse-package-readonly-1))
+        (y (make-package 'unuse-package-readonly-2)))
+    (use-package x y)
+    (package-readonly x t)
+    (unuse-package x y))
+  t)
+
+(deftest-error unuse-package-readonly.2
+  (let ((x (make-package 'unuse-package-readonly-3))
+        (y (make-package 'unuse-package-readonly-4)))
+    (use-package x y)
+    (package-readonly y t)
+    (unuse-package x y)))
 
 ;;  error
 (deftest-error unuse-package-error.1

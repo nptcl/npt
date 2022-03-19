@@ -413,7 +413,7 @@ int export_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_(package, &package));
+	Return(package_designer_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
@@ -540,7 +540,7 @@ static int package_designer_unexport_package_(addr pos, addr *ret)
 {
 	addr check;
 
-	Return(package_designer_(pos, &pos));
+	Return(package_designer_update_p_(pos, &pos));
 
 	/* KEYWORD */
 	GetConst(PACKAGE_KEYWORD, &check);

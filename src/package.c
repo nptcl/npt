@@ -120,6 +120,7 @@ int package_size_heap_(addr *ret, addr name, size_t size)
 
 	/* make package */
 	heap_array2(&pos, LISPTYPE_PACKAGE, PACKAGE_INDEX_SIZE);
+	SetUser(pos, 0);  /* not readonly */
 	if (size)
 		hashtable_size_heap(&table, size);
 	else
@@ -512,7 +513,7 @@ static int intern_allnames_package_(addr pos, addr name, addr right)
 
 int rename_package_(addr pos, addr name, addr right, addr *ret)
 {
-	Return(package_designer_(pos, &pos));
+	Return(package_designer_update_p_(pos, &pos));
 	/* check conflict */
 	Return(check_rename_package_(pos, name, right));
 	/* delete name and nicknames */

@@ -18,6 +18,8 @@
 #define getusedbylist_package_unsafe _n(getusedbylist_package_unsafe)
 #define getshadow_package_unsafe _n(getshadow_package_unsafe)
 #define getexport_package_unsafe _n(getexport_package_unsafe)
+#define get_readonly_package _n(get_readonly_package)
+#define set_readonly_package _n(set_readonly_package)
 
 #define push_list_nicknames_package _n(push_list_nicknames_package)
 #define push_list_use_package _n(push_list_use_package)
@@ -68,6 +70,8 @@ void getuselist_package_unsafe(addr pos, addr *ret);
 void getusedbylist_package_unsafe(addr pos, addr *ret);
 void getshadow_package_unsafe(addr pos, addr *ret);
 void getexport_package_unsafe(addr pos, addr *ret);
+int get_readonly_package(addr pos);
+void set_readonly_package(addr pos, int value);
 
 /* package list */
 void push_list_nicknames_package(addr package, addr pos);

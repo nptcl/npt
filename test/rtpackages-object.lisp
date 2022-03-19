@@ -3,6 +3,32 @@
 ;;
 
 ;;
+;;  sysctl
+;;
+(defpackage package-sysctl-readonly-1)
+
+(deftest package-sysctl-readonly.1
+  (package-readonly 'package-sysctl-readonly-1)
+  nil t)
+
+(deftest package-sysctl-readonly.2
+  (package-readonly 'package-sysctl-readonly-1 10)
+  10 t)
+
+(deftest package-sysctl-readonly.3
+  (package-readonly 'package-sysctl-readonly-1)
+  t t)
+
+(deftest package-sysctl-readonly.4
+  (package-readonly 'package-sysctl-readonly-1 nil)
+  nil t)
+
+(deftest package-sysctl-readonly.5
+  (package-readonly 'package-sysctl-readonly-1)
+  nil t)
+
+
+;;
 ;;  System Class PACKAGE
 ;;
 (deftest package-type.1
@@ -47,6 +73,12 @@
   (stringp
     (package-name *package*))
   t)
+
+(deftest package-name.5
+  (let ((package (make-package 'package-name-2)))
+    (package-readonly package)
+    (package-name package))
+  "PACKAGE-NAME-2")
 
 (deftest-error package-name-error.1
   (package-name 'no-such-package-name))
@@ -99,6 +131,16 @@
       (delete-package 'package-nicknames-2)))
   ("AAA" "BBB" "CCC"))
 
+(deftest package-nicknames.3
+  (progn
+    (make-package 'package-nicknames-3 :nicknames '("AAA" "BBB" "CCC"))
+    (package-readonly 'package-nicknames-3 t)
+    (prog1
+      (sort (package-nicknames 'package-nicknames-3) #'string<)
+      (package-readonly 'package-nicknames-3 nil)
+      (delete-package 'package-nicknames-3)))
+  ("AAA" "BBB" "CCC"))
+
 (deftest-error package-nicknames-error.1
   (package-nicknames 'no-such-package-name))
 
@@ -129,43 +171,56 @@
 
 (deftest package-shadowing-symbols.3
   (progn
-    (make-package 'package1)
-    (shadow "AAA" 'package1)
+    (make-package 'package-shadowing-symbols-1)
+    (shadow "AAA" 'package-shadowing-symbols-1)
     (let ((x (mapcar
                #'symbol-name
-               (package-shadowing-symbols 'package1))))
-      (delete-package 'package1)
+               (package-shadowing-symbols 'package-shadowing-symbols-1))))
+      (delete-package 'package-shadowing-symbols-1)
       x))
   ("AAA"))
 
 (deftest package-shadowing-symbols.4
   (progn
-    (make-package 'package2)
-    (shadow "AAA" 'package2)
-    (shadow "BBB" 'package2)
-    (shadow "CCC" 'package2)
+    (make-package 'package-shadowing-symbols-2)
+    (shadow "AAA" 'package-shadowing-symbols-2)
+    (shadow "BBB" 'package-shadowing-symbols-2)
+    (shadow "CCC" 'package-shadowing-symbols-2)
     (let ((x (mapcar
                #'symbol-name
-               (package-shadowing-symbols 'package2))))
-      (delete-package 'package2)
+               (package-shadowing-symbols 'package-shadowing-symbols-2))))
+      (delete-package 'package-shadowing-symbols-2)
       (sort x #'string<)))
   ("AAA" "BBB" "CCC"))
 
 (deftest package-shadowing-symbols.5
   (progn
-    (make-package 'package4)
-    (make-package 'package5)
-    (let ((x (intern "AAA" 'package5))
-          (y (intern "BBB" 'package5)))
-      (shadowing-import x 'package4)
-      (shadowing-import y 'package4)
+    (make-package 'package-shadowing-symbols-4)
+    (make-package 'package-shadowing-symbols-5)
+    (let ((x (intern "AAA" 'package-shadowing-symbols-5))
+          (y (intern "BBB" 'package-shadowing-symbols-5)))
+      (shadowing-import x 'package-shadowing-symbols-4)
+      (shadowing-import y 'package-shadowing-symbols-4)
       (let ((list (mapcar
                     #'symbol-name
-                    (package-shadowing-symbols 'package4))))
-        (delete-package 'package4)
-        (delete-package 'package5)
+                    (package-shadowing-symbols 'package-shadowing-symbols-4))))
+        (delete-package 'package-shadowing-symbols-4)
+        (delete-package 'package-shadowing-symbols-5)
         (sort list #'string<))))
   ("AAA" "BBB"))
+
+(deftest package-shadowing-symbols.6
+  (progn
+    (make-package 'package-shadowing-symbols-6)
+    (shadow "AAA" 'package-shadowing-symbols-6)
+    (package-readonly 'package-shadowing-symbols-6 t)
+    (let ((x (mapcar
+               #'symbol-name
+               (package-shadowing-symbols 'package-shadowing-symbols-6))))
+      (package-readonly 'package-shadowing-symbols-6 nil)
+      (delete-package 'package-shadowing-symbols-6)
+      x))
+  ("AAA"))
 
 (deftest-error package-shadowing-symbols-error.1
   (package-shadowing-symbols 'no-such-package-name))
@@ -245,6 +300,17 @@
       (sort x #'string<)))
   ("PACKAGE-USE-LIST-2" "PACKAGE-USE-LIST-3" "PACKAGE-USE-LIST-4"))
 
+(deftest package-use-list.4
+  (let ((x (make-package 'package-use-list-4)))
+    (package-readonly x t)
+    (prog1
+      (mapcar
+        #'package-name
+        (package-use-list 'package-use-list-4))
+      (package-readonly x nil)
+      (delete-package x)))
+  ("COMMON-LISP"))
+
 (deftest-error package-use-list-error.1
   (package-use-list 'no-such-package-use-list))
 
@@ -262,16 +328,16 @@
 (deftest package-use-list-test.1
   (mapcar #'package-name
           (package-use-list
-            (make-package 'package1)))
+            (make-package 'package-use-list-test-1)))
   ("COMMON-LISP"))
 
 (deftest package-use-list-test.2
   (progn
-    (use-package 'common-lisp-user 'package1)
+    (use-package 'common-lisp-user 'package-use-list-test-1)
     (prog1
-      (sort (mapcar #'package-name (package-use-list 'package1))
+      (sort (mapcar #'package-name (package-use-list 'package-use-list-test-1))
             #'string<)
-      (delete-package 'package1)))
+      (delete-package 'package-use-list-test-1)))
   ("COMMON-LISP" "COMMON-LISP-USER"))
 
 
@@ -291,9 +357,9 @@
   nil)
 
 (deftest package-used-by-list.3
-  (let ((x (make-package 'package10))
-        (y (make-package 'package11))
-        (z (make-package 'package12)))
+  (let ((x (make-package 'package-used-by-list-1))
+        (y (make-package 'package-used-by-list-2))
+        (z (make-package 'package-used-by-list-3)))
     (use-package x y)
     (use-package x z)
     (prog1 (sort (mapcar #'package-name
@@ -302,7 +368,15 @@
       (delete-package y)
       (delete-package z)
       (delete-package x)))
-  ("PACKAGE11" "PACKAGE12"))
+  ("PACKAGE-USED-BY-LIST-2" "PACKAGE-USED-BY-LIST-3"))
+
+(deftest package-used-by-list.4
+  (let ((x (make-package 'package-used-by-list-4)))
+    (package-readonly 'package-used-by-list-4 t)
+    (prog1 (package-used-by-list 'package-used-by-list-4)
+      (package-readonly 'package-used-by-list-4 nil)
+      (delete-package x)))
+  nil)
 
 (deftest-error package-used-by-list-error.1
   (package-used-by-list 'no-such-package-used-by-list))

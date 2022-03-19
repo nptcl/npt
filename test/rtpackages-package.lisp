@@ -95,6 +95,11 @@
         (values (packagep result1) (packagep result2)))))
   t nil)
 
+(deftest-error rename-package.6
+  (let ((package (make-package 'rename-package-6)))
+    (package-readonly package t)
+    (rename-package 'rename-package-6 'rename-package-6-error)))
+
 (deftest-error rename-package-error.1
   (eval '(rename-package 10 'hello))
   type-error)
@@ -186,6 +191,10 @@
       (symbol-package x)))
   nil)
 
+(deftest-error delete-package.6
+  (let ((x (make-package 'delete-package-6)))
+    (package-readonly x t)
+    (delete-package 'delete-package-6)))
 
 (deftest-error delete-package-name.1
   (delete-package 'no-such-package-name)

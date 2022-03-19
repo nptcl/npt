@@ -1170,10 +1170,6 @@ enum pointer_index {
 	p_method_defstruct_default,
 	p_method_defstruct_object,
 	p_method_defstruct_function,
-	/* input */
-	p_readlist_finalize,
-	/* extern */
-	p_extern_unwind_protect,
 	/* pprint */
 	p_pprint_logical_block_fill_form,
 	p_pprint_logical_block_fill,
@@ -1214,6 +1210,9 @@ enum pointer_index {
 	p_restart_fdefinition_use_interactive,
 	p_restart_fdefinition_store_function,
 	p_restart_fdefinition_store_interactive,
+	/* require */
+	p_function_require_default,
+
 	/* syscall common */
 	p_defun_syscall_define_symbol_macro,
 	p_defmacro_syscall_symbol_macro_expander,
