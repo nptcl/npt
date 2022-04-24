@@ -739,3 +739,306 @@
   (eql (float 1.0 1.0d0) 1.0d0)
   t)
 
+;;  degrade
+(deftest float1-fixnum.1
+  (float 2)
+  2.0f0)
+
+(deftest float1-fixnum.2
+  (float -3)
+  -3.0f0)
+
+(deftest float1-fixnum.3
+  (float 0)
+  0.0)
+
+(deftest float1-bignum.1
+  (float 1000000000000000000000000000000)
+  1.0f30)
+
+(deftest float1-bignum.2
+  (float -5000000000000000000000000000000)
+  -5.0f30)
+
+(deftest float1-ratio.1
+  (float 1/2)
+  0.5f0)
+
+(deftest float1-ratio.2
+  (float -1/4)
+  -0.25f0)
+
+(deftest float1-single-float.1
+  (float 1.0f0)
+  1.0f0)
+
+(deftest float1-single-float.2
+  (float -2.0f2)
+  -2.0f2)
+
+(deftest float1-double-float.1
+  (float 1.0d0)
+  1.0d0)
+
+(deftest float1-double-float.2
+  (float -2.0d-2)
+  -2.0d-2)
+
+(deftest float1-long-float.1
+  (float 1.0L0)
+  1.0L0)
+
+(deftest float1-long-float.2
+  (float -2.0L-2)
+  -2.0L-2)
+
+;;  single-float
+(deftest float2-single-float.1
+  (float 2 1.0f0)
+  2.0f0)
+
+(deftest float2-single-float.2
+  (float -3 1.0f0)
+  -3.0f0)
+
+(deftest float2-single-float.3
+  (float 0 1.0f0)
+  0.0f0)
+
+(deftest float2-single-float.4
+  (float 1000000000000000000000000000000 1.0f0)
+  1.0f30)
+
+(deftest float2-single-float.5
+  (float -5000000000000000000000000000000 1.0f0)
+  -5.0f30)
+
+(deftest float2-single-float.6
+  (float 1/2 1.0f0)
+  0.5f0)
+
+(deftest float2-single-float.7
+  (float -1/4 1.0f0)
+  -0.25f0)
+
+(deftest float2-single-float.8
+  (float 1.0f0 1.0f0)
+  1.0f0)
+
+(deftest float2-single-float.9
+  (float -2.0f2 1.0f0)
+  -2.0f2)
+
+(deftest float2-single-float.10
+  (float 1.0d0 1.0f0)
+  1.0f0)
+
+(deftest float2-single-float.11
+  (float -2.0d-2 1.0f0)
+  -2.0f-2)
+
+(deftest float2-single-float.12
+  (float 1.0L0 1.0f0)
+  1.0f0)
+
+(deftest float2-single-float.13
+  (float -2.0L-2 1.0f0)
+  -2.0f-2)
+
+;;  double-float
+(deftest float2-double-float.1
+  (float 2 1.0d0)
+  2.0d0)
+
+(deftest float2-double-float.2
+  (float -3 1.0d0)
+  -3.0d0)
+
+(deftest float2-double-float.3
+  (float 0 1.0d0)
+  0.0d0)
+
+(deftest float2-double-float.4
+  (float 1000000000000000000000000000000 1.0d0)
+  1.0d30)
+
+(deftest float2-double-float.5
+  (float -5000000000000000000000000000000 1.0d0)
+  -5.0d30)
+
+(deftest float2-double-float.6
+  (float 1/2 1.0d0)
+  0.5d0)
+
+(deftest float2-double-float.7
+  (float -1/4 1.0d0)
+  -0.25d0)
+
+(deftest float2-double-float.8
+  (float 1.0f0 1.0d0)
+  1.0d0)
+
+(deftest float2-double-float.9
+  (float -2.0f2 1.0d0)
+  -2.0d2)
+
+(deftest float2-double-float.10
+  (float 1.0d0 1.0d0)
+  1.0d0)
+
+(deftest float2-double-float.11
+  (float -2.0d-2 1.0d0)
+  -2.0d-2)
+
+(deftest float2-double-float.12
+  (float 1.0L0 1.0d0)
+  1.0d0)
+
+(deftest float2-double-float.13
+  (float -2.0L-2 1.0d0)
+  -2.0d-2)
+
+;;  long-float
+(deftest float2-long-float.1
+  (float 2 1.0L0)
+  2.0L0)
+
+(deftest float2-long-float.2
+  (float -3 1.0L0)
+  -3.0L0)
+
+(deftest float2-long-float.3
+  (float 0 1.0L0)
+  0.0L0)
+
+(deftest float2-long-float.4
+  (float 1000000000000000000000000000000 1.0L0)
+  1.0L30)
+
+(deftest float2-long-float.5
+  (float -5000000000000000000000000000000 1.0L0)
+  -5.0L30)
+
+(deftest float2-long-float.6
+  (float 1/2 1.0L0)
+  0.5L0)
+
+(deftest float2-long-float.7
+  (float -1/4 1.0L0)
+  -0.25L0)
+
+(deftest float2-long-float.8
+  (float 1.0f0 1.0L0)
+  1.0L0)
+
+(deftest float2-long-float.9
+  (float -2.0f2 1.0L0)
+  -2.0L2)
+
+(deftest float2-long-float.10
+  (float 1.0d0 1.0L0)
+  1.0L0)
+
+(deftest float2-long-float.11
+  (float -2.0d+2 1.0L0)
+  -2.0L+2)
+
+(deftest float2-long-float.12
+  (float 1.0L0 1.0L0)
+  1.0L0)
+
+(deftest float2-long-float.13
+  (float -2.0L-2 1.0L0)
+  -2.0L-2)
+
+;;  undeflow
+(deftest float-underflow-single-float.1
+  (float 0.0f0 1.0f0)
+  0.0f0)
+
+(deftest float-underflow-single-float.2
+  (float -0.0f0 1.0f0)
+  -0.0f0)
+
+(deftest float-underflow-single-float.3
+  (float 0.0d0 1.0f0)
+  0.0f0)
+
+(deftest float-underflow-single-float.4
+  (float -0.0d0 1.0f0)
+  -0.0f0)
+
+(deftest float-underflow-single-float.5
+  (float 0.0L0 1.0f0)
+  0.0f0)
+
+(deftest float-underflow-single-float.6
+  (float -0.0L0 1.0f0)
+  -0.0f0)
+
+(deftest float-underflow-double-float.1
+  (float 0.0f0 1.0d0)
+  0.0d0)
+
+(deftest float-underflow-double-float.2
+  (float -0.0f0 1.0d0)
+  -0.0d0)
+
+(deftest float-underflow-double-float.3
+  (float 0.0d0 1.0d0)
+  0.0d0)
+
+(deftest float-underflow-double-float.4
+  (float -0.0d0 1.0d0)
+  -0.0d0)
+
+(deftest float-underflow-double-float.5
+  (float 0.0L0 1.0d0)
+  0.0d0)
+
+(deftest float-underflow-double-float.6
+  (float -0.0L0 1.0d0)
+  -0.0d0)
+
+(deftest float-underflow-long-float.1
+  (float 0.0f0 1.0L0)
+  0.0L0)
+
+(deftest float-underflow-long-float.2
+  (float -0.0f0 1.0L0)
+  -0.0L0)
+
+(deftest float-underflow-long-float.3
+  (float 0.0d0 1.0L0)
+  0.0L0)
+
+(deftest float-underflow-long-float.4
+  (float -0.0d0 1.0L0)
+  -0.0L0)
+
+(deftest float-underflow-long-float.5
+  (float 0.0L0 1.0L0)
+  0.0L0)
+
+(deftest float-underflow-long-float.6
+  (float -0.0L0 1.0L0)
+  -0.0L0)
+
+;;  overflow
+(deftest-error float-overflow.1
+  (float most-positive-double-float 1.0f0)
+  floating-point-overflow)
+
+(deftest-error float-overflow.2
+  (float most-positive-long-float 1.0f0)
+  floating-point-overflow)
+
+#-long-float-64
+(deftest-error float-overflow.3
+  (float most-positive-long-float 1.0d0)
+  floating-point-overflow)
+
+(deftest-error float-overflow.4
+  (float 100000000000000000000000000000000000000000000000000 1.0f0)
+  floating-point-overflow)
+

@@ -1201,5 +1201,18 @@
 ;;  ANSI Common Lisp
 (deftest cis-test.1
   (cis 0)
-  1.0)
+  #c(1.0 0.0))
+
+;;  degrade
+(deftest cis-degrade.1
+  (cis 0.0f0)
+  #c(1.0f0 0.0f0))
+
+(deftest cis-degrade.2
+  (cis 0.0d0)
+  #c(1.0d0 0.0d0))
+
+(deftest cis-degrade.3
+  (cis 0.0L0)
+  #c(1.0L0 0.0L0))
 

@@ -342,16 +342,12 @@ static int unbound_float_cast_(addr *ret, addr pos)
 
 static int single_from_double_cast_(addr *ret, addr pos)
 {
-	double_float v;
+	double_float v, a;
 
 	CheckType(pos, LISPTYPE_DOUBLE_FLOAT);
 	GetDoubleFloat(pos, &v);
-	v = fabs(v);
-	if (v < FLT_MIN) {
-		*ret = Nil;
-		return call_float_underflow_va_(NULL, CONSTANT_COMMON_FLOAT, pos, NULL);
-	}
-	if (FLT_MAX < v) {
+	a = fabs(v);
+	if (FLT_MAX < a) {
 		*ret = Nil;
 		return call_float_overflow_va_(NULL, CONSTANT_COMMON_FLOAT, pos, NULL);
 	}
@@ -362,16 +358,12 @@ static int single_from_double_cast_(addr *ret, addr pos)
 
 static int single_from_long_cast_(addr *ret, addr pos)
 {
-	long_float v;
+	long_float v, a;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	GetLongFloat(pos, &v);
-	v = fabsl(v);
-	if (v < FLT_MIN) {
-		*ret = Nil;
-		return call_float_underflow_va_(NULL, CONSTANT_COMMON_FLOAT, pos, NULL);
-	}
-	if (FLT_MAX < v) {
+	a = fabsl(v);
+	if (FLT_MAX < a) {
 		*ret = Nil;
 		return call_float_overflow_va_(NULL, CONSTANT_COMMON_FLOAT, pos, NULL);
 	}
@@ -382,16 +374,12 @@ static int single_from_long_cast_(addr *ret, addr pos)
 
 static int double_from_long_cast_(addr *ret, addr pos)
 {
-	long_float v;
+	long_float v, a;
 
 	CheckType(pos, LISPTYPE_LONG_FLOAT);
 	GetLongFloat(pos, &v);
-	v = fabsl(v);
-	if (v < DBL_MIN) {
-		*ret = Nil;
-		return call_float_underflow_va_(NULL, CONSTANT_COMMON_FLOAT, pos, NULL);
-	}
-	if (DBL_MAX < v) {
+	a = fabsl(v);
+	if (DBL_MAX < a) {
 		*ret = Nil;
 		return call_float_overflow_va_(NULL, CONSTANT_COMMON_FLOAT, pos, NULL);
 	}

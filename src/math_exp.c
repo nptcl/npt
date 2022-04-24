@@ -389,15 +389,15 @@ int cis_common_(addr pos, addr *ret)
 	switch (type) {
 		case MathType_single:
 			cis_f(str.v.s, &single1, &single2);
-			return real_complex_single_heap_(ret, single1, single2);
+			return complex_single_heap_(ret, single1, single2);
 
 		case MathType_double:
 			cis_d(str.v.d, &double1, &double2);
-			return real_complex_double_heap_(ret, double1, double2);
+			return complex_double_heap_(ret, double1, double2);
 
 		case MathType_long:
 			cis_l(str.v.l, &long1, &long2);
-			return real_complex_long_heap_(ret, long1, long2);
+			return complex_long_heap_(ret, long1, long2);
 
 		case MathType_complex:
 		case MathType_error:
