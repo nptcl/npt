@@ -29,6 +29,17 @@
 (deftest-error! find-package-error.3
   (eval '(find-package 'hello nil)))
 
+(deftest find-package-degrade.1
+  (packagep
+    (find-package
+      (find-package 'common-lisp)))
+  t)
+
+(deftest find-package-degrade.2
+  (let ((v (find-package 'common-lisp)))
+    (eq v (find-package v)))
+  t)
+
 
 ;;
 ;;  Function LIST-ALL-PACKAGES

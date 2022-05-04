@@ -77,6 +77,8 @@ static void type_find_package(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&values, Package);
+	type2or_heap(args, values, &args);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, PackageNull);
 	type_compiled_heap(args, values, ret);
