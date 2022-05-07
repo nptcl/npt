@@ -268,6 +268,10 @@ static int terme_readline_control_(Execute ptr,
 			Return(terme_readline_ctrl_z_(str));
 			break;
 
+		case 0x7F:  /* DEL, backspace */
+			str->type = terme_escape_backspace;
+			break;
+
 		default:
 			str->type = terme_escape_ignore;
 			break;
