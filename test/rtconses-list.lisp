@@ -584,6 +584,14 @@
 (deftest-error nconc-error.1
   (nconc 10 20 30))
 
+(deftest nconc-degrade.1
+  (nconc '(10 20 . 30) '(40 50) '(60))
+  (10 20 40 50 60))
+
+(deftest nconc-degrade.2
+  (nconc nil '(10 20 . 30) '(40 50 . 60) '(70 80 . 90))
+  (10 20 40 50 70 80 . 90))
+
 
 ;;
 ;;  Function APPEND
@@ -671,6 +679,9 @@
 
 (deftest-error append-error.1
   (append 10 20 30))
+
+(deftest-error append-degrade.1
+  (append '(10 20 . 30) '(40 50) '(60)))
 
 
 ;;

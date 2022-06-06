@@ -1710,19 +1710,23 @@ static int concat_nconc_cons_(addr list, addr args)
 	last = list;
 	for (;;) {
 		/* update lastcdr */
-		while (list != Nil) {
+		do {
 			last = list;
-			Return_getcdr(list, &list);
+			GetCdr(list, &list);
 		}
+		while (IsCons(list));
+		/* ignore (cdr list) */
 
 		for (;;) {
-			GetCons(args, &list, &args);
-			if (args == Nil)
-				return setcdr_(last, list);
+			Return_getcons(args, &list, &args);
+			if (! IsCons(args)) {
+				SetCdr(last, list);
+				return 0;
+			}
 			if (list == Nil)
 				continue;
 			if (IsCons(list)) {
-				Return_setcdr(last, list);
+				SetCdr(last, list);
 				break;
 			}
 			return fmte_("nconc argument ~S must be a list.", list, NULL);
