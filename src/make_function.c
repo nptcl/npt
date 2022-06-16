@@ -634,6 +634,7 @@ int code_make_defun_(CodeMake ptr, addr scope)
 
 /* macro-lambda */
 static void code_macro_special(CodeMake, addr);
+
 static void code_macro_special_value(CodeMake ptr, addr pos)
 {
 	if (pos == Nil)
@@ -644,17 +645,21 @@ static void code_macro_special_value(CodeMake ptr, addr pos)
 	}
 }
 
+static void code_macro_special_variable(CodeMake ptr, addr pos)
+{
+	if (consp(pos))
+		code_macro_special(ptr, pos);
+	else
+		code_macro_special_value(ptr, pos);
+}
+
 static void code_macro_special_var(CodeMake ptr, addr list)
 {
 	addr pos;
 
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		if (consp(pos)) {
-			code_macro_special(ptr, pos);
-			continue;
-		}
-		code_macro_special_value(ptr, pos);
+		code_macro_special_variable(ptr, pos);
 	}
 }
 
@@ -665,7 +670,7 @@ static void code_macro_special_car(CodeMake ptr, addr list)
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
 		GetCar(pos, &pos);
-		code_macro_special_value(ptr, pos);
+		code_macro_special_variable(ptr, pos);
 	}
 }
 
@@ -674,7 +679,7 @@ static void code_macro_special_rest(CodeMake ptr, addr pos)
 	/* (var . &rest) */
 	if (pos != Nil) {
 		GetCar(pos, &pos);
-		code_macro_special_value(ptr, pos);
+		code_macro_special_variable(ptr, pos);
 	}
 }
 
@@ -693,6 +698,7 @@ static void code_macro_special(CodeMake ptr, addr args)
 }
 
 static int code_macro_bind_(CodeMake, addr, addr);
+
 static void code_macro_bind_value(CodeMake ptr, addr pos, addr escape)
 {
 	addr value;
@@ -719,7 +725,7 @@ static int code_macro_bind_push_(CodeMake ptr, addr pos, addr escape)
 	code_make_begin_call(ptr, &id);
 
 	/* bind */
-	Return(code_macro_bind_(ptr, pos, escape));
+	Return(code_macro_bind_(ptr, pos, finish));
 
 	/* end */
 	code_queue_push_label(ptr, finish);
@@ -727,6 +733,17 @@ static int code_macro_bind_push_(CodeMake ptr, addr pos, addr escape)
 	code_jump_escape_wake(ptr, escape);
 
 	return 0;
+}
+
+static int code_macro_bind_variable_(CodeMake ptr, addr pos, addr escape)
+{
+	if (consp(pos)) {
+		return code_macro_bind_push_(ptr, pos, escape);
+	}
+	else {
+		code_macro_bind_value(ptr, pos, escape);
+		return 0;
+	}
 }
 
 static int code_macro_bind_var_(CodeMake ptr, addr list, addr escape)
@@ -737,13 +754,7 @@ static int code_macro_bind_var_(CodeMake ptr, addr list, addr escape)
 		GetCons(list, &pos, &list);
 		CodeQueue_single(ptr, POP);
 		code_jump_escape_wake(ptr, escape);
-
-		if (consp(pos)) {
-			Return(code_macro_bind_push_(ptr, pos, escape));
-		}
-		else {
-			code_macro_bind_value(ptr, pos, escape);
-		}
+		Return(code_macro_bind_variable_(ptr, pos, escape));
 	}
 
 	return 0;
@@ -760,7 +771,7 @@ static int code_macro_bind_init_(CodeMake ptr,
 
 	/* if-exists */
 	code_queue_if_unbound(ptr, label);
-	code_macro_bind_value(ptr, var, escape);
+	Return(code_macro_bind_variable_(ptr, var, escape));
 	if (svar != Nil) {
 		CodeQueue_single(ptr, T_SET);
 		code_macro_bind_value(ptr, svar, escape);
@@ -772,7 +783,7 @@ static int code_macro_bind_init_(CodeMake ptr,
 	Return(code_make_execute_set_(ptr, init));
 	code_jump_escape_wake(ptr, escape);
 
-	code_macro_bind_value(ptr, var, escape);
+	Return(code_macro_bind_variable_(ptr, var, escape));
 	if (svar != Nil) {
 		CodeQueue_single(ptr, NIL_SET);
 		code_macro_bind_value(ptr, svar, escape);
@@ -799,13 +810,15 @@ static int code_macro_bind_opt_(CodeMake ptr, addr list, addr escape)
 	return 0;
 }
 
-static void code_macro_bind_rest(CodeMake ptr, addr list, addr escape)
+static int code_macro_bind_rest_(CodeMake ptr, addr list, addr escape)
 {
 	if (list != Nil) {
 		GetCar(list, &list);
 		CodeQueue_single(ptr, REST_BIND);
-		code_macro_bind_value(ptr, list, escape);
+		Return(code_macro_bind_variable_(ptr, list, escape));
 	}
+
+	return 0;
 }
 
 static int code_macro_bind_key_(CodeMake ptr, addr list, addr escape)
@@ -849,7 +862,7 @@ static int code_macro_bind_list_(CodeMake ptr, addr args, addr escape)
 		CodeQueue_cons(ptr, REST_NULL, allow);
 		code_jump_escape_wake(ptr, escape);
 	}
-	code_macro_bind_rest(ptr, rest, escape);
+	Return(code_macro_bind_rest_(ptr, rest, escape));
 	Return(code_macro_bind_key_(ptr, key, escape));
 	code_ordinary_bind_allow(ptr, rest, key, allow, escape);
 	Return(code_macro_bind_aux_(ptr, aux, escape));

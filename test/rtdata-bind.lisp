@@ -365,3 +365,230 @@
       (equal (apply #'destructuring-bind-bugfix-call x) (cdr x))))
   nil t)
 
+
+;;
+;;  Bugfix: bind &optional, &rest, &key.
+;;
+(deftest bind-optional.1
+  (destructuring-bind (&optional (())) nil
+    10)
+  10)
+
+(deftest bind-optional.2
+  (progn
+    (defmacro bind-optional-2 (&optional (()))
+      20)
+    (bind-optional-2))
+  20)
+
+(deftest bind-optional.3
+  (destructuring-bind (&optional (())) '(nil)
+    30)
+  30)
+
+(deftest bind-optional.4
+  (progn
+    (defmacro bind-optional-4 (&optional (()))
+      40)
+    (bind-optional-4 nil))
+  40)
+
+(deftest bind-optional.5
+  (destructuring-bind (&optional ((a))) '((50))
+    a)
+  50)
+
+(deftest bind-optional.6
+  (progn
+    (defmacro bind-optional-6 (&optional ((a)))
+      a)
+    (bind-optional-6 (50)))
+  50)
+
+(deftest-error bind-optional.7
+  (destructuring-bind (&optional ((a))) nil
+    a))
+
+(deftest-error bind-optional.8
+  (destructuring-bind (&optional ((a))) '(80)
+    a))
+
+(deftest-error bind-optional.9
+  (progn
+    (defmacro bind-optional-9 (&optional ((a)))
+      a)
+    (eval '(bind-optional-9))))
+
+(deftest-error bind-optional.10
+  (progn
+    (defmacro bind-optional-10 (&optional ((a)))
+      a)
+    (eval '(bind-optional-10 100))))
+
+(deftest bind-optional.11
+  (destructuring-bind (a &optional ((b c &rest d))) '(10 (20 30 40 50))
+    (list a b c d))
+  (10 20 30 (40 50)))
+
+(deftest bind-optional.12
+  (progn
+    (defmacro bind-optional-12 (a &optional ((b c &rest d)))
+      `(list ',a ',b ',c ',d))
+    (bind-optional-12 10 (20 30 40 50)))
+  (10 20 30 (40 50)))
+
+(deftest-error bind-optional.13
+  (destructuring-bind (a &optional ((b c &rest d))) '(10)
+    (list a b c d)))
+
+(deftest-error bind-optional.14
+  (progn
+    (defmacro bind-optional-14 (a &optional ((b c &rest d)))
+      `(list ',a ',b ',c ',d))
+    (eval '(bind-optional-14 10))))
+
+(deftest bind-optional.15
+  (let (value)
+    (handler-bind ((warning
+                     (lambda (c)
+                       (setq value t)
+                       (muffle-warning c))))
+      (eval '(destructuring-bind (&optional ((a))) '((30))))
+      value))
+  t)
+
+(deftest bind-optional.16
+  (let (value)
+    (handler-bind ((warning
+                     (lambda (c)
+                       (setq value t)
+                       (muffle-warning c))))
+      (eval '(defmacro bind-optional-16 (&optional ((a))) '((30))))
+      value))
+  t)
+
+(deftest bind-optional.17
+  (destructuring-bind (&optional ((a b) '(10 20))) nil
+    (list a b))
+  (10 20))
+
+(deftest bind-optional.18
+  (progn
+    (defmacro bind-optional-18 (&optional ((a b) '(10 20)))
+      `(list ',a ',b))
+    (bind-optional-18))
+  (10 20))
+
+(deftest bind-rest.1
+  (destructuring-bind (a &rest nil) '(10)
+    a)
+  10)
+
+(deftest bind-rest.2
+  (progn
+    (defmacro bind-rest-2 (a &rest nil)
+      a)
+    (bind-rest-2 20))
+  20)
+
+(deftest bind-rest.3
+  (destructuring-bind (a &rest (b c)) '(10 20 30)
+    (list a b c))
+  (10 20 30))
+
+(deftest bind-rest.4
+  (progn
+    (defmacro bind-rest-4 (a &rest (b c))
+      `(list ',a ',b ',c))
+    (bind-rest-4 10 20 30))
+  (10 20 30))
+
+(deftest-error bind-rest.5
+  (destructuring-bind (&rest (a b)) nil
+    (list a b)))
+
+(deftest-error bind-rest.6
+  (progn
+    (defmacro bind-rest-6 (&rest (a b))
+      `(list ',a ',b))
+    (eval '(bind-rest-6))))
+
+(deftest bind-key.1
+  (destructuring-bind (a &key ((:b nil))) '(10 :b nil)
+    a)
+  10)
+
+(deftest bind-key.2
+  (progn
+    (defmacro bind-key-2 (a &key ((:b nil)))
+      a)
+    (bind-key-2 20 :b nil))
+  20)
+
+(deftest bind-key.3
+  (destructuring-bind (a &key ((:b (b c)))) '(10 :b (20 30))
+    (list a b c))
+  (10 20 30))
+
+(deftest bind-key.4
+  (progn
+    (defmacro bind-key-4 (a &key ((:b (b c))))
+      `(list ',a ',b ',c))
+    (bind-key-4 10 :b (20 30)))
+  (10 20 30))
+
+(deftest-error bind-key.5
+  (destructuring-bind (a &key ((:b (b c)))) '(10 :b (20 30 40))
+    (list a b c)))
+
+(deftest-error bind-key.6
+  (progn
+    (defmacro bind-key-6 (a &key ((:b (b c))))
+      `(list ',a ',b ',c))
+    (eval '(bind-key-6 10 :b (20 30 40)))))
+
+(deftest-error bind-others.1
+  (eval '(destructuring-bind (a &aux ((b c) '(20 30))) '(10)
+           (list a b c))))
+
+(deftest-error bind-others.2
+  (eval '(defmacro bind-others-2 (a &aux ((b c) '(20 30))) '(10)
+           `(list ',a ',b ',c))))
+
+(deftest bind-others.3
+  (destructuring-bind (&optional ((a b))) '((10 20))
+    (declare (special a))
+    (list (symbol-value 'a) b))
+  (10 20))
+
+(deftest bind-others.4
+  (progn
+    (defmacro bind-others-4 (&optional ((a b)))
+      (declare (special a))
+      `(list ',(symbol-value 'a) ',b))
+    (bind-others-4 (10 20)))
+  (10 20))
+
+(deftest bind-others.5
+  (progn
+    (defmacro bind-others-5 (&optional ((a b &rest c) '(nil nil)) &rest z)
+      `(list ',a ',b ',c ',z))
+    (values
+      (bind-others-5)
+      (bind-others-5 (10 20 30 40) 50 60)))
+  (nil nil nil nil)
+  (10 20 (30 40) (50 60)))
+
+(deftest-error bind-others.6
+  (progn
+    (defmacro bind-others-6 (&optional ((a b &rest c) '(nil nil)) &rest z)
+      `(list ',a ',b ',c ',z))
+    (eval '(bind-others-6 (10)))))
+
+(deftest bind-others.7
+  (progn
+    (defmacro bind-others-7 (&optional ((&optional a b &rest c)) &rest z)
+      `(list ',a ',b ',c ',z))
+    (bind-others-7 (10)))
+  (10 nil nil nil))
+

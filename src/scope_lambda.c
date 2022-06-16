@@ -456,6 +456,16 @@ int scope_lambda_call_(Execute ptr, addr *ret, addr eval)
  *  macro-lambda
  */
 static int macro_lambda_init_args_(Execute ptr, addr, addr, addr, addr *);
+
+static int macro_lambda_init_variable_(Execute ptr,
+		addr stack, addr var, addr decl, addr *ret)
+{
+	if (consp(var))
+		return macro_lambda_init_args_(ptr, stack, var, decl, ret);
+	else
+		return ifdeclvalue_(ptr, stack, var, decl, ret);
+}
+
 static int macro_lambda_init_var_(Execute ptr,
 		addr stack, addr args, addr decl, addr *ret)
 {
@@ -463,12 +473,26 @@ static int macro_lambda_init_var_(Execute ptr,
 
 	for (root = Nil; args != Nil; ) {
 		GetCons(args, &var, &args);
-		if (consp(var)) {
-			Return(macro_lambda_init_args_(ptr, stack, var, decl, &var));
-		}
-		else {
-			Return(ifdeclvalue_(ptr, stack, var, decl, &var));
-		}
+		Return(macro_lambda_init_variable_(ptr, stack, var, decl, &var));
+		cons_heap(&root, var, root);
+	}
+	nreverse(ret, root);
+
+	return 0;
+}
+
+static int macro_lambda_init_opt_(Execute ptr,
+		addr stack, addr args, addr decl, addr *ret)
+{
+	addr root, list, var, init, svar;
+
+	for (root = Nil; args != Nil; ) {
+		GetCons(args, &list, &args);
+		List_bind(list, &var, &init, &svar, NULL);
+		Return(scope_eval(ptr, &init, init));
+		Return(macro_lambda_init_variable_(ptr, stack, var, decl, &var));
+		Return(ifdeclvalue_(ptr, stack, svar, decl, &svar));
+		list_heap(&var, var, init, svar, NULL);
 		cons_heap(&root, var, root);
 	}
 	nreverse(ret, root);
@@ -486,9 +510,28 @@ static int macro_lambda_init_rest_(Execute ptr,
 	}
 	else {
 		GetCons(rest, &var, &type);
-		Return(ifdeclvalue_(ptr, stack, var, decl, &var));
+		Return(macro_lambda_init_variable_(ptr, stack, var, decl, &var));
 		cons_heap(ret, var, type);
 	}
+
+	return 0;
+}
+
+static int macro_lambda_init_key_(Execute ptr,
+		addr stack, addr args, addr decl, addr *ret)
+{
+	addr root, list, var, name, init, svar;
+
+	for (root = Nil; args != Nil; ) {
+		GetCons(args, &list, &args);
+		List_bind(list, &var, &name, &init, &svar, NULL);
+		Return(scope_eval(ptr, &init, init));
+		Return(macro_lambda_init_variable_(ptr, stack, var, decl, &var));
+		Return(ifdeclvalue_(ptr, stack, svar, decl, &svar));
+		list_heap(&var, var, name, init, svar, NULL);
+		cons_heap(&root, var, root);
+	}
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -500,9 +543,9 @@ static int macro_lambda_init_args_(Execute ptr,
 
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
 	Return(macro_lambda_init_var_(ptr, stack, var, decl, &var));
-	Return(scope_lambda_init_opt_(ptr, stack, opt, decl, &opt));
+	Return(macro_lambda_init_opt_(ptr, stack, opt, decl, &opt));
 	Return(macro_lambda_init_rest_(ptr, stack, rest, decl, &rest));
-	Return(scope_lambda_init_key_(ptr, stack, key, decl, &key));
+	Return(macro_lambda_init_key_(ptr, stack, key, decl, &key));
 	Return(scope_lambda_init_aux_(ptr, stack, aux, decl, &aux));
 	Return(ifdeclvalue_(ptr, stack, whole, decl, &whole));
 	Return(ifdeclvalue_(ptr, stack, env, decl, &env));
@@ -534,12 +577,55 @@ static int macro_lambda_tablevalue_var_(Execute ptr, addr args)
 	return 0;
 }
 
-static void macro_lambda_tablevalue_rest(addr rest)
+static int macro_lambda_tablevalue_opt_(Execute ptr, addr args)
+{
+	addr list, var, init, svar;
+
+	while (args != Nil) {
+		GetCons(args, &list, &args);
+		List_bind(list, &var, &init, &svar, NULL);
+		if (consp(var)) {
+			Return(macro_lambda_tablevalue_(ptr, var));
+		}
+		else {
+			Return(checkvalue_bind_(ptr, var, init));
+		}
+	}
+
+	return 0;
+}
+
+static int macro_lambda_tablevalue_rest_(Execute ptr, addr rest)
 {
 	if (rest != Nil) {
 		GetCar(rest, &rest);
-		setcheck_tablevalue(rest, 1);
+		if (consp(rest)) {
+			Return(macro_lambda_tablevalue_(ptr, rest));
+		}
+		else {
+			setcheck_tablevalue(rest, 1);
+		}
 	}
+
+	return 0;
+}
+
+static int macro_lambda_tablevalue_key_(Execute ptr, addr args)
+{
+	addr list, var, name, init, svar;
+
+	while (args != Nil) {
+		GetCons(args, &list, &args);
+		List_bind(list, &var, &name, &init, &svar, NULL);
+		if (consp(var)) {
+			Return(macro_lambda_tablevalue_(ptr, var));
+		}
+		else {
+			Return(checkvalue_bind_(ptr, var, init));
+		}
+	}
+
+	return 0;
 }
 
 static int macro_lambda_tablevalue_(Execute ptr, addr args)
@@ -548,9 +634,9 @@ static int macro_lambda_tablevalue_(Execute ptr, addr args)
 
 	List_bind(args, &var, &opt, &rest, &key, &allow, &aux, &whole, &env, NULL);
 	Return(macro_lambda_tablevalue_var_(ptr, var));
-	Return(scope_lambda_tablevalue_opt_(ptr, opt));
-	macro_lambda_tablevalue_rest(rest);
-	Return(scope_lambda_tablevalue_key_(ptr, key));
+	Return(macro_lambda_tablevalue_opt_(ptr, opt));
+	Return(macro_lambda_tablevalue_rest_(ptr, rest));
+	Return(macro_lambda_tablevalue_key_(ptr, key));
 	Return(scope_lambda_tablevalue_aux_(ptr, aux));
 	scope_lambda_tablevalue_single(whole);
 	scope_lambda_tablevalue_single(env);

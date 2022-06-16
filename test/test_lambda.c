@@ -18,53 +18,60 @@
 #include "type.h"
 #include "type_table.h"
 
-static int test_constant_eq(void)
+static int test_lambda_constant_eq(void)
 {
+	int check;
 	addr symbol;
 
 	internchar_debug("COMMON-LISP", "&OPTIONAL", &symbol);
-	test(constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq1");
+	check = lambda_constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol);
+	test(check, "lambda_constant_eq.1");
 	internchar_debug("KEYWORD", "TEST", &symbol);
-	test(! constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol), "constant_eq2");
+	check = lambda_constant_eq(CONSTANT_AMPERSAND_OPTIONAL, symbol);
+	test(! check, "lambda_constant_eq.2");
 
 	RETURN;
 }
 
-static int test_member_ampersand(void)
+static int test_lambda_member_ampersand(void)
 {
+	int check;
 	addr symbol;
 
 	internchar_debug("COMMON-LISP", "&OPTIONAL", &symbol);
-	test(member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand1");
-	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand2");
+	check = lambda_member_ampersand(symbol, AMPERSAND_GENERIC);
+	test(check, "lambda_member_ampersand1");
+	check = lambda_member_ampersand(symbol, AMPERSAND_ORDINARY);
+	test(check, "lambda_member_ampersand2");
 	internchar_debug("COMMON-LISP", "&ALLOW-OTHER-KEYS", &symbol);
-	test(member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand3");
-	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand4");
+	check = lambda_member_ampersand(symbol, AMPERSAND_GENERIC);
+	test(check, "lambda_member_ampersand3");
+	check = lambda_member_ampersand(symbol, AMPERSAND_ORDINARY);
+	test(check, "lambda_member_ampersand4");
 	internchar_debug("COMMON-LISP", "&AUX", &symbol);
-	test(! member_ampersand(symbol, AMPERSAND_GENERIC), "member_ampersand5");
-	test(member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand6");
-	internchar_debug("COMMON-LISP", "&WHOLE", &symbol);
-	test(! member_ampersand(symbol, AMPERSAND_ORDINARY), "member_ampersand7");
-	test(member_ampersand(symbol, AMPERSAND_METHOD_COMBINATION),
-			"member_ampersand8");
+	check = lambda_member_ampersand(symbol, AMPERSAND_GENERIC);
+	test(! check, "lambda_member_ampersand5");
+	check = lambda_member_ampersand(symbol, AMPERSAND_ORDINARY);
+	test(check, "lambda_member_ampersand8");
 	internchar_debug("COMMON-LISP", "&BODY", &symbol);
-	test(! member_ampersand(symbol, AMPERSAND_METHOD_COMBINATION),
-			"member_ampersand9");
-	test(member_ampersand(symbol, AMPERSAND_MACRO), "member_ampersand10");
+	check = lambda_member_ampersand(symbol, AMPERSAND_METHOD_COMBINATION);
+	test(! check, "lambda_member_ampersand9");
+	check = lambda_member_ampersand(symbol, AMPERSAND_MACRO);
+	test(check, "lambda_member_ampersand10");
 
 	RETURN;
 }
 
-static int test_variable_check(void)
+static int test_lambda_variable_check(void)
 {
 	addr symbol;
 	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
-	Error(variable_check_(symbol, AMPERSAND_ORDINARY));
-	test(1, "variable_check1");
+	Error(lambda_variable_check_(symbol, AMPERSAND_ORDINARY));
+	test(1, "lambda_variable_check1");
 	RETURN;
 }
 
-static int test_varcons_local(void)
+static int test_lambda_varcons_local(void)
 {
 	addr cons, check;
 	LocalRoot local;
@@ -72,21 +79,21 @@ static int test_varcons_local(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &cons);
-	varcons_data(cons, &check);
-	test(check == Nil, "varcons_local1");
+	lambda_varcons_local(local, &cons);
+	lambda_varcons_data(cons, &check);
+	test(check == Nil, "lambda_varcons_local1");
 	pushqueue_local(local, cons, T);
-	varcons_data(cons, &check);
-	test(GetType(check) == LISPTYPE_CONS, "varcons_local2");
+	lambda_varcons_data(cons, &check);
+	test(GetType(check) == LISPTYPE_CONS, "lambda_varcons_local2");
 	GetCons(check, &cons, &check);
-	test(cons == T, "varcons_local3");
-	test(check == Nil, "varcons_local4");
+	test(cons == T, "lambda_varcons_local3");
+	test(check == Nil, "lambda_varcons_local4");
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_push_varcons(void)
+static int test_lambda_push_varcons(void)
 {
 	addr cons, symbol, check;
 	LocalRoot local;
@@ -94,21 +101,21 @@ static int test_push_varcons(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &cons);
+	lambda_varcons_local(local, &cons);
 	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
-	push_varcons_(local, cons, symbol, AMPERSAND_ORDINARY);
+	lambda_push_varcons_(local, cons, symbol, AMPERSAND_ORDINARY);
 
-	varcons_data(cons, &check);
-	test(GetType(check) == LISPTYPE_CONS, "push_varcons1");
+	lambda_varcons_data(cons, &check);
+	test(GetType(check) == LISPTYPE_CONS, "lambda_push_varcons1");
 	GetCons(check, &cons, &check);
-	test(cons == symbol, "push_varcons2");
-	test(check == Nil, "push_varcons3");
+	test(cons == symbol, "lambda_push_varcons2");
+	test(check == Nil, "lambda_push_varcons3");
 	rollback_local(local, stack);
 
 	RETURN;
 }
 
-static int test_push_namecons(void)
+static int test_lambda_push_namecons(void)
 {
 	addr cons, symbol, check;
 	LocalRoot local;
@@ -116,15 +123,15 @@ static int test_push_namecons(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &cons);
+	lambda_varcons_local(local, &cons);
 	internchar_keyword_debug("HELLO", &symbol);
-	push_namecons_(local, cons, symbol);
+	lambda_push_namecons_(local, cons, symbol);
 
-	varcons_data(cons, &check);
-	test(GetType(check) == LISPTYPE_CONS, "push_namecons1");
+	lambda_varcons_data(cons, &check);
+	test(GetType(check) == LISPTYPE_CONS, "lambda_push_namecons1");
 	GetCons(check, &cons, &check);
-	test(cons == symbol, "push_namecons2");
-	test(check == Nil, "push_namecons3");
+	test(cons == symbol, "lambda_push_namecons2");
+	test(check == Nil, "lambda_push_namecons3");
 	rollback_local(local, stack);
 
 	RETURN;
@@ -144,7 +151,7 @@ static int test_make_keyword_from_symbol(void)
 	RETURN;
 }
 
-static int test_list2_check(void)
+static int test_lambda_list2_check(void)
 {
 	addr pos, pos1, pos2, value1, value2, value3;
 
@@ -153,35 +160,35 @@ static int test_list2_check(void)
 	fixnum_heap(&value3, 300);
 	pos1 = 0;
 	pos2 = 0;
-	test(list2_check(value1, &pos1, &pos2), "list2_check1");
+	test(lambda_list2_check(value1, &pos1, &pos2), "lambda_list2_check1");
 	list_heap(&pos, value1, NULL);
-	test(list2_check(pos, &pos1, &pos2), "list2_check2");
+	test(lambda_list2_check(pos, &pos1, &pos2), "lambda_list2_check2");
 	list_heap(&pos, value1, value2, NULL);
-	test(list2_check(pos, &pos1, &pos2) == 0, "list2_check3");
-	test(pos1 == value1, "list2_check4");
-	test(pos2 == value2, "list2_check5");
+	test(lambda_list2_check(pos, &pos1, &pos2) == 0, "lambda_list2_check3");
+	test(pos1 == value1, "lambda_list2_check4");
+	test(pos2 == value2, "lambda_list2_check5");
 	list_heap(&pos, value1, value2, value3, NULL);
-	test(list2_check(pos, &pos1, &pos2), "list2_check6");
+	test(lambda_list2_check(pos, &pos1, &pos2), "lambda_list2_check6");
 
 	RETURN;
 }
 
-static int test_key_name_values(void)
+static int test_lambda_key_name_values(void)
 {
 	addr pos, pos2, symbol, name;
 
 	internchar_debug(LISP_COMMON_USER, "AAA", &pos);
-	key_name_values_(pos, &symbol, &name);
-	test(pos == symbol, "key_name_values1");
+	lambda_key_name_values_(pos, &symbol, &name);
+	test(pos == symbol, "lambda_key_name_values1");
 	internchar_keyword_debug("AAA", &pos);
-	test(pos == name, "key_name_values2");
+	test(pos == name, "lambda_key_name_values2");
 
 	internchar_keyword_debug("AAA", &pos);
 	internchar_debug(LISP_COMMON_USER, "AAA", &pos2);
 	list_heap(&symbol, pos, pos2, NULL);  /* (name symbol) */
-	key_name_values_(symbol, &symbol, &name);
-	test(symbol == pos2, "key_name_values3");
-	test(name == pos, "key_name_values4");
+	lambda_key_name_values_(symbol, &symbol, &name);
+	test(symbol == pos2, "lambda_key_name_values3");
+	test(name == pos, "lambda_key_name_values4");
 
 	RETURN;
 }
@@ -198,10 +205,10 @@ static int test_push_varcons_macro(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &instance);
+	lambda_varcons_local(local, &instance);
 	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
 	push_varcons_macro_(local, instance, symbol);
-	varcons_data(instance, &cons);
+	lambda_varcons_data(instance, &cons);
 	GetCons(cons, &instance, &cons);
 	test(instance == symbol, "push_varcons_macro1");
 	test(cons == Nil, "push_varcons_macro2");
@@ -251,7 +258,7 @@ static int test_ordinary_key(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &instance);
+	lambda_varcons_local(local, &instance);
 	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	ordinary_key_(local, instance, pos, &var, &name, &init, &sup);
 	test(pos == var, "ordinary_key1");
@@ -259,7 +266,7 @@ static int test_ordinary_key(void)
 	test(pos == name, "ordinary_key2");
 	test(init == Nil, "ordinary_key3");
 	test(sup == Nil, "ordinary_key4");
-	varcons_data(instance, &instance);
+	lambda_varcons_data(instance, &instance);
 	GetCons(instance, &pos, &instance);
 	test(pos == name, "ordinary_key5");
 	test(instance == Nil, "ordinary_key6");
@@ -303,10 +310,10 @@ static int test_push_varcons_ordinary(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &instance);
+	lambda_varcons_local(local, &instance);
 	internchar_debug(LISP_COMMON_USER, "HELLO", &symbol);
 	push_varcons_ordinary_(local, instance, symbol);
-	varcons_data(instance, &cons);
+	lambda_varcons_data(instance, &cons);
 	GetCons(cons, &instance, &cons);
 	test(instance == symbol, "push_varcons_ordinary1");
 	test(cons == Nil, "push_varcons_ordinary2");
@@ -355,14 +362,14 @@ static int test_generic_function_key(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &cons);
+	lambda_varcons_local(local, &cons);
 
 	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	generic_function_key_(local, cons, pos, &symbol, &name);
 	test(symbol == pos, "generic_function_key1");
 	internchar_keyword_debug("HELLO", &check);
 	test(name == check, "generic_function_key2");
-	varcons_data(cons, &cons);
+	lambda_varcons_data(cons, &cons);
 	GetCons(cons, &check, &cons);
 	test(name == check, "generic_function_key3");
 	test(cons == Nil, "generic_function_key4");
@@ -379,10 +386,10 @@ static int test_push_varcons_generic_function(void)
 
 	local = Local_Thread;
 	push_local(local, &stack);
-	varcons_local(local, &cons);
+	lambda_varcons_local(local, &cons);
 	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
 	push_varcons_generic_function_(local, cons, pos);
-	varcons_data(cons, &cons);
+	lambda_varcons_data(cons, &cons);
 	GetCons(cons, &check, &cons);
 	test(check == pos, "push_varcons_generic_function1");
 	test(cons == Nil, "push_varcons_generic_function2");
@@ -924,15 +931,15 @@ static int test_lambda_specialized_aux(void)
  */
 static int testcase_lambda(void)
 {
-	TestBreak(test_constant_eq);
-	TestBreak(test_member_ampersand);
-	TestBreak(test_variable_check);
-	TestBreak(test_varcons_local);
-	TestBreak(test_push_varcons);
-	TestBreak(test_push_namecons);
+	TestBreak(test_lambda_constant_eq);
+	TestBreak(test_lambda_member_ampersand);
+	TestBreak(test_lambda_variable_check);
+	TestBreak(test_lambda_varcons_local);
+	TestBreak(test_lambda_push_varcons);
+	TestBreak(test_lambda_push_namecons);
 	TestBreak(test_make_keyword_from_symbol);
-	TestBreak(test_list2_check);
-	TestBreak(test_key_name_values);
+	TestBreak(test_lambda_list2_check);
+	TestBreak(test_lambda_key_name_values);
 	/* lambda-macro */
 	TestBreak(test_push_varcons_macro);
 	TestBreak(test_ordinary_opt);

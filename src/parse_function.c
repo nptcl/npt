@@ -557,6 +557,18 @@ static int parse_defun_(Execute ptr, addr *ret, addr cons)
 
 /* defmacro */
 static int parse_macro_lambda_list_(Execute ptr, addr *ret, addr args);
+
+static int parse_macro_variable_(Execute ptr, addr *ret, addr var)
+{
+	if (consp(var)) {
+		return parse_macro_lambda_list_(ptr, ret, var);
+	}
+	else {
+		Return(check_variable_env_(ptr, var));
+		return Result(ret, var);
+	}
+}
+
 static int parse_macro_var_(Execute ptr, addr *ret, addr cons)
 {
 	addr root, var;
@@ -565,12 +577,7 @@ static int parse_macro_var_(Execute ptr, addr *ret, addr cons)
 	hold = LocalHold_array(ptr, 1);
 	for (root = Nil; cons != Nil; ) {
 		GetCons(cons, &var, &cons);
-		if (consp(var)) {
-			Return(parse_macro_lambda_list_(ptr, &var, var));
-		}
-		else {
-			Return(check_variable_env_(ptr, var));
-		}
+		Return(parse_macro_variable_(ptr, &var, var));
 		cons_heap(&root, var, root);
 		localhold_set(hold, 0, root);
 	}
@@ -580,16 +587,74 @@ static int parse_macro_var_(Execute ptr, addr *ret, addr cons)
 	return 0;
 }
 
-static inline int parse_macro_rest_(Execute ptr, addr *ret)
+static int parse_macro_optional_(Execute ptr, addr *ret, addr cons)
 {
-	addr pos;
+	addr root, pos, var, init;
+	LocalHold hold;
 
-	if (*ret != Nil) {
-		/* (var . &rest) (var . &body) (var . nil) */
-		GetCar(*ret, &pos);
-		Return(check_variable_env_(ptr, pos));
-		SetCar(*ret, pos);
+	hold = LocalHold_array(ptr, 2);
+	for (root = Nil; cons != Nil; ) {
+		GetCons(cons, &pos, &cons);
+		/* (var init svar) */
+		GetCons(pos, &var, &pos);
+		GetCons(pos, &init, &pos);
+		GetCar(pos, &pos);
+		Return(parse_macro_variable_(ptr, &var, var));
+		localhold_set(hold, 1, var);
+		Return(parse_self_(ptr, init));
+		Return(check_variable_notnil_(ptr, pos));
+		/* push */
+		list_heap(&pos, var, init, pos, NULL);
+		cons_heap(&root, pos, root);
+		localhold_set(hold, 0, root);
 	}
+	localhold_end(hold);
+	nreverse(ret, root);
+
+	return 0;
+}
+
+static inline int parse_macro_rest_(Execute ptr, addr *ret, addr rest)
+{
+	addr car, cdr;
+
+	if (rest == Nil)
+		return Result(ret, Nil);
+
+	/* (var . &rest) (var . &body) (var . nil) */
+	GetCons(rest, &car, &cdr);
+	Return(parse_macro_variable_(ptr, &car, car));
+	cons_heap(ret, car, cdr);
+
+	return 0;
+}
+
+static int parse_macro_key_(Execute ptr, addr *ret, addr cons)
+{
+	addr root, pos, var, name, init;
+	LocalHold hold;
+
+	if (cons == T)
+		return Result(ret, Nil);
+	hold = LocalHold_array(ptr, 2);
+	for (root = Nil; cons != Nil; ) {
+		GetCons(cons, &pos, &cons);
+		/* (var name init svar) */
+		GetCons(pos, &var, &pos);
+		GetCons(pos, &name, &pos);
+		GetCons(pos, &init, &pos);
+		GetCar(pos, &pos);
+		Return(parse_macro_variable_(ptr, &var, var));
+		localhold_set(hold, 1, var);
+		Return(parse_self_(ptr, init));
+		Return(check_variable_notnil_(ptr, pos));
+		/* push */
+		list_heap(&pos, var, name, init, pos, NULL);
+		cons_heap(&root, pos, root);
+		localhold_set(hold, 0, root);
+	}
+	localhold_end(hold);
+	nreverse(ret, root);
 
 	return 0;
 }
@@ -605,12 +670,13 @@ static int parse_macro_lambda_list_(Execute ptr, addr *ret, addr args)
 	Return(parse_macro_var_(ptr, &var, var));
 	localhold_push(hold, var);
 	/* opt */
-	Return(parse_optional_(ptr, &opt, opt));
+	Return(parse_macro_optional_(ptr, &opt, opt));
 	localhold_push(hold, opt);
 	/* rest */
-	Return(parse_macro_rest_(ptr, &rest));
+	Return(parse_macro_rest_(ptr, &rest, rest));
+	localhold_push(hold, rest);
 	/* key */
-	Return(parse_key_(ptr, &key, key));
+	Return(parse_macro_key_(ptr, &key, key));
 	localhold_push(hold, key);
 	/* aux */
 	Return(parse_aux_(ptr, &aux, aux));
