@@ -12,7 +12,7 @@
 #include "hold.h"
 #include "package.h"
 #include "package_bittype.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_export.h"
 #include "package_intern.h"
 #include "package_shadow.h"
@@ -59,7 +59,7 @@ int intern_package_(addr package, addr name, addr *value, enum PACKAGE_TYPE *ret
 	Check(package == Nil, "nil error");
 	Check(! stringp(name), "type error");
 
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	return intern_package_table_(package, name, value, ret);
 }
 
@@ -515,7 +515,7 @@ int unintern_package_(addr package, addr symbol, int *ret)
 	int check, value;
 
 	Check(! symbolp(symbol), "type error");
-	Return(package_designer_update_p_(package, &package));
+	Return(package_designator_update_p_(package, &package));
 
 	/* check */
 	Return(check_unintern_package_(package, symbol, &check, &value));

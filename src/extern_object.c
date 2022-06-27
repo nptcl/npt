@@ -640,7 +640,7 @@ int lisp_reader32_(addr x, const void *str)
 int lisp0_pathname_(addr *ret, addr name)
 {
 	hold_value(name, &name);
-	return pathname_designer_heap_(Execute_Thread, name, ret);
+	return pathname_designator_heap_(Execute_Thread, name, ret);
 }
 
 int lisp0_pathname8_(addr *ret, const void *str)

@@ -74,7 +74,7 @@ static int defaults_pathname_alloc_(Execute ptr, addr *ret, addr defaults, int l
 		GetConst(SPECIAL_DEFAULT_PATHNAME_DEFAULTS, &defaults);
 		Return(getspecialcheck_local_(ptr, defaults, &defaults));
 	}
-	return pathname_designer_alloc_(ptr, defaults, ret, localp);
+	return pathname_designator_alloc_(ptr, defaults, ret, localp);
 }
 
 int defaults_pathname_heap_(Execute ptr, addr *ret, addr defaults)
@@ -191,7 +191,7 @@ int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret)
 	return 0;
 }
 
-int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
+int pathname_designator_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 {
 	addr value;
 	LocalRoot local;
@@ -206,7 +206,7 @@ int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 	/* stream */
 	if (streamp(pos)) {
 		GetPathnameStream(pos, &value);
-		Return(pathname_designer_alloc_(ptr, value, &value, localp));
+		Return(pathname_designator_alloc_(ptr, value, &value, localp));
 		copylocal_object(local, ret, value);
 		return 0;
 	}
@@ -214,7 +214,7 @@ int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 	/* string */
 	if (stringp(pos)) {
 		Return(parse_pathname_alloc_(ptr, pos, &value, localp));
-		Return(pathname_designer_alloc_(ptr, value, &value, localp));
+		Return(pathname_designator_alloc_(ptr, value, &value, localp));
 		return Result(ret, value);
 	}
 
@@ -222,14 +222,14 @@ int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 	return TypeError_(pos, PATHNAME);
 }
 
-int pathname_designer_heap_(Execute ptr, addr pos, addr *ret)
+int pathname_designator_heap_(Execute ptr, addr pos, addr *ret)
 {
-	return pathname_designer_alloc_(ptr, pos, ret, 0);
+	return pathname_designator_alloc_(ptr, pos, ret, 0);
 }
 
-int pathname_designer_local_(Execute ptr, addr pos, addr *ret)
+int pathname_designator_local_(Execute ptr, addr pos, addr *ret)
 {
-	return pathname_designer_alloc_(ptr, pos, ret, 1);
+	return pathname_designator_alloc_(ptr, pos, ret, 1);
 }
 
 
@@ -244,7 +244,7 @@ int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp)
 
 	/* physical pathname */
 	local = localp? ptr->local: NULL;
-	Return(pathname_designer_alloc_(ptr, pos, &pos, localp));
+	Return(pathname_designator_alloc_(ptr, pos, &pos, localp));
 	if (! RefLogicalPathname(pos)) {
 		copylocal_object(local, ret, pos);
 		return 0;
@@ -635,7 +635,7 @@ static int name_pathname_alloc_(Execute ptr, LocalpRoot local, addr pos, addr *r
 	LocalStack stack;
 
 	push_localp(local, &stack);
-	Return(pathname_designer_alloc_(ptr, pos, &pos, local->localp));
+	Return(pathname_designator_alloc_(ptr, pos, &pos, local->localp));
 	if (RefLogicalPathname(pos)) {
 		Return(logical_namestring_(local, ret, pos));
 	}
@@ -805,7 +805,7 @@ int merge_pathnames_clang_(Execute ptr,
 		GetHostPathname(pos, &host);
 		Return(parse_pathname_host_heap_(ptr, pos, host, &pos));
 	}
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 
 	/* version */
 	if (defver == Unbound)

@@ -295,7 +295,7 @@ int lisp_package32_(addr x, const void *str);
 ```c
 int lisp_package_(addr x, addr pos);
 
-Input: pos, package-designer
+Input: pos, package-designator
 Output: x, hold variable
 Return: Non-zero when escaping.
 ```
@@ -347,7 +347,7 @@ int lisp_intern32_(addr x, const void *package, const void *name);
 ```c
 int lisp_intern_(addr x, addr package, addr name);
 
-Input: package, package-designer or nil
+Input: package, package-designator or nil
 Input: name, string object
 Output: x, hold variable
 Return: Non-zero when escaping.
@@ -462,7 +462,7 @@ int lisp_namestring_(addr x, addr path);
 ```c
 int lisp_pathname_(addr x, addr name);
 
-Input: name, pathname-designer
+Input: name, pathname-designator
 Output: x, hold variable
 Return: Non-zero when escaping.
 ```
@@ -504,7 +504,7 @@ See `lisp_pathname8_`.
 ```c
 int lisp_namestring_(addr x, addr path);
 
-Input: path, pathname-designer
+Input: path, pathname-designator
 Output: x, hold variable
 Return: Non-zero when escaping.
 ```

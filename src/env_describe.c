@@ -115,7 +115,7 @@ int describe_common_(Execute ptr, addr object, addr stream)
 	addr call;
 
 	/* stream */
-	Return(output_stream_designer_(ptr, stream, &stream));
+	Return(output_stream_designator_(ptr, stream, &stream));
 	Return(fresh_line_stream_(stream, NULL));
 	/* call */
 	GetConst(COMMON_DESCRIBE_OBJECT, &call);

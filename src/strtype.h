@@ -7,7 +7,7 @@
 #define array_stringp _n(array_stringp)
 #define strarrayp _n(strarrayp)
 #define stringp _n(stringp)
-#define string_designer_p _n(string_designer_p)
+#define string_designator_p _n(string_designator_p)
 #define string_base_p_ _n(string_base_p_)
 #define string_simple_p _n(string_simple_p)
 #define string_character_type_ _n(string_character_type_)
@@ -68,14 +68,14 @@
 #define string_comparep_char_ _n(string_comparep_char_)
 #define string_compare_ _n(string_compare_)
 #define string_comparep_ _n(string_comparep_)
-#define string_designer_equal_ _n(string_designer_equal_)
-#define string_designer_equal_char_ _n(string_designer_equal_char_)
-#define string_designer_equalp_ _n(string_designer_equalp_)
-#define string_designer_equalp_char_ _n(string_designer_equalp_char_)
-#define string_designer_alloc_ _n(string_designer_alloc_)
-#define string_designer_local_ _n(string_designer_local_)
-#define string_designer_heap_ _n(string_designer_heap_)
-#define string_designer_string _n(string_designer_string)
+#define string_designator_equal_ _n(string_designator_equal_)
+#define string_designator_equal_char_ _n(string_designator_equal_char_)
+#define string_designator_equalp_ _n(string_designator_equalp_)
+#define string_designator_equalp_char_ _n(string_designator_equalp_char_)
+#define string_designator_alloc_ _n(string_designator_alloc_)
+#define string_designator_local_ _n(string_designator_local_)
+#define string_designator_heap_ _n(string_designator_heap_)
+#define string_designator_string _n(string_designator_string)
 #define string_concat_heap_ _n(string_concat_heap_)
 #define string_concat_hyphen_heap_ _n(string_concat_hyphen_heap_)
 #define string_concat_char1_heap_ _n(string_concat_char1_heap_)
@@ -97,7 +97,7 @@
 int array_stringp(addr pos);
 int strarrayp(addr pos);
 int stringp(addr pos);
-int string_designer_p(addr pos);
+int string_designator_p(addr pos);
 
 int string_base_p_(addr pos, int *ret);
 int string_simple_p(addr pos);
@@ -176,14 +176,14 @@ int string_comparep_char_(addr left, const char *right, int *ret);
 int string_compare_(addr left, addr right, int *ret);
 int string_comparep_(addr left, addr right, int *ret);
 
-int string_designer_equal_(addr left, addr right, int *ret);
-int string_designer_equal_char_(addr left, const char *right, int *ret);
-int string_designer_equalp_(addr left, addr right, int *ret);
-int string_designer_equalp_char_(addr left, const char *right, int *ret);
-int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret);
-int string_designer_local_(LocalRoot local, addr *value, addr pos, int *ret);
-int string_designer_heap_(addr *value, addr pos, int *ret);
-int string_designer_string(addr *value, addr pos);
+int string_designator_equal_(addr left, addr right, int *ret);
+int string_designator_equal_char_(addr left, const char *right, int *ret);
+int string_designator_equalp_(addr left, addr right, int *ret);
+int string_designator_equalp_char_(addr left, const char *right, int *ret);
+int string_designator_alloc_(LocalRoot local, addr *value, addr pos, int *ret);
+int string_designator_local_(LocalRoot local, addr *value, addr pos, int *ret);
+int string_designator_heap_(addr *value, addr pos, int *ret);
+int string_designator_string(addr *value, addr pos);
 
 int string_concat_heap_(addr *ret, addr a, addr b);
 int string_concat_hyphen_heap_(addr *ret, addr a, addr b);

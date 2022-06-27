@@ -186,22 +186,22 @@ static int test_shadowimport_bitpackage(void)
 	RETURN;
 }
 
-static int test_string_designer(void)
+static int test_string_designator(void)
 {
 	addr pos;
 
 	strvect_char_heap(&pos, "Hello");
-	string_designer(pos, &pos);
-	test(string_equal_char(pos, "Hello"), "string_designer1");
+	string_designator(pos, &pos);
+	test(string_equal_char(pos, "Hello"), "string_designator1");
 
 	strvect_char_heap(&pos, "AAABBB");
-	string_designer(pos, &pos);
-	test(string_equal_char(pos, "AAABBB"), "string_designer2");
+	string_designator(pos, &pos);
+	test(string_equal_char(pos, "AAABBB"), "string_designator2");
 
 	internpackage(NULL, "BITPACKAGE");
 	internchar("BITPACKAGE", "symbol", &pos);
-	string_designer(pos, &pos);
-	test(string_equal_char(pos, "symbol"), "string_designer3");
+	string_designator(pos, &pos);
+	test(string_equal_char(pos, "symbol"), "string_designator3");
 
 	RETURN;
 }
@@ -249,14 +249,14 @@ static int test_find_package(void)
 	RETURN;
 }
 
-static int test_package_designer(void)
+static int test_package_designator(void)
 {
 	addr pos, check;
 
 	internpackage(&pos, "BITPACKAGE");
 	strvect_char_heap(&check, "BITPACKAGE");
-	package_designer(check, &check);
-	test(pos == check, "package_designer1");
+	package_designator(check, &check);
+	test(pos == check, "package_designator1");
 
 	RETURN;
 }
@@ -3065,10 +3065,10 @@ static int testcase_package(void)
 	TestBreak(test_inheritbitpackage);
 	TestBreak(test_shadowintern_bitpackage);
 	TestBreak(test_shadowimport_bitpackage);
-	TestBreak(test_string_designer);
+	TestBreak(test_string_designator);
 	TestBreak(test_findstringlocal);
 	TestBreak(test_find_package);
-	TestBreak(test_package_designer);
+	TestBreak(test_package_designator);
 	TestBreak(test_package_heap);
 	TestBreak(test_package_char_heap);
 	//TestBreak(test_specialsymbol);

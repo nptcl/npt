@@ -499,7 +499,7 @@ int strvect_comparep(addr left, addr right)
 	return strvect_comparep_binary(left, body, size);
 }
 
-int strvect_designer_equal_char(addr left, const char *right)
+int strvect_designator_equal_char(addr left, const char *right)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);
@@ -511,7 +511,7 @@ int strvect_designer_equal_char(addr left, const char *right)
 	return 0;
 }
 
-int strvect_designer_equalp_char(addr left, const char *right)
+int strvect_designator_equalp_char(addr left, const char *right)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);

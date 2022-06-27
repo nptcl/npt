@@ -8,7 +8,7 @@
 #include "hashtable.h"
 #include "hold.h"
 #include "package_bittype.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_import.h"
 #include "package_intern.h"
 #include "restart.h"
@@ -228,7 +228,7 @@ int import_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_update_p_(package, &package));
+	Return(package_designator_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:

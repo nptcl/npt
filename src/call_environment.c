@@ -210,7 +210,7 @@ int apropos_list_common_(Execute ptr, addr var, addr package, addr *ret)
 	addr list, root, x, y;
 	LocalHold hold;
 
-	Return(string_designer_heap_(&var, var, NULL));
+	Return(string_designator_heap_(&var, var, NULL));
 	if (package != Nil)
 		return apropos_symbol_common_(ptr, var, package, ret);
 
@@ -447,7 +447,7 @@ static int ed_file_common_(Execute ptr, addr var)
 		return ed_execute_common_(ptr, Nil);
 
 	/* argument */
-	Return(pathname_designer_heap_(ptr, var, &var));
+	Return(pathname_designator_heap_(ptr, var, &var));
 	Return(wild_pathname_boolean_(var, Nil, &check));
 	if (check) {
 		return call_simple_file_error_va_(ptr, var,
@@ -553,7 +553,7 @@ static int dribble_message_begin_(Execute ptr, addr file)
 	const char *str;
 	addr name, stream;
 
-	Return(pathname_designer_heap_(ptr, file, &name));
+	Return(pathname_designator_heap_(ptr, file, &name));
 	Return(standard_output_stream_(ptr, &stream));
 	str = "~&;; DRIBBLE begin to write ~S.~%";
 	return format_stream_(ptr, stream, str, name, NULL);
@@ -564,7 +564,7 @@ static int dribble_message_end_(Execute ptr, addr file)
 	const char *str;
 	addr name, stream;
 
-	Return(pathname_designer_heap_(ptr, file, &name));
+	Return(pathname_designator_heap_(ptr, file, &name));
 	Return(standard_output_stream_(ptr, &stream));
 	str = "~&;; DRIBBLE end to write ~S.~%";
 	return format_stream_(ptr, stream, str, name, NULL);
@@ -647,7 +647,7 @@ static int dribble_open_(Execute ptr, addr file)
 	GetConst(SYSTEM_DRIBBLE_FILE, &check);
 	GetValueSymbol(check, &check);
 	if (check != Unbound) {
-		Return(pathname_designer_heap_(ptr, check, &check));
+		Return(pathname_designator_heap_(ptr, check, &check));
 		return fmtw_("DRIBBLE already open file ~S.", check, NULL);
 	}
 	else {

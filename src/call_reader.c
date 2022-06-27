@@ -87,7 +87,7 @@ int read_common_(Execute ptr, addr stream, addr errorp, addr eof, addr recp, add
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
 		Return(getspecialcheck_local_(ptr, stream, &stream));
 	}
-	Return(input_stream_designer_(ptr, stream, &stream));
+	Return(input_stream_designator_(ptr, stream, &stream));
 
 	/* errorp */
 	if (errorp == Unbound)
@@ -136,7 +136,7 @@ int read_preserving_whitespace_common_(Execute ptr,
 		GetConst(SPECIAL_STANDARD_INPUT, &stream);
 		Return(getspecialcheck_local_(ptr, stream, &stream));
 	}
-	Return(input_stream_designer_(ptr, stream, &stream));
+	Return(input_stream_designator_(ptr, stream, &stream));
 
 	/* errorp */
 	if (errorp == Unbound)

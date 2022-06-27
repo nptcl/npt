@@ -115,7 +115,7 @@ int string_common_(addr var, addr *ret)
 {
 	int check;
 
-	Return(string_designer_heap_(ret, var, &check));
+	Return(string_designator_heap_(ret, var, &check));
 	if (! check)
 		return TypeError_(var, STRING);
 
@@ -134,7 +134,7 @@ static int string_case_common_(addr var, addr rest, addr *ret,
 	unicode c;
 	size_t start, end, size, i;
 
-	Return(string_designer_heap_(&var, var, &check));
+	Return(string_designator_heap_(&var, var, &check));
 	if (! check)
 		return TypeError_(var, STRING);
 	string_length(var, &size);
@@ -421,7 +421,7 @@ int string_trim_common_(addr trim, addr pos, addr *ret)
 	unicode c;
 	size_t start, end, size, i;
 
-	Return(string_designer_heap_(&pos, pos, &check));
+	Return(string_designator_heap_(&pos, pos, &check));
 	if (! check)
 		return TypeError_(pos, STRING);
 	start = 0;
@@ -456,7 +456,7 @@ int string_left_trim_common_(addr trim, addr pos, addr *ret)
 	unicode c;
 	size_t start, end, size, i;
 
-	Return(string_designer_heap_(&pos, pos, &check));
+	Return(string_designator_heap_(&pos, pos, &check));
 	if (! check)
 		return TypeError_(pos, STRING);
 	start = 0;
@@ -488,7 +488,7 @@ int string_right_trim_common_(addr trim, addr pos, addr *ret)
 	unicode c;
 	size_t start, end, size, i;
 
-	Return(string_designer_heap_(&pos, pos, &check));
+	Return(string_designator_heap_(&pos, pos, &check));
 	if (! check)
 		return TypeError_(pos, STRING);
 	start = 0;
@@ -521,10 +521,10 @@ int string_eql_common_(addr var1, addr var2, addr rest, addr *ret)
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	Return(string_designer_heap_(&var1, var1, &check));
+	Return(string_designator_heap_(&var1, var1, &check));
 	if (! check)
 		return TypeError_(var1, STRING);
-	Return(string_designer_heap_(&var2, var2, &check));
+	Return(string_designator_heap_(&var2, var2, &check));
 	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);
@@ -558,10 +558,10 @@ static int string_call_common_(addr var1, addr var2, addr rest, addr *ret,
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	Return(string_designer_heap_(&var1, var1, &check));
+	Return(string_designator_heap_(&var1, var1, &check));
 	if (! check)
 		return TypeError_(var1, STRING);
-	Return(string_designer_heap_(&var2, var2, &check));
+	Return(string_designator_heap_(&var2, var2, &check));
 	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);
@@ -693,10 +693,10 @@ int string_equal_common_(addr var1, addr var2, addr rest, addr *ret)
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	Return(string_designer_heap_(&var1, var1, &check));
+	Return(string_designator_heap_(&var1, var1, &check));
 	if (! check)
 		return TypeError_(var1, STRING);
-	Return(string_designer_heap_(&var2, var2, &check));
+	Return(string_designator_heap_(&var2, var2, &check));
 	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);
@@ -730,10 +730,10 @@ static int string_callp_common_(addr var1, addr var2, addr rest, addr *ret,
 	size_t diff1, diff2, i;
 	unicode a, b;
 
-	Return(string_designer_heap_(&var1, var1, &check));
+	Return(string_designator_heap_(&var1, var1, &check));
 	if (! check)
 		return TypeError_(var1, STRING);
-	Return(string_designer_heap_(&var2, var2, &check));
+	Return(string_designator_heap_(&var2, var2, &check));
 	if (! check)
 		return TypeError_(var2, STRING);
 	string_length(var1, &size1);

@@ -31,17 +31,17 @@ static int windows_values_show_(Execute ptr, addr args)
 
 	/* :default */
 	Return(windows_values_single_(args, &args));
-	Return(string_designer_equalp_char_(args, "default", &check));
+	Return(string_designator_equalp_char_(args, "default", &check));
 	if (check)
 		goto mode_default;
 
 	/* :show */
-	Return(string_designer_equalp_char_(args, "show", &check));
+	Return(string_designator_equalp_char_(args, "show", &check));
 	if (check)
 		goto mode_show;
 
 	/* :hide */
-	Return(string_designer_equalp_char_(args, "hide", &check));
+	Return(string_designator_equalp_char_(args, "hide", &check));
 	if (check)
 		goto mode_hide;
 
@@ -236,34 +236,34 @@ int windows_values_(Execute ptr, addr var, addr args, int *ret)
 	int check;
 
 	/* windows */
-	Return(string_designer_equalp_char_(var, "windows", &check));
+	Return(string_designator_equalp_char_(var, "windows", &check));
 	if (! check)
 		return Result(ret, 0);
 	Return_getcons(args, &var, &args);
 	*ret = 1;
 
 	/* :show */
-	Return(string_designer_equalp_char_(var, "show", &check));
+	Return(string_designator_equalp_char_(var, "show", &check));
 	if (check)
 		return windows_values_show_(ptr, args);
 
 	/* :size */
-	Return(string_designer_equalp_char_(var, "size", &check));
+	Return(string_designator_equalp_char_(var, "size", &check));
 	if (check)
 		return windows_values_size_(ptr, args);
 
 	/* :font */
-	Return(string_designer_equalp_char_(var, "font", &check));
+	Return(string_designator_equalp_char_(var, "font", &check));
 	if (check)
 		return windows_values_font_(ptr, args);
 
 	/* :color1 */
-	Return(string_designer_equalp_char_(var, "color1", &check));
+	Return(string_designator_equalp_char_(var, "color1", &check));
 	if (check)
 		return windows_values_color1_(ptr, args);
 
 	/* :color2 */
-	Return(string_designer_equalp_char_(var, "color2", &check));
+	Return(string_designator_equalp_char_(var, "color2", &check));
 	if (check)
 		return windows_values_color2_(ptr, args);
 

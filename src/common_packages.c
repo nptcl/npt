@@ -12,7 +12,7 @@
 
 /* (defun export (symbols &optional package) ...) -> (eql t)
  *   symbols  (or list symbol)
- *   package  (or string character symbol package) ;; package-designer
+ *   package  (or string character symbol package) ;; package-designator
  */
 static int function_export(Execute ptr, addr symbols, addr package)
 {
@@ -38,7 +38,7 @@ static void defun_export(void)
 
 
 /* (defun find-symbol (string &optional package) ...) -> symbol, status
- *   package  package-designer
+ *   package  package-designator
  *   status   (member :inherited :external :interal nil)
  */
 static int function_find_symbol(Execute ptr, addr name, addr package)
@@ -76,7 +76,7 @@ static void type_find_package(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	GetTypeTable(&values, Package);
 	type2or_heap(args, values, &args);
 	typeargs_var1(&args, args);
@@ -101,7 +101,7 @@ static void defun_find_package(void)
 
 
 /* (defun find-all-symbols (string) ...) -> symbols
- *   string   string-designer
+ *   string   string-designator
  *   symbols  list
  */
 static int function_find_all_symbols(Execute ptr, addr name)
@@ -115,7 +115,7 @@ static void type_find_all_symbols(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
 	type_compiled_heap(args, values, ret);
@@ -139,7 +139,7 @@ static void defun_find_all_symbols(void)
 
 /* (defun import (symbols &optional package) ...) -> (eql t)
  *   symbols  (or list symbol)
- *   package  package-designer
+ *   package  package-designator
  */
 static int function_import(Execute ptr, addr symbols, addr package)
 {
@@ -201,8 +201,8 @@ static void defun_list_all_packages(void)
 
 
 /* (defun rename-package (package name &optional nicknames) ...) -> value
- *   package    package-designer
- *   name       package-designer
+ *   package    package-designator
+ *   name       package-designator
  *   nicknames  list
  *   value      package
  */
@@ -218,7 +218,7 @@ static void type_rename_package(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PackageDesigner);
+	GetTypeTable(&args, PackageDesignator);
 	GetTypeTable(&values, List);
 	typeargs_var2opt1(&args, args, args, values);
 	GetTypeValues(&values, Package);
@@ -242,8 +242,8 @@ static void defun_rename_package(void)
 
 
 /* (defun shadow (symbols &optional package) ...) -> (eql t)
- *   symbols  (or list string-designer)
- *   package  package-designer
+ *   symbols  (or list string-designator)
+ *   package  package-designator
  */
 static int function_shadow(Execute ptr, addr symbols, addr package)
 {
@@ -257,9 +257,9 @@ static void type_shadow(addr *ret)
 	addr args, values, type1, type2;
 
 	GetTypeTable(&type1, List);
-	GetTypeTable(&type2, StringDesigner);
+	GetTypeTable(&type2, StringDesignator);
 	type2or_heap(type1, type2, &args);
-	GetTypeTable(&values, PackageDesigner);
+	GetTypeTable(&values, PackageDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, EqlT);
 	type_compiled_heap(args, values, ret);
@@ -283,7 +283,7 @@ static void defun_shadow(void)
 
 /* (defun shadowing-import (symbols &optional package) ...) -> (eql t)
  *   symbols  (or list symbol)
- *   package  package-designer
+ *   package  package-designator
  */
 static int function_shadowing_import(Execute ptr, addr symbols, addr package)
 {
@@ -309,7 +309,7 @@ static void defun_shadowing_import(void)
 
 
 /* (defun delete-package (package) ...) -> booelan
- *   package  package-designer
+ *   package  package-designator
  */
 static int function_delete_package(Execute ptr, addr package)
 {
@@ -325,7 +325,7 @@ static void type_delete_package(addr *ret)
 {
 	addr args, values;
 
-	GetTypeArgs(&args, PackageDesigner);
+	GetTypeArgs(&args, PackageDesignator);
 	GetTypeValues(&values, Boolean);
 	type_compiled_heap(args, values, ret);
 }
@@ -347,7 +347,7 @@ static void defun_delete_package(void)
 
 
 /* (defun make-package (name &key nicknames use) ...) -> package
- *   name       string-designer
+ *   name       string-designator
  *   nicknames  list
  *   use        list
  *   package    package
@@ -364,7 +364,7 @@ static void type_make_package(addr *ret)
 	addr args, values, type1, type2, symbol, type, key;
 
 	/* args */
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	GetTypeTable(&type, List);
 	GetConst(KEYWORD_NICKNAMES, &symbol);
 	cons_heap(&type1, symbol, type);
@@ -417,7 +417,7 @@ static void defmacro_with_package_iterator(void)
 
 /* (defun unexport (symbols &optional package) ...) -> (eql t)
  *   symbols  (or list symbol)
- *   package  (or string character symbol package) ;; package-designer
+ *   package  (or string character symbol package) ;; package-designator
  */
 static int function_unexport(Execute ptr, addr symbols, addr package)
 {
@@ -443,7 +443,7 @@ static void defun_unexport(void)
 
 
 /* (defun unintern (symbol &optional package) ...) -> boolean
- *   package  package-designer
+ *   package  package-designator
  */
 static int function_unintern(Execute ptr, addr symbol, addr package)
 {
@@ -457,7 +457,7 @@ static void type_unintern(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, Symbol);
-	GetTypeTable(&values, PackageDesigner);
+	GetTypeTable(&values, PackageDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Boolean);
 	type_compiled_heap(args, values, ret);
@@ -502,8 +502,8 @@ static void defmacro_in_package(void)
 
 
 /* (defun unuse-package (list &optional package) ...) -> t
- *    list     (or package-designer list)
- *    package  package-designer
+ *    list     (or package-designator list)
+ *    package  package-designator
  */
 static int function_unuse_package(Execute ptr, addr unuse, addr package)
 {
@@ -529,8 +529,8 @@ static void defun_unuse_package(void)
 
 
 /* (defun use-package (list &optional package) ...) -> t
- *    list     (or package-designer list)
- *    package  package-designer
+ *    list     (or package-designator list)
+ *    package  package-designator
  */
 static int function_use_package(Execute ptr, addr use, addr package)
 {
@@ -654,7 +654,7 @@ static void defmacro_do_all_symbols(void)
 
 
 /* (defun intern (string &optional package) ...) -> symbol, status
- *   package  package-designer
+ *   package  package-designator
  *   status   (member :inherited :external :interal nil)
  */
 static int function_intern(Execute ptr, addr name, addr package)
@@ -681,7 +681,7 @@ static void defun_intern(void)
 
 
 /* (defun package-name (package) ...) -> name
- *   package  package-designer
+ *   package  package-designator
  *   name     (or string null)
  */
 static int function_package_name(Execute ptr, addr package)
@@ -695,7 +695,7 @@ static void type_package_name(addr *ret)
 {
 	addr args, values;
 
-	GetTypeArgs(&args, PackageDesigner);
+	GetTypeArgs(&args, PackageDesignator);
 	GetTypeValues(&values, StringNull);
 	type_compiled_heap(args, values, ret);
 }
@@ -850,7 +850,7 @@ static void defvar_package(void)
 }
 
 
-/* (defun package-error-package (package-error) ...) -> package-designer */
+/* (defun package-error-package (package-error) ...) -> package-designator */
 static int function_package_error_package(Execute ptr, addr var)
 {
 	Return(package_error_package_(var, &var));
@@ -864,7 +864,7 @@ static void type_package_error_package(addr *ret)
 
 	GetTypeTable(&args, PackageError);
 	typeargs_var1(&args, args);
-	GetTypeTable(&values, PackageDesigner);
+	GetTypeTable(&values, PackageDesignator);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, ret);
 }

@@ -206,7 +206,7 @@ static int peek_char_character_(Execute ptr, addr *ret,
 int peek_char_stream_(Execute ptr, addr *ret,
 		addr type, addr stream, int errorp, addr value, int recp)
 {
-	Return(input_stream_designer_(ptr, stream, &stream));
+	Return(input_stream_designator_(ptr, stream, &stream));
 	if (type == Nil)
 		return peek_char_nil_(ptr, ret, stream, errorp, value, recp);
 	else if (type == T)
@@ -416,7 +416,7 @@ int read_line_stream_(Execute ptr, addr *ret, int *miss,
 	LocalRoot local;
 	LocalStack stack;
 
-	Return(input_stream_designer_(ptr, pos, &pos));
+	Return(input_stream_designator_(ptr, pos, &pos));
 	local = ptr->local;
 	push_local(local, &stack);
 	Return(read_line_stream_loop_(ptr, ret, miss, pos, errorp, value, recp));
@@ -438,13 +438,13 @@ int write_string_stream_(Execute ptr, addr string, addr rest, addr *ret)
 	/* argument */
 	string_length(string, &size);
 	if (rest == Nil) {
-		Return(output_stream_designer_(ptr, Unbound, &stream));
+		Return(output_stream_designator_(ptr, Unbound, &stream));
 		start = 0;
 		end = size;
 	}
 	else {
 		Return_getcons(rest, &stream, &rest);
-		Return(output_stream_designer_(ptr, stream, &stream));
+		Return(output_stream_designator_(ptr, stream, &stream));
 		Return(keyword_start_end_(size, rest, &start, &end));
 	}
 

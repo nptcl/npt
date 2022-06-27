@@ -6,7 +6,7 @@
 #include "integer.h"
 #include "mop_generic.h"
 #include "object.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_object.h"
 #include "random_state.h"
 #include "require.h"
@@ -63,12 +63,12 @@ static int sysctl_recovery_(Execute ptr, addr args)
 		goto error;
 
 	/* no-applicable-method */
-	Return(string_designer_equalp_char_(pos, "no-applicable-method", &check));
+	Return(string_designator_equalp_char_(pos, "no-applicable-method", &check));
 	if (check)
 		return sysctl_recovery_no_applicable_method_(ptr);
 
 	/* no-next-method */
-	Return(string_designer_equalp_char_(pos, "no-next-method", &check));
+	Return(string_designator_equalp_char_(pos, "no-next-method", &check));
 	if (check)
 		return sysctl_recovery_no_next_method_(ptr);
 
@@ -97,7 +97,7 @@ static int sysctl_clos_object_(Execute ptr, addr pos, addr args)
 		goto error;
 
 	/* slots */
-	Return(string_designer_equalp_char_(car, "slots", &check));
+	Return(string_designator_equalp_char_(car, "slots", &check));
 	if (check)
 		return sysctl_clos_slots_(ptr, pos);
 
@@ -166,17 +166,17 @@ static int sysctl_memory_stream_object_(Execute ptr, addr pos, addr args)
 		goto error;
 
 	/* size */
-	Return(string_designer_equalp_char_(car, "size", &check));
+	Return(string_designator_equalp_char_(car, "size", &check));
 	if (check)
 		return sysctl_memory_stream_size_(ptr, pos);
 
 	/* array */
-	Return(string_designer_equalp_char_(car, "array", &check));
+	Return(string_designator_equalp_char_(car, "array", &check));
 	if (check)
 		return sysctl_memory_stream_array_(ptr, pos);
 
 	/* cache */
-	Return(string_designer_equalp_char_(car, "cache", &check));
+	Return(string_designator_equalp_char_(car, "cache", &check));
 	if (check)
 		return sysctl_memory_stream_cache_(ptr, pos);
 
@@ -243,17 +243,17 @@ static int sysctl_structure_(Execute ptr, addr args)
 		goto error;
 
 	/* check */
-	Return(string_designer_equalp_char_(pos, "check", &check));
+	Return(string_designator_equalp_char_(pos, "check", &check));
 	if (check)
 		return sysctl_structure_check_(ptr, name);
 
 	/* delete */
-	Return(string_designer_equalp_char_(pos, "delete", &check));
+	Return(string_designator_equalp_char_(pos, "delete", &check));
 	if (check)
 		return sysctl_structure_delete_(ptr, name);
 
 	/* type */
-	Return(string_designer_equalp_char_(pos, "type", &check));
+	Return(string_designator_equalp_char_(pos, "type", &check));
 	if (check)
 		return sysctl_structure_type_(ptr, name);
 
@@ -328,17 +328,17 @@ static int sysctl_random_state_(Execute ptr, addr args)
 		goto error;
 
 	/* integer */
-	Return(string_designer_equalp_char_(pos, "integer", &check));
+	Return(string_designator_equalp_char_(pos, "integer", &check));
 	if (check)
 		return sysctl_random_state_integer_(ptr, args);
 
 	/* make */
-	Return(string_designer_equalp_char_(pos, "make", &check));
+	Return(string_designator_equalp_char_(pos, "make", &check));
 	if (check)
 		return sysctl_random_state_make_(ptr, args);
 
 	/* write */
-	Return(string_designer_equalp_char_(pos, "write", &check));
+	Return(string_designator_equalp_char_(pos, "write", &check));
 	if (check)
 		return sysctl_random_state_write_(ptr, args);
 
@@ -418,12 +418,12 @@ static int sysctl_stream_pipe_(Execute ptr, addr args)
 		goto error;
 
 	/* make */
-	Return(string_designer_equalp_char_(pos, "make", &check));
+	Return(string_designator_equalp_char_(pos, "make", &check));
 	if (check)
 		return sysctl_stream_pipe_make_(ptr, args);
 
 	/* type */
-	Return(string_designer_equalp_char_(pos, "type", &check));
+	Return(string_designator_equalp_char_(pos, "type", &check));
 	if (check)
 		return sysctl_stream_pipe_type_(ptr, args);
 
@@ -441,7 +441,7 @@ static int sysctl_stream_(Execute ptr, addr args)
 		goto error;
 
 	/* pipe */
-	Return(string_designer_equalp_char_(pos, "pipe", &check));
+	Return(string_designator_equalp_char_(pos, "pipe", &check));
 	if (check)
 		return sysctl_stream_pipe_(ptr, args);
 
@@ -462,7 +462,7 @@ static int sysctl_package_readonly_(Execute ptr, addr args)
 	/* package */
 	if (! consp_getcons(args, &pos, &args))
 		goto error;
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 
 	/* get */
 	if (args == Nil) {
@@ -495,7 +495,7 @@ static int sysctl_package_(Execute ptr, addr args)
 		goto error;
 
 	/* readonly */
-	Return(string_designer_equalp_char_(pos, "readonly", &check));
+	Return(string_designator_equalp_char_(pos, "readonly", &check));
 	if (check)
 		return sysctl_package_readonly_(ptr, args);
 
@@ -575,12 +575,12 @@ static int sysctl_require_(Execute ptr, addr args)
 		goto error;
 
 	/* append */
-	Return(string_designer_equalp_char_(pos, "append", &check));
+	Return(string_designator_equalp_char_(pos, "append", &check));
 	if (check)
 		return sysctl_require_append_(ptr, args);
 
 	/* delete */
-	Return(string_designer_equalp_char_(pos, "delete", &check));
+	Return(string_designator_equalp_char_(pos, "delete", &check));
 	if (check)
 		return sysctl_require_delete_(ptr, args);
 
@@ -606,42 +606,42 @@ int sysctl_values_(Execute ptr, addr pos, addr args)
 		return sysctl_clos_object_(ptr, pos, args);
 
 	/* memory-stream */
-	Return(string_designer_equalp_char_(pos, "memory-stream", &check));
+	Return(string_designator_equalp_char_(pos, "memory-stream", &check));
 	if (check)
 		return sysctl_memory_stream_(ptr, args);
 
 	/* clos */
-	Return(string_designer_equalp_char_(pos, "clos", &check));
+	Return(string_designator_equalp_char_(pos, "clos", &check));
 	if (check)
 		return sysctl_clos_(ptr, args);
 
 	/* recovery */
-	Return(string_designer_equalp_char_(pos, "recovery", &check));
+	Return(string_designator_equalp_char_(pos, "recovery", &check));
 	if (check)
 		return sysctl_recovery_(ptr, args);
 
 	/* structure */
-	Return(string_designer_equalp_char_(pos, "structure", &check));
+	Return(string_designator_equalp_char_(pos, "structure", &check));
 	if (check)
 		return sysctl_structure_(ptr, args);
 
 	/* random-state */
-	Return(string_designer_equalp_char_(pos, "random-state", &check));
+	Return(string_designator_equalp_char_(pos, "random-state", &check));
 	if (check)
 		return sysctl_random_state_(ptr, args);
 
 	/* stream */
-	Return(string_designer_equalp_char_(pos, "stream", &check));
+	Return(string_designator_equalp_char_(pos, "stream", &check));
 	if (check)
 		return sysctl_stream_(ptr, args);
 
 	/* package */
-	Return(string_designer_equalp_char_(pos, "package", &check));
+	Return(string_designator_equalp_char_(pos, "package", &check));
 	if (check)
 		return sysctl_package_(ptr, args);
 
 	/* require */
-	Return(string_designer_equalp_char_(pos, "require", &check));
+	Return(string_designator_equalp_char_(pos, "require", &check));
 	if (check)
 		return sysctl_require_(ptr, args);
 

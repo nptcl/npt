@@ -11,7 +11,7 @@
 #include "setf.h"
 
 /* (defun apply (call pos &rest args) ...) -> value
- *   call   (or function symbol)  ;; function-designer
+ *   call   (or function symbol)  ;; function-designator
  *   pos    t
  *   args   t
  *   value  (values &rest t)
@@ -25,7 +25,7 @@ static void type_apply(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	GetTypeTable(&type, T);
 	typeargs_var2rest(&args, args, type, type);
 	typevalues_rest(&values, type);
@@ -260,7 +260,7 @@ static void defspecial_macrolet(void)
 
 
 /* (defun funcall (function &rest args) ...) -> value
- *   function  (or function symbol)  ;; function-designer
+ *   function  (or function symbol)  ;; function-designator
  *   args      t
  *   value     (values &rest t)
  */
@@ -273,7 +273,7 @@ static void type_funcall(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	GetTypeTable(&type, T);
 	typeargs_var1rest(&args, args, type);
 	typevalues_rest(&values, type);
@@ -940,7 +940,7 @@ static void type_some(addr *ret)
 {
 	addr args, values, call, sequence;
 
-	GetTypeTable(&call, FunctionDesigner);
+	GetTypeTable(&call, FunctionDesignator);
 	GetTypeTable(&sequence, Sequence);
 	typeargs_var2rest(&args, call, sequence, sequence);
 	GetTypeValues(&values, T);

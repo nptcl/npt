@@ -2,7 +2,7 @@
 #include "cons.h"
 #include "cons_list.h"
 #include "package.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_object.h"
 #include "strtype.h"
 #include "symbol.h"
@@ -19,35 +19,35 @@ int packagep(addr pos)
  */
 int getname_package_(addr pos, addr *ret)
 {
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_NAME, ret);
 	return 0;
 }
 
 int getnickname_package_(addr pos, addr *ret)
 {
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_NICKNAME, ret);
 	return 0;
 }
 
 int getuselist_package_(addr pos, addr *ret)
 {
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_USE, ret);
 	return 0;
 }
 
 int getusedbylist_package_(addr pos, addr *ret)
 {
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_USED, ret);
 	return 0;
 }
 
 int getshadow_package_(addr pos, addr *ret)
 {
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 	GetPackage(pos, PACKAGE_INDEX_SHADOW, ret);
 	return 0;
 }

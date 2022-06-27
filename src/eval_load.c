@@ -282,7 +282,7 @@ static int eval_load_check_(
 
 	/* wild-pathname-p */
 	if (! streamp(file)) {
-		Return(pathname_designer_heap_(ptr, file, &file));
+		Return(pathname_designator_heap_(ptr, file, &file));
 		Return(wild_pathname_boolean_(file, Nil, &check));
 		if (check ) {
 			return call_simple_file_error_va_(ptr, file,

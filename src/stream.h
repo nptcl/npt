@@ -16,8 +16,8 @@
 #define print_ascii_stream_ _n(print_ascii_stream_)
 #define print_unicode_stream_ _n(print_unicode_stream_)
 #define print_string_stream_ _n(print_string_stream_)
-#define input_stream_designer_ _n(input_stream_designer_)
-#define output_stream_designer_ _n(output_stream_designer_)
+#define input_stream_designator_ _n(input_stream_designator_)
+#define output_stream_designator_ _n(output_stream_designator_)
 #define open_external_format_ _n(open_external_format_)
 
 #define standard_input_stream_ _n(standard_input_stream_)
@@ -41,8 +41,8 @@ int pageout_stream_(addr stream);
 int print_ascii_stream_(addr stream, const char *data);
 int print_unicode_stream_(addr stream, const unicode *data);
 int print_string_stream_(addr stream, addr pos);
-int input_stream_designer_(Execute ptr, addr stream, addr *ret);
-int output_stream_designer_(Execute ptr, addr stream, addr *ret);
+int input_stream_designator_(Execute ptr, addr stream, addr *ret);
+int output_stream_designator_(Execute ptr, addr stream, addr *ret);
 int open_external_format_(Execute ptr, addr x, enum Stream_Open_External *ret);
 
 /* special variable */

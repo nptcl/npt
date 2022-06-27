@@ -6,7 +6,7 @@
 #include "package.h"
 #include "package_bittype.h"
 #include "package_delete.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_use.h"
 #include "restart.h"
 #include "strvect.h"
@@ -217,7 +217,7 @@ int delete_package_(addr pos, int *ret)
 	}
 
 	/* readonly */
-	Return(package_designer_update_p_(pos, &pos));
+	Return(package_designator_update_p_(pos, &pos));
 
 	/* used-by-list */
 	Return(delete_package_used_(pos));

@@ -28,7 +28,7 @@ static void type_make_hash_table(addr *ret)
 
 	/* test */
 	GetConst(KEYWORD_TEST, &key);
-	GetTypeTable(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesignator);
 	cons_heap(&key1, key, type);
 	/* size */
 	GetConst(KEYWORD_SIZE, &key);
@@ -371,7 +371,7 @@ static void type_maphash(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, Hashtable);
-	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&values, FunctionDesignator);
 	typeargs_var2(&args, values, args);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);

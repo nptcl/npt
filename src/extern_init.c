@@ -491,7 +491,7 @@ static int lisp_argv_load_(Execute ptr, lispstringu name, int error, int *ret)
 	addr file;
 
 	Return(lispstringu_heap_(&file, name));
-	Return(pathname_designer_heap_(ptr, file, &file));
+	Return(pathname_designator_heap_(ptr, file, &file));
 	return eval_main_load_(ptr, file, error, ret);
 }
 
@@ -501,7 +501,7 @@ static int lisp_argv_script_(Execute ptr, lispstringu name)
 
 	/* open */
 	Return(lispstringu_heap_(&file, name));
-	Return(pathname_designer_heap_(ptr, file, &file));
+	Return(pathname_designator_heap_(ptr, file, &file));
 	Return(open_input_utf8_stream_(ptr, &stream, file));
 	if (stream == NULL)
 		return fmte_("Cannot open file ~S.", file, NULL);

@@ -114,7 +114,7 @@ static void type_cerror(addr *ret)
 	addr args, values, type;
 
 	GetTypeTable(&args, String);
-	GetTypeTable(&values, ConditionDesigner);
+	GetTypeTable(&values, ConditionDesignator);
 	GetTypeTable(&type, T);
 	typeargs_var2rest(&args, args, values, type);
 	GetTypeValues(&values, Null);
@@ -568,7 +568,7 @@ static void type_make_condition(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, ConditionDesigner);
+	GetTypeTable(&args, ConditionDesignator);
 	GetTypeTable(&values, T);
 	typeargs_var1rest(&args, args, values);
 	GetTypeTable(&values, Condition);
@@ -632,7 +632,7 @@ static void defun_compute_restarts(void)
 
 /*
  *  (defun find-restart (identifier &optional condition) -> restart
- *     ideitifier  (or restart (and symbol (not null)))  ;; restart-designer
+ *     ideitifier  (or restart (and symbol (not null)))  ;; restart-designator
  *     condition   (or condition null)
  *     restart     (or restart null)
  */
@@ -647,7 +647,7 @@ static void type_find_restart(addr *ret)
 {
 	addr condition, args, values;
 
-	GetTypeTable(&args, RestartDesigner);
+	GetTypeTable(&args, RestartDesignator);
 	GetTypeTable(&condition, ConditionNull);
 	typeargs_var1opt1(&args, args, condition);
 	/* restart */
@@ -673,7 +673,7 @@ static void defun_find_restart(void)
 
 
 /* (defun invoke-restart (restart &rest arguments) ...) -> result*
- *   restart    (or restart (and symbol (not null)))  ;; restart-designer
+ *   restart    (or restart (and symbol (not null)))  ;; restart-designator
  *   arguments  &rest t
  *   result*    *
  */
@@ -686,7 +686,7 @@ static void type_invoke_restart(addr *ret)
 {
 	addr args, values, restart;
 
-	GetTypeTable(&restart, RestartDesigner);
+	GetTypeTable(&restart, RestartDesignator);
 	GetTypeTable(&args, T);
 	typeargs_var1rest(&args, restart, args);
 	GetTypeTable(&values, Asterisk);
@@ -710,7 +710,7 @@ static void defun_invoke_restart(void)
 
 
 /* (defun invoke-restart-interactively (restart) ...) -> result*
- *   restart  (or restart (and symbol (not null)))  ;; restart-designer
+ *   restart  (or restart (and symbol (not null)))  ;; restart-designator
  *   result*  *
  */
 static int function_invoke_restart_interactively(Execute ptr, addr var)
@@ -722,7 +722,7 @@ static void type_invoke_restart_interactively(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, RestartDesigner);
+	GetTypeTable(&args, RestartDesignator);
 	typeargs_var1(&args, args);
 	GetTypeTable(&values, Asterisk);
 	type_compiled_heap(args, values, ret);

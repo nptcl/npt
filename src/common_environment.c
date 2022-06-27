@@ -224,7 +224,7 @@ static void defun_sleep(void)
 }
 
 
-/* (defun apropos (string-designer) ...) -> (values) */
+/* (defun apropos (string-designator) ...) -> (values) */
 static int function_apropos(Execute ptr, addr var, addr opt)
 {
 	Return(apropos_common_(ptr, var, (opt == Unbound)? Nil: opt));
@@ -236,8 +236,8 @@ static void type_apropos(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
-	GetTypeTable(&values, PackageDesignerNull);
+	GetTypeTable(&args, StringDesignator);
+	GetTypeTable(&values, PackageDesignatorNull);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Empty);
 	type_compiled_heap(args, values, ret);
@@ -259,7 +259,7 @@ static void defun_apropos(void)
 }
 
 
-/* (defun apropos-list (string-designer) ...) -> (values) */
+/* (defun apropos-list (string-designator) ...) -> (values) */
 static int function_apropos_list(Execute ptr, addr var, addr opt)
 {
 	Return(apropos_list_common_(ptr, var, (opt == Unbound)? Nil: opt, &var));
@@ -271,8 +271,8 @@ static void type_apropos_list(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
-	GetTypeTable(&values, PackageDesignerNull);
+	GetTypeTable(&args, StringDesignator);
+	GetTypeTable(&values, PackageDesignatorNull);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, List);
 	type_compiled_heap(args, values, ret);
@@ -307,7 +307,7 @@ static void type_describe(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Empty);
 	type_compiled_heap(args, values, ret);
@@ -482,7 +482,7 @@ static void defun_get_internal_run_time(void)
 }
 
 
-/* (defun disassemble (extended-function-designer) ...) -> nil */
+/* (defun disassemble (extended-function-designator) ...) -> nil */
 static int function_disassemble(Execute ptr, addr var)
 {
 	Return(disassemble_common_(ptr, var));
@@ -494,7 +494,7 @@ static void type_disassemble(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -566,7 +566,7 @@ static void type_ed(addr *ret)
 	addr args, values, type1, type2, type3;
 
 	GetTypeTable(&type1, Null);
-	GetTypeTable(&type2, PathnameDesigner);
+	GetTypeTable(&type2, PathnameDesignator);
 	GetTypeTable(&type3, FunctionName);
 	type3or_heap(type1, type2, type3, &args);
 	typeargs_opt1(&args, args);
@@ -636,7 +636,7 @@ static void type_dribble(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);

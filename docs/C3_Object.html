@@ -396,7 +396,7 @@ In the case of other real types, the value is cast to <code>long-float</code>.</
 <h2 id="escape-function-lisp_package_">Escape Function <code>lisp_package_</code></h2>
 <div class="sourceCode" id="cb23"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_package_<span class="op">(</span>addr x<span class="op">,</span> addr pos<span class="op">);</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> pos<span class="op">,</span> package<span class="op">-</span>designer</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> pos<span class="op">,</span> package<span class="op">-</span>designator</span>
 <span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>Output<span class="op">:</span> x<span class="op">,</span> hold variable</span>
 <span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero when escaping<span class="op">.</span></span></code></pre></div>
 <p>If <code>pos</code> is a hold variable, its contents are used.<br />
@@ -424,7 +424,7 @@ See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
 <h2 id="escape-function-lisp_intern_">Escape Function <code>lisp_intern_</code></h2>
 <div class="sourceCode" id="cb26"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_intern_<span class="op">(</span>addr x<span class="op">,</span> addr package<span class="op">,</span> addr name<span class="op">);</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> package<span class="op">,</span> package<span class="op">-</span>designer or nil</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> package<span class="op">,</span> package<span class="op">-</span>designator or nil</span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> name<span class="op">,</span> string object</span>
 <span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>Output<span class="op">:</span> x<span class="op">,</span> hold variable</span>
 <span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero when escaping<span class="op">.</span></span></code></pre></div>
@@ -489,7 +489,7 @@ See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
 <h2 id="escape-function-lisp_pathname_">Escape Function <code>lisp_pathname_</code></h2>
 <div class="sourceCode" id="cb32"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_pathname_<span class="op">(</span>addr x<span class="op">,</span> addr name<span class="op">);</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> name<span class="op">,</span> pathname<span class="op">-</span>designer</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> name<span class="op">,</span> pathname<span class="op">-</span>designator</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>Output<span class="op">:</span> x<span class="op">,</span> hold variable</span>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero when escaping<span class="op">.</span></span></code></pre></div>
 <p>Converts the string <code>name</code> to a pathname.<br />
@@ -513,7 +513,7 @@ See the <code>lisp_string8_</code> function for details on Unicode strings.</p>
 <h2 id="escape-function-lisp_namestring_">Escape Function <code>lisp_namestring_</code></h2>
 <div class="sourceCode" id="cb34"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> lisp_namestring_<span class="op">(</span>addr x<span class="op">,</span> addr path<span class="op">);</span></span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> path<span class="op">,</span> pathname<span class="op">-</span>designer</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>Input<span class="op">:</span> path<span class="op">,</span> pathname<span class="op">-</span>designator</span>
 <span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>Output<span class="op">:</span> x<span class="op">,</span> hold variable</span>
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>Return<span class="op">:</span> Non<span class="op">-</span>zero when escaping<span class="op">.</span></span></code></pre></div>
 <p>Convert the pathname object <code>path</code> to a string.<br />

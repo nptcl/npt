@@ -16,7 +16,7 @@
 #include "package.h"
 #include "package_defpackage.h"
 #include "package_delete.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_export.h"
 #include "package_import.h"
 #include "package_intern.h"
@@ -41,7 +41,7 @@ static int defpackage_find_list_(addr x, addr list, int *ret)
 
 	while (list != Nil) {
 		GetCons(list, &y, &list);
-		Return(string_designer_equal_(x, y, &check));
+		Return(string_designator_equal_(x, y, &check));
 		if (check)
 			return Result(ret, 1);
 	}
@@ -59,7 +59,7 @@ static int defpackage_find_import_(addr x, addr list, int *ret)
 		GetCdr(row, &row); /* package-name */
 		while (row != Nil) {
 			GetCons(row, &y, &row);
-			Return(string_designer_equal_(x, y, &check));
+			Return(string_designator_equal_(x, y, &check));
 			if (check)
 				return Result(ret, 1);
 		}
@@ -154,10 +154,10 @@ static int defpackage_update_shadowing_(addr pos, addr list)
 	while (list != Nil) {
 		GetCons(list, &child, &list);
 		GetCons(child, &package, &child);
-		Return(package_designer_(package, &package));
+		Return(package_designator_(package, &package));
 		while (child != Nil) {
 			GetCons(child, &key, &child);
-			Return(string_designer_heap_(&key, key, NULL));
+			Return(string_designator_heap_(&key, key, NULL));
 			Return(defpackage_import_symbol_(package, key, &key));
 			Return(shadowing_import_package_(pos, key));
 		}
@@ -174,11 +174,11 @@ static int defpackage_update_import_(LocalRoot local, addr pos, addr list)
 	while (list != Nil) {
 		GetCons(list, &child, &list);
 		GetCons(child, &package, &child);
-		Return(package_designer_(package, &package));
+		Return(package_designator_(package, &package));
 		push_local(local, &stack);
 		for (args = Nil; child != Nil; ) {
 			GetCons(child, &symbol, &child);
-			Return(string_designer_heap_(&symbol, symbol, NULL));
+			Return(string_designator_heap_(&symbol, symbol, NULL));
 			Return(defpackage_import_symbol_(package, symbol, &symbol));
 			cons_local(local, &args, symbol, args);
 		}
@@ -229,9 +229,9 @@ static int defpackage_rest_nicknames_(addr pg, addr rest, addr *ret)
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		/* type check */
-		Return(string_designer_heap_(&pos, pos, &check));
+		Return(string_designator_heap_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_(NULL, pos, type);
 		}
 
@@ -257,8 +257,8 @@ static int defpackage_rest_use_(addr rest, addr *ret)
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		/* type check */
-		if (! package_designer_p(pos)) {
-			GetTypeTable(&type, PackageDesigner);
+		if (! package_designator_p(pos)) {
+			GetTypeTable(&type, PackageDesignator);
 			return call_type_error_(NULL, pos, type);
 		}
 	}
@@ -276,8 +276,8 @@ static int defpackage_rest_string_(addr rest, constindex index, addr *ret)
 	*ret = list;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		if (! string_designer_p(pos)) {
-			GetTypeTable(&type, StringDesigner);
+		if (! string_designator_p(pos)) {
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_(NULL, pos, type);
 		}
 	}
@@ -291,16 +291,16 @@ static int defpackage_rest_import_line_(addr list)
 
 	/* package */
 	Return_getcons(list, &pos, &list);
-	if (! package_designer_p(pos)) {
-		GetTypeTable(&type, PackageDesigner);
+	if (! package_designator_p(pos)) {
+		GetTypeTable(&type, PackageDesignator);
 		return call_type_error_(NULL, pos, type);
 	}
 
 	/* string */
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		if (! string_designer_p(pos)) {
-			GetTypeTable(&type, StringDesigner);
+		if (! string_designator_p(pos)) {
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_(NULL, pos, type);
 		}
 	}
@@ -332,7 +332,7 @@ static int defpackage_disjoin_shadow_(addr shadow,
 
 	while (shadow != Nil) {
 		Return_getcons(shadow, &pos, &shadow);
-		Check(! string_designer_p(pos), "type error");
+		Check(! string_designator_p(pos), "type error");
 
 		/* intern check */
 		Return(defpackage_find_list_(pos, intern, &check));
@@ -371,7 +371,7 @@ static int defpackage_disjoin_import_list_(addr list,
 	/* symbols */
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		Check(! string_designer_p(pos), "type error");
+		Check(! string_designator_p(pos), "type error");
 
 		/* shadow check */
 		Return(defpackage_find_list_(pos, shadow, &check));
@@ -424,7 +424,7 @@ static int defpackage_disjoin_shadowing_list_(addr list,
 	/* symbols */
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		Check(! string_designer_p(pos), "type error");
+		Check(! string_designator_p(pos), "type error");
 
 		/* shadow check */
 		Return(defpackage_find_list_(pos, shadow, &check));
@@ -475,7 +475,7 @@ static int defpackage_disjoin_intern_(addr intern,
 
 	while (intern != Nil) {
 		Return_getcons(intern, &pos, &intern);
-		Check(! string_designer_p(pos), "type error");
+		Check(! string_designator_p(pos), "type error");
 
 		/* shadow check */
 		Return(defpackage_find_list_(pos, shadow, &check));
@@ -517,7 +517,7 @@ static int defpackage_disjoin_export_(addr expt, addr intern)
 
 	while (expt != Nil) {
 		Return_getcons(expt, &pos, &expt);
-		Check(! string_designer_p(pos), "type error");
+		Check(! string_designator_p(pos), "type error");
 
 		/* intern check */
 		Return(defpackage_find_list_(pos, intern, &check));
@@ -695,7 +695,7 @@ int defpackage_execute_(Execute ptr, addr var, addr rest, addr *ret)
 	size_t size;
 
 	/* name */
-	Return(string_designer_heap_(&var, var, NULL));
+	Return(string_designator_heap_(&var, var, NULL));
 
 	/* :SIZE */
 	Return(defpackage_size_(rest, &sizep, &size));
@@ -709,7 +709,7 @@ int defpackage_execute_(Execute ptr, addr var, addr rest, addr *ret)
 		Return(defpackage_execute_make_(ptr, var, rest, sizep, size, &pos));
 	}
 	else {
-		Return(package_designer_update_p_(pos, &pos));
+		Return(package_designator_update_p_(pos, &pos));
 		Return(defpackage_execute_update_(ptr, pos, rest, sizep, size));
 	}
 	setdocument_package(pos, doc);
@@ -720,10 +720,10 @@ int defpackage_execute_(Execute ptr, addr var, addr rest, addr *ret)
 /*****************************************************************************
  *  Macro COMMON-LISP:DEFPACKAGE
  *****************************************************************************/
-static int defpackage_package_designer_common_(addr *value, addr pos, int *ret)
+static int defpackage_package_designator_common_(addr *value, addr pos, int *ret)
 {
 	/* type check */
-	if (! package_designer_p(pos)) {
+	if (! package_designator_p(pos)) {
 		*ret = 0;
 		return 0;
 	}
@@ -731,7 +731,7 @@ static int defpackage_package_designer_common_(addr *value, addr pos, int *ret)
 	/* object */
 	if (packagep(pos))
 		getname_package_unsafe(pos, &pos);
-	return string_designer_heap_(value, pos, ret);
+	return string_designator_heap_(value, pos, ret);
 }
 
 static int defpackage_nicknames_common_(addr *ret, addr info, addr list)
@@ -742,11 +742,11 @@ static int defpackage_nicknames_common_(addr *ret, addr info, addr list)
 	*ret = Nil;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		Return(string_designer_heap_(&pos, pos, &check));
+		Return(string_designator_heap_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, pos, type,
-					":NICKNAME ~S must be a string-designer.", pos, NULL);
+					":NICKNAME ~S must be a string-designator.", pos, NULL);
 		}
 		cons_heap(&info, pos, info);
 	}
@@ -790,11 +790,11 @@ static int defpackage_use_common_(addr *ret, addr info, addr list)
 	*ret = Nil;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		Return(defpackage_package_designer_common_(&pos, pos, &check));
+		Return(defpackage_package_designator_common_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, PackageDesigner);
+			GetTypeTable(&type, PackageDesignator);
 			return call_type_error_va_(NULL, pos, type,
-					":USE ~S must be a package-designer.", pos, NULL);
+					":USE ~S must be a package-designator.", pos, NULL);
 		}
 		cons_heap(&info, pos, info);
 	}
@@ -812,11 +812,11 @@ static int defpackage_shadow_common_(addr *ret,
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		/* type check */
-		Return(string_designer_heap_(&pos, pos, &check));
+		Return(string_designator_heap_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, pos, type,
-					":SHADOW ~S must be a string-designer.", pos, NULL);
+					":SHADOW ~S must be a string-designator.", pos, NULL);
 		}
 
 		/* shadowing-import-from check */
@@ -854,12 +854,12 @@ static int defpackage_shadowing_common_(addr *ret,
 	/* package name */
 	*ret = Nil;
 	Return_getcons(list, &pos, &list);
-	Return(defpackage_package_designer_common_(&pos, pos, &check));
+	Return(defpackage_package_designator_common_(&pos, pos, &check));
 	if (! check) {
-		GetTypeTable(&type, PackageDesigner);
+		GetTypeTable(&type, PackageDesignator);
 		return call_type_error_va_(NULL, pos, type,
 				":SHADOWING-IMPORT-FROM first argument ~S "
-				"must be a package-designer.", pos, NULL);
+				"must be a package-designator.", pos, NULL);
 	}
 	conscar_heap(&row, pos);
 
@@ -867,12 +867,12 @@ static int defpackage_shadowing_common_(addr *ret,
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		/* type check */
-		Return(string_designer_heap_(&pos, pos, &check));
+		Return(string_designator_heap_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, pos, type,
 					":SHADOWING-IMPORT-FROM ~S "
-					"must be a string-designer.", pos, NULL);
+					"must be a string-designator.", pos, NULL);
 		}
 
 		/* shadow check */
@@ -914,12 +914,12 @@ static int defpackage_import_common_(addr *ret,
 	/* package name */
 	*ret = Nil;
 	Return_getcons(list, &pos, &list);
-	Return(defpackage_package_designer_common_(&pos, pos, &check));
+	Return(defpackage_package_designator_common_(&pos, pos, &check));
 	if (! check) {
-		GetTypeTable(&type, PackageDesigner);
+		GetTypeTable(&type, PackageDesignator);
 		return call_type_error_va_(NULL, pos, type,
 				":IMPORT-FROM first argument ~S "
-				"must be a package-designer.", pos, NULL);
+				"must be a package-designator.", pos, NULL);
 	}
 	conscar_heap(&row, pos);
 
@@ -927,11 +927,11 @@ static int defpackage_import_common_(addr *ret,
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		/* type check */
-		Return(string_designer_heap_(&pos, pos, &check));
+		Return(string_designator_heap_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, pos, type,
-					":IMPORT-FROM ~S must be a string-designer.", pos, NULL);
+					":IMPORT-FROM ~S must be a string-designator.", pos, NULL);
 		}
 
 		/* shadow check */
@@ -971,11 +971,11 @@ static int defpackage_export_common_(addr *ret, addr expt, addr intern, addr lis
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		/* type check */
-		Return(string_designer_heap_(&pos, pos, &check));
+		Return(string_designator_heap_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, pos, type,
-					":EXPORT ~S must be a string-designer.", pos, NULL);
+					":EXPORT ~S must be a string-designator.", pos, NULL);
 		}
 
 		/* intern check */
@@ -1001,11 +1001,11 @@ static int defpackage_intern_common_(addr *ret,
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		/* type check */
-		Return(string_designer_heap_(&pos, pos, &check));
+		Return(string_designator_heap_(&pos, pos, &check));
 		if (! check) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, pos, type,
-					":INTERN ~S must be a string-designer.", pos, NULL);
+					":INTERN ~S must be a string-designator.", pos, NULL);
 		}
 
 		/* shadow check */
@@ -1219,11 +1219,11 @@ int defpackage_common_(addr form, addr env, addr *ret)
 		return fmte_("DEFPACKAGE argument ~S "
 				"must be (name &rest options).", form, NULL);
 	}
-	Return(string_designer_heap_(&name, name, &check));
+	Return(string_designator_heap_(&name, name, &check));
 	if (! check) {
-		GetTypeTable(&type, StringDesigner);
+		GetTypeTable(&type, StringDesignator);
 		return call_type_error_va_(NULL, name, type,
-				"DEFPACKAGE name ~S must be a string-designer.", name, NULL);
+				"DEFPACKAGE name ~S must be a string-designator.", name, NULL);
 	}
 
 	Return(defpackage_expand_common_(name, form, &form));

@@ -1134,7 +1134,7 @@ enum pointer_index {
 	p_defun_constantly_t,
 	p_defun_constantly_values,
 	/* package */
-	p_defun_package_designer_interactive,
+	p_defun_package_designator_interactive,
 	p_defun_make_package_input,
 	p_defun_unintern_call,
 	p_defun_unintern_input,

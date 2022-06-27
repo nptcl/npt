@@ -415,7 +415,7 @@ static int dlfile_open_process_(Execute ptr, addr args, addr *ret)
 		return fmte_("Invalid arguments, ~S.", args, NULL);
 	}
 	hold = LocalHold_array(ptr, 1);
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	localhold_set(hold, 0, pos);
 	Return(dlopen_arch_(ptr, pos, &pos));
 	dlfile_push_process(ptr, pos);
@@ -463,7 +463,7 @@ static int dlfile_type_process_(addr args, enum CallBind_index *ret)
 		return fmte_("Invalid arguments, ~S.", args, NULL);
 	if (list != Nil)
 		return fmte_("Invalid arguments, ~S.", args, NULL);
-	Return(string_designer_heap_(&pos, pos, NULL));
+	Return(string_designator_heap_(&pos, pos, NULL));
 	return process_calltype_(pos, ret);
 }
 
@@ -493,7 +493,7 @@ static int dlfile_call_process_(Execute ptr, addr args, addr *ret)
 		*ret = Nil;
 		return fmte_("Invalid arguments, ~S.", args, NULL);
 	}
-	Return(string_designer_heap_(&name, name, NULL));
+	Return(string_designator_heap_(&name, name, NULL));
 
 	/* type */
 	Return(dlfile_type_process_(list, &type));
@@ -532,27 +532,27 @@ int dlfile_process_(Execute ptr, addr type, addr args, addr *ret, addr *retp)
 	*retp = Unbound;
 
 	/* :open */
-	Return(string_designer_equalp_char_(type, "OPEN", &check));
+	Return(string_designator_equalp_char_(type, "OPEN", &check));
 	if (check)
 		return dlfile_open_process_(ptr, args, ret);
 
 	/* :close */
-	Return(string_designer_equalp_char_(type, "CLOSE", &check));
+	Return(string_designator_equalp_char_(type, "CLOSE", &check));
 	if (check)
 		return dlfile_close_process_(ptr, args, ret);
 
 	/* :call */
-	Return(string_designer_equalp_char_(type, "CALL", &check));
+	Return(string_designator_equalp_char_(type, "CALL", &check));
 	if (check)
 		return dlfile_call_process_(ptr, args, ret);
 
 	/* :list */
-	Return(string_designer_equalp_char_(type, "LIST", &check));
+	Return(string_designator_equalp_char_(type, "LIST", &check));
 	if (check)
 		return dlfile_list_process_(ptr, args, ret);
 
 	/* :info */
-	Return(string_designer_equalp_char_(type, "INFO", &check));
+	Return(string_designator_equalp_char_(type, "INFO", &check));
 	if (check)
 		return dlfile_info_process_(ptr, args, ret, retp);
 

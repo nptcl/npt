@@ -103,7 +103,7 @@ int read_char_common_(Execute ptr,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	Return(input_stream_designer_(ptr, stream, &stream));
+	Return(input_stream_designator_(ptr, stream, &stream));
 
 	/* read-char */
 	Return(read_char_stream_(stream, &c, &check));
@@ -136,7 +136,7 @@ int read_char_no_hang_common_(Execute ptr,
 		value = Nil;
 	if (recp == Unbound)
 		recp = Nil;
-	Return(input_stream_designer_(ptr, stream, &stream));
+	Return(input_stream_designator_(ptr, stream, &stream));
 
 	/* read-char */
 	Return(read_hang_stream_(stream, &c, &hang, &check));
@@ -162,7 +162,7 @@ int terpri_common_(Execute ptr, addr stream)
 		Return(standard_output_stream_(ptr, &stream));
 	}
 	else {
-		Return(output_stream_designer_(ptr, stream, &stream));
+		Return(output_stream_designator_(ptr, stream, &stream));
 	}
 	Return(terpri_stream_(stream));
 	return exitpoint_stream_(stream);
@@ -180,7 +180,7 @@ int fresh_line_common_(Execute ptr, addr stream, addr *ret)
 		Return(standard_output_stream_(ptr, &stream));
 	}
 	else {
-		Return(output_stream_designer_(ptr, stream, &stream));
+		Return(output_stream_designator_(ptr, stream, &stream));
 	}
 	Return(fresh_line_stream_(stream, &check));
 	Return(exitpoint_stream_(stream));
@@ -200,7 +200,7 @@ int unread_char_common_(Execute ptr, addr pos, addr stream)
 		Return(standard_input_stream_(ptr, &stream));
 	}
 	else {
-		Return(input_stream_designer_(ptr, stream, &stream));
+		Return(input_stream_designator_(ptr, stream, &stream));
 	}
 	GetCharacter(pos, &c);
 	return unread_char_stream_(stream, c);
@@ -214,7 +214,7 @@ int write_char_common_(Execute ptr, addr pos, addr stream)
 {
 	unicode c;
 
-	Return(output_stream_designer_(ptr, stream, &stream));
+	Return(output_stream_designator_(ptr, stream, &stream));
 	GetCharacter(pos, &c);
 	Return(write_char_stream_(stream, c));
 	return exitpoint_stream_(stream);
@@ -526,7 +526,7 @@ static int open_common_ifdoesnot_(addr value,
 	return fmte_("Invalid :if-does-not-exist value ~S.", value, NULL);
 }
 
-static int open_pathname_designer_(Execute ptr, addr pos, addr *ret)
+static int open_pathname_designator_(Execute ptr, addr pos, addr *ret)
 {
 	addr value;
 
@@ -539,7 +539,7 @@ static int open_pathname_designer_(Execute ptr, addr pos, addr *ret)
 			return Result(ret, value);
 	}
 
-	return pathname_designer_heap_(ptr, pos, ret);
+	return pathname_designator_heap_(ptr, pos, ret);
 }
 
 int open_common_(Execute ptr, addr pos, addr rest, addr *ret)
@@ -552,7 +552,7 @@ int open_common_(Execute ptr, addr pos, addr rest, addr *ret)
 	enum Stream_Open_External external;
 
 	/* argument */
-	Return(open_pathname_designer_(ptr, pos, &pos));
+	Return(open_pathname_designator_(ptr, pos, &pos));
 	if (GetKeyArgs(rest, KEYWORD_DIRECTION, &value))
 		value = Unbound;
 	Return(open_common_direction_(value, &direction));

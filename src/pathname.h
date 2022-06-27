@@ -8,9 +8,9 @@
 #define parse_pathname_full_heap_ _n(parse_pathname_full_heap_)
 #define parse_pathname_setf_heap_ _n(parse_pathname_setf_heap_)
 #define parse_pathname_char_heap_ _n(parse_pathname_char_heap_)
-#define pathname_designer_alloc_ _n(pathname_designer_alloc_)
-#define pathname_designer_heap_ _n(pathname_designer_heap_)
-#define pathname_designer_local_ _n(pathname_designer_local_)
+#define pathname_designator_alloc_ _n(pathname_designator_alloc_)
+#define pathname_designator_heap_ _n(pathname_designator_heap_)
+#define pathname_designator_local_ _n(pathname_designator_local_)
 #define physical_pathname_alloc_ _n(physical_pathname_alloc_)
 #define physical_pathname_heap_ _n(physical_pathname_heap_)
 #define physical_pathname_local_ _n(physical_pathname_local_)
@@ -43,9 +43,9 @@ int parse_pathname_full_heap_(Execute ptr, addr thing, addr host,
 int parse_pathname_setf_heap_(Execute ptr, addr thing, addr host, addr *ret);
 
 int parse_pathname_char_heap_(Execute ptr, const char *str, addr *ret);
-int pathname_designer_alloc_(Execute ptr, addr pos, addr *ret, int localp);
-int pathname_designer_heap_(Execute ptr, addr pos, addr *ret);
-int pathname_designer_local_(Execute ptr, addr pos, addr *ret);
+int pathname_designator_alloc_(Execute ptr, addr pos, addr *ret, int localp);
+int pathname_designator_heap_(Execute ptr, addr pos, addr *ret);
+int pathname_designator_local_(Execute ptr, addr pos, addr *ret);
 
 int physical_pathname_alloc_(Execute ptr, addr pos, addr *ret, int localp);
 int physical_pathname_heap_(Execute ptr, addr pos, addr *ret);

@@ -753,7 +753,7 @@ static void defun_char_name(void)
 
 
 /* (defun name-char (name) ...) -> char-p
- *   name    (or string symbol character)  ;; string-designer
+ *   name    (or string symbol character)  ;; string-designator
  *   char-p  (or character null)
  */
 static int function_name_char(Execute ptr, addr var)
@@ -767,7 +767,7 @@ static void type_name_char(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, CharacterNull);
 	type_compiled_heap(args, values, ret);

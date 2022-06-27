@@ -82,7 +82,7 @@ int print_string_stream_(addr stream, addr pos)
 	return 0;
 }
 
-static int stream_designer_(Execute ptr, addr stream, addr *ret, int inputp)
+static int stream_designator_(Execute ptr, addr stream, addr *ret, int inputp)
 {
 	addr type;
 
@@ -104,18 +104,18 @@ static int stream_designer_(Execute ptr, addr stream, addr *ret, int inputp)
 
 	/* error */
 	*ret = Nil;
-	GetTypeTable(&type, StreamDesigner);
+	GetTypeTable(&type, StreamDesignator);
 	return call_type_error_(ptr, stream, type);
 }
 
-int input_stream_designer_(Execute ptr, addr stream, addr *ret)
+int input_stream_designator_(Execute ptr, addr stream, addr *ret)
 {
-	return stream_designer_(ptr, stream, ret, 1);
+	return stream_designator_(ptr, stream, ret, 1);
 }
 
-int output_stream_designer_(Execute ptr, addr stream, addr *ret)
+int output_stream_designator_(Execute ptr, addr stream, addr *ret)
 {
-	return stream_designer_(ptr, stream, ret, 0);
+	return stream_designator_(ptr, stream, ret, 0);
 }
 
 

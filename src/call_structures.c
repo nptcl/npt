@@ -158,13 +158,13 @@ static int defstruct_parse_conc_name_(struct defstruct *str, addr pos, int *ret)
 		str->conc_name = Nil;
 		return Result(ret, 1);
 	}
-	Return(string_designer_heap_(&pos, pos, &check));
+	Return(string_designator_heap_(&pos, pos, &check));
 	if (check) {
 		str->conc_name = pos;
 		return Result(ret, 1);
 	}
 
-	return fmte_("DEFSTRUCT :CONC-NAME ~S must be a string-designer.", pos, NULL);
+	return fmte_("DEFSTRUCT :CONC-NAME ~S must be a string-designator.", pos, NULL);
 }
 
 static int defstruct_parse_copier_(struct defstruct *str, addr pos, int *ret)
@@ -182,7 +182,7 @@ static int defstruct_parse_copier_(struct defstruct *str, addr pos, int *ret)
 	}
 	if (pos == Nil)
 		goto store;
-	Return(string_designer_heap_(&pos, pos, &check));
+	Return(string_designator_heap_(&pos, pos, &check));
 	if (check)
 		goto store;
 	return fmte_("DEFSTRUCT :COPIER ~S must be a symbol.", pos, NULL);
@@ -208,7 +208,7 @@ static int defstruct_parse_predicate_(struct defstruct *str, addr pos, int *ret)
 	}
 	if (pos == Nil)
 		goto store;
-	Return(string_designer_heap_(&pos, pos, &check));
+	Return(string_designator_heap_(&pos, pos, &check));
 	if (check)
 		goto store;
 	return fmte_("DEFSTRUCT :PREDICATE ~S must be a symbol.", pos, NULL);

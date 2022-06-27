@@ -50,7 +50,7 @@ int compile_file_pathname_common_(Execute ptr, addr input, addr rest, addr *ret)
 
 	if (GetKeyArgs(rest, KEYWORD_OUTPUT_FILE, &output)) {
 		/* input-file -> output-file */
-		Return(pathname_designer_heap_(ptr, input, &input));
+		Return(pathname_designator_heap_(ptr, input, &input));
 		compile_file_pathname_from_input(input, &file);
 	}
 	else {

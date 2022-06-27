@@ -4,7 +4,7 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_import.h"
 #include "package_shadow.h"
 #include "strtype.h"
@@ -21,7 +21,7 @@ static int symbol_shadow_package_(addr package, addr pos)
 	addr bit;
 	struct bittype_struct *str;
 
-	Return(string_designer_heap_(&pos, pos, NULL));
+	Return(string_designator_heap_(&pos, pos, NULL));
 	Return(intern_bitpackage_(package, pos, &bit, &check));
 	str = StructBitType(bit);
 	if (str->inherit) {
@@ -46,10 +46,10 @@ static int list_shadow_package_(addr package, addr args)
 	list = args;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		if (! string_designer_p(pos)) {
-			GetTypeTable(&type, StringDesigner);
+		if (! string_designator_p(pos)) {
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, pos, type,
-					"SHADOW ~S must be a string-designer.", pos, NULL);
+					"SHADOW ~S must be a string-designator.", pos, NULL);
 		}
 	}
 
@@ -67,7 +67,7 @@ int shadow_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_update_p_(package, &package));
+	Return(package_designator_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_CHARACTER:
@@ -81,9 +81,9 @@ int shadow_package_(addr package, addr pos)
 			return list_shadow_package_(package, pos);
 
 		default:
-			GetTypeTable(&type, StringDesignerList);
+			GetTypeTable(&type, StringDesignatorList);
 			return call_type_error_va_(NULL, pos, type,
-					"SHADOW ~S must be a string-designer or list.", pos, NULL);
+					"SHADOW ~S must be a string-designator or list.", pos, NULL);
 	}
 }
 
@@ -185,7 +185,7 @@ static int list_shadowing_import_package_(addr package, addr args)
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		if (! symbolp(pos)) {
-			GetTypeTable(&type, StringDesigner);
+			GetTypeTable(&type, StringDesignator);
 			return call_type_error_va_(NULL, args, type,
 					"SHADOWING-IMPORT ~S must be a symbol.", pos, NULL);
 		}
@@ -205,7 +205,7 @@ int shadowing_import_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_update_p_(package, &package));
+	Return(package_designator_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:

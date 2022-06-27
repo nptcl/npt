@@ -79,7 +79,7 @@ static void type_pprint_dispatch(addr *ret)
 	GetTypeTable(&args, T);
 	GetTypeTable(&values, PrintDispatchNull);
 	typeargs_var1opt1(&args, args, values);
-	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&values, FunctionDesignator);
 	GetTypeTable(&type, Boolean);
 	typevalues_values2(&values, values, type);
 	type_compiled_heap(args, values, ret);
@@ -102,7 +102,7 @@ static void defun_pprint_dispatch(void)
 
 
 /* (defun pprint-fill (stream object &optional colon-p at-sign-p) ...) -> null
- *   stream     (or boolean stream)  ;; output-stream-designer
+ *   stream     (or boolean stream)  ;; output-stream-designator
  *   object     t
  *   colon-p    t  ;; boolean
  *   at-sign-p  t  ;; boolean
@@ -132,7 +132,7 @@ static void defun_pprint_fill(void)
 
 
 /* (defun pprint-linear (stream object &optional colon-p at-sign-p) ...) -> null
- *   stream     (or boolean stream)  ;; output-stream-designer
+ *   stream     (or boolean stream)  ;; output-stream-designator
  *   object     t
  *   colon-p    t  ;; boolean
  *   at-sign-p  t  ;; boolean
@@ -162,7 +162,7 @@ static void defun_pprint_linear(void)
 
 
 /* (defun pprint-tabular (stream object &optional colon-p at-sign-p) ...) -> null
- *   stream     (or boolean stream)  ;; output-stream-designer
+ *   stream     (or boolean stream)  ;; output-stream-designator
  *   object     t
  *   colon-p    t  ;; boolean
  *   at-sign-p  t  ;; boolean
@@ -177,12 +177,12 @@ static int function_pprint_tabular(Execute ptr,
 
 static void type_pprint_tabular(addr *ret)
 {
-	/* (function (output-stream-designer t &optional t t (integer 0 *))
+	/* (function (output-stream-designator t &optional t t (integer 0 *))
 	 *           (values null &rest nil))
 	 */
 	addr args, values, type;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	GetTypeTable(&values, T);
 	GetTypeTable(&type, Intplus);
 	typeargs_var2opt3(&args, args, values, values, values, type);
@@ -209,7 +209,7 @@ static void defun_pprint_tabular(void)
 /* (defun pprint-indent (relative-to n &optional stream) ...) -> null
  *   relative-to  (member :block :current)
  *   n            real
- *   stream       output-stream-designer
+ *   stream       output-stream-designator
  */
 static int function_pprint_indent(Execute ptr, addr rel, addr n, addr stream)
 {
@@ -226,7 +226,7 @@ static void type_pprint_indent(addr *ret)
 	GetConst(KEYWORD_CURRENT, &key2);
 	type_member_heap(&args, key1, key2, NULL);
 	GetTypeTable(&values, Real);
-	GetTypeTable(&type, StreamDesigner);
+	GetTypeTable(&type, StreamDesignator);
 	typeargs_var2opt1(&args, args, values, type);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -275,7 +275,7 @@ static void defmacro_pprint_logical_block(void)
 
 /* (defun pprint-newline (kind &optional stream) ...) -> null
  *   kind    (member :linear :fill :miser :mandatory)
- *   stream  output-steram-designer
+ *   stream  output-steram-designator
  */
 static int function_pprint_newline(Execute ptr, addr kind, addr stream)
 {
@@ -289,7 +289,7 @@ static void type_pprint_newline(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, PprintNewline);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -315,7 +315,7 @@ static void defun_pprint_newline(void)
  *   kind    (member :line :section :line-relative :section-relative)
  *   column  (integer 0 *)
  *   colinc  (integer 0 *)
- *   stream  output-steram-designer
+ *   stream  output-steram-designator
  */
 static int function_pprint_tab(Execute ptr,
 		addr kind, addr column, addr colinc, addr stream)
@@ -331,7 +331,7 @@ static void type_pprint_tab(addr *ret)
 
 	GetTypeTable(&args, PprintTabular);
 	GetTypeTable(&values, Intplus);
-	GetTypeTable(&type, StreamDesigner);
+	GetTypeTable(&type, StreamDesignator);
 	typeargs_var3opt1(&args, args, values, values, type);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -356,7 +356,7 @@ static void defun_pprint_tab(void)
 /* (defmacro print-unreadable-object
  *     ((object stream &key type identity) &body form) ...) -> null
  *   object    t  ;; evaluated
- *   stream    output-stream-designer  ;; evaluated
+ *   stream    output-stream-designator  ;; evaluated
  *   type      t  ;; boolean, evaluated
  *   identity  t  ;; boolean, evaluated
  */
@@ -383,7 +383,7 @@ static void defmacro_print_unreadable_object(void)
 
 /* (defun set-pprint-dispatch (type function &optional priority table) ...) -> null
  *   type      type-specifier
- *   function  (or function-designer null)
+ *   function  (or function-designator null)
  *   priority  real  ;; default 0
  *   table     print-dispatch  ;; default *print-pprint-dispatch*
  */
@@ -400,7 +400,7 @@ static void type_set_pprint_dispatch(addr *ret)
 	addr args, values, type, dispatch;
 
 	GetTypeTable(&args, TypeSpec);
-	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&values, FunctionDesignator);
 	GetTypeTable(&type, Null);
 	type2or_heap(values, type, &values);
 	GetTypeTable(&type, Real);
@@ -444,7 +444,7 @@ static void defun_set_pprint_dispatch(void)
  *   radix            t  ;; boolean
  *   readably         t  ;; boolean
  *   right-margin     (or null (integer 0 *))
- *   stream           output-stream-designer
+ *   stream           output-stream-designator
  */
 static int function_write(Execute ptr, addr var, addr args)
 {
@@ -476,7 +476,7 @@ static void type_write(addr *ret, int stream_p)
 	KeyTypeTable(&key14, READABLY, T);
 	KeyTypeTable(&key15, RIGHT_MARGIN, IntplusNull);
 	if (stream_p) {
-		KeyTypeTable(&key16, STREAM, StreamDesigner);
+		KeyTypeTable(&key16, STREAM, StreamDesignator);
 		list_heap(&key, key1, key2, key3, key4, key5, key6, key7, key8,
 				key9, key10, key11, key12, key13, key14, key15, key16, NULL);
 	}
@@ -508,7 +508,7 @@ static void defun_write(void)
 
 
 /* (defun prin1 (object &optional stream) ...) -> object
- *   stream  stream-designer  ;; default standard-output
+ *   stream  stream-designator  ;; default standard-output
  */
 static int function_prin1(Execute ptr, addr var, addr stream)
 {
@@ -534,7 +534,7 @@ static void defun_prin1(void)
 
 
 /* (defun princ (object &optional stream) ...) -> object
- *   stream  stream-designer  ;; default standard-output
+ *   stream  stream-designator  ;; default standard-output
  */
 static int function_princ(Execute ptr, addr var, addr stream)
 {
@@ -560,7 +560,7 @@ static void defun_princ(void)
 
 
 /* (defun print (object &optional stream) ...) -> object
- *   stream  stream-designer  ;; default standard-output
+ *   stream  stream-designator  ;; default standard-output
  */
 static int function_print(Execute ptr, addr var, addr stream)
 {
@@ -586,7 +586,7 @@ static void defun_print(void)
 
 
 /* (defun pprint (object &optional stream) ...) -> (values)
- *   stream  stream-designer  ;; default standard-output
+ *   stream  stream-designator  ;; default standard-output
  */
 static int function_pprint(Execute ptr, addr var, addr stream)
 {
@@ -600,7 +600,7 @@ static void type_pprint(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Nil);
 	type_compiled_heap(args, values, ret);

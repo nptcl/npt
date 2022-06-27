@@ -20,7 +20,7 @@ int provide_common_(Execute ptr, addr var)
 {
 	addr symbol, list;
 
-	Return(string_designer_heap_(&var, var, NULL));
+	Return(string_designator_heap_(&var, var, NULL));
 	GetConst(SPECIAL_MODULES, &symbol);
 	Return(getspecialcheck_local_(ptr, symbol, &list));
 	Return(pushnew_equal_heap_(list, var, &list));
@@ -33,7 +33,7 @@ int modules_find_(Execute ptr, addr var, int *ret)
 {
 	addr symbol, list;
 
-	Return(string_designer_heap_(&var, var, NULL));
+	Return(string_designator_heap_(&var, var, NULL));
 	GetConst(SPECIAL_MODULES, &symbol);
 	Return(getspecialcheck_local_(ptr, symbol, &list));
 	return find_list_equal_safe_(var, list, ret);
@@ -43,7 +43,7 @@ int modules_delete_(Execute ptr, addr var)
 {
 	addr symbol, list;
 
-	Return(string_designer_heap_(&var, var, NULL));
+	Return(string_designator_heap_(&var, var, NULL));
 	GetConst(SPECIAL_MODULES, &symbol);
 	Return(getspecialcheck_local_(ptr, symbol, &list));
 	remove_list_equal_safe_heap_(var, list, &list);
@@ -108,7 +108,7 @@ int require_common_(Execute ptr, addr var, addr opt)
 {
 	int push;
 
-	Return(string_designer_heap_(&var, var, NULL));
+	Return(string_designator_heap_(&var, var, NULL));
 	push = 0;
 	if (opt == Unbound || opt == Nil) {
 		Return(require_function_common_(ptr, var, &push));
@@ -133,8 +133,8 @@ int require_append_(Execute ptr, addr var, int forcep, int *ret)
 {
 	int check;
 
-	/* string-designer */
-	Return(string_designer_heap_(&var, var, NULL));
+	/* string-designator */
+	Return(string_designator_heap_(&var, var, NULL));
 
 	/* clos */
 	Return(require_clos_(ptr, var, forcep, &check));
@@ -149,7 +149,7 @@ static int function_require_default_(Execute ptr, addr var)
 {
 	int check;
 
-	Return(string_designer_heap_(&var, var, NULL));
+	Return(string_designator_heap_(&var, var, NULL));
 	Return(require_append_(ptr, var, 0, &check));
 	setbool_control(ptr, check);
 	return 0;
@@ -172,8 +172,8 @@ int require_delete_(Execute ptr, addr var, int forcep, int *ret)
 {
 	int check;
 
-	/* string-designer */
-	Return(string_designer_heap_(&var, var, NULL));
+	/* string-designator */
+	Return(string_designator_heap_(&var, var, NULL));
 
 	/* clos */
 	Return(unrequire_clos_(ptr, var, forcep, &check));

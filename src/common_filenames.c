@@ -301,7 +301,7 @@ static void type_pathname_version(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeTable(&values, PathnameVersion);
 	typevalues_result(&values, values);
@@ -591,7 +591,7 @@ static void type_enough_namestring(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1opt1(&args, args, args);
 	GetTypeValues(&values, String);
 	type_compiled_heap(args, values, ret);
@@ -616,9 +616,9 @@ static void defun_enough_namestring(void)
 /* (defun parse-namestring (thing
  *     &optional host defaults
  *     &key start end junk-allowed) ...) -> (values pathname position)
- *   thing         (or string stream pathname)  ;; pathname-designer
+ *   thing         (or string stream pathname)  ;; pathname-designator
  *   host          (or string symbol)  ;; (or valid-pathname-host null)
- *   defaults      (or string stream pathname)  ;; pathname-designer
+ *   defaults      (or string stream pathname)  ;; pathname-designator
  *   start         keyword-start
  *   end           keyword-end
  *   junk-allowed  t  ;; boolean
@@ -640,7 +640,7 @@ static void type_parse_namestring(addr *ret)
 	KeyTypeTable(&key3, JUNK_ALLOWED, T);
 	list_heap(&key, key1, key2, key3, NULL);
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	GetTypeTable(&values, PathnameHost);
 	typeargs_var1opt2key(&args, args, values, args, key);
 	GetTypeTable(&values, PathnameNull);
@@ -666,7 +666,7 @@ static void defun_parse_namestring(void)
 
 
 /* (defun wild-pathname-p (path &optional field) ...) -> boolean
- *   path   pathname-designer
+ *   path   pathname-designator
  *   field  (member :host :device :directory :name :type :version nil)
  */
 static int function_wild_pathname_p(Execute ptr, addr pos, addr field)
@@ -689,7 +689,7 @@ static void type_wild_pathname_p(addr *ret)
 	GetConst(KEYWORD_VERSION, &v6);
 	type_member_heap(&values, Nil, v1, v2, v3, v4, v5, v6, NULL);
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Boolean);
 	type_compiled_heap(args, values, ret);
@@ -712,8 +712,8 @@ static void defun_wild_pathname_p(void)
 
 
 /* (defun pathname-match-p (path wildcard) ...) -> boolean
- *   path      pathname-designer
- *   wildcard  pathname-designer
+ *   path      pathname-designator
+ *   wildcard  pathname-designator
  */
 static int function_pathname_match_p(Execute ptr, addr pos, addr wild)
 {
@@ -726,7 +726,7 @@ static void type_pathname_match_p(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var2(&args, args, args);
 	GetTypeValues(&values, Boolean);
 	type_compiled_heap(args, values, ret);
@@ -749,9 +749,9 @@ static void defun_pathname_match_p(void)
 
 
 /* (defun translate-pathname (source from to &key) ...) -> pathname
- *   source  pathname-designer
- *   to      pathname-designer
- *   from    pathname-designer
+ *   source  pathname-designator
+ *   to      pathname-designator
+ *   from    pathname-designator
  */
 static int function_translate_pathname(Execute ptr, addr pos, addr from, addr to)
 {
@@ -764,7 +764,7 @@ static void type_translate_pathname(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var3(&args, args, args, args);
 	GetTypeValues(&values, Pathname);
 	type_compiled_heap(args, values, ret);
@@ -798,7 +798,7 @@ static void type_translate_logical_pathname(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, Pathname);
 	type_compiled_heap(args, values, ret);
@@ -833,7 +833,7 @@ static void type_merge_pathnames(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	GetTypeTable(&values, PathnameVersion);
 	typeargs_var1opt2(&args, args, args, values);
 	GetTypeValues(&values, Pathname);

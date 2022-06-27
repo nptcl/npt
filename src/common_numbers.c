@@ -3140,7 +3140,7 @@ static void type_arithmetic_error_operation(addr *ret)
 
 	GetTypeTable(&args, ArithmeticError);
 	typeargs_opt1(&args, args);
-	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&values, FunctionDesignator);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, ret);
 }

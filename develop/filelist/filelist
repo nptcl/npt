@@ -255,7 +255,7 @@ package_bittype.c
 package_common.c
 package_defpackage.c
 package_delete.c
-package_designer.c
+package_designator.c
 package_export.c
 package_import.c
 package_intern.c

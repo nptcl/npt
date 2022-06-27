@@ -13,11 +13,11 @@
 /* (defun compile-file
  *     (input-file &key output-file verbose print external-format)
  *     -> output-truename, warnings-p, failure-p
- *   input-file       pathname-designer ;; merge *default-pathname-defaults*
- *   output-file      pathname-designer
+ *   input-file       pathname-designator ;; merge *default-pathname-defaults*
+ *   output-file      pathname-designator
  *   verbose          T  ;; boolean, *compile-verbose*
  *   print            T  ;; boolean, *compile-print*
- *   external-format  external-format-designer
+ *   external-format  external-format-designator
  *   output-truename  (or pathname null)  ;; truename
  *   warnings-p       boolean
  *   failure-p        boolean
@@ -38,14 +38,14 @@ static void type_compile_file(addr *ret)
 	addr type1, type2;
 
 	/* key */
-	KeyTypeTable(&key1, OUTPUT_FILE, PathnameDesigner);
+	KeyTypeTable(&key1, OUTPUT_FILE, PathnameDesignator);
 	KeyTypeTable(&key2, VERBOSE, T);
 	KeyTypeTable(&key3, PRINT, T);
 	KeyTypeTable(&key4, EXTERNAL_FORMAT, ExternalFormat);
 	list_heap(&key, key1, key2, key3, key4, NULL);
 
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1key(&args, args, key);
 	GetTypeTable(&type1, PathnameNull);
 	GetTypeTable(&type2, Boolean);
@@ -72,8 +72,8 @@ static void defun_compile_file(void)
 /* (defun compile-file-pathname
  *     (input-file &key output-file &allow-other-keys)
  *     -> pathname
- *   input-file       pathname-designer ;; merge *default-pathname-defaults*
- *   output-file      pathname-designer
+ *   input-file       pathname-designator ;; merge *default-pathname-defaults*
+ *   output-file      pathname-designator
  *   pathname         pathname
  */
 static int function_compile_file_pathname(Execute ptr, addr var, addr rest)
@@ -87,7 +87,7 @@ static void type_compile_file_pathname(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	GetTypeTable(&values, T);
 	typeargs_var1rest(&args, args, values);
 	GetTypeValues(&values, Pathname);
@@ -113,11 +113,11 @@ static void defun_compile_file_pathname(void)
 /* (defun load
  *     (filespec &key verbose print if-does-not-exist external-format) ...)
  *     -> boolean
- *   filespec           (or stream pathname-designer)
+ *   filespec           (or stream pathname-designator)
  *   verbose            t  ;; boolean
  *   print              t  ;; boolean
  *   if-does-not-exist  t  ;; boolean
- *   external-format    t  ;; external-format-designer
+ *   external-format    t  ;; external-format-designator
  */
 static int function_load(Execute ptr, addr filespec, addr rest)
 {
@@ -135,7 +135,7 @@ static void type_load(addr *ret)
 
 	/* args */
 	GetTypeTable(&args, Stream);
-	GetTypeTable(&type, PathnameDesigner);
+	GetTypeTable(&type, PathnameDesignator);
 	type2or_heap(args, type, &args);
 	GetTypeTable(&type, T);
 	GetConst(KEYWORD_VERBOSE, &key1);
@@ -358,7 +358,7 @@ static void type_provide(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -392,9 +392,9 @@ static void type_require(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	GetTypeTable(&values, List);
-	GetTypeTable(&type, PathnameDesigner);
+	GetTypeTable(&type, PathnameDesignator);
 	type2or_heap(values, type, &values);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Null);

@@ -188,7 +188,7 @@ static void defun_setf_schar(void)
 
 
 /* (defun string (x) ...) -> string
- *   x  (or string symbol character)  ;; string-designer
+ *   x  (or string symbol character)  ;; string-designator
  */
 static int function_string(Execute ptr, addr var)
 {
@@ -201,7 +201,7 @@ static void type_string(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, String);
 	type_compiled_heap(args, values, ret);
@@ -454,8 +454,8 @@ static void defun_string_right_trim(void)
 
 
 /* (defun string= (string1 string2 &key start1 end1 start2 end2) ...) -> boolean
- *   string1   (or string symbol character)  ;;string-designer
- *   string2   (or string symbol character)  ;;string-designer
+ *   string1   (or string symbol character)  ;;string-designator
+ *   string2   (or string symbol character)  ;;string-designator
  *   start1    keyword-start
  *   end1      keyword-end
  *   start2    keyword-start

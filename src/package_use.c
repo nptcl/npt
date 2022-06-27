@@ -8,7 +8,7 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_intern.h"
 #include "package_shadow.h"
 #include "package_use.h"
@@ -159,11 +159,11 @@ escape:
 /*
  *  use-package
  */
-static int package_designer_use_package_(addr pos, addr *ret)
+static int package_designator_use_package_(addr pos, addr *ret)
 {
 	addr keyword;
 
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 	GetConst(PACKAGE_KEYWORD, &keyword);
 	if (pos == keyword) {
 		*ret = Nil;
@@ -278,7 +278,7 @@ static int check_loop_use_package_(addr package, addr pos, addr list)
 	GetPackage(pos, PACKAGE_INDEX_TABLE, &hash1);
 	while (list != Nil) {
 		GetCons(list, &check, &list);
-		Return(package_designer_use_package_(check, &check));
+		Return(package_designator_use_package_(check, &check));
 		if (check == pos)
 			continue;
 		if (check == package)
@@ -296,7 +296,7 @@ static int check_list_use_package_(addr package, addr list)
 
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(package_designer_use_package_(pos, &pos));
+		Return(package_designator_use_package_(pos, &pos));
 		if (package == pos)
 			continue;
 		Return(check_loop_use_package_(package, pos, list));
@@ -328,7 +328,7 @@ static int execute_use_package_(addr package, addr pos)
 	addr hash1, hash2, list, name;
 
 	/* ignore */
-	Return(package_designer_use_package_(pos, &pos));
+	Return(package_designator_use_package_(pos, &pos));
 	if (check_already_use_package(package, pos))
 		return 0;
 
@@ -348,7 +348,7 @@ static int execute_use_package_(addr package, addr pos)
 
 static int package_use_package_(addr package, addr pos)
 {
-	Return(package_designer_use_package_(pos, &pos));
+	Return(package_designator_use_package_(pos, &pos));
 	Return(check_use_package_(package, pos));
 	Return(execute_use_package_(package, pos));
 
@@ -364,10 +364,10 @@ static int list_use_package_(addr package, addr args)
 	list = args;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		if (! package_designer_p(pos)) {
-			GetTypeTable(&type, PackageDesigner);
+		if (! package_designator_p(pos)) {
+			GetTypeTable(&type, PackageDesignator);
 			return call_type_error_va_(NULL, args, type,
-					"USE-PACKAGE ~S must be a package-designer.", pos, NULL);
+					"USE-PACKAGE ~S must be a package-designator.", pos, NULL);
 		}
 	}
 
@@ -375,7 +375,7 @@ static int list_use_package_(addr package, addr args)
 	list = args;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(package_designer_use_package_(pos, &pos));
+		Return(package_designator_use_package_(pos, &pos));
 		Return(check_use_package_(package, pos));
 	}
 	Return(check_list_use_package_(package, args));
@@ -394,8 +394,8 @@ int use_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_update_p_(package, &package));
-	Return(package_designer_use_package_(package, &package));
+	Return(package_designator_update_p_(package, &package));
+	Return(package_designator_use_package_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
 		case LISPTYPE_T:
@@ -410,9 +410,9 @@ int use_package_(addr package, addr pos)
 			return list_use_package_(package, pos);
 
 		default:
-			GetTypeTable(&type, PackageDesignerList);
+			GetTypeTable(&type, PackageDesignatorList);
 			return call_type_error_va_(NULL, pos, type,
-					"USE-PACKAGE ~S must be a package-designer or list.", pos, NULL);
+					"USE-PACKAGE ~S must be a package-designator or list.", pos, NULL);
 	}
 }
 
@@ -432,7 +432,7 @@ static int execute_unuse_package_(addr package, addr pos)
 	int check;
 	addr hash, list, name, bit;
 
-	Return(package_designer_(pos, &pos));
+	Return(package_designator_(pos, &pos));
 	if (check_uselist_package(package, pos) == 0)
 		return 0;
 
@@ -461,10 +461,10 @@ static int list_unuse_package_(addr package, addr args)
 	list = args;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		if (! package_designer_p(pos)) {
-			GetTypeTable(&type, PackageDesigner);
+		if (! package_designator_p(pos)) {
+			GetTypeTable(&type, PackageDesignator);
 			return call_type_error_va_(NULL, args, type,
-					"UNUSE-PACKAGE ~S must be a package-designer.", pos, NULL);
+					"UNUSE-PACKAGE ~S must be a package-designator.", pos, NULL);
 		}
 	}
 
@@ -482,7 +482,7 @@ int unuse_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_update_p_(package, &package));
+	Return(package_designator_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_PACKAGE:
 		case LISPTYPE_T:
@@ -497,9 +497,9 @@ int unuse_package_(addr package, addr pos)
 			return list_unuse_package_(package, pos);
 
 		default:
-			GetTypeTable(&type, PackageDesignerList);
+			GetTypeTable(&type, PackageDesignatorList);
 			return call_type_error_va_(NULL, pos, type,
-					"UNUSE-PACKAGE ~S must be a package-designer or list.", pos, NULL);
+					"UNUSE-PACKAGE ~S must be a package-designator or list.", pos, NULL);
 	}
 }
 

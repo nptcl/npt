@@ -221,7 +221,7 @@ The second return value is a boolean value to show whether the size is correct o
 EastAsianWidth categorizes characters into
 6 categories: `N`, `A`, `H`, `W`, `F`, and `NA`.
 This function gets the number of characters in each category.
-The argument `var` is a `string-designer` and represents the name of the category.
+The argument `var` is a `string-designator` and represents the name of the category.
 
 The first returned value is the size of EastAsianWidth.  
 The second return value is a symbol for the category, and the error is `NIL`.

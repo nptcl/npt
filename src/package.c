@@ -7,7 +7,7 @@
 #include "package.h"
 #include "package_bittype.h"
 #include "package_delete.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_export.h"
 #include "package_import.h"
 #include "package_intern.h"
@@ -84,7 +84,7 @@ int find_package_(addr pos, addr *ret)
 
 error:
 	*ret = Nil;
-	GetTypeTable(&type, PackageDesigner);
+	GetTypeTable(&type, PackageDesignator);
 	return call_type_error_(NULL, pos, type);
 }
 
@@ -111,7 +111,7 @@ int package_size_heap_(addr *ret, addr name, size_t size)
 	addr pos, table;
 
 	/* name check */
-	Return(string_designer_heap_(&name, name, NULL));
+	Return(string_designator_heap_(&name, name, NULL));
 	Return(find_package_direct_(name, &pos));
 	if (pos != Nil) {
 		return call_simple_package_error_va_(NULL,
@@ -372,7 +372,7 @@ int append_nicknames_package_(addr pos, addr right)
 		while (right != Nil) {
 			/* intern nickname */
 			GetCons(right, &left, &right);
-			Return(string_designer_heap_(&left, left, NULL));
+			Return(string_designator_heap_(&left, left, NULL));
 			Return(intern_hashheap_(table, left, &cons));
 			GetCdr(cons, &check);
 			/* if name duplicates, check has value. */
@@ -397,7 +397,7 @@ static int check_renameone_package_(
 	int check;
 	addr cons;
 
-	Return(string_designer_heap_(&name, name, NULL));
+	Return(string_designator_heap_(&name, name, NULL));
 	Return(findcons_hashtable_(table, name, &cons));
 	if (cons == Nil)
 		return Result(ret, 0);
@@ -405,14 +405,14 @@ static int check_renameone_package_(
 	/* If the argument name already registed in the table,
 	 *    check unregisted a name and nicknames in package.
 	 */
-	Return(string_designer_heap_(&root, root, NULL));
+	Return(string_designator_heap_(&root, root, NULL));
 	/* The name may unregist in table. */
 	Return(string_equal_(name, root, &check));
 	if (check)
 		return Result(ret, 0);
 	while (right != Nil) {
 		GetCons(right, &root, &right);
-		Return(string_designer_heap_(&root, root, NULL));
+		Return(string_designator_heap_(&root, root, NULL));
 		/* The nickname may unregist in table. */
 		Return(string_equal_(name, root, &check));
 		if (check)
@@ -448,7 +448,7 @@ static int check_rename_package_(addr pos, addr name, addr right)
 int delete_renameone_package_(addr table, addr name)
 {
 	int check;
-	Return(string_designer_heap_(&name, name, NULL));
+	Return(string_designator_heap_(&name, name, NULL));
 	return delete_hashtable_(table, name, &check);
 }
 
@@ -479,7 +479,7 @@ static int intern_renameone_package_(addr pos, addr table, addr name, int nickna
 {
 	addr cons, check;
 
-	Return(string_designer_heap_(&name, name, NULL));
+	Return(string_designator_heap_(&name, name, NULL));
 	Return(intern_hashheap_(table, name, &cons));
 	GetCdr(cons, &check);
 	if (check == Nil) {
@@ -513,7 +513,7 @@ static int intern_allnames_package_(addr pos, addr name, addr right)
 
 int rename_package_(addr pos, addr name, addr right, addr *ret)
 {
-	Return(package_designer_update_p_(pos, &pos));
+	Return(package_designator_update_p_(pos, &pos));
 	/* check conflict */
 	Return(check_rename_package_(pos, name, right));
 	/* delete name and nicknames */
@@ -532,7 +532,7 @@ int find_symbol_package_(addr package, addr name,
 		addr *value, enum PACKAGE_TYPE *ret)
 {
 	Check(! stringp(name), "type error");
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	Return(find_bitpackage_(package, name, &name));
 	if (name == Nil) {
 		*value = Nil;
@@ -571,7 +571,7 @@ int find_allsymbols_package_(addr name, addr *ret)
 	addr array, left, right, key, cons;
 	size_t i, size;
 
-	Return(string_designer_heap_(&name, name, NULL));
+	Return(string_designator_heap_(&name, name, NULL));
 	cons = Nil;
 	PackageTable(&array);
 	GetTableHash(array, &array);
@@ -635,7 +635,7 @@ int in_package_(Execute ptr, addr package, addr *ret)
 	addr symbol;
 
 	GetConst(SPECIAL_PACKAGE, &symbol);
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	setspecial_local(ptr, symbol, package);
 	if (ret)
 		*ret = package;
@@ -690,7 +690,7 @@ int exportp_name_package_(addr package, addr name, addr *value, int *ret)
 	addr right;
 
 	Check(! stringp(name), "type error");
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 
 	/* export check */
 	GetPackage(package, PACKAGE_INDEX_TABLE, &right);
@@ -743,7 +743,7 @@ void keyword_packagetype(enum PACKAGE_TYPE type, addr *ret)
  */
 void init_package(void)
 {
-	init_package_designer();
+	init_package_designator();
 	init_package_intern();
 	init_package_make();
 }

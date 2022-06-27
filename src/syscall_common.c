@@ -105,7 +105,7 @@ static void defun_defconstant(void)
 }
 
 
-/* (defun in-package (string-designer) ...) -> package */
+/* (defun in-package (string-designator) ...) -> package */
 static int syscall_in_package(Execute ptr, addr name)
 {
 	Return(in_package_syscode_(ptr, name, &name));
@@ -117,7 +117,7 @@ static void type_syscall_in_package(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, Package);
 	type_compiled_heap(args, values, ret);
@@ -299,7 +299,7 @@ static void type_make_package_iterator(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PackageDesigner);
+	GetTypeTable(&args, PackageDesignator);
 	GetTypeTable(&values, List);
 	type2or_heap(args, values, &args);
 	GetTypeTable(&values, T);
@@ -367,7 +367,7 @@ static void defun_next_package_iterator(void)
 /* (defun defpackage (name &key size docuemntation nicknames use
  *     shadow shadowing-import-from import-from export intern)
  *     -> package
- *   name                    string-designer
+ *   name                    string-designator
  *   :size                   (or null (integer 0 *))
  *   :documentation          (or null string)
  *   :nicknames              list
@@ -390,7 +390,7 @@ static void type_syscall_defpackage(addr *ret)
 	addr args, values;
 	addr key, key1, key2, key3, key4, key5, key6, key7, key8, key9, key10;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	KeyTypeTable(&key1, SIZE, IntplusNull);
 	KeyTypeTable(&key2, DOCUMENTATION, StringNull);
 	KeyTypeTable(&key3, NICKNAMES, List);
@@ -782,7 +782,7 @@ static void type_print_unreadable_call(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	typeargs_var5(&args, values, args, args, args, args);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -816,7 +816,7 @@ static void type_write_default(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	GetTypeTable(&values, T);
 	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, T);

@@ -33,7 +33,7 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	const char *str;
 
 	/* wildcard */
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(wild_pathname_boolean_(pos, Nil, &check));
 	if (check) {
 		return call_simple_file_error_va_(ptr, pos,
@@ -99,7 +99,7 @@ static int rename_file_run_files(Execute ptr,
 	addr file, from, value, true1, true2;
 	const char *str1, *str2;
 
-	Return(pathname_designer_heap_(ptr, pos, &file));
+	Return(pathname_designator_heap_(ptr, pos, &file));
 	Return(physical_pathname_heap_(ptr, file, &from));
 	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));

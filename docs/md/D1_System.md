@@ -161,9 +161,9 @@ NIL
 Quit Lisp and then create the core file.
 
 ```lisp
-(defun savecore (pathname-designer) ...) -> null
+(defun savecore (pathname-designator) ...) -> null
 
-Input: pathname-designer  output path
+Input: pathname-designator  output path
 Output: null No return value
 ```
 
@@ -1235,9 +1235,9 @@ defun eastasian-width
 Get the `export` list of the `package`.
 
 ```lisp
-(defun package-export-list (package-designer) ...) -> list
+(defun package-export-list (package-designator) ...) -> list
 
-Input: package-designer
+Input: package-designator
 Output: list
 ```
 
@@ -1383,16 +1383,16 @@ and an `arithmetic-error` condition will be raised when it occurs.
 Set the number of characters for each of the East Asian Width categories.
 
 ```lisp
-(defun eastasian-set (string-designer intplus &optional error) ...) -> boolean) */
+(defun eastasian-set (string-designator intplus &optional error) ...) -> boolean) */
 
-Input: string-designer
+Input: string-designator
 Input: intplus (integer 0 *)
 Input: error boolean
 Output: boolean
 ```
 
 EastAsianWidth is a representation of Unicode character width.  
-The input `string-designer` receives six categories,
+The input `string-designator` receives six categories,
 `N`, `A`, `H`, `W`, `F`, and `NA`.  
 For each category, the number of characters specified in the `intplus` is set.
 If `error` is `t`, an error occurs if the category does not exist.  
@@ -1404,15 +1404,15 @@ If `error` is `t`, an error is returned if the category does not exist.
 Get the number of characters corresponding to the East Asian Width category.
 
 ```lisp
-(defun eastasian-get (string-designer) ...) -> (values IntplusNull symbol)
+(defun eastasian-get (string-designator) ...) -> (values IntplusNull symbol)
 
-Input: string-designer
+Input: string-designator
 Output: intplusNull length of string or nil
 Output: symbol category
 ```
 
 EastAsianWidth is a representation of Unicode character width.  
-The input `string-designer` receives six categories,
+The input `string-designator` receives six categories,
 `N`, `A`, `H`, `W`, `F`, and `NA`.  
 The number of characters for each category is returned.  
 In case of an error, `NIL` is returned.

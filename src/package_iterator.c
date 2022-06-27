@@ -2,7 +2,7 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_iterator.h"
 #include "package_object.h"
 #include "typedef.h"
@@ -41,7 +41,7 @@ int package_iterator_alloc_(LocalRoot local, addr *ret,
 	}
 
 	/* package -> hash-iterator */
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	hash_iterator_alloc(local, &table, table);
 
@@ -100,7 +100,7 @@ static int forward_package_iterator_(addr pos)
 		return 0;
 	}
 	Return_getcons(list, &package, &list);
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &raw);
 	GetPackageIterator(pos, PackageIterator_Table, &table);
 	set_hash_iterator(table, raw);

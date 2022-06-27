@@ -130,7 +130,7 @@ static int checkparse_optimize_check_(OptimizeInfo *str, addr *value, int *ret)
 	if (! optimize_evaltype(left, EVAL_PARSE_SYMBOL))
 		goto skip;
 	GetEvalParse(left, 0, &left);
-	Return(string_designer_equalp_char_(left, "PARSE", &check));
+	Return(string_designator_equalp_char_(left, "PARSE", &check));
 	if (! check)
 		goto skip;
 	/* result */
@@ -182,7 +182,7 @@ static int checkparse_check2_(OptimizeInfo *str, int *ret)
 	if (! optimize_evaltype(pos, EVAL_PARSE_SYMBOL))
 		return Result(ret, 0);
 	GetEvalParse(pos, 0, &pos);
-	return string_designer_equalp_char_(pos, "LIST", ret);
+	return string_designator_equalp_char_(pos, "LIST", ret);
 }
 
 static int optparse_check2_(OptimizeInfo *str, int *ret)

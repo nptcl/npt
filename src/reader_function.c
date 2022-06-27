@@ -516,7 +516,7 @@ int single_quote_dispatch_(Execute ptr, addr stream, addr *ret)
 {
 	Return(quote_macro_reader_(ptr, CONSTANT_COMMON_FUNCTION, stream, ret));
 	if (stream == Unbound)
-		return fmte_("After character #' must be a function-designer, but EOF.", NULL);
+		return fmte_("After character #' must be a function-designator, but EOF.", NULL);
 
 	return 0;
 }
@@ -1231,11 +1231,11 @@ int pathname_dispatch_(Execute ptr, addr stream, addr *ret)
 
 	Return(read_recursive_(ptr, stream, &check, &pos));
 	if (check)
-		return fmte_("After #P must be a pathname-designer.", NULL);
+		return fmte_("After #P must be a pathname-designator.", NULL);
 	Return(read_suppress_p_(ptr, &check));
 	if (check)
 		return Result(ret, Nil);
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 
 	return Result(ret, pos);
 }

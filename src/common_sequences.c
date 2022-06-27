@@ -297,7 +297,7 @@ static void defun_setf_subseq(void)
 
 /* (defun map (type function sequence &rest sequence) ...) -> sequence
  *   type      type-spec
- *   function  function-designer
+ *   function  function-designator
  *   result    sequence
  */
 static int function_map(Execute ptr, addr type, addr call, addr rest)
@@ -312,7 +312,7 @@ static void type_map(addr *ret)
 	addr args, values, type;
 
 	GetTypeTable(&args, TypeSpec);
-	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&values, FunctionDesignator);
 	GetTypeTable(&type, Sequence);
 	typeargs_var3rest(&args, args, values, type, type);
 	GetTypeValues(&values, Sequence);
@@ -348,7 +348,7 @@ static void type_map_into(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, Sequence);
-	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&values, FunctionDesignator);
 	typeargs_var2rest(&args, args, values, args);
 	GetTypeValues(&values, Sequence);
 	type_compiled_heap(args, values, ret);
@@ -371,7 +371,7 @@ static void defun_map_into(void)
 
 
 /* (defun reduce (function sequence &key key from-end end initial-value) ...) -> t
- *   key            function-designer  ;; (or function-designer null)
+ *   key            function-designator  ;; (or function-designator null)
  *   from-end       t  ;; boolean
  *   start          keyword-start
  *   end            keyword-end
@@ -390,7 +390,7 @@ static void type_reduce(addr *ret)
 
 	/* key */
 	GetConst(KEYWORD_KEY, &key1);
-	GetTypeTable(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesignator);
 	cons_heap(&key1, key1, type);
 	GetConst(KEYWORD_FROM_END, &key2);
 	GetTypeTable(&type, T);
@@ -406,7 +406,7 @@ static void type_reduce(addr *ret)
 	cons_heap(&key5, key5, type);
 	list_heap(&type, key1, key2, key3, key4, key5, NULL);
 	/* type */
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	GetTypeTable(&values, Sequence);
 	typeargs_var2key(&args, args, values, type);
 	GetTypeValues(&values, T);
@@ -434,9 +434,9 @@ static void defun_reduce(void)
  *   from-end  t  ;; boolean
  *   start     keyword-start
  *   end       keyword-end
- *   key       function-designer
- *   test      function-designer
- *   test-not  function-designer
+ *   key       function-designator
+ *   test      function-designator
+ *   test-not  function-designator
  */
 static int function_count(Execute ptr, addr item, addr pos, addr rest)
 {
@@ -621,7 +621,7 @@ static void type_merge(addr *ret)
 
 	/* key */
 	GetConst(KEYWORD_KEY, &key);
-	GetTypeTable(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesignator);
 	cons_heap(&key, key, type);
 	conscar_heap(&key, key);
 	/* type */

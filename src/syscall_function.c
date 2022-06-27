@@ -145,8 +145,8 @@ static void defun_gc(void)
 
 
 /* (defun savecore (file &key input (exit t)) ...) -> null
- *   file    pathname-designer
- *   input   pathname-designer
+ *   file    pathname-designator
+ *   input   pathname-designator
  */
 static int syscall_savecore(Execute ptr, addr file, addr rest)
 {
@@ -160,11 +160,11 @@ static void type_syscall_savecore(addr *ret)
 	addr args, values, key, key1, key2;
 
 	/* key */
-	KeyTypeTable(&key1, INPUT, PathnameDesignerBoolean);
+	KeyTypeTable(&key1, INPUT, PathnameDesignatorBoolean);
 	KeyTypeTable(&key2, EXIT, T);
 	list_heap(&key, key1, key2, NULL);
 	/* type */
-	GetTypeTable(&args, PathnameDesignerNull);
+	GetTypeTable(&args, PathnameDesignatorNull);
 	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -187,8 +187,8 @@ static void defun_savecore(void)
 
 
 /* (defun loadcore (file &key output (exit t)) ...) -> null
- *  file    pathname-designer
- *  output  pathname-designer
+ *  file    pathname-designator
+ *  output  pathname-designator
  */
 static int syscall_loadcore(Execute ptr, addr file, addr rest)
 {
@@ -202,11 +202,11 @@ static void type_syscall_loadcore(addr *ret)
 	addr args, values, key, key1, key2;
 
 	/* key */
-	KeyTypeTable(&key1, OUTPUT, PathnameDesignerNull);
+	KeyTypeTable(&key1, OUTPUT, PathnameDesignatorNull);
 	KeyTypeTable(&key2, EXIT, T);
 	list_heap(&key, key1, key2, NULL);
 	/* type */
-	GetTypeTable(&args, PathnameDesignerBoolean);
+	GetTypeTable(&args, PathnameDesignatorBoolean);
 	typeargs_var1key(&args, args, key);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -228,7 +228,7 @@ static void defun_loadcore(void)
 }
 
 
-/* (defun package-export-list (package-designer) ...) -> list */
+/* (defun package-export-list (package-designator) ...) -> list */
 static int syscall_package_export_list(Execute ptr, addr var)
 {
 	Return(package_export_list_syscode_(var, &var));
@@ -238,10 +238,10 @@ static int syscall_package_export_list(Execute ptr, addr var)
 
 static void type_package_export_list(addr *ret)
 {
-	/* (function (package_designer) (values list &rest nil)) */
+	/* (function (package_designator) (values list &rest nil)) */
 	addr args, values;
 
-	GetTypeTable(&args, PackageDesigner);
+	GetTypeTable(&args, PackageDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
 	type_compiled_heap(args, values, ret);
@@ -1012,7 +1012,7 @@ static void defun_subtypep_number(void)
 }
 
 
-/* (defun eastasian-set (string-designer intplus &optional error) ...) -> boolean) */
+/* (defun eastasian-set (string-designator intplus &optional error) ...) -> boolean) */
 static int syscall_eastasian_set(Execute ptr, addr var, addr value, addr errorp)
 {
 	Return(eastasian_set_syscode_(var, value, errorp, &var));
@@ -1024,7 +1024,7 @@ static void type_syscall_eastasian_set(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	GetTypeTable(&values, Intplus);
 	GetTypeTable(&type, T);
 	typeargs_var3(&args, args, values, type);
@@ -1048,7 +1048,7 @@ static void defun_eastasian_set(void)
 }
 
 
-/* (defun eastasian-get (string-designer) ...) -> (values IntplusNull symbol) */
+/* (defun eastasian-get (string-designator) ...) -> (values IntplusNull symbol) */
 static int syscall_eastasian_get(Execute ptr, addr var)
 {
 	addr symbol;
@@ -1063,7 +1063,7 @@ static void type_syscall_eastasian_get(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	typeargs_var1(&args, args);
 	GetTypeTable(&values, IntplusNull);
 	GetTypeTable(&type, Symbol);

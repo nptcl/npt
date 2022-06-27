@@ -1345,7 +1345,7 @@ static void type_tree_equal(addr *ret)
 
 	GetConst(KEYWORD_TEST, &test);
 	GetConst(KEYWORD_TEST_NOT, &test_not);
-	GetTypeTable(&call, FunctionDesigner);
+	GetTypeTable(&call, FunctionDesignator);
 	cons_heap(&test, test, call);
 	cons_heap(&test_not, test_not, call);
 	list_heap(&key, test, test_not, NULL);
@@ -1678,9 +1678,9 @@ static void defun_nthcdr(void)
 /* (defun member (item list &key test test-not) ...) -> tail
  *   item      t
  *   list      list
- *   key       (or function-designer null))
- *   test      function-designer
- *   test-not  function-designer
+ *   key       (or function-designator null))
+ *   test      function-designator
+ *   test-not  function-designator
  *   tail      list
  */
 static int function_member(Execute ptr, addr item, addr list, addr rest)
@@ -1707,9 +1707,9 @@ static void defun_member(void)
 
 
 /* (defun member-if (call list &key key) ...) -> tail
- *   call   function-designer
+ *   call   function-designator
  *   list   list
- *   key    (or function-designer null)
+ *   key    (or function-designator null)
  *   tail   list
  */
 static int function_member_if(Execute ptr, addr call, addr list, addr rest)
@@ -1736,9 +1736,9 @@ static void defun_member_if(void)
 
 
 /* (defun member-if-not (call list &key key) ...) -> tail
- *   call   function-designer
+ *   call   function-designator
  *   list   list
- *   key    (or function-designer null)
+ *   key    (or function-designator null)
  *   tail   list
  */
 static int function_member_if_not(Execute ptr, addr call, addr list, addr rest)

@@ -8,7 +8,7 @@
 #include "eval_value.h"
 #include "integer.h"
 #include "package.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_export.h"
 #include "package_import.h"
 #include "package_intern.h"
@@ -277,7 +277,7 @@ int in_package_common_(Execute ptr, addr form, addr env, addr *ret)
 		goto error;
 	if (args != Nil)
 		goto error;
-	if (! string_designer_p(name))
+	if (! string_designator_p(name))
 		goto error;
 
 	/* toplevel */
@@ -293,7 +293,7 @@ int in_package_common_(Execute ptr, addr form, addr env, addr *ret)
 	return 0;
 
 error:
-	return fmte_("in-package ~S must be (string-designer) form.", form, NULL);
+	return fmte_("in-package ~S must be (string-designator) form.", form, NULL);
 }
 
 

@@ -438,7 +438,7 @@ int print_unreadable_object_(Execute ptr, addr stream, addr pos,
 int print_unreadable_common_(Execute ptr, addr stream, addr pos,
 		int type, int identity, addr body)
 {
-	Return(output_stream_designer_(ptr, stream, &stream));
+	Return(output_stream_designator_(ptr, stream, &stream));
 	return print_unreadable_call_(ptr, stream, pos, type, identity, NULL, body);
 }
 

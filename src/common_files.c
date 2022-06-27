@@ -21,7 +21,7 @@ static void type_directory(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, List);
 	type_compiled_heap(args, values, ret);
@@ -69,7 +69,7 @@ static void defun_probe_file(void)
 
 /* (defun ensure-directories-exist (pathspec &key verbose) ...)
  *     -> pathspec, created
- *   pathspec  pathname-designer
+ *   pathspec  pathname-designator
  *   verbose   t  ;; boolean
  *   created   boolean
  */
@@ -91,7 +91,7 @@ static void type_ensure_directories_exist(addr *ret)
 	KeyTypeTable(&type, VERBOSE, T);
 	conscar_heap(&type, type);
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1key(&args, args, type);
 	GetTypeTable(&values, Pathname);
 	GetTypeTable(&type, Boolean);
@@ -151,7 +151,7 @@ static void type_file_author(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, StringNull);
 	type_compiled_heap(args, values, ret);
@@ -185,7 +185,7 @@ static void type_file_write_date(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeTable(&values, IntegerNull);
 	typevalues_result(&values, values);
@@ -223,7 +223,7 @@ static void type_rename_file(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&values, PathnameDesigner);
+	GetTypeTable(&values, PathnameDesignator);
 	typeargs_var2(&args, values, values);
 	typevalues_values3(&values, values, values, values);
 	type_compiled_heap(args, values, ret);
@@ -257,7 +257,7 @@ static void type_delete_file(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, EqlT);
 	type_compiled_heap(args, values, ret);
@@ -279,7 +279,7 @@ static void defun_delete_file(void)
 }
 
 
-/* (defun file-error-pathname (condition) ...) -> pathname-designer */
+/* (defun file-error-pathname (condition) ...) -> pathname-designator */
 static int function_file_error_pathname(Execute ptr, addr var)
 {
 	Return(file_error_pathname_(var, &var));

@@ -10,7 +10,7 @@
 #include "hold.h"
 #include "package.h"
 #include "package_bittype.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_make.h"
 #include "package_shadow.h"
 #include "prompt_for.h"
@@ -86,7 +86,7 @@ static int function_make_package_input(Execute ptr)
 {
 	addr type, prompt, pos;
 
-	GetTypeTable(&type, PackageDesigner);
+	GetTypeTable(&type, PackageDesignator);
 	strvect_char_heap(&prompt, "Input another package name: ");
 	Return(prompt_for_stream_(ptr, type, prompt, &pos));
 	list_heap(&pos, pos, NULL);
@@ -163,7 +163,7 @@ static int name_make_package_(Execute ptr, LocalHold hold,
 	enum MakePackageType type;
 
 	do {
-		Return(string_designer_heap_(&name, name, NULL));
+		Return(string_designator_heap_(&name, name, NULL));
 		localhold_set(hold, 0, name);
 		Return(loop_name_make_package_(ptr, name, &name, &type));
 		localhold_set(hold, 0, name);
@@ -228,7 +228,7 @@ static int remove_nicknames_make_package_(Execute ptr, addr list, addr *ret)
 	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(string_designer_heap_(&pos, pos, NULL));
+		Return(string_designator_heap_(&pos, pos, NULL));
 		Return(findcons_hashtable_(table, pos, &cons));
 		if (cons == Nil)
 			cons_heap(&root, pos, root);
@@ -245,7 +245,7 @@ static int conflict_nicknames_make_package_(addr list, addr *ret)
 	root = Nil;
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
-		Return(string_designer_heap_(&pos, pos, NULL));
+		Return(string_designator_heap_(&pos, pos, NULL));
 		Return(findcons_hashtable_(table, pos, &cons));
 		if (cons != Nil) {
 			GetCdr(cons, &cons);
@@ -414,10 +414,10 @@ static int check_use_make_package_(addr list, addr *ret)
 	shadow = Nil;
 	while (list != Nil) {
 		GetCons(list, &x, &list);
-		Return(package_designer_(x, &x));
+		Return(package_designator_(x, &x));
 		for (loop = list; loop != Nil; ) {
 			GetCons(loop, &y, &loop);
-			Return(package_designer_(y, &y));
+			Return(package_designator_(y, &y));
 			Return(conflict_use_make_package_(x, y, shadow, &shadow));
 		}
 	}
@@ -491,7 +491,7 @@ static int append_usepackage_package_(addr pos, addr list)
 	while (list != Nil) {
 		/* intern export */
 		GetCons(list, &pg, &list);
-		Return(package_designer_(pg, &pg));
+		Return(package_designator_(pg, &pg));
 		GetPackage(pg, PACKAGE_INDEX_EXPORT, &expt);
 		GetPackage(pg, PACKAGE_INDEX_TABLE, &hash);
 		while (expt != Nil) {

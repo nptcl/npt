@@ -339,13 +339,13 @@ static int eval_symbol_debugger_(Execute ptr, addr io, addr list, addr eval)
 	}
 
 	/* symbol= check */
-	Return(string_designer_heap_(&y, eval, &check));
+	Return(string_designator_heap_(&y, eval, &check));
 	if (check) {
 		root = list;
 		while (root != Nil) {
 			GetCons(root, &restart, &root);
 			getname_restart(restart, &x);
-			Return(string_designer_equal_(x, y, &check));
+			Return(string_designator_equal_(x, y, &check));
 			if (check)
 				return invoke_restart_interactively_control_(ptr, restart);
 		}

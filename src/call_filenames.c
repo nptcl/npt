@@ -31,7 +31,7 @@
 /* pathname */
 int pathname_common_(Execute ptr, addr var, addr *ret)
 {
-	return pathname_designer_heap_(ptr, var, ret);
+	return pathname_designator_heap_(ptr, var, ret);
 }
 
 
@@ -110,7 +110,7 @@ int pathname_host_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
 
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(pathname_case_local_p_(rest, &localp));
 	Return(pathname_host_(pos, &pos, localp));
 
@@ -123,7 +123,7 @@ int pathname_device_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
 
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(pathname_case_local_p_(rest, &localp));
 	Return(pathname_device_(pos, &pos, localp));
 
@@ -136,7 +136,7 @@ int pathname_directory_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
 
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(pathname_case_local_p_(rest, &localp));
 	Return(pathname_directory_(pos, &pos, localp));
 
@@ -149,7 +149,7 @@ int pathname_name_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
 
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(pathname_case_local_p_(rest, &localp));
 	Return(pathname_name_(pos, &pos, localp));
 
@@ -162,7 +162,7 @@ int pathname_type_common_(Execute ptr, addr pos, addr rest, addr *ret)
 {
 	int localp;
 
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(pathname_case_local_p_(rest, &localp));
 	Return(pathname_type_(pos, &pos, localp));
 
@@ -173,7 +173,7 @@ int pathname_type_common_(Execute ptr, addr pos, addr rest, addr *ret)
 /* pathname-version */
 int pathname_version_common_(Execute ptr, addr pos, addr *ret)
 {
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	pathname_version(pos, &pos);
 
 	return Result(ret, pos);
@@ -279,7 +279,7 @@ static int setf_logical_pathname_translations_list_(Execute ptr,
 		if (stringp(left)) {
 			Return(parse_pathname_setf_heap_(ptr, left, host, &value));
 		}
-		Return(pathname_designer_heap_(ptr, value, &value));
+		Return(pathname_designator_heap_(ptr, value, &value));
 		if (! pathname_logical_p(value)) {
 			return fmte_("The left argument ~S "
 					"must be a logical-pathname.", left, NULL);
@@ -293,7 +293,7 @@ static int setf_logical_pathname_translations_list_(Execute ptr,
 		left = value;
 
 		/* right */
-		Return(pathname_designer_heap_(ptr, right, &value));
+		Return(pathname_designator_heap_(ptr, right, &value));
 		if (! pathnamep(value)) {
 			return fmte_("The right argument ~S "
 					"must be a no-logical-pathname.", right, NULL);
@@ -375,7 +375,7 @@ int logical_pathname_common_(Execute ptr, addr *ret, addr pos)
 {
 	addr value, type;
 
-	Return(pathname_designer_heap_(ptr, pos, &value));
+	Return(pathname_designator_heap_(ptr, pos, &value));
 	if (! pathname_logical_p(value)) {
 		GetConst(COMMON_LOGICAL_PATHNAME, &type);
 		return call_type_error_va_(ptr, value, type,
@@ -422,12 +422,12 @@ int namestring_common_(Execute ptr, addr *ret, addr pos)
 	if (stringp(pos)) {
 		local = ptr->local;
 		push_local(local, &stack);
-		Return(pathname_designer_local_(ptr, pos, &pos));
+		Return(pathname_designator_local_(ptr, pos, &pos));
 		Return(name_pathname_heap_(ptr, pos, ret));
 		rollback_local(local, stack);
 	}
 	else {
-		Return(pathname_designer_heap_(ptr, pos, &pos));
+		Return(pathname_designator_heap_(ptr, pos, &pos));
 		Return(name_pathname_heap_(ptr, pos, ret));
 	}
 
@@ -444,12 +444,12 @@ int file_namestring_common_(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	if (stringp(pos)) {
 		push_local(local, &stack);
-		Return(pathname_designer_local_(ptr, pos, &pos));
+		Return(pathname_designator_local_(ptr, pos, &pos));
 		Return(file_name_pathname_heap_(local, pos, ret));
 		rollback_local(local, stack);
 	}
 	else {
-		Return(pathname_designer_heap_(ptr, pos, &pos));
+		Return(pathname_designator_heap_(ptr, pos, &pos));
 		Return(file_name_pathname_heap_(local, pos, ret));
 	}
 
@@ -466,12 +466,12 @@ int directory_namestring_common_(Execute ptr, addr *ret, addr pos)
 	local = ptr->local;
 	if (stringp(pos)) {
 		push_local(local, &stack);
-		Return(pathname_designer_local_(ptr, pos, &pos));
+		Return(pathname_designator_local_(ptr, pos, &pos));
 		Return(directory_name_pathname_heap_(local, pos, ret));
 		rollback_local(local, stack);
 	}
 	else {
-		Return(pathname_designer_heap_(ptr, pos, &pos));
+		Return(pathname_designator_heap_(ptr, pos, &pos));
 		Return(directory_name_pathname_heap_(local, pos, ret));
 	}
 
@@ -488,7 +488,7 @@ int host_namestring_common_(Execute ptr, addr *ret, addr pos)
 	if (stringp(pos)) {
 		local = ptr->local;
 		push_local(local, &stack);
-		Return(pathname_designer_local_(ptr, pos, &pos));
+		Return(pathname_designator_local_(ptr, pos, &pos));
 		GetHostPathname(pos, &pos);
 		if (! stringp(pos))
 			strvect_heap(ret, 0);
@@ -497,7 +497,7 @@ int host_namestring_common_(Execute ptr, addr *ret, addr pos)
 		rollback_local(local, stack);
 	}
 	else {
-		Return(pathname_designer_heap_(ptr, pos, &pos));
+		Return(pathname_designator_heap_(ptr, pos, &pos));
 		GetHostPathname(pos, &pos);
 		if (! stringp(pos))
 			strvect_heap(ret, 0);
@@ -617,7 +617,7 @@ int enough_namestring_common_(Execute ptr, addr *ret, addr pos, addr defaults)
 	addr value;
 
 	Return(defaults_pathname_heap_(ptr, &defaults, defaults));
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(enough_namestring_merge_(ptr->local, pos, defaults, &value, &check));
 	if (check)
 		pos = value;
@@ -679,7 +679,7 @@ static int parse_namestring_call_(Execute ptr, addr *ret, addr *position,
 
 	GetConst(COMMON_PATHNAME, &type);
 	return call_type_error_va_(ptr, thing, type,
-			"~S is not pathname-designer.", thing, NULL);
+			"~S is not pathname-designator.", thing, NULL);
 }
 
 int parse_namestring_common_(Execute ptr,
@@ -715,7 +715,7 @@ int wild_pathname_p_common_(Execute ptr, addr *ret, addr file, addr field)
 {
 	int check;
 
-	Return(pathname_designer_heap_(ptr, file, &file));
+	Return(pathname_designator_heap_(ptr, file, &file));
 	if (field == Unbound)
 		field = Nil;
 	Return(wild_pathname_boolean_(file, field, &check));
@@ -728,8 +728,8 @@ int pathname_match_p_common_(Execute ptr, addr *ret, addr a, addr b)
 {
 	int check;
 
-	Return(pathname_designer_heap_(ptr, a, &a));
-	Return(pathname_designer_heap_(ptr, b, &b));
+	Return(pathname_designator_heap_(ptr, a, &a));
+	Return(pathname_designator_heap_(ptr, b, &b));
 	Return(wildcard_pathname_(a, b, 1, &check));
 	return Result(ret, check? T: Nil);
 }

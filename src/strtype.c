@@ -32,7 +32,7 @@ int stringp(addr pos)
 	return GetType(pos) == LISPTYPE_STRING || strarrayp(pos);
 }
 
-int string_designer_p(addr pos)
+int string_designator_p(addr pos)
 {
 	return stringp(pos) || symbolp(pos) || characterp(pos);
 }
@@ -942,7 +942,7 @@ int string_comparep_(addr left, addr right, int *ret)
 	return fmte_("Argument ~S must be a string type.", left, NULL);
 }
 
-int string_designer_equal_(addr left, addr right, int *ret)
+int string_designator_equal_(addr left, addr right, int *ret)
 {
 	int check1, check2, check3, check4;
 
@@ -966,7 +966,7 @@ int string_designer_equal_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-int string_designer_equal_char_(addr left, const char *right, int *ret)
+int string_designator_equal_char_(addr left, const char *right, int *ret)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);
@@ -978,7 +978,7 @@ int string_designer_equal_char_(addr left, const char *right, int *ret)
 	return Result(ret, 0);
 }
 
-int string_designer_equalp_(addr left, addr right, int *ret)
+int string_designator_equalp_(addr left, addr right, int *ret)
 {
 	int check1, check2, check3, check4;
 
@@ -1002,7 +1002,7 @@ int string_designer_equalp_(addr left, addr right, int *ret)
 	return Result(ret, 0);
 }
 
-int string_designer_equalp_char_(addr left, const char *right, int *ret)
+int string_designator_equalp_char_(addr left, const char *right, int *ret)
 {
 	if (symbolp(left))
 		GetNameSymbol(left, &left);
@@ -1014,7 +1014,7 @@ int string_designer_equalp_char_(addr left, const char *right, int *ret)
 	return Result(ret, 0);
 }
 
-int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
+int string_designator_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
 {
 	addr type;
 
@@ -1043,23 +1043,23 @@ int string_designer_alloc_(LocalRoot local, addr *value, addr pos, int *ret)
 	}
 
 	/* error */
-	GetTypeTable(&type, StringDesigner);
+	GetTypeTable(&type, StringDesignator);
 	return call_type_error_va_(NULL, pos, type,
-			"The object ~S is not string-designer.", pos, NULL);
+			"The object ~S is not string-designator.", pos, NULL);
 }
 
-int string_designer_local_(LocalRoot local, addr *value, addr pos, int *ret)
+int string_designator_local_(LocalRoot local, addr *value, addr pos, int *ret)
 {
 	Check(local == NULL, "local error");
-	return string_designer_alloc_(local, value, pos, ret);
+	return string_designator_alloc_(local, value, pos, ret);
 }
 
-int string_designer_heap_(addr *value, addr pos, int *ret)
+int string_designator_heap_(addr *value, addr pos, int *ret)
 {
-	return string_designer_alloc_(NULL, value, pos, ret);
+	return string_designator_alloc_(NULL, value, pos, ret);
 }
 
-int string_designer_string(addr *value, addr pos)
+int string_designator_string(addr *value, addr pos)
 {
 	if (stringp(pos)) {
 		*value = pos;

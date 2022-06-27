@@ -724,12 +724,12 @@ int terme_call_signal_(addr args)
 		return fmte_("Invalid arguments, ~S.", args, NULL);
 
 	/* sigint */
-	Return(string_designer_equalp_char_(pos, "SIGINT", &check));
+	Return(string_designator_equalp_char_(pos, "SIGINT", &check));
 	if (check)
 		return terme_call_signal_sigint_();
 
 	/* stop */
-	Return(string_designer_equalp_char_(pos, "STOP", &check));
+	Return(string_designator_equalp_char_(pos, "STOP", &check));
 	if (check)
 		return terme_call_signal_stop_();
 

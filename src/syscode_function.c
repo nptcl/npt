@@ -21,7 +21,7 @@
 #include "integer.h"
 #include "integer_calc.h"
 #include "integer_common.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_object.h"
 #include "paper.h"
 #include "pathname.h"
@@ -110,11 +110,11 @@ int savecore_syscode_(Execute ptr, addr output, addr rest)
 	localhold_set(hold, 1, input);
 
 	if (output != Nil) {
-		Return(pathname_designer_heap_(ptr, output, &output));
+		Return(pathname_designator_heap_(ptr, output, &output));
 		localhold_set(hold, 0, output);
 	}
 	if (input != Nil && input != T) {
-		Return(pathname_designer_heap_(ptr, input, &input));
+		Return(pathname_designator_heap_(ptr, input, &input));
 		localhold_set(hold, 1, input);
 	}
 	Return(savecore_execute_(ptr, output, input, (exitp != Nil)));
@@ -139,11 +139,11 @@ int loadcore_syscode_(Execute ptr, addr input, addr rest)
 	localhold_set(hold, 1, input);
 
 	if (output != Nil) {
-		Return(pathname_designer_heap_(ptr, output, &output));
+		Return(pathname_designator_heap_(ptr, output, &output));
 		localhold_set(hold, 0, output);
 	}
 	if (input != Nil && input != T) {
-		Return(pathname_designer_heap_(ptr, input, &input));
+		Return(pathname_designator_heap_(ptr, input, &input));
 		localhold_set(hold, 1, input);
 	}
 	Return(savecore_execute_(ptr, output, input, (exitp != Nil)));
@@ -156,7 +156,7 @@ int loadcore_syscode_(Execute ptr, addr input, addr rest)
 /* package-export-list */
 int package_export_list_syscode_(addr var, addr *ret)
 {
-	Return(package_designer_(var, &var));
+	Return(package_designator_(var, &var));
 	getexport_package_unsafe(var, ret);
 	return 0;
 }

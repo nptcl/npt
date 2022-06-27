@@ -43,8 +43,8 @@
 #define strvect_comparep_char _n(strvect_comparep_char)
 #define strvect_compare _n(strvect_compare)
 #define strvect_comparep _n(strvect_comparep)
-#define strvect_designer_equal_char _n(strvect_designer_equal_char)
-#define strvect_designer_equalp_char _n(strvect_designer_equalp_char)
+#define strvect_designator_equal_char _n(strvect_designator_equal_char)
+#define strvect_designator_equalp_char _n(strvect_designator_equalp_char)
 #define strvect_getc _n(strvect_getc)
 #define strvect_setc_unsafe _n(strvect_setc_unsafe)
 #define strvect_setc_ _n(strvect_setc_)
@@ -118,8 +118,8 @@ int strvect_comparep_char(addr left, const char *right);
 int strvect_compare(addr left, addr right);
 int strvect_comparep(addr left, addr right);
 
-int strvect_designer_equal_char(addr left, const char *right);
-int strvect_designer_equalp_char(addr left, const char *right);
+int strvect_designator_equal_char(addr left, const char *right);
+int strvect_designator_equalp_char(addr left, const char *right);
 
 void strvect_getc(addr pos, size_t len, unicode *c);
 void strvect_setc_unsafe(addr pos, size_t index, unicode c);

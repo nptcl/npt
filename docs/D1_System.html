@@ -327,9 +327,9 @@ The garbage collector is checked with the <code>room</code> function.</p>
 <span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="op">*</span></span></code></pre></div>
 <h2 id="function-savecore">Function <code>savecore</code></h2>
 <p>Quit Lisp and then create the core file.</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> savecore </span>(pathname-designer) ...) -&gt; <span class="kw">null</span></span>
+<div class="sourceCode" id="cb12"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> savecore </span>(pathname-designator) ...) -&gt; <span class="kw">null</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Input: pathname-designer  output path</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>Input: pathname-designator  output path</span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">null</span> No <span class="kw">return</span> value</span></code></pre></div>
 <p>The core file is a memory image file. The core file is read from the core file if the <code>--core</code> and <code>--corefile</code> arguments are specified at the startup of npt.</p>
 <p>The function <code>savecore</code> executes the <code>savecore condition</code> and exits Lisp.<br />
@@ -952,9 +952,9 @@ If <code>value</code> is specified, it is a setting.</p>
 <span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a><span class="kw">defun</span><span class="fu"> eastasian-width</span></span></code></pre></div>
 <h2 id="fuction-package-export-list">Fuction <code>package-export-list</code></h2>
 <p>Get the <code>export</code> list of the <code>package</code>.</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> package-export-list </span>(package-designer) ...) -&gt; <span class="kw">list</span></span>
+<div class="sourceCode" id="cb75"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> package-export-list </span>(package-designator) ...) -&gt; <span class="kw">list</span></span>
 <span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>Input: package-designer</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>Input: package-designator</span>
 <span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">list</span></span></code></pre></div>
 <p>Get the list of names of symbols which are exported in the package.</p>
 <h2 id="fuction-large-number">Fuction <code>large-number</code></h2>
@@ -1032,25 +1032,25 @@ If the sign of the <code>float</code> is negative, <code>sign</code> is <code>-1
 <p>Essentially, Common Lisp cannot handle infinity and non-numbers, and an <code>arithmetic-error</code> condition will be raised when it occurs.</p>
 <h2 id="fuction-eastasian-set">Fuction <code>eastasian-set</code></h2>
 <p>Set the number of characters for each of the East Asian Width categories.</p>
-<div class="sourceCode" id="cb84"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-set </span>(string-designer intplus &amp;optional <span class="kw">error</span>) ...) -&gt; <span class="kw">boolean</span>) */</span>
+<div class="sourceCode" id="cb84"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-set </span>(string-designator intplus &amp;optional <span class="kw">error</span>) ...) -&gt; <span class="kw">boolean</span>) */</span>
 <span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>Input: string-designer</span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a>Input: string-designator</span>
 <span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>Input: intplus (<span class="kw">integer</span> <span class="dv">0</span> <span class="op">*</span>)</span>
 <span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="kw">error</span> <span class="kw">boolean</span></span>
 <span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">boolean</span></span></code></pre></div>
 <p>EastAsianWidth is a representation of Unicode character width.<br />
-The input <code>string-designer</code> receives six categories, <code>N</code>, <code>A</code>, <code>H</code>, <code>W</code>, <code>F</code>, and <code>NA</code>.<br />
+The input <code>string-designator</code> receives six categories, <code>N</code>, <code>A</code>, <code>H</code>, <code>W</code>, <code>F</code>, and <code>NA</code>.<br />
 For each category, the number of characters specified in the <code>intplus</code> is set. If <code>error</code> is <code>t</code>, an error occurs if the category does not exist.<br />
 If <code>error</code> is <code>t</code>, an error is returned if the category does not exist.</p>
 <h2 id="fuction-eastasian-get">Fuction <code>eastasian-get</code></h2>
 <p>Get the number of characters corresponding to the East Asian Width category.</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-get </span>(string-designer) ...) -&gt; (<span class="kw">values</span> IntplusNull <span class="kw">symbol</span>)</span>
+<div class="sourceCode" id="cb85"><pre class="sourceCode lisp"><code class="sourceCode commonlisp"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>(<span class="kw">defun</span><span class="fu"> eastasian-get </span>(string-designator) ...) -&gt; (<span class="kw">values</span> IntplusNull <span class="kw">symbol</span>)</span>
 <span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>Input: string-designer</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>Input: string-designator</span>
 <span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>Output: intplusNull <span class="kw">length</span> of <span class="kw">string</span> <span class="kw">or</span> <span class="kw">nil</span></span>
 <span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>Output: <span class="kw">symbol</span> category</span></code></pre></div>
 <p>EastAsianWidth is a representation of Unicode character width.<br />
-The input <code>string-designer</code> receives six categories, <code>N</code>, <code>A</code>, <code>H</code>, <code>W</code>, <code>F</code>, and <code>NA</code>.<br />
+The input <code>string-designator</code> receives six categories, <code>N</code>, <code>A</code>, <code>H</code>, <code>W</code>, <code>F</code>, and <code>NA</code>.<br />
 The number of characters for each category is returned.<br />
 In case of an error, <code>NIL</code> is returned.</p>
 <h2 id="fuction-eastasian-width">Fuction <code>eastasian-width</code></h2>

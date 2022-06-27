@@ -286,7 +286,7 @@ int open_pretty_stream_(Execute ptr, addr *ret,
 	struct stream_Pretty *str;
 
 	/* type check */
-	Return(output_stream_designer_(ptr, stream, &stream));
+	Return(output_stream_designator_(ptr, stream, &stream));
 	if (prefix != Nil && (! stringp(prefix)))
 		return TypeError_(prefix, STRING);
 	if (perline != Nil && (! stringp(perline)))

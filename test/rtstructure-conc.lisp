@@ -233,28 +233,28 @@
   (eval '(defstruct-conc-name-error-1-aaa 100)))
 
 
-;;  string-designer
-(deftest defstruct-conc-string-designer.1
+;;  string-designator
+(deftest defstruct-conc-string-designator.1
   (progn
-    (defstruct (defstruct-conc-string-designer-1
-                 (:conc-name string-designer-1-))
+    (defstruct (defstruct-conc-string-designator-1
+                 (:conc-name string-designator-1-))
       aaa bbb)
-    (fboundp 'string-designer-1-aaa))
+    (fboundp 'string-designator-1-aaa))
   t)
 
-(deftest defstruct-conc-string-designer.2
+(deftest defstruct-conc-string-designator.2
   (progn
-    (defstruct (defstruct-conc-string-designer-2
-                 (:conc-name "string-designer-2-"))
+    (defstruct (defstruct-conc-string-designator-2
+                 (:conc-name "string-designator-2-"))
       aaa bbb)
-    (fboundp '|string-designer-2-AAA|))
+    (fboundp '|string-designator-2-AAA|))
   t)
 
-(deftest defstruct-conc-string-designer.3
+(deftest defstruct-conc-string-designator.3
   (progn
-    (defstruct (defstruct-conc-string-designer-3
+    (defstruct (defstruct-conc-string-designator-3
                  (:conc-name #\!))
-      (string-designer-3-aaa))
-    (fboundp '!string-designer-3-aaa))
+      (string-designator-3-aaa))
+    (fboundp '!string-designator-3-aaa))
   t)
 

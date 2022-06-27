@@ -621,9 +621,9 @@ static int translate_pathname_localp_(Execute ptr, LocalpRoot local,
 	alloc = localp_alloc(local);
 	localp = local->localp;
 	/* argument */
-	Return(pathname_designer_alloc_(ptr, pos, &pos, localp));
-	Return(pathname_designer_alloc_(ptr, from, &from, localp));
-	Return(pathname_designer_alloc_(ptr, to, &to, localp));
+	Return(pathname_designator_alloc_(ptr, pos, &pos, localp));
+	Return(pathname_designator_alloc_(ptr, from, &from, localp));
+	Return(pathname_designator_alloc_(ptr, to, &to, localp));
 	/* one */
 	make_pathname_alloc(alloc, &one, RefLogicalPathname(to));
 	/* host */

@@ -177,7 +177,7 @@ static void defun_gensym(void)
 
 /* (defun gentemp (&optional prefix package) ...) -> symbol
  *   prefix   string
- *   package  (or package string symbol character)  ;; package-designer
+ *   package  (or package string symbol character)  ;; package-designator
  */
 static int function_gentemp(Execute ptr, addr opt1, addr opt2)
 {
@@ -191,7 +191,7 @@ static void type_gentemp(addr *ret)
 	addr args, values, pos;
 
 	GetTypeTable(&args, String);
-	GetTypeTable(&pos, PackageDesigner);
+	GetTypeTable(&pos, PackageDesignator);
 	typeargs_opt2(&args, args, pos);
 	GetTypeValues(&values, Symbol);
 	type_compiled_heap(args, values, ret);

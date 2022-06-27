@@ -271,7 +271,7 @@ static int write_default_syscode_call_(Execute ptr, addr stream, addr var, addr 
 {
 	LocalHold hold;
 
-	Return(output_stream_designer_(ptr, stream, &stream));
+	Return(output_stream_designator_(ptr, stream, &stream));
 	hold = LocalHold_local_push(ptr, stream);
 	Return(write_default_print_(ptr, stream, var));
 	localhold_end(hold);
@@ -283,7 +283,7 @@ int write_default_syscode_(Execute ptr, addr stream, addr var, addr *ret)
 {
 	addr control;
 
-	Return(output_stream_designer_(ptr, stream, &stream));
+	Return(output_stream_designator_(ptr, stream, &stream));
 	push_control(ptr, &control);
 	(void)write_default_syscode_call_(ptr, stream, var, ret);
 	return pop_control_(ptr, control);

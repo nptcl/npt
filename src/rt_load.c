@@ -19,7 +19,7 @@
 #include "hold.h"
 #include "integer.h"
 #include "package.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_intern.h"
 #include "package_use.h"
 #include "pathname.h"
@@ -120,7 +120,7 @@ static int loadrt_nickname_force_(addr package, addr x, addr y)
 {
 	int check;
 
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	if (! get_readonly_package(package))
 		return rename_package_(package, x, y, &x);
 

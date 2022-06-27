@@ -473,7 +473,7 @@ static int optimize_check_code1_(CodeMake ptr, addr scope, addr pos, int *ret)
 	getvalue_tablecall(pos, &pos);
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeValue(pos, &pos);
-	if (! strvect_designer_equalp_char(pos, "SCOPE"))
+	if (! strvect_designator_equalp_char(pos, "SCOPE"))
 		return Result(ret, 0);
 
 	/* fixnum */
@@ -496,7 +496,7 @@ static int optimize_check_code2_(CodeMake ptr,
 	getvalue_tablecall(pos, &pos);
 	Check(! eval_scope_p(pos), "type error");
 	GetEvalScopeValue(pos, &pos);
-	if (! strvect_designer_equalp_char(pos, "LIST"))
+	if (! strvect_designator_equalp_char(pos, "LIST"))
 		return Result(ret, 0);
 
 	list = Nil;

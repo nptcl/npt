@@ -395,7 +395,7 @@ static void typetable_printdispatchnull(void)
 	SetTypeTableNull(PrintDispatch);
 }
 
-static void typetable_stringdesigner(void)
+static void typetable_stringdesignator(void)
 {
 	/* (or string symbol character) */
 	addr type1, type2, type3, pos;
@@ -404,10 +404,10 @@ static void typetable_stringdesigner(void)
 	GetTypeTable(&type2, Symbol);
 	GetTypeTable(&type3, Character);
 	type3or_heap(type1, type2, type3, &pos);
-	SetTypeTable(StringDesigner, pos);
+	SetTypeTable(StringDesignator, pos);
 }
 
-static void typetable_packagedesigner(void)
+static void typetable_packagedesignator(void)
 {
 	/* (or package string symbol character) */
 	addr type1, type2, type3, type4, pos;
@@ -417,15 +417,15 @@ static void typetable_packagedesigner(void)
 	GetTypeTable(&type3, Symbol);
 	GetTypeTable(&type4, Character);
 	type4or_heap(type1, type2, type3, type4, &pos);
-	SetTypeTable(PackageDesigner, pos);
+	SetTypeTable(PackageDesignator, pos);
 }
 
-static void typetable_packagedesignernull(void)
+static void typetable_packagedesignatornull(void)
 {
-	SetTypeTableNull(PackageDesigner);
+	SetTypeTableNull(PackageDesignator);
 }
 
-static void typetable_functiondesigner(void)
+static void typetable_functiondesignator(void)
 {
 	/* (or function symbol) */
 	addr type1, type2, pos;
@@ -433,10 +433,10 @@ static void typetable_functiondesigner(void)
 	GetTypeTable(&type1, Function);
 	GetTypeTable(&type2, Symbol);
 	type2or_heap(type1, type2, &pos);
-	SetTypeTable(FunctionDesigner, pos);
+	SetTypeTable(FunctionDesignator, pos);
 }
 
-static void typetable_restartdesigner(void)
+static void typetable_restartdesignator(void)
 {
 	/* (or restart (and symbol (not null))) */
 	addr type1, type2, type3, pos;
@@ -446,10 +446,10 @@ static void typetable_restartdesigner(void)
 	type0not_heap(LISPDECL_NULL, &type3);
 	type2and_heap(type2, type3, &type2);
 	type2or_heap(type1, type2, &pos);
-	SetTypeTable(RestartDesigner, pos);
+	SetTypeTable(RestartDesignator, pos);
 }
 
-static void typetable_pathnamedesigner(void)
+static void typetable_pathnamedesignator(void)
 {
 	/* (or pathname string stream) */
 	addr type1, type2, type3, pos;
@@ -458,32 +458,32 @@ static void typetable_pathnamedesigner(void)
 	GetTypeTable(&type2, String);
 	GetTypeTable(&type3, Stream);
 	type3or_heap(type1, type2, type3, &pos);
-	SetTypeTable(PathnameDesigner, pos);
+	SetTypeTable(PathnameDesignator, pos);
 }
 
-static void typetable_pathnamedesignernull(void)
+static void typetable_pathnamedesignatornull(void)
 {
-	/* (or pathname-designer null) */
+	/* (or pathname-designator null) */
 	addr type1, type2, pos;
 
-	GetTypeTable(&type1, PathnameDesigner);
+	GetTypeTable(&type1, PathnameDesignator);
 	GetTypeTable(&type2, Null);
 	type2or_heap(type1, type2, &pos);
-	SetTypeTable(PathnameDesignerNull, pos);
+	SetTypeTable(PathnameDesignatorNull, pos);
 }
 
-static void typetable_pathnamedesignerboolean(void)
+static void typetable_pathnamedesignatorboolean(void)
 {
-	/* (or pathname-designer boolean) */
+	/* (or pathname-designator boolean) */
 	addr type1, type2, pos;
 
-	GetTypeTable(&type1, PathnameDesigner);
+	GetTypeTable(&type1, PathnameDesignator);
 	GetTypeTable(&type2, Boolean);
 	type2or_heap(type1, type2, &pos);
-	SetTypeTable(PathnameDesignerBoolean, pos);
+	SetTypeTable(PathnameDesignatorBoolean, pos);
 }
 
-static void typetable_streamdesigner(void)
+static void typetable_streamdesignator(void)
 {
 	/* (or stream boolean) */
 	addr type1, type2, pos;
@@ -491,10 +491,10 @@ static void typetable_streamdesigner(void)
 	GetTypeTable(&type1, Stream);
 	GetTypeTable(&type2, Boolean);
 	type2or_heap(type1, type2, &pos);
-	SetTypeTable(StreamDesigner, pos);
+	SetTypeTable(StreamDesignator, pos);
 }
 
-static void typetable_readtabledesigner(void)
+static void typetable_readtabledesignator(void)
 {
 	/* (or readtable null) */
 	addr type1, type2, pos;
@@ -502,10 +502,10 @@ static void typetable_readtabledesigner(void)
 	GetTypeTable(&type1, Readtable);
 	GetTypeTable(&type2, Null);
 	type2or_heap(type1, type2, &pos);
-	SetTypeTable(ReadtableDesigner, pos);
+	SetTypeTable(ReadtableDesignator, pos);
 }
 
-static void typetable_conditiondesigner(void)
+static void typetable_conditiondesignator(void)
 {
 	/* (or string symbol condition) */
 	addr type1, type2, type3, pos;
@@ -514,7 +514,7 @@ static void typetable_conditiondesigner(void)
 	GetTypeTable(&type2, Symbol);
 	GetTypeTable(&type3, Condition);
 	type3or_heap(type1, type2, type3, &pos);
-	SetTypeTable(ConditionDesigner, pos);
+	SetTypeTable(ConditionDesignator, pos);
 }
 
 static void typetable_index(void)
@@ -750,16 +750,16 @@ static void typetable_print_case(void)
 
 static void typetable_keytestlist(void)
 {
-	/* &key (:key      [function-designer])
-	 *      (:test     [function-designer])
-	 *      (:test-not [function-designer])
+	/* &key (:key      [function-designator])
+	 *      (:test     [function-designator])
+	 *      (:test-not [function-designator])
 	 */
 	addr key, key1, key2, key3, type;
 
 	GetConst(KEYWORD_KEY, &key1);
 	GetConst(KEYWORD_TEST, &key2);
 	GetConst(KEYWORD_TEST_NOT, &key3);
-	GetTypeTable(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesignator);
 	/* key */
 	cons_heap(&key1, key1, type);
 	cons_heap(&key2, key2, type);
@@ -796,9 +796,9 @@ static void typetable_countkey(void)
 	KeyTypeTable(&key1, FROM_END, T);
 	KeyTypeTable(&key2, START, KeywordStart);
 	KeyTypeTable(&key3, END, KeywordEnd);
-	KeyTypeTable(&key4, KEY, FunctionDesigner);
-	KeyTypeTable(&key5, TEST, FunctionDesigner);
-	KeyTypeTable(&key6, TEST_NOT, FunctionDesigner);
+	KeyTypeTable(&key4, KEY, FunctionDesignator);
+	KeyTypeTable(&key5, TEST, FunctionDesignator);
+	KeyTypeTable(&key6, TEST_NOT, FunctionDesignator);
 	list_heap(&key, key1, key2, key3, key4, key5, key6, NULL);
 	SetTypeTable(CountKey, key);
 }
@@ -810,7 +810,7 @@ static void typetable_countifkey(void)
 	KeyTypeTable(&key1, FROM_END, T);
 	KeyTypeTable(&key2, START, KeywordStart);
 	KeyTypeTable(&key3, END, KeywordEnd);
-	KeyTypeTable(&key4, KEY, FunctionDesigner);
+	KeyTypeTable(&key4, KEY, FunctionDesignator);
 	list_heap(&key, key1, key2, key3, key4, NULL);
 	SetTypeTable(CountIfKey, key);
 }
@@ -1101,14 +1101,14 @@ static void typetable_string_list(void)
 	typetable_orlist(TypeTable_String, TypeTable_StringList);
 }
 
-static void typetable_string_designer_list(void)
+static void typetable_string_designator_list(void)
 {
-	typetable_orlist(TypeTable_StringDesigner, TypeTable_StringDesignerList);
+	typetable_orlist(TypeTable_StringDesignator, TypeTable_StringDesignatorList);
 }
 
-static void typetable_package_designer_list(void)
+static void typetable_package_designator_list(void)
 {
-	typetable_orlist(TypeTable_PackageDesigner, TypeTable_PackageDesignerList);
+	typetable_orlist(TypeTable_PackageDesignator, TypeTable_PackageDesignatorList);
 }
 
 static void typetable_method(void)
@@ -1327,12 +1327,12 @@ static void typeargs_optconditionnull(void)
 	SetTypeArgs(OptConditionNull, pos);
 }
 
-static void typeargs_packagedesigner(void)
+static void typeargs_packagedesignator(void)
 {
 	addr pos;
-	GetTypeTable(&pos, PackageDesigner);
+	GetTypeTable(&pos, PackageDesignator);
 	typeargs_var1(&pos, pos);
-	SetTypeArgs(PackageDesigner, pos);
+	SetTypeArgs(PackageDesignator, pos);
 }
 
 static void typeargs_pathnamecase(void)
@@ -1347,7 +1347,7 @@ static void typeargs_pathnamecase(void)
 	cons_heap(&key, symbol, key);
 	conscar_heap(&key, key);
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1key(&args, args, key);
 	SetTypeArgs(PathnameCase, args);
 }
@@ -1356,7 +1356,7 @@ static void typeargs_error(void)
 {
 	addr args, type;
 
-	GetTypeTable(&args, ConditionDesigner);
+	GetTypeTable(&args, ConditionDesignator);
 	GetTypeTable(&type, T);
 	typeargs_var1rest(&args, args, type);
 	SetTypeArgs(Error, args);
@@ -1497,13 +1497,13 @@ static void typecompiled_symbol_boolean(void)
 
 static void typecompiled_stringcase(void)
 {
-	/* (function (string-designer &key (start keyword-start)
+	/* (function (string-designator &key (start keyword-start)
 	 *                                 (end keyword-end))
 	 *           (values string &rest nil))
 	 */
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	GetTypeTable(&values, KeyStart1End1);
 	typeargs_var1key(&args, args, values);
 	GetTypeValues(&values, String);
@@ -1529,11 +1529,11 @@ static void typecompiled_nstringcase(void)
 
 static void typecompiled_stringtrim(void)
 {
-	/* (function (sequence string-designer) (values string &rest nil)) */
+	/* (function (sequence string-designator) (values string &rest nil)) */
 	addr args, values, type;
 
 	GetTypeTable(&args, Sequence);
-	GetTypeTable(&type, StringDesigner);
+	GetTypeTable(&type, StringDesignator);
 	typeargs_var2(&args, args, type);
 	GetTypeValues(&values, String);
 	type_compiled_heap(args, values, &args);
@@ -1542,7 +1542,7 @@ static void typecompiled_stringtrim(void)
 
 static void typecompiled_stringequal(void)
 {
-	/* (function (string-designer string-designer &key
+	/* (function (string-designator string-designator &key
 	 *             (start1 keyword-start)
 	 *             (end1   keyword-end)
 	 *             (start2 keyword-start)
@@ -1551,7 +1551,7 @@ static void typecompiled_stringequal(void)
 	 */
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	GetTypeTable(&values, KeyStart2End2);
 	typeargs_var2key(&args, args, args, values);
 	GetTypeValues(&values, Boolean);
@@ -1561,7 +1561,7 @@ static void typecompiled_stringequal(void)
 
 static void typecompiled_stringmismatch(void)
 {
-	/* (function (string-designer string-designer &key
+	/* (function (string-designator string-designator &key
 	 *             (start1 keyword-start)
 	 *             (end1   keyword-end)
 	 *             (start2 keyword-start)
@@ -1570,7 +1570,7 @@ static void typecompiled_stringmismatch(void)
 	 */
 	addr args, values;
 
-	GetTypeTable(&args, StringDesigner);
+	GetTypeTable(&args, StringDesignator);
 	GetTypeTable(&values, KeyStart2End2);
 	typeargs_var2key(&args, args, args, values);
 	GetTypeValues(&values, IndexNull);
@@ -1749,8 +1749,8 @@ static void typecompiled_read(void)
 {
 	addr args, values, type;
 
-	/* (function (&optional input-stream-designer t t t) (values t &rest nil)) */
-	GetTypeTable(&args, StreamDesigner);
+	/* (function (&optional input-stream-designator t t t) (values t &rest nil)) */
+	GetTypeTable(&args, StreamDesignator);
 	GetTypeTable(&type, T);
 	list_heap(&args, args, type, type, type, NULL);
 	typeargs_full(&args, Nil, args, Nil, Nil);
@@ -1808,7 +1808,7 @@ static void typecompiled_subst_if(void)
 	addr args, values, type, call, key;
 
 	GetTypeTable(&type, T);
-	GetTypeTable(&call, FunctionDesigner);
+	GetTypeTable(&call, FunctionDesignator);
 	GetConst(KEYWORD_KEY, &key);
 	cons_heap(&key, key, call);
 	conscar_heap(&key, key);
@@ -1833,12 +1833,12 @@ static void typecompiled_eq(void)
 
 static void typecompiled_every(void)
 {
-	/* (function (function-designer sequence &rest sequence)
+	/* (function (function-designator sequence &rest sequence)
 	 *   (values boolean &rest nil))
 	 */
 	addr args, values, call, sequence;
 
-	GetTypeTable(&call, FunctionDesigner);
+	GetTypeTable(&call, FunctionDesignator);
 	GetTypeTable(&sequence, Sequence);
 	typeargs_var2rest(&args, call, sequence, sequence);
 	GetTypeValues(&values, Boolean);
@@ -1970,13 +1970,13 @@ static void typecompiled_evenp(void)
 static void typecompiled_export(void)
 {
 	/* (function
-	 *   ((or list symbol) &optional package-designer)
+	 *   ((or list symbol) &optional package-designator)
 	 *   (values (eql t) &rest nil))
 	 */
 	addr args, values;
 
 	GetTypeTable(&args, SymbolList);
-	GetTypeTable(&values, PackageDesigner);
+	GetTypeTable(&values, PackageDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, EqlT);
 	type_compiled_heap(args, values, &args);
@@ -1986,13 +1986,13 @@ static void typecompiled_export(void)
 static void typecompiled_usepackage(void)
 {
 	/*  (function
-	 *    ((or list package-designer) &optional package-designer)
+	 *    ((or list package-designator) &optional package-designator)
 	 *    (values (eql t) &rest nil))
 	 */
 	addr args, values;
 
 	GetTypeTable(&args, List);
-	GetTypeTable(&values, PackageDesigner);
+	GetTypeTable(&values, PackageDesignator);
 	type2or_heap(args, values, &args);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, EqlT);
@@ -2003,14 +2003,14 @@ static void typecompiled_usepackage(void)
 static void typecompiled_intern(void)
 {
 	/*  (function
-	 *    (string &optional package-designer)
+	 *    (string &optional package-designator)
 	 *    (values symbol (member :internal :external :inherited nil) &rest nil))
 	 */
 	addr args, values, symbol, key1, key2, key3, status;
 
 	/* args */
 	GetTypeTable(&args, String);
-	GetTypeTable(&values, PackageDesigner);
+	GetTypeTable(&values, PackageDesignator);
 	typeargs_var1opt1(&args, args, values);
 	/* values */
 	GetTypeTable(&symbol, Symbol);
@@ -2027,12 +2027,12 @@ static void typecompiled_intern(void)
 static void typecompiled_packagenicknames(void)
 {
 	/*  (function
-	 *    (package-designer)
+	 *    (package-designator)
 	 *    (values list &rest nil))
 	 */
 	addr args, values;
 
-	GetTypeArgs(&args, PackageDesigner);
+	GetTypeArgs(&args, PackageDesignator);
 	GetTypeTable(&values, List);
 	typevalues_result(&values, values);
 	type_compiled_heap(args, values, &args);
@@ -2042,13 +2042,13 @@ static void typecompiled_packagenicknames(void)
 static void typecompiled_prin1(void)
 {
 	/*  (function
-	 *    (t &optional stream-designer)
+	 *    (t &optional stream-designator)
 	 *    (values t &rest nil))
 	 */
 	addr args, values;
 
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, T);
 	type_compiled_heap(args, values, &args);
@@ -2096,12 +2096,12 @@ static void typecompiled_member(void)
 
 static void typecompiled_memberif(void)
 {
-	/* (function (function-designer list &key (key function-designer))
+	/* (function (function-designator list &key (key function-designator))
 	 *           (values list &rest nil))
 	 */
 	addr args, values, type, key;
 
-	GetTypeTable(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesignator);
 	GetTypeTable(&args, List);
 	GetConst(KEYWORD_KEY, &key);
 	cons_heap(&key, key, type);
@@ -2114,12 +2114,12 @@ static void typecompiled_memberif(void)
 
 static void typecompiled_mapc(void)
 {
-	/* (function (function-designer list &rest list)
+	/* (function (function-designator list &rest list)
 	 *           (values list &rest nil))
 	 */
 	addr args, values, type;
 
-	GetTypeTable(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesignator);
 	GetTypeTable(&args, List);
 	typeargs_var2rest(&args, type, args, args);
 	GetTypeValues(&values, List);
@@ -2169,11 +2169,11 @@ static void typecompiled_ecaseerror(void)
 
 static void typecompiled_dosymbols(void)
 {
-	/* (function (function package-designer) (values &rest nil)) */
+	/* (function (function package-designator) (values &rest nil)) */
 	addr args, values;
 
 	GetTypeTable(&args, Function);
-	GetTypeTable(&values, PackageDesigner);
+	GetTypeTable(&values, PackageDesignator);
 	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, Nil);
 	type_compiled_heap(args, values, &args);
@@ -2223,16 +2223,16 @@ static void typecompiled_bitand(void)
 
 static void typecompiled_countif(void)
 {
-	/* (function (function-designer sequence
+	/* (function (function-designator sequence
 	 *     &key (:from-end t)
 	 *          (:start (integer 0 *))
 	 *          (:end (or (integer 0 *) null))
-	 *          (:key function-designer))
+	 *          (:key function-designator))
 	 *     (values index &rest nil))
 	 */
 	addr args, values, key;
 
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	GetTypeTable(&values, Sequence);
 	GetTypeTable(&key, CountIfKey);
 	typeargs_var2key(&args, args, values, key);
@@ -2248,7 +2248,7 @@ static void typecompiled_sort(void)
 
 	/* key */
 	GetConst(KEYWORD_KEY, &key);
-	GetTypeTable(&type, FunctionDesigner);
+	GetTypeTable(&type, FunctionDesignator);
 	cons_heap(&key, key, type);
 	conscar_heap(&key, key);
 	/* type */
@@ -2261,16 +2261,16 @@ static void typecompiled_sort(void)
 
 static void typecompiled_findif(void)
 {
-	/* (function (function-designer sequence
+	/* (function (function-designator sequence
 	 *     &key (:from-end t)
 	 *          (:start (integer 0 *))
 	 *          (:end (or (integer 0 *) null))
-	 *          (:key function-designer))
+	 *          (:key function-designator))
 	 *     (values t &rest nil))
 	 */
 	addr args, values, key;
 
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	GetTypeTable(&values, Sequence);
 	GetTypeTable(&key, CountIfKey);
 	typeargs_var2key(&args, args, values, key);
@@ -2281,16 +2281,16 @@ static void typecompiled_findif(void)
 
 static void typecompiled_positionif(void)
 {
-	/* (function (function-designer sequence
+	/* (function (function-designator sequence
 	 *     &key (:from-end t)
 	 *          (:start (integer 0 *))
 	 *          (:end (or (integer 0 *) null))
-	 *          (:key function-designer))
+	 *          (:key function-designator))
 	 *     (values index-null &rest nil))
 	 */
 	addr args, values, key;
 
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	GetTypeTable(&values, Sequence);
 	GetTypeTable(&key, CountIfKey);
 	typeargs_var2key(&args, args, values, key);
@@ -2310,9 +2310,9 @@ static void typecompiled_search(void)
 
 	/* key */
 	KeyTypeTable(&key1, FROM_END, T);
-	KeyTypeTable(&key2, TEST, FunctionDesigner);
-	KeyTypeTable(&key3, TEST_NOT, FunctionDesigner);
-	KeyTypeTable(&key4, KEY, FunctionDesigner);
+	KeyTypeTable(&key2, TEST, FunctionDesignator);
+	KeyTypeTable(&key3, TEST_NOT, FunctionDesignator);
+	KeyTypeTable(&key4, KEY, FunctionDesignator);
 	KeyTypeTable(&key5, START1, KeywordStart);
 	KeyTypeTable(&key6, START2, KeywordStart);
 	KeyTypeTable(&key7, END1, KeywordEnd);
@@ -2338,9 +2338,9 @@ static void typecompiled_substitute(void)
 
 	/* key */
 	KeyTypeTable(&key1, FROM_END, T);
-	KeyTypeTable(&key2, TEST, FunctionDesigner);
-	KeyTypeTable(&key3, TEST_NOT, FunctionDesigner);
-	KeyTypeTable(&key4, KEY, FunctionDesigner);
+	KeyTypeTable(&key2, TEST, FunctionDesignator);
+	KeyTypeTable(&key3, TEST_NOT, FunctionDesignator);
+	KeyTypeTable(&key4, KEY, FunctionDesignator);
 	KeyTypeTable(&key5, START, KeywordStart);
 	KeyTypeTable(&key6, END, KeywordEnd);
 	KeyTypeTable(&key7, COUNT, IntegerNull);
@@ -2366,7 +2366,7 @@ static void typecompiled_substituteif(void)
 
 	/* key */
 	KeyTypeTable(&key1, FROM_END, T);
-	KeyTypeTable(&key2, KEY, FunctionDesigner);
+	KeyTypeTable(&key2, KEY, FunctionDesignator);
 	KeyTypeTable(&key3, START, KeywordStart);
 	KeyTypeTable(&key4, END, KeywordEnd);
 	KeyTypeTable(&key5, COUNT, IntegerNull);
@@ -2374,7 +2374,7 @@ static void typecompiled_substituteif(void)
 
 	/* type */
 	GetTypeTable(&args, T);
-	GetTypeTable(&values, FunctionDesigner);
+	GetTypeTable(&values, FunctionDesignator);
 	GetTypeTable(&type, Sequence);
 	typeargs_var3key(&args, args, values, type, key);
 	GetTypeValues(&values, Sequence);
@@ -2393,9 +2393,9 @@ static void typecompiled_remove(void)
 
 	/* key */
 	KeyTypeTable(&key1, FROM_END, T);
-	KeyTypeTable(&key2, TEST, FunctionDesigner);
-	KeyTypeTable(&key3, TEST_NOT, FunctionDesigner);
-	KeyTypeTable(&key4, KEY, FunctionDesigner);
+	KeyTypeTable(&key2, TEST, FunctionDesignator);
+	KeyTypeTable(&key3, TEST_NOT, FunctionDesignator);
+	KeyTypeTable(&key4, KEY, FunctionDesignator);
 	KeyTypeTable(&key5, START, KeywordStart);
 	KeyTypeTable(&key6, END, KeywordEnd);
 	KeyTypeTable(&key7, COUNT, IntegerNull);
@@ -2421,14 +2421,14 @@ static void typecompiled_removeif(void)
 
 	/* key */
 	KeyTypeTable(&key1, FROM_END, T);
-	KeyTypeTable(&key2, KEY, FunctionDesigner);
+	KeyTypeTable(&key2, KEY, FunctionDesignator);
 	KeyTypeTable(&key3, START, KeywordStart);
 	KeyTypeTable(&key4, END, KeywordEnd);
 	KeyTypeTable(&key5, COUNT, IntegerNull);
 	list_heap(&key, key1, key2, key3, key4, key5, NULL);
 
 	/* type */
-	GetTypeTable(&args, FunctionDesigner);
+	GetTypeTable(&args, FunctionDesignator);
 	GetTypeTable(&values, Sequence);
 	typeargs_var2key(&args, args, values, key);
 	GetTypeValues(&values, Sequence);
@@ -2447,9 +2447,9 @@ static void typecompiled_removeduplicates(void)
 
 	/* key */
 	KeyTypeTable(&key1, FROM_END, T);
-	KeyTypeTable(&key2, TEST, FunctionDesigner);
-	KeyTypeTable(&key3, TEST_NOT, FunctionDesigner);
-	KeyTypeTable(&key4, KEY, FunctionDesigner);
+	KeyTypeTable(&key2, TEST, FunctionDesignator);
+	KeyTypeTable(&key3, TEST_NOT, FunctionDesignator);
+	KeyTypeTable(&key4, KEY, FunctionDesignator);
 	KeyTypeTable(&key5, START, KeywordStart);
 	KeyTypeTable(&key6, END, KeywordEnd);
 	list_heap(&key, key1, key2, key3, key4, key5, key6, NULL);
@@ -2464,10 +2464,10 @@ static void typecompiled_removeduplicates(void)
 
 static void typecompiled_namestring(void)
 {
-	/* (function (pathname-designer) (values string &rest nil)) */
+	/* (function (pathname-designator) (values string &rest nil)) */
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, StringNull);
 	type_compiled_heap(args, values, &args);
@@ -2476,10 +2476,10 @@ static void typecompiled_namestring(void)
 
 static void typecompiled_pathname(void)
 {
-	/* (function (pathname-designer) (values pathname &rest nil)) */
+	/* (function (pathname-designator) (values pathname &rest nil)) */
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	typeargs_var1(&args, args);
 	GetTypeValues(&values, Pathname);
 	type_compiled_heap(args, values, &args);
@@ -2512,10 +2512,10 @@ static void typecompiled_exit(void)
 
 static void typecompiled_readchar(void)
 {
-	/* (function (&optional stream-designer t t t) (values t &rest nil)) */
+	/* (function (&optional stream-designator t t t) (values t &rest nil)) */
 	addr args, values;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	GetTypeTable(&values, T);
 	typeargs_opt4(&args, args, values, values, values);
 	GetTypeValues(&values, T);
@@ -2525,7 +2525,7 @@ static void typecompiled_readchar(void)
 
 static void typecompiled_writestring(void)
 {
-	/* (function (string &optional stream-designer &key start end)
+	/* (function (string &optional stream-designator &key start end)
 	 *           (values string &rest nil))
 	 */
 	addr args, values, var, opt, key, key1, key2;
@@ -2534,7 +2534,7 @@ static void typecompiled_writestring(void)
 	GetTypeTable(&var, String);
 	conscar_heap(&var, var);
 	/* opt */
-	GetTypeTable(&opt, StreamDesigner);
+	GetTypeTable(&opt, StreamDesignator);
 	conscar_heap(&opt, opt);
 	/* key */
 	KeyTypeTable(&key1, START, KeywordStart);
@@ -2838,12 +2838,12 @@ static void typecompiled_print_object_method(void)
 
 static void typecompiled_pprint_fill(void)
 {
-	/* (function (output-stream-designer t &optional t t)
+	/* (function (output-stream-designator t &optional t t)
 	 *           (values null &rest nil))
 	 */
 	addr args, values;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	GetTypeTable(&values, T);
 	typeargs_var2opt2(&args, args, values, values, values);
 	GetTypeValues(&values, Null);
@@ -2853,10 +2853,10 @@ static void typecompiled_pprint_fill(void)
 
 static void typecompiled_dispatch_function(void)
 {
-	/* (function (output-stream-designer t) (values T &rest nil)) */
+	/* (function (output-stream-designator t) (values T &rest nil)) */
 	addr args, values;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	GetTypeTable(&values, T);
 	typeargs_var2(&args, args, values);
 	GetTypeValues(&values, T);
@@ -2890,7 +2890,7 @@ static void typecompiled_remove_file(void)
 {
 	addr args, values;
 
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	GetTypeTable(&values, T);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Boolean);
@@ -3041,17 +3041,17 @@ void build_type_constant(void)
 	typetable_pathnamenull();
 	typetable_packagenull();
 	typetable_printdispatchnull();
-	typetable_stringdesigner();
-	typetable_packagedesigner();
-	typetable_packagedesignernull();
-	typetable_functiondesigner();
-	typetable_restartdesigner();
-	typetable_pathnamedesigner();
-	typetable_pathnamedesignernull();
-	typetable_pathnamedesignerboolean();
-	typetable_streamdesigner();
-	typetable_readtabledesigner();
-	typetable_conditiondesigner();
+	typetable_stringdesignator();
+	typetable_packagedesignator();
+	typetable_packagedesignatornull();
+	typetable_functiondesignator();
+	typetable_restartdesignator();
+	typetable_pathnamedesignator();
+	typetable_pathnamedesignatornull();
+	typetable_pathnamedesignatorboolean();
+	typetable_streamdesignator();
+	typetable_readtabledesignator();
+	typetable_conditiondesignator();
 	typetable_index();
 	typetable_indexnull();
 	typetable_plus1();
@@ -3110,8 +3110,8 @@ void build_type_constant(void)
 	typetable_time_zone();
 	typetable_symbol_list();
 	typetable_string_list();
-	typetable_string_designer_list();
-	typetable_package_designer_list();
+	typetable_string_designator_list();
+	typetable_package_designator_list();
 
 	typetable_method();
 	typetable_class();
@@ -3145,7 +3145,7 @@ void build_type_constant(void)
 	/* Arguments */
 	typeargs_empty_constant();
 	typeargs_optconditionnull();
-	typeargs_packagedesigner();
+	typeargs_packagedesignator();
 	typeargs_pathnamecase();
 	typeargs_error();
 

@@ -279,7 +279,7 @@ static void type_peek_char(addr *ret)
 	GetTypeTable(&args, Character);
 	GetTypeTable(&values, Boolean);
 	type2or_heap(args, values, &args);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	GetTypeTable(&type, T);
 	typeargs_opt5(&args, args, values, type, type, type);
 	GetTypeValues(&values, T);
@@ -376,7 +376,7 @@ static void type_terpri(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -410,7 +410,7 @@ static void type_fresh_line(addr *ret)
 {
 	addr args, values;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	typeargs_opt1(&args, args);
 	GetTypeValues(&values, Boolean);
 	type_compiled_heap(args, values, ret);
@@ -445,7 +445,7 @@ static void type_unread_char(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, Character);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Null);
 	type_compiled_heap(args, values, ret);
@@ -480,7 +480,7 @@ static void type_write_char(addr *ret)
 	addr args, values;
 
 	GetTypeTable(&args, Character);
-	GetTypeTable(&values, StreamDesigner);
+	GetTypeTable(&values, StreamDesignator);
 	typeargs_var1opt1(&args, args, values);
 	GetTypeValues(&values, Character);
 	type_compiled_heap(args, values, ret);
@@ -504,7 +504,7 @@ static void defun_write_char(void)
 
 /* (defun read-line (&optional stream eof-p eof-value rec-p) ...)
  *     -> line, miss-p
- *  stream     stream-designer
+ *  stream     stream-designator
  *  eof-p      t  ;; boolean
  *  eof-value  t
  *  rec-p      t  ;; boolean
@@ -523,7 +523,7 @@ static void type_read_line(addr *ret)
 {
 	addr args, values, type;
 
-	GetTypeTable(&args, StreamDesigner);
+	GetTypeTable(&args, StreamDesignator);
 	GetTypeTable(&type, T);
 	typeargs_opt4(&args, args, type, type, type);
 	GetTypeTable(&values, Boolean);
@@ -734,7 +734,7 @@ static void type_file_position(addr *ret)
 {
 	addr args, values, type, type2, type3;
 
-	/* position-designer */
+	/* position-designator */
 	GetTypeTable(&type, Index);
 	GetConst(KEYWORD_START, &type2);
 	type_eql_heap(type2, &type2);
@@ -808,7 +808,7 @@ static void defun_file_string_length(void)
 /* (defun open (filespec
  *     &key direction element-type if-exists if-does-not-exist external-format)
  *     ...) -> (or stream null)
- *   filespec  (or pathname-designer stream)
+ *   filespec  (or pathname-designator stream)
  */
 static int function_open(Execute ptr, addr pos, addr rest)
 {
@@ -829,7 +829,7 @@ static void type_open(addr *ret)
 	KeyTypeTable(&key5, EXTERNAL_FORMAT, ExternalFormat);
 	list_heap(&key, key1, key2, key3, key4, key5, NULL);
 	/* type */
-	GetTypeTable(&args, PathnameDesigner);
+	GetTypeTable(&args, PathnameDesignator);
 	GetTypeTable(&values, Stream);
 	type2or_heap(args, values, &args);
 	typeargs_var1key(&args, args, key);
@@ -855,7 +855,7 @@ static void defun_open(void)
 
 /* (defun stream-external-format (stream) ...) -> format
  *   stream  stream
- *   format  external-format-designer
+ *   format  external-format-designator
  */
 static int function_stream_external_format(Execute ptr, addr stream)
 {

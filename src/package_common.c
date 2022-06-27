@@ -16,7 +16,7 @@
 #include "package_bittype.h"
 #include "package_common.h"
 #include "package_delete.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_export.h"
 #include "package_intern.h"
 #include "package_object.h"
@@ -40,7 +40,7 @@ int make_gentemp_(Execute ptr, addr prefix, addr package, addr *ret)
 		Return(getpackage_(ptr, &package));
 	}
 	else {
-		Return(package_designer_(package, &package));
+		Return(package_designator_(package, &package));
 	}
 	GetConst(PACKAGE_KEYWORD, &value);
 	keyword = (value == package);
@@ -94,7 +94,7 @@ static int syscall_do_symbols_check_(Execute ptr, addr call, addr package)
 	addr table, list, bit;
 	size_t size, i;
 
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetTableHash(table, &table);
 	LenArrayHash(table, &size);
@@ -121,7 +121,7 @@ int do_external_symbols_package_(Execute ptr, addr call, addr package)
 	addr table, list, bit;
 	size_t size, i;
 
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetTableHash(table, &table);
 	LenArrayHash(table, &size);
@@ -170,7 +170,7 @@ int all_symbols_package_(addr package, addr *ret)
 	addr table, list, bit, root;
 	size_t size, i;
 
-	Return(package_designer_(package, &package));
+	Return(package_designator_(package, &package));
 	GetPackage(package, PACKAGE_INDEX_TABLE, &table);
 	GetTableHash(table, &table);
 	LenArrayHash(table, &size);

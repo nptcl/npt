@@ -45,7 +45,7 @@ static int init_directory_struct_(Execute ptr, struct directory_struct *str, add
 	str->ptr = ptr;
 	str->local = ptr->local;
 	str->list = str->root = str->front = Nil;
-	return pathname_designer_heap_(ptr, pos, &str->pos);
+	return pathname_designator_heap_(ptr, pos, &str->pos);
 }
 
 static int make_list_directory_pathname_(struct directory_struct *str,
@@ -159,13 +159,13 @@ static int files_name_directory_files(struct directory_struct *str,
 	addr path;
 
 	ptr = str->ptr;
-	Return(pathname_designer_local_(ptr, name, &path));
+	Return(pathname_designator_local_(ptr, name, &path));
 	merge_directory_files(str->local, path, base);
 	Return(wildcard_pathname_(path, str->pos, 1, &check));
 	if (check) {
 		/* push heap */
 		Return(files_path_directory_files(str, path, name, base, &path));
-		Return(pathname_designer_heap_(ptr, path, &path));
+		Return(pathname_designator_heap_(ptr, path, &path));
 		cons_heap(&str->root, path, str->root);
 	}
 
@@ -477,7 +477,7 @@ static int probe_file_run_files(Execute ptr, addr *ret, addr pos)
 	const char *str;
 
 	/* wildcard */
-	Return(pathname_designer_heap_(ptr, pos, &pos));
+	Return(pathname_designator_heap_(ptr, pos, &pos));
 	Return(wild_pathname_boolean_(pos, Nil, &check));
 	if (check) {
 		return call_simple_file_error_va_(ptr, pos,
@@ -783,7 +783,7 @@ static int rename_file_run_files(Execute ptr,
 	addr file, from, value, true1, true2;
 	const char *str1, *str2;
 
-	Return(pathname_designer_heap_(ptr, pos, &file));
+	Return(pathname_designator_heap_(ptr, pos, &file));
 	Return(physical_pathname_heap_(ptr, file, &from));
 	Return(physical_pathname_heap_(ptr, to, &to));
 	Return(truename_files_(ptr, from, &true1, 0));
@@ -1026,7 +1026,7 @@ int truename_files_(Execute ptr, addr file, addr *ret, int errorp)
 
 	/* make-pathname */
 	Return(string8_null_heap_(&pos, str));
-	Return(pathname_designer_heap_(ptr, pos, ret));
+	Return(pathname_designator_heap_(ptr, pos, ret));
 	rollback_local(local, stack);
 	return 0;
 

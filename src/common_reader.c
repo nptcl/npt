@@ -7,7 +7,7 @@
 #include "cons_list.h"
 
 /* (defun copy-readtable (&optional from to) ...) -> readtable
- *   from  (or readtable null)  ;; readtable-designer
+ *   from  (or readtable null)  ;; readtable-designator
  *   to    (or readtable null)
  */
 static int function_copy_readtable(Execute ptr, addr from, addr to)
@@ -21,10 +21,10 @@ static void type_copy_readtable(addr *ret)
 {
 	addr args, values;
 
-	/* (function (readtable-designer readtable-designer)
+	/* (function (readtable-designator readtable-designator)
 	 *   (values readtable &rest nil))
 	 */
-	GetTypeTable(&args, ReadtableDesigner);
+	GetTypeTable(&args, ReadtableDesignator);
 	typeargs_opt2(&args, args, args);
 	GetTypeTable(&values, Readtable);
 	typevalues_result(&values, values);
@@ -93,7 +93,7 @@ static void defun_make_dispatch_macro_character(void)
 
 
 /* (defun read (&optional stream errorp eof recp) ...) -> object
- *   stream  input-stream-designer
+ *   stream  input-stream-designator
  *   errorp  t  (boolean)
  *   eof     t
  *   recp    t  (boolean)
@@ -122,7 +122,7 @@ static void defun_read(void)
 
 
 /* (defun read-preserving-whitespace (&optional stream errorp eof recp) ...) -> object
- *   stream  input-stream-designer
+ *   stream  input-stream-designator
  *   errorp  t  (boolean)
  *   eof     t
  *   recp    t  (boolean)
@@ -358,7 +358,7 @@ static void defun_readtablep(void)
  *   (disp-char sub-char &optional readtable) ...) -> function
  *   disp-char  character
  *   sub-char   character
- *   readtable  (or readtable null)  ;; readtable designer
+ *   readtable  (or readtable null)  ;; readtable designator
  *   function   (or function null)
  */
 static int function_get_dispatch_macro_character(Execute ptr,
@@ -374,7 +374,7 @@ static void type_get_dispatch_macro_character(addr *ret)
 	addr args, values, type;
 
 	GetTypeTable(&args, Character);
-	GetTypeTable(&type, ReadtableDesigner);
+	GetTypeTable(&type, ReadtableDesignator);
 	typeargs_var2opt1(&args, args, args, type);
 	GetTypeTable(&values, FunctionNull);
 	typevalues_result(&values, values);
@@ -401,8 +401,8 @@ static void defun_get_dispatch_macro_character(void)
  *   (disp-char sub-char function &optional readtable) ...) -> (eql t)
  *   disp-char  character
  *   sub-char   character
- *   function   (or symbol function)  ;; function-designer
- *   readtable  (or readtable null)  ;; readtable designer
+ *   function   (or symbol function)  ;; function-designator
+ *   readtable  (or readtable null)  ;; readtable designator
  */
 static int function_set_dispatch_macro_character(Execute ptr,
 		addr x, addr y, addr call, addr readtable)
@@ -417,8 +417,8 @@ static void type_set_dispatch_macro_character(addr *ret)
 	addr args, values, type1, type2;
 
 	GetTypeTable(&args, Character);
-	GetTypeTable(&type1, FunctionDesigner);
-	GetTypeTable(&type2, ReadtableDesigner);
+	GetTypeTable(&type1, FunctionDesignator);
+	GetTypeTable(&type2, ReadtableDesignator);
 	typeargs_var3opt1(&args, args, args, type1, type2);
 	GetTypeValues(&values, EqlT);
 	type_compiled_heap(args, values, ret);
@@ -443,7 +443,7 @@ static void defun_set_dispatch_macro_character(void)
 /* (defun get-macro-character (char &optional readtable) ...)
  *     (values function nonterm &rest nil))
  *   char       character
- *   readtable  (or readtable null)  ;; readtable-designer
+ *   readtable  (or readtable null)  ;; readtable-designator
  *   function   (or function nil)
  *   nonterm    boolean
  */
@@ -459,7 +459,7 @@ static void type_get_macro_character(addr *ret)
 	addr args, values, type;
 
 	GetTypeTable(&args, Character);
-	GetTypeTable(&type, ReadtableDesigner);
+	GetTypeTable(&type, ReadtableDesignator);
 	typeargs_var1opt1(&args, args, type);
 	GetTypeTable(&values, FunctionNull);
 	GetTypeTable(&type, Boolean);
@@ -487,9 +487,9 @@ static void defun_get_macro_character(void)
  *     (char function &optional nonterm readtable) ...)
  *     -> (eql t)
  *   char       character
- *   function   (or symbol function)  ;; function-designer
+ *   function   (or symbol function)  ;; function-designator
  *   nonterm    t  ;; boolean, default nil
- *   readtable  (or readtable null)  ;; readtable-designer
+ *   readtable  (or readtable null)  ;; readtable-designator
  */
 static int function_set_macro_character(Execute ptr,
 		addr code, addr call, addr nonterm, addr readtable)
@@ -504,9 +504,9 @@ static void type_set_macro_character(addr *ret)
 	addr args, values, type1, type2, type3;
 
 	GetTypeTable(&args, Character);
-	GetTypeTable(&type1, FunctionDesigner);
+	GetTypeTable(&type1, FunctionDesignator);
 	GetTypeTable(&type2, T);
-	GetTypeTable(&type3, ReadtableDesigner);
+	GetTypeTable(&type3, ReadtableDesignator);
 	typeargs_var2opt2(&args, args, type1, type2, type3);
 	GetTypeValues(&values, EqlT);
 	type_compiled_heap(args, values, ret);
@@ -534,7 +534,7 @@ static void defun_set_macro_character(void)
  *   to-char         character
  *   from-char       character
  *   to-readtable    readtable  ;; default *readtable*
- *   from-readtable  (or readtable null)  ;; readtable-designer, default nil
+ *   from-readtable  (or readtable null)  ;; readtable-designator, default nil
  */
 static int function_set_syntax_from_char(Execute ptr, addr x, addr y, addr z, addr w)
 {
@@ -549,7 +549,7 @@ static void type_set_syntax_from_char(addr *ret)
 
 	GetTypeTable(&args, Character);
 	GetTypeTable(&type1, Readtable);
-	GetTypeTable(&type2, ReadtableDesigner);
+	GetTypeTable(&type2, ReadtableDesignator);
 	typeargs_var2opt2(&args, args, args, type1, type2);
 	GetTypeValues(&values, EqlT);
 	type_compiled_heap(args, values, ret);

@@ -166,7 +166,7 @@ static int close_stream_abort_(addr stream)
 	if (check == Unbound || check == Nil)
 		return 0;
 	/* :abort t */
-	Return(pathname_designer_heap_(ptr, stream, &check));
+	Return(pathname_designator_heap_(ptr, stream, &check));
 	return delete_file_files_(ptr, check);
 }
 

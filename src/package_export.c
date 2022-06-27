@@ -8,7 +8,7 @@
 #include "hashtable.h"
 #include "package.h"
 #include "package_bittype.h"
-#include "package_designer.h"
+#include "package_designator.h"
 #include "package_export.h"
 #include "package_import.h"
 #include "package_intern.h"
@@ -413,7 +413,7 @@ int export_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_update_p_(package, &package));
+	Return(package_designator_update_p_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
@@ -536,11 +536,11 @@ static int list_unexport_package_(addr package, addr args)
 	return 0;
 }
 
-static int package_designer_unexport_package_(addr pos, addr *ret)
+static int package_designator_unexport_package_(addr pos, addr *ret)
 {
 	addr check;
 
-	Return(package_designer_update_p_(pos, &pos));
+	Return(package_designator_update_p_(pos, &pos));
 
 	/* KEYWORD */
 	GetConst(PACKAGE_KEYWORD, &check);
@@ -564,7 +564,7 @@ int unexport_package_(addr package, addr pos)
 {
 	addr type;
 
-	Return(package_designer_unexport_package_(package, &package));
+	Return(package_designator_unexport_package_(package, &package));
 	switch (GetType(pos)) {
 		case LISPTYPE_T:
 		case LISPTYPE_SYMBOL:
