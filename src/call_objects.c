@@ -2,6 +2,7 @@
 #include "callname.h"
 #include "clos.h"
 #include "clos_combination.h"
+#include "clos_slot.h"
 #include "clos_type.h"
 #include "common_header.h"
 #include "condition.h"

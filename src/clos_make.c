@@ -6,6 +6,7 @@
 #include "clos_generic.h"
 #include "clos_make.h"
 #include "clos_method.h"
+#include "clos_slot.h"
 #include "clos_type.h"
 #include "cons.h"
 #include "cons_list.h"

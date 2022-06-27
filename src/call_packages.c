@@ -331,12 +331,16 @@ static int do_symbols_const_common_(addr form, addr *ret, constindex index)
 	/* `(block nil
 	 *    (system::do-symbols
 	 *      (lambda (,var)
+	 *        (declare (ignorable ,var))
 	 *        ,@decl
 	 *        (tagbody ,@body))
 	 *      ,package)
-	 *    ,result)
+	 *    (let (,var)
+	 *      (declare (ignorable ,var)
+	 *      ,result)))
 	 */
-	addr check, var, package, result, decl, body, lambda, tagbody, block;
+	addr check, var, list, package, result, decl, body;
+	addr declare, ignorable, lambda, tagbody, block, let;
 
 	Return_getcdr(form, &form);
 	if (! consp_getcons(form, &check, &body))
@@ -360,17 +364,23 @@ static int do_symbols_const_common_(addr form, addr *ret, constindex index)
 		goto error;
 
 expand:
-	Return(declare_body_form_(body, &decl, &body));
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_TAGBODY, &tagbody);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_BLOCK, &block);
+	GetConst(COMMON_LET, &let);
+	list_heap(&ignorable, ignorable, var, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	Return(declare_body_form_(body, &decl, &body));
 	cons_heap(&tagbody, tagbody, body);
 	conscar_heap(&tagbody, tagbody);
 	Return(nconc2_safe_(decl, tagbody, &tagbody));
-	GetConst(COMMON_LAMBDA, &lambda);
-	conscar_heap(&var, var);
-	lista_heap(&lambda, lambda, var, tagbody, NULL);
+	conscar_heap(&list, var);
+	lista_heap(&lambda, lambda, list, declare, tagbody, NULL);
 	GetConstant(index, &check);
 	list_heap(&check, check, lambda, package, NULL);
-	GetConst(COMMON_BLOCK, &block);
+	list_heap(&result, let, list, declare, result, NULL);
 	list_heap(ret, block, Nil, check, result, NULL);
 	return 0;
 
@@ -403,11 +413,15 @@ int do_all_symbols_common_(addr form, addr env, addr *ret)
 	/* `(block nil
 	 *    (system::do-all-symbols
 	 *      (lambda (,var)
+	 *        (declare (ignorable ,var))
 	 *        ,@decl
 	 *        (tagbody ,@body)))
-	 *    ,result)
+	 *    (let (,var)
+	 *      (declare (ignorable ,var)
+	 *      ,result)))
 	 */
-	addr check, var, result, decl, body, lambda, tagbody, block;
+	addr check, var, list, result, decl, body;
+	addr declare, ignorable, lambda, tagbody, block, let;
 
 	Return_getcdr(form, &form);
 	if (! consp_getcons(form, &check, &body))
@@ -426,17 +440,23 @@ int do_all_symbols_common_(addr form, addr env, addr *ret)
 	if (check != Nil)
 		goto error;
 expand:
-	Return(declare_body_form_(body, &decl, &body));
+	GetConst(COMMON_DECLARE, &declare);
+	GetConst(COMMON_IGNORABLE, &ignorable);
 	GetConst(COMMON_TAGBODY, &tagbody);
+	GetConst(COMMON_LAMBDA, &lambda);
+	GetConst(COMMON_BLOCK, &block);
+	GetConst(COMMON_LET, &let);
+	list_heap(&ignorable, ignorable, var, NULL);
+	list_heap(&declare, declare, ignorable, NULL);
+	Return(declare_body_form_(body, &decl, &body));
 	cons_heap(&tagbody, tagbody, body);
 	conscar_heap(&tagbody, tagbody);
 	Return(nconc2_safe_(decl, tagbody, &tagbody));
-	GetConst(COMMON_LAMBDA, &lambda);
-	conscar_heap(&var, var);
-	lista_heap(&lambda, lambda, var, tagbody, NULL);
+	conscar_heap(&list, var);
+	lista_heap(&lambda, lambda, list, declare, tagbody, NULL);
 	GetConst(SYSTEM_DO_ALL_SYMBOLS, &check);
 	list_heap(&check, check, lambda, NULL);
-	GetConst(COMMON_BLOCK, &block);
+	list_heap(&result, let, list, declare, result, NULL);
 	list_heap(ret, block, Nil, check, result, NULL);
 	return 0;
 

@@ -3,6 +3,7 @@
 #include "clos_class.h"
 #include "clos_defgeneric.h"
 #include "clos_method.h"
+#include "clos_slot.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"

@@ -1,5 +1,6 @@
 #include "array_vector.h"
 #include "clos.h"
+#include "clos_slot.h"
 #include "condition.h"
 #include "cons_list.h"
 #include "heap.h"

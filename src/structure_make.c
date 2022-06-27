@@ -1,6 +1,7 @@
 #include "array_make.h"
 #include "condition.h"
 #include "clos.h"
+#include "clos_slot.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "control_execute.h"

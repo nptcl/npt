@@ -61,6 +61,7 @@ clos_generic.c
 clos_make.c
 clos_method.c
 clos_redefine.c
+clos_slot.c
 clos_type.c
 clos.c
 cmpl_arch.c

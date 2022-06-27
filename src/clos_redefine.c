@@ -8,6 +8,7 @@
 #include "clos_make.h"
 #include "clos_method.h"
 #include "clos_redefine.h"
+#include "clos_slot.h"
 #include "clos_type.h"
 #include "condition.h"
 #include "control_execute.h"

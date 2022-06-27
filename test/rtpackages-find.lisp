@@ -190,7 +190,6 @@
     (let ((*package* (find-package 'do-symbols-1))
           value)
       (do-symbols (x)
-        (declare (ignore x))
         (setq value t))
       value))
   t)
@@ -232,6 +231,11 @@
       (push x list))
     (sort (mapcar #'symbol-name list) #'string<))
   ("X" "Y" "Z"))
+
+(deftest do-symbols.7
+  (do-symbols (x 'do-symbols-1 (return 20))
+    10)
+  20)
 
 (deftest-error do-symbols-error.1
   (eval '(do-symbols (10))))
@@ -302,6 +306,11 @@
     (sort (mapcar #'symbol-name list) #'string<))
   ("X" "Y" "Z"))
 
+(deftest do-external-symbols.7
+  (do-external-symbols (x 'do-external-symbols-1 (return 20))
+    10)
+  20)
+
 (deftest-error do-external-symbols-error.1
   (eval '(do-external-symbols (10))))
 
@@ -357,6 +366,12 @@
       (incf value 1)
       label))
   0)
+
+#-force-gc
+(deftest do-all-symbols.6
+  (do-all-symbols (x (return 20))
+    10)
+  20)
 
 (deftest-error do-all-symbols-error.1
   (eval '(do-all-symbols (10))))
@@ -426,4 +441,20 @@
       (sort lst #'string< :key #'symbol-name)))
   (("DO-SYMBOLS-TEST-1" "BOLD")
    ("DO-SYMBOLS-TEST-1" "SHY")))
+
+
+;;
+;;  degrade
+;;
+(deftest do-symbols-degrade.1
+  (do-symbols (v 'common-lisp-user v) 10)
+  nil)
+
+(deftest do-external-symbols-degrade.1
+  (do-external-symbols (v 'common-lisp-user v) 10)
+  nil)
+
+(deftest do-all-symbols-degrade.1
+  (do-all-symbols (v v) 10)
+  nil)
 

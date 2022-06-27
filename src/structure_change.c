@@ -1,5 +1,6 @@
 #include "clos.h"
 #include "clos_method.h"
+#include "clos_slot.h"
 #include "condition.h"
 #include "cons.h"
 #include "control_object.h"

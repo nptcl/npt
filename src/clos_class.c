@@ -1,5 +1,6 @@
 #include "clos.h"
 #include "clos_class.h"
+#include "clos_slot.h"
 #include "clos_type.h"
 #include "cons.h"
 #include "cons_list.h"
