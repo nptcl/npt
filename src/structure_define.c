@@ -1,6 +1,6 @@
+#include "closget_structure.h"
 #include "condition.h"
 #include "structure.h"
-#include "structure_access.h"
 #include "structure_change.h"
 #include "structure_define.h"
 #include "structure_define1.h"

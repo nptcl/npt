@@ -1,5 +1,5 @@
-#include "clos_class.h"
 #include "clos_type.h"
+#include "closget_class.h"
 #include "constant.h"
 #include "condition.h"
 #include "function.h"

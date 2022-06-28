@@ -7,6 +7,7 @@
 #include "clos_combination.h"
 #include "clos_defgeneric.h"
 #include "clos_method.h"
+#include "closget_method.h"
 #include "condition.h"
 #include "cons.h"
 #include "control_operator.h"

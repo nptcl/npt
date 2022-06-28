@@ -1,12 +1,13 @@
 #include "clos.h"
 #include "clos_method.h"
-#include "clos_slot.h"
+#include "clos_object.h"
+#include "closget_structure.h"
+#include "closget_slot.h"
 #include "condition.h"
 #include "cons.h"
 #include "control_object.h"
 #include "strtype.h"
 #include "structure.h"
-#include "structure_access.h"
 #include "structure_change.h"
 #include "structure_delete.h"
 #include "structure_define1.h"
@@ -120,8 +121,8 @@ static int structure_change_slots_(addr instance, addr slots1, addr slots2)
 	for (i = 0; i < size1; i++) {
 		GetSlotVector(slots1, i, &x);
 		GetSlotVector(slots2, i, &y);
-		GetNameSlot(x, &x);
-		GetNameSlot(y, &y);
+		getname_slot(x, &x);
+		getname_slot(y, &y);
 		GetNameSymbol(x, &x);
 		GetNameSymbol(y, &y);
 		Return(string_equal_(x, y, &check));
@@ -134,7 +135,7 @@ error:
 	list = Nil;
 	for (i = 0; i < size1; i++) {
 		GetSlotVector(slots1, i, &x);
-		GetNameSlot(x, &x);
+		getname_slot(x, &x);
 		cons_heap(&list, x, list);
 	}
 	return fmte_("Cannot change slots ~S in ~S.", list, instance, NULL);

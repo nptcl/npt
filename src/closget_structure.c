@@ -1,6 +1,7 @@
-#include "clos.h"
+#include "clos_object.h"
+#include "closget.h"
+#include "closget_structure.h"
 #include "constant.h"
-#include "structure_access.h"
 #include "typedef.h"
 
 static int stdget_structure_constant_(addr pos, addr *ret,

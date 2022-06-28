@@ -1,7 +1,7 @@
 #include "call_eval.h"
 #include "callname.h"
-#include "clos_class.h"
 #include "clos_generic.h"
+#include "clos_instance.h"
 #include "code_function.h"
 #include "code_lambda.h"
 #include "code_values.h"

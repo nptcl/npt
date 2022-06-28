@@ -2,8 +2,10 @@
 #include "callname.h"
 #include "clos.h"
 #include "clos_combination.h"
-#include "clos_slot.h"
+#include "clos_object.h"
 #include "clos_type.h"
+#include "closget.h"
+#include "closget_slot.h"
 #include "common_header.h"
 #include "condition.h"
 #include "cons.h"
@@ -1603,7 +1605,7 @@ static void make_load_form_saving_slots_list(addr var, addr *ret)
 	list = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(vector, i, &x);
-		GetNameSlot(x, &x);
+		getname_slot(x, &x);
 		cons_heap(&list, x, list);
 	}
 	nreverse(ret, list);

@@ -3,13 +3,16 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "clos.h"
-#include "clos_class.h"
 #include "clos_generic.h"
+#include "clos_instance.h"
 #include "clos_make.h"
 #include "clos_method.h"
 #include "clos_redefine.h"
-#include "clos_slot.h"
+#include "clos_object.h"
 #include "clos_type.h"
+#include "closget.h"
+#include "closget_class.h"
+#include "closget_slot.h"
 #include "condition.h"
 #include "control_execute.h"
 #include "function.h"
@@ -112,7 +115,7 @@ static int clos_redefine_slots_(addr pos, addr clos, addr slots1)
 	list = Nil;
 	for (i = 0; i < size2; i++) {
 		GetSlotVector(slots2, i, &slot);
-		GetNameSlot(slot, &name);
+		getname_slot(slot, &name);
 		if (! clos_find_slotname(slots1, size1, name))
 			cons_heap(&list, name, list);
 	}
@@ -123,7 +126,7 @@ static int clos_redefine_slots_(addr pos, addr clos, addr slots1)
 	list = Nil;
 	for (i = 0; i < size1; i++) {
 		GetSlotVector(slots1, i, &slot);
-		GetNameSlot(slot, &name);
+		getname_slot(slot, &name);
 		if (! clos_find_slotname(slots2, size2, name))
 			cons_heap(&list, name, list);
 	}
@@ -218,9 +221,9 @@ static int clos_redefine_delete_accessor_(Execute ptr, addr clos, addr slots)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetReadersSlot(pos, &list);
+		getreaders_slot(pos, &list);
 		Return(clos_redefine_delete_readers_(ptr, clos, list));
-		GetWritersSlot(pos, &list);
+		getwriters_slot(pos, &list);
 		Return(clos_redefine_delete_writers_(ptr, clos, list));
 	}
 
@@ -394,7 +397,7 @@ static int getproperty_redefine_(addr pos, addr *ret)
 	root = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetNameSlot(slot, &name);
+		getname_slot(slot, &name);
 		Return(clos_get_(pos, name, &check));
 		if (check != Unbound) {
 			cons_heap(&root, name, root);
@@ -414,7 +417,7 @@ static void clos_redefined_set_value(addr slots, addr values, addr x, addr v)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetNameSlot(pos, &check);
+		getname_slot(pos, &check);
 		if (check == x) {
 			SetClosValue(values, i, v);
 			break;
@@ -449,7 +452,7 @@ static int clos_redefined_instance_(addr pos, addr clos)
 		GetClosValue(pvalues, i, &v);
 		if (v != Unbound) {
 			GetSlotVector(pslots, i, &x);
-			GetNameSlot(x, &x);
+			getname_slot(x, &x);
 			clos_redefined_set_value(slots, values, x, v);
 		}
 	}
@@ -522,7 +525,7 @@ static int clos_redefine_method_find(addr pos, addr key)
 	LenSlotVector(pos, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(pos, i, &list);
-		GetArgsSlot(list, &list);
+		getargs_slot(list, &list);
 		while (list != Nil) {
 			GetCons(list, &check, &list);
 			if (check == key)
@@ -579,7 +582,7 @@ static int clos_change_class_find(addr copy, addr name, addr *ret)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &value);
-		GetNameSlot(value, &value);
+		getname_slot(value, &value);
 		if (name == value) {
 			GetClosValue(array, i, ret);
 			return 1;
@@ -600,7 +603,7 @@ static int clos_change_class_update_(Execute ptr, addr copy, addr pos, addr rest
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &value);
-		GetNameSlot(value, &value);
+		getname_slot(value, &value);
 		if (clos_change_class_find(copy, value, &value)) {
 			SetClosValue(array, i, value);
 		}
@@ -659,7 +662,7 @@ static void clos_change_method_slots(Execute ptr, addr copy, addr pos, addr *ret
 	list = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &check);
-		GetNameSlot(check, &check);
+		getname_slot(check, &check);
 		if (! clos_change_class_find(copy, check, &ignore))
 			cons_heap(&list, check, list);
 	}

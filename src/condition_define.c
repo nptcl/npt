@@ -1,5 +1,5 @@
-#include "clos.h"
-#include "clos_class.h"
+#include "clos_instance.h"
+#include "closget.h"
 #include "condition.h"
 #include "condition_define.h"
 #include "cons.h"

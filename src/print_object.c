@@ -1,10 +1,14 @@
 #include "callname.h"
-#include "clos.h"
-#include "clos_class.h"
 #include "clos_defgeneric.h"
 #include "clos_method.h"
 #include "clos_type.h"
-#include "clos_slot.h"
+#include "clos_object.h"
+#include "closget.h"
+#include "closget_class.h"
+#include "closget_generic.h"
+#include "closget_method.h"
+#include "closget_slot.h"
+#include "closget_structure.h"
 #include "cons.h"
 #include "constant.h"
 #include "control_execute.h"
@@ -20,7 +24,6 @@
 #include "stream.h"
 #include "stream_function.h"
 #include "structure.h"
-#include "structure_access.h"
 #include "symbol.h"
 #include "type_table.h"
 
@@ -109,7 +112,7 @@ static int write_structure_(Execute ptr, addr stream, addr pos)
 	for (i = 0; i < size; i++) {
 		Return(write_char_stream_(stream, ' '));
 		GetSlotVector(x, i, &z);
-		GetNameSlot(z, &z);
+		getname_slot(z, &z);
 		GetNameSymbol(z, &z);
 		Return(write_char_stream_(stream, ':'));
 		Return(princ_print_(ptr, stream, z));

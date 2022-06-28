@@ -1,13 +1,18 @@
 #include "callname.h"
 #include "clos.h"
-#include "clos_class.h"
 #include "clos_combination.h"
 #include "clos_defgeneric.h"
 #include "clos_generic.h"
+#include "clos_instance.h"
 #include "clos_make.h"
 #include "clos_method.h"
+#include "clos_object.h"
 #include "clos_slot.h"
 #include "clos_type.h"
+#include "closget_class.h"
+#include "closget_generic.h"
+#include "closget_method.h"
+#include "closget_slot.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "cons_plist.h"
@@ -91,14 +96,14 @@ static int clos_ensure_class_parse_slots_(addr list, addr *ret)
 
 	/* make-slot */
 	slot_heap(&slot);
-	SetNameSlot(slot, name);
-	SetTypeSlot(slot, type);
-	SetArgsSlot(slot, args);
-	SetFormSlot(slot, form);
-	SetFunctionSlot(slot, func);
-	SetReadersSlot(slot, readers);
-	SetWritersSlot(slot, writers);
-	SetDocumentSlot(slot, doc);
+	setname_slot(slot, name);
+	settype_slot(slot, type);
+	setargs_slot(slot, args);
+	setform_slot(slot, form);
+	setfunction_slot(slot, func);
+	setreaders_slot(slot, readers);
+	setwriters_slot(slot, writers);
+	setdocument_slot(slot, doc);
 	Return(slot_set_allocation_(slot, alloc));
 
 	/* result */
@@ -110,10 +115,10 @@ static int clos_ensure_class_slots_error_(addr slots, size_t size, addr pos)
 	addr x, y;
 	size_t i;
 
-	GetNameSlot(pos, &x);
+	getname_slot(pos, &x);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &y);
-		GetNameSlot(y, &y);
+		getname_slot(y, &y);
 		if (x == y)
 			return call_simple_program_error_va_(NULL,
 					"The slot name ~S already exists.", x, NULL);
@@ -292,10 +297,10 @@ static int clos_ensure_class_function_check_(Execute ptr, addr pos)
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
 		/* reader */
-		GetReadersSlot(slot, &list);
+		getreaders_slot(slot, &list);
 		Return(clos_ensure_readers_check_(ptr, list));
 		/* writer */
-		GetWritersSlot(slot, &list);
+		getwriters_slot(slot, &list);
 		Return(clos_ensure_writers_check_(ptr, list));
 	}
 
@@ -359,10 +364,10 @@ static int clos_ensure_class_function_generic_(addr pos)
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
 		/* reader */
-		GetReadersSlot(slot, &list);
+		getreaders_slot(slot, &list);
 		Return(clos_ensure_readers_generic_(list));
 		/* writer */
-		GetWritersSlot(slot, &list);
+		getwriters_slot(slot, &list);
 		Return(clos_ensure_writers_generic_(list));
 	}
 
@@ -505,12 +510,12 @@ static int clos_ensure_class_method_(Execute ptr, addr pos)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetNameSlot(slot, &symbol);
+		getname_slot(slot, &symbol);
 		/* reader */
-		GetReadersSlot(slot, &list);
+		getreaders_slot(slot, &list);
 		Return(clos_ensure_readers_method_(ptr, pos, symbol, list));
 		/* writer */
-		GetWritersSlot(slot, &list);
+		getwriters_slot(slot, &list);
 		Return(clos_ensure_writers_method_(ptr, pos, symbol, list));
 	}
 
@@ -759,7 +764,7 @@ int allocate_instance_standard_(Execute ptr, addr clos, addr *ret)
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
 		/* name check */
-		GetNameSlot(slot, &name);
+		getname_slot(slot, &name);
 		if (! symbolp(name)) {
 			*ret = Nil;
 			return fmte_("The slot name ~S must be a symbol.", name, NULL);
@@ -770,7 +775,7 @@ int allocate_instance_standard_(Execute ptr, addr clos, addr *ret)
 			return fmte_("The slot name ~S already exists.", name, NULL);
 		}
 		/* location */
-		GetLocationSlot(slot, &loc);
+		getlocation_slot(slot, &loc);
 		if (loc != i) {
 			*ret = Nil;
 			return fmte_("The slot location ~A is invalid.", intsizeh(i), NULL);
@@ -817,12 +822,12 @@ static int shared_initialize_arguments_(Execute ptr,
 {
 	addr list, key, value;
 
-	GetArgsSlot(slot, &list);
+	getargs_slot(slot, &list);
 	while (list != Nil) {
 		Return_getcons(list, &key, &list);
 		if (getplist_safe(rest, key, &value))
 			continue;
-		GetNameSlot(slot, &key);
+		getname_slot(slot, &key);
 		Return(setf_slot_value_call_(ptr, pos, key, value));
 		return Result(ret, 1);
 	}
@@ -842,15 +847,15 @@ static int shared_initialize_initform_(Execute ptr, addr pos, addr key, addr slo
 		return 0;
 
 	/* initform */
-	GetFormSlot(slot, &value);
+	getform_slot(slot, &value);
 	if (value == Unbound)
 		return 0;
 
 	/* initfunction */
-	GetFunctionSlot(slot, &value);
+	getfunction_slot(slot, &value);
 	if (value == Nil) {
 		/* :initform */
-		GetFormSlot(slot, &value);
+		getform_slot(slot, &value);
 	}
 	else {
 		/* funcall */
@@ -886,7 +891,7 @@ int shared_initialize_stdobject_(Execute ptr, addr pos, addr name, addr rest)
 		if (check)
 			continue;
 		/* initform */
-		GetNameSlot(slot, &key);
+		getname_slot(slot, &key);
 		Return(shared_initialize_stdobject_p_(key, name, &check));
 		if (check)
 			continue;
@@ -960,7 +965,7 @@ static int make_instance_check_(Execute ptr, addr clos, addr rest)
 		loop = 0;
 		for (i = 0; i < size; i++) {
 			GetSlotVector(slots, i, &slot);
-			GetArgsSlot(slot, &value);
+			getargs_slot(slot, &value);
 			Return(find_list_eq_safe_(key, value, &check));
 			loop |= check;
 		}
@@ -1061,7 +1066,7 @@ int slot_boundp_using_class_common_(Execute ptr,
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetNameSlot(slot, &check);
+		getname_slot(slot, &check);
 		if (key != check)
 			continue;
 		if (slot_instance_p(slot)) {
@@ -1072,7 +1077,7 @@ int slot_boundp_using_class_common_(Execute ptr,
 		}
 		else {
 			/* :class */
-			GetClassSlot(slot, &pos);
+			getclass_slot(slot, &pos);
 			Return(stdget_class_prototype_(pos, &pos));
 			return slot_boundp_call_(ptr, pos, key, ret);
 		}
@@ -1106,7 +1111,7 @@ int slot_makunbound_using_class_(Execute ptr, addr clos, addr pos, addr key)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetNameSlot(slot, &check);
+		getname_slot(slot, &check);
 		if (key != check)
 			continue;
 		if (slot_instance_p(slot)) {
@@ -1117,7 +1122,7 @@ int slot_makunbound_using_class_(Execute ptr, addr clos, addr pos, addr key)
 		}
 		else {
 			/* :class */
-			GetClassSlot(slot, &pos);
+			getclass_slot(slot, &pos);
 			Return(stdget_class_prototype_(pos, &pos));
 			return slot_makunbound_call_(ptr, pos, key);
 		}
@@ -1151,7 +1156,7 @@ static int slot_value_using_class_getp_(Execute ptr,
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetNameSlot(slot, &check);
+		getname_slot(slot, &check);
 		if (key != check)
 			continue;
 		if (slot_instance_p(slot)) {
@@ -1162,7 +1167,7 @@ static int slot_value_using_class_getp_(Execute ptr,
 		}
 		else {
 			/* :class */
-			GetClassSlot(slot, &pos);
+			getclass_slot(slot, &pos);
 			Return(stdget_class_prototype_(pos, &pos));
 			return slot_value_call_(ptr, pos, key, ret);
 		}
@@ -1206,7 +1211,7 @@ int setf_slot_value_using_class_common_(Execute ptr,
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		GetNameSlot(slot, &check);
+		getname_slot(slot, &check);
 		if (key != check)
 			continue;
 		if (slot_instance_p(slot)) {
@@ -1217,7 +1222,7 @@ int setf_slot_value_using_class_common_(Execute ptr,
 		}
 		else {
 			/* :class */
-			GetClassSlot(slot, &pos);
+			getclass_slot(slot, &pos);
 			Return(stdget_class_prototype_(pos, &pos));
 			return setf_slot_value_call_(ptr, pos, key, value);
 		}

@@ -1,14 +1,15 @@
-#include "clos_class.c"
+#include "clos_instance.c"
 #include "clos_type.h"
 #include "character.h"
 #include "common.h"
 #include "control_execute.h"
 #include "control_object.h"
-#include "real.h"
 #include "degrade.h"
+#include "equal.h"
 #include "package.h"
 #include "package_intern.h"
 #include "reader.h"
+#include "real.h"
 #include "stream.h"
 #include "strtype.h"
 #include "syscall.h"
@@ -836,26 +837,26 @@ static int test_clos_instance_alloc(void)
 
 	slot_heap(&pos);
 	internchar_keyword_debug("HELLO", &name);
-	SetNameSlot(pos, name);
+	setname_slot(pos, name);
 	fixnum_heap(&one, 111);
-	SetFormSlot(pos, one);
-	SetLocationSlot(pos, 0);
+	setform_slot(pos, one);
+	setlocation_slot(pos, 0);
 	SetSlotVector(slots, 0, pos);
 
 	slot_heap(&pos);
 	internchar_keyword_debug("AAA", &name);
-	SetNameSlot(pos, name);
+	setname_slot(pos, name);
 	fixnum_heap(&one, 222);
-	SetFormSlot(pos, one);
-	SetLocationSlot(pos, 1);
+	setform_slot(pos, one);
+	setlocation_slot(pos, 1);
 	SetSlotVector(slots, 1, pos);
 
 	slot_heap(&pos);
 	internchar_keyword_debug("BBB", &name);
-	SetNameSlot(pos, name);
+	setname_slot(pos, name);
 	fixnum_heap(&one, 333);
-	SetFormSlot(pos, one);
-	SetLocationSlot(pos, 2);
+	setform_slot(pos, one);
+	setlocation_slot(pos, 2);
 	SetSlotVector(slots, 2, pos);
 
 	/* clos */
@@ -1321,11 +1322,11 @@ static int test_clos_slots_name(void)
 
 	slot_heap(&slot1);
 	internchar_debug(LISP_COMMON_USER, "AAA", &pos);
-	SetNameSlot(slot1, pos);
+	setname_slot(slot1, pos);
 
 	slot_heap(&slot2);
 	internchar_debug(LISP_COMMON_USER, "BBB", &pos);
-	SetNameSlot(slot2, pos);
+	setname_slot(slot2, pos);
 
 	list_heap(&cons, slot1, slot2, NULL);
 	check = clos_slots_name(&cons, name, cons);
@@ -1333,7 +1334,7 @@ static int test_clos_slots_name(void)
 
 	slot_heap(&slot2);
 	internchar_debug(LISP_COMMON_USER, "HELLO", &pos);
-	SetNameSlot(slot2, pos);
+	setname_slot(slot2, pos);
 
 	list_heap(&cons, slot1, slot2, NULL);
 	check = clos_slots_name(&cons, name, cons);
@@ -1349,33 +1350,33 @@ static int test_clos_slots_push(void)
 
 	slot_heap(&a);
 	slot_heap(&b);
-	SetArgsSlot(a, Nil);
-	SetArgsSlot(b, Nil);
+	setargs_slot(a, Nil);
+	setargs_slot(b, Nil);
 	clos_slots_push_(a, b);
-	GetArgsSlot(a, &list);
+	getargs_slot(a, &list);
 	test(list == Nil, "clos_slots_push1");
 
 	v = readr_debug("(aaa bbb ccc)");
-	SetArgsSlot(a, v);
-	SetArgsSlot(b, Nil);
+	setargs_slot(a, v);
+	setargs_slot(b, Nil);
 	clos_slots_push_(a, b);
-	GetArgsSlot(a, &list);
+	getargs_slot(a, &list);
 	test(equal_debug(list, v), "clos_slots_push2");
 
 	v = readr_debug("(aaa bbb ccc)");
-	SetArgsSlot(a, Nil);
-	SetArgsSlot(b, v);
+	setargs_slot(a, Nil);
+	setargs_slot(b, v);
 	clos_slots_push_(a, b);
-	GetArgsSlot(a, &list);
+	getargs_slot(a, &list);
 	v = readr_debug("(ccc bbb aaa)");
 	test(equal_debug(list, v), "clos_slots_push3");
 
 	v = readr_debug("(aaa bbb ccc)");
-	SetArgsSlot(a, v);
+	setargs_slot(a, v);
 	v = readr_debug("(ddd bbb ccc eee)");
-	SetArgsSlot(b, v);
+	setargs_slot(b, v);
 	clos_slots_push_(a, b);
-	GetArgsSlot(a, &list);
+	getargs_slot(a, &list);
 	v = readr_debug("(eee ddd aaa bbb ccc)");
 	test(equal_debug(list, v), "clos_slots_push4");
 
@@ -1388,7 +1389,7 @@ static void test_makeclos_slotname_heap(addr *ret, const char *name)
 	addr symbol;
 	slot_heap(ret);
 	internchar_debug(LISP_COMMON_USER, name, &symbol);
-	SetNameSlot(*ret, symbol);
+	setname_slot(*ret, symbol);
 }
 
 static void test_makeclos_heap(addr *ret, ...)
@@ -1428,7 +1429,7 @@ static void test_makeclos_heap(addr *ret, ...)
 static int slotnamecheck(addr slot, const char *name)
 {
 	addr check;
-	GetNameSlot(slot, &slot);
+	getname_slot(slot, &slot);
 	internchar_debug(LISP_COMMON_USER, name, &check);
 	return check == slot;
 }
@@ -1530,8 +1531,8 @@ static int test_slot_make_name_symbol(void)
 	slot_vector_heap(&pos, Clos_class_size);
 	SlotMakeNameSymbol(pos, NAME, class_name);
 	GetSlotVector(pos, Clos_class_name, &pos);
-	GetTypeSlot(pos, &type);
-	GetNameSlot(pos, &pos);
+	gettype_slot(pos, &type);
+	getname_slot(pos, &pos);
 	GetConst(CLOSNAME_NAME, &check);
 	test(pos == check, "slot_make_name_symbol1");
 	test(LowLispDecl(type) == LISPDECL_SYMBOL, "slot_make_name_symbol2");
@@ -1546,7 +1547,7 @@ static int test_slot_make_name(void)
 	slot_vector_heap(&pos, Clos_class_size);
 	SlotMakeName(pos, EFFECTIVE_SLOTS, class_slots);
 	GetSlotVector(pos, Clos_class_slots, &pos);
-	GetNameSlot(pos, &pos);
+	getname_slot(pos, &pos);
 	GetConst(CLOSNAME_EFFECTIVE_SLOTS, &check);
 	test(pos == check, "slot_make_name1");
 
@@ -1560,8 +1561,8 @@ static int test_slot_make_form(void)
 	slot_vector_heap(&pos, Clos_class_size);
 	SlotMakeForm(pos, NAME, class_name);
 	GetSlotVector(pos, Clos_class_name, &pos);
-	GetFormSlot(pos, &value);
-	GetNameSlot(pos, &pos);
+	getform_slot(pos, &value);
+	getname_slot(pos, &pos);
 	GetConst(CLOSNAME_NAME, &check);
 	test(pos == check, "slot_make_form1");
 	test(value == Nil, "slot_make_form2");
@@ -1576,8 +1577,8 @@ static int test_slot_make_version(void)
 	slot_vector_heap(&pos, Clos_class_size);
 	SlotMakeVersion(pos, NAME, class_name);
 	GetSlotVector(pos, Clos_class_name, &pos);
-	GetFormSlot(pos, &value);
-	GetNameSlot(pos, &pos);
+	getform_slot(pos, &value);
+	getname_slot(pos, &pos);
 	GetConst(CLOSNAME_NAME, &check);
 	test(pos == check, "slot_make_version1");
 	test(RefFixnum(value) == 0, "slot_make_version2");
@@ -1600,13 +1601,13 @@ static int test_slotvector_set_location(void)
 	slotvector_set_location(slots);
 
 	GetSlotVector(slots, 0, &slot);
-	GetLocationSlot(slot, &check);
+	getlocation_slot(slot, &check);
 	test(check == 0, "slotvector_set_location1");
 	GetSlotVector(slots, 1, &slot);
-	GetLocationSlot(slot, &check);
+	getlocation_slot(slot, &check);
 	test(check == 1, "slotvector_set_location2");
 	GetSlotVector(slots, 2, &slot);
-	GetLocationSlot(slot, &check);
+	getlocation_slot(slot, &check);
 	test(check == 2, "slotvector_set_location3");
 
 	RETURN;
@@ -1617,7 +1618,7 @@ static int test_slotname(addr slots, int index, const char *name)
 	addr pos, check;
 
 	GetSlotVector(slots, index, &pos);
-	GetNameSlot(pos, &pos);
+	getname_slot(pos, &pos);
 	internchar_debug(LISP_CLOS, name, &check);
 
 	return check == pos;
@@ -1637,7 +1638,7 @@ static int test_clos_stdclass_slots(void)
 
 	for (check = 1, i = 0; i < Clos_class_size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetLocationSlot(pos, &size);
+		getlocation_slot(pos, &size);
 		if (i != size) {
 			check = 0;
 			break;
@@ -1928,11 +1929,11 @@ static int test_clos_stdclass_supers(void)
 	test_slot_vector_heap(&slots, 2);
 	slot_heap(&slot);
 	internchar_debug(LISP_COMMON_USER, "AAA", &symbol);
-	SetNameSlot(slot, symbol);
+	setname_slot(slot, symbol);
 	SetSlotVector(slots, 0, slot);
 	internchar_debug(LISP_COMMON_USER, "BBB", &symbol);
 	slot_heap(&slot);
-	SetNameSlot(slot, symbol);
+	setname_slot(slot, symbol);
 	SetSlotVector(slots, 1, slot);
 	instance = Nil;
 	clos_stdclass_supers_(local, &instance, metaclass, name, slots, supers);
@@ -2023,11 +2024,11 @@ static int test_clos_stdclass_slotsconstant(void)
 	test_slot_vector_heap(&slots, 2);
 	slot_heap(&slot);
 	internchar_debug(LISP_COMMON_USER, "AAA", &name);
-	SetNameSlot(slot, name);
+	setname_slot(slot, name);
 	SetSlotVector(slots, 0, slot);
 	slot_heap(&slot);
 	internchar_debug(LISP_COMMON_USER, "BBB", &name);
-	SetNameSlot(slot, name);
+	setname_slot(slot, name);
 	SetSlotVector(slots, 1, slot);
 
 	SetConst(DEBUG2, readr_debug("debug2"));
@@ -2159,7 +2160,7 @@ static int test_clos_stdgeneric_slots(void)
 
 	for (check = 1, i = 0; i < Clos_generic_size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetLocationSlot(pos, &size);
+		getlocation_slot(pos, &size);
 		if (i != size) {
 			check = 0;
 			break;
@@ -2282,7 +2283,7 @@ static int test_clos_stdmethod_slots(void)
 
 	for (check = 1, i = 0; i < Clos_method_size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetLocationSlot(pos, &size);
+		getlocation_slot(pos, &size);
 		if (i != size) {
 			check = 0;
 			break;
@@ -2362,7 +2363,7 @@ static int test_clos_stdcombination_slots(void)
 
 	for (check = 1, i = 0; i < Clos_combination_size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetLocationSlot(pos, &size);
+		getlocation_slot(pos, &size);
 		if (i != size) {
 			check = 0;
 			break;
@@ -2475,7 +2476,7 @@ static int test_clos_stdspecializer_slots(void)
 
 	for (check = 1, i = 0; i < Clos_specializer_size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetLocationSlot(pos, &size);
+		getlocation_slot(pos, &size);
 		if (i != size) {
 			check = 0;
 			break;
@@ -2886,7 +2887,7 @@ static int test_class_check_builtin(void)
 /*
  *  main
  */
-static int testcase_clos_class(void)
+static int testcase_clos_instance(void)
 {
 	/* access */
 	TestBreak(test_stdget_class_name);
@@ -2980,7 +2981,7 @@ static int testcase_clos_class(void)
 	return 0;
 }
 
-static void testinit_clos_class(Execute ptr)
+static void testinit_clos_instance(Execute ptr)
 {
 	build_lisproot(ptr);
 	build_constant();
@@ -2998,9 +2999,9 @@ static void testinit_clos_class(Execute ptr)
 	build_reader();
 }
 
-int test_clos_class(void)
+int test_clos_instance(void)
 {
 	DegradeTitle;
-	return DegradeCode(clos_class);
+	return DegradeCode(clos_instance);
 }
 

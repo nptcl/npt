@@ -5,7 +5,7 @@
 #include "bit.h"
 #include "character.h"
 #include "cmpl.h"
-#include "clos_class.h"
+#include "clos_instance.h"
 #include "condition.h"
 #include "constant.h"
 #include "control_execute.h"

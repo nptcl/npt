@@ -1,6 +1,6 @@
 #include "call_conditions.h"
 #include "clos.h"
-#include "clos_class.h"
+#include "closget_class.h"
 #include "condition.h"
 #include "condition_debugger.h"
 #include "cons.h"

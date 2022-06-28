@@ -1,5 +1,5 @@
 #include "clos_combination.c"
-#include "clos_class.h"
+#include "closget_class.h"
 #include "degrade.h"
 #include "execute.h"
 #include "function.h"

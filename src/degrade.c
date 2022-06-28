@@ -69,7 +69,7 @@ int test_quote(void);
 int test_package(void);
 int test_lambda(void);
 int test_clos(void);
-int test_clos_class(void);
+int test_clos_instance(void);
 int test_clos_type(void);
 int test_clos_cache(void);
 int test_clos_combination(void);
@@ -183,7 +183,7 @@ void degrade_execute(void)
 	DegradeCheck(test_package);
 	DegradeCheck(test_lambda);
 	DegradeCheck(test_clos);
-	DegradeCheck(test_clos_class);
+	DegradeCheck(test_clos_instance);
 	DegradeCheck(test_clos_type);
 	DegradeCheck(test_clos_cache);
 	DegradeCheck(test_clos_generic);

@@ -1,9 +1,15 @@
 #include "callname.h"
 #include "clos.h"
-#include "clos_class.h"
 #include "clos_defgeneric.h"
+#include "clos_instance.h"
 #include "clos_method.h"
+#include "clos_object.h"
 #include "clos_slot.h"
+#include "closget.h"
+#include "closget_class.h"
+#include "closget_generic.h"
+#include "closget_method.h"
+#include "closget_slot.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -189,11 +195,11 @@ static int make_slot_definition_(addr slot, addr *ret)
 	GetConst(CLOS_STANDARD_SLOT_DEFINITION, &clos);
 	Return(clos_instance_heap_(clos, &clos));
 	/* slot-definition-name */
-	GetNameSlot(slot, &value);
+	getname_slot(slot, &value);
 	GetConst(CLOSNAME_NAME, &key);
 	Return(clos_set_(clos, key, value));
 	/* slot-definition-type */
-	GetTypeSlot(slot, &value);
+	gettype_slot(slot, &value);
 	if (GetType(value) == LISPTYPE_TYPE) {
 		Return(type_object_(&value, value));
 	}
@@ -207,16 +213,16 @@ static int make_slot_definition_(addr slot, addr *ret)
 	GetConst(CLOSNAME_ALLOCATION, &key);
 	Return(clos_set_(clos, key, value));
 	/* slot-definition-initargs */
-	GetArgsSlot(slot, &value);
+	getargs_slot(slot, &value);
 	GetConst(CLOSNAME_INITARGS, &key);
 	Return(clos_set_(clos, key, value));
 	/* slot-definition-initform */
-	GetFormSlot(slot, &value);
+	getform_slot(slot, &value);
 	if (value != Unbound) {
 		GetConst(CLOSNAME_INITFORM, &key);
 		Return(clos_set_(clos, key, value));
 		/* slot-definition-initfunction */
-		GetFunctionSlot(slot, &check);
+		getfunction_slot(slot, &check);
 		if (check == Nil)
 			make_slot_definition_function(value, &value);
 		else

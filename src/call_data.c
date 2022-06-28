@@ -1,6 +1,6 @@
 #include "call_data.h"
 #include "callname.h"
-#include "clos_class.h"
+#include "clos_instance.h"
 #include "common_header.h"
 #include "condition.h"
 #include "cons.h"

@@ -1,5 +1,5 @@
 #include "clos.h"
-#include "clos_class.h"
+#include "closget_class.h"
 #include "compile_read.h"
 #include "compile_stream.h"
 #include "compile_type.h"

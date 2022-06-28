@@ -1,4 +1,4 @@
-#include "clos_class.h"
+#include "clos_instance.h"
 #include "condition.h"
 #include "integer.h"
 #include "subtypep_atomic.h"

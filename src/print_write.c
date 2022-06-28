@@ -11,6 +11,7 @@
 #include "character.h"
 #include "character_name.h"
 #include "clos.h"
+#include "clos_object.h"
 #include "cmpl.h"
 #include "condition.h"
 #include "constant.h"

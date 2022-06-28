@@ -1,5 +1,7 @@
 #include <stdarg.h>
 #include "clos.h"
+#include "clos_object.h"
+#include "closget.h"
 #include "condition.h"
 #include "constant.h"
 #include "control_execute.h"

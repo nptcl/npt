@@ -1,4 +1,4 @@
-#include "clos_class.h"
+#include "clos_instance.h"
 #include "compile.h"
 #include "compile_file.h"
 #include "compile_write.h"

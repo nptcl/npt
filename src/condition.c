@@ -1,5 +1,5 @@
 #include "clos.h"
-#include "clos_class.h"
+#include "clos_instance.h"
 #include "condition.h"
 #include "condition_debugger.h"
 #include "control_object.h"

@@ -1,13 +1,15 @@
 #include "array_make.h"
 #include "condition.h"
 #include "clos.h"
+#include "clos_object.h"
 #include "clos_slot.h"
+#include "closget_slot.h"
+#include "closget_structure.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "control_execute.h"
 #include "execute.h"
 #include "sequence.h"
-#include "structure_access.h"
 #include "structure_direct.h"
 #include "structure_make.h"
 #include "structure_object.h"
@@ -30,7 +32,7 @@ static int make_structure_dynamic_find_(addr key, addr slots, int *ret)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &value);
-		GetNameSlot(value, &value);
+		getname_slot(value, &value);
 		GetNameSymbol(value, &value);
 		Return(string_equal_(key, value, &check));
 		if (check)
@@ -80,7 +82,7 @@ static int make_structure_find_(addr key, addr list, addr *value, int *ret)
 
 	Check(! slotp(key), "type error");
 	GetConst(SYSTEM_STRUCTURE_GENSYM, &g);
-	GetNameSlot(key, &key);
+	getname_slot(key, &key);
 	GetNameSymbol(key, &key);
 	while (list != Nil) {
 		Return_getcons(list, &left, &list);
@@ -108,12 +110,12 @@ static int make_structure_value_(Execute ptr, addr slot, addr *ret)
 	addr pos;
 
 	/* initfunction */
-	GetFunctionSlot(slot, &pos);
+	getfunction_slot(slot, &pos);
 	if (pos != Nil)
 		return apply1_control_(ptr, ret, pos, Nil);
 
 	/* initform */
-	GetFormSlot(slot, ret);
+	getform_slot(slot, ret);
 	return 0;
 }
 

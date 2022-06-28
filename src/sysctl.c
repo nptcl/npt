@@ -1,4 +1,5 @@
 #include "clos.h"
+#include "clos_object.h"
 #include "constant.h"
 #include "cons.h"
 #include "execute.h"

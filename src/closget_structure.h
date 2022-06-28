@@ -1,6 +1,7 @@
-#ifndef __STRUCTURE_ACCESS_HEADER__
-#define __STRUCTURE_ACCESS_HEADER__
+#ifndef __CLOSGET_STRUCTURE_HEADER__
+#define __CLOSGET_STRUCTURE_HEADER__
 
+#include "execute.h"
 #include "typedef.h"
 
 #define stdget_structure_name_ _n(stdget_structure_name_)

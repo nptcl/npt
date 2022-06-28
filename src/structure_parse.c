@@ -1,5 +1,8 @@
 #include "clos.h"
+#include "clos_object.h"
 #include "clos_slot.h"
+#include "closget_slot.h"
+#include "closget_structure.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -8,7 +11,6 @@
 #include "hold.h"
 #include "integer.h"
 #include "structure.h"
-#include "structure_access.h"
 #include "structure_object.h"
 #include "structure_parse.h"
 #include "strtype.h"
@@ -199,11 +201,11 @@ static int structure_slots_heap_(addr list, addr *ret)
 		GetCons(list, &pos, &list);
 		Return(list_bind_(pos, &name, &init, &type, &readonly, NULL));
 		slot_heap(&pos);
-		SetNameSlot(pos, name);
-		SetFormSlot(pos, Nil);
-		SetTypeSlot(pos, type);
-		SetFunctionSlot(pos, init);
-		SetReadOnlySlot(pos, readonly);
+		setname_slot(pos, name);
+		setform_slot(pos, Nil);
+		settype_slot(pos, type);
+		setfunction_slot(pos, init);
+		setreadonly_slot(pos, readonly);
 		cons_heap(&root, pos, root);
 	}
 	nreverse(ret, root);
@@ -235,12 +237,12 @@ static int structure_check_slots_(addr list)
 
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		GetNameSlot(pos, &a);
+		getname_slot(pos, &a);
 		Check(! symbolp(a), "type error");
 		GetNameSymbol(a, &a);
 		for (tail = list; tail != Nil; ) {
 			Return_getcons(tail, &pos, &tail);
-			GetNameSlot(pos, &b);
+			getname_slot(pos, &b);
 			Check(! symbolp(b), "type error");
 			GetNameSymbol(b, &b);
 			Return(string_equal_(a, b, &check));
@@ -376,7 +378,7 @@ static int structure_find_slots_(struct defstruct *str,
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetNameSlot(pos, &value);
+		getname_slot(pos, &value);
 		GetNameSymbol(value, &value);
 		Return(string_equal_(name, value, &check));
 		if (check)
@@ -395,7 +397,7 @@ static int structure_check_include_slots_(struct defstruct *str)
 	instance = str->iname;
 	for (list = str->slots; list != Nil; ) {
 		GetCons(list, &pos, &list);
-		GetNameSlot(pos, &name);
+		getname_slot(pos, &name);
 		Return(structure_find_slots_(str, instance, name, &pos));
 		if (pos != Unbound) {
 			return call_simple_program_error_va_(NULL,
@@ -417,26 +419,26 @@ static int structure_check_include_arguments_(struct defstruct *str)
 	GetConst(SYSTEM_STRUCTURE_GENSYM, &gensym);
 	for (list = str->iargs; list != Nil; ) {
 		GetCons(list, &a, &list);
-		GetNameSlot(a, &name);
+		getname_slot(a, &name);
 		Return(structure_find_slots_(str, instance, name, &b));
 		if (b == Unbound) {
 			return fmte_("The :include argument ~S don't exist "
 					"in :INCLUDE structure.", name, NULL);
 		}
 		/* form */
-		GetFunctionSlot(a, &x);
+		getfunction_slot(a, &x);
 		if (x == gensym) {
-			SetFunctionSlot(a, Nil);
+			setfunction_slot(a, Nil);
 		}
 		/* type */
-		GetTypeSlot(a, &x);
-		GetTypeSlot(b, &y);
+		gettype_slot(a, &x);
+		gettype_slot(b, &y);
 		if (x == gensym) {
-			SetTypeSlot(a, y);
+			settype_slot(a, y);
 		}
 		else {
 			Return(parse_type_(str->ptr, &x, x, Nil));
-			SetTypeSlot(a, x);
+			settype_slot(a, x);
 			Return(subtypep_check_(str->ptr, x, y, Nil, &result, NULL));
 			if (! result) {
 				return fmte_("The slot ~S type ~A is not "
@@ -444,10 +446,10 @@ static int structure_check_include_arguments_(struct defstruct *str)
 			}
 		}
 		/* readonly */
-		GetReadOnlySlot(a, &x);
-		GetReadOnlySlot(b, &y);
+		getreadonly_slot(a, &x);
+		getreadonly_slot(b, &y);
 		if (x == gensym) {
-			SetReadOnlySlot(a, y);
+			setreadonly_slot(a, y);
 		}
 		else if (x == Nil && y == T) {
 			return fmte_("The slot ~S is read-only "
@@ -487,25 +489,25 @@ static int structure_slots_value_(struct defstruct *str)
 	for (list = str->slots; list != Nil; ) {
 		GetCons(list, &pos, &list);
 		/* init */
-		GetFunctionSlot(pos, &check);
+		getfunction_slot(pos, &check);
 		if (check == g) {
-			SetFunctionSlot(pos, Nil);
+			setfunction_slot(pos, Nil);
 		}
 
 		/* type */
-		GetTypeSlot(pos, &check);
+		gettype_slot(pos, &check);
 		if (check == g) {
 			GetTypeTable(&check, T);
 		}
 		else {
 			Return(parse_type_(str->ptr, &check, check, Nil));
 		}
-		SetTypeSlot(pos, check);
+		settype_slot(pos, check);
 
 		/* readonly */
-		GetReadOnlySlot(pos, &check);
+		getreadonly_slot(pos, &check);
 		if (check == g) {
-			SetReadOnlySlot(pos, Nil);
+			setreadonly_slot(pos, Nil);
 		}
 	}
 

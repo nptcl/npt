@@ -2,7 +2,9 @@
 #include "callname.h"
 #include "condition.h"
 #include "clos.h"
+#include "clos_object.h"
 #include "clos_slot.h"
+#include "closget_slot.h"
 #include "cons.h"
 #include "cons_list.h"
 #include "control_object.h"
@@ -91,7 +93,7 @@ static int structure_define2_slots_exists_p_(addr include, addr name, int *ret)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		GetNameSlot(pos, &pos);
+		getname_slot(pos, &pos);
 		GetNameSymbol(pos, &pos);
 		Return(string_equal_(name, pos, &check));
 		if (check)
@@ -113,7 +115,7 @@ static int structure_define2_slots_include_(struct defstruct *str)
 	include = str->iname;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		GetNameSlot(pos, &name);
+		getname_slot(pos, &name);
 		GetNameSymbol(name, &name);
 		Return(structure_define2_slots_exists_p_(include, name, &check));
 		if (! check)
@@ -129,20 +131,20 @@ static void structure_define2_slots_named(addr name, size_t size_all, addr *ret)
 
 	slot_heap(&pos);
 	GetConst(SYSTEM_STRUCTURE_NAMED, &symbol);
-	SetNameSlot(pos, symbol);
-	SetFormSlot(pos, name);
-	SetLocationSlot(pos, size_all);
-	SetAccessSlot(pos, size_all);
+	setname_slot(pos, symbol);
+	setform_slot(pos, name);
+	setlocation_slot(pos, size_all);
+	setaccess_slot(pos, size_all);
 	GetTypeTable(&type, T);
-	SetTypeSlot(pos, type);
+	settype_slot(pos, type);
 	*ret = pos;
 }
 
 static int structure_define2_slots_copy_(addr pos, size_t size_all, addr *ret)
 {
 	slot_copy_heap(&pos, pos);
-	SetLocationSlot(pos, size_all);
-	SetAccessSlot(pos, size_all);
+	setlocation_slot(pos, size_all);
+	setaccess_slot(pos, size_all);
 	return Result(ret, pos);
 }
 
@@ -199,7 +201,7 @@ static int structure_define2_slots_arguments_(addr list, addr name1, addr *ret)
 
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		GetNameSlot(pos, &name2);
+		getname_slot(pos, &name2);
 		GetNameSymbol(name2, &name2);
 		Return(string_equal_(name1, name2, &check));
 		if (check)
@@ -216,7 +218,7 @@ static int structure_define2_slots_update_(struct defstruct *str, addr pos, addr
 
 	/* include arguments */
 	if (str->include_p) {
-		GetNameSlot(pos, &name);
+		getname_slot(pos, &name);
 		GetNameSymbol(name, &name);
 		Return(structure_define2_slots_arguments_(str->iargs, name, &make));
 		if (make != Unbound)
@@ -225,10 +227,10 @@ static int structure_define2_slots_update_(struct defstruct *str, addr pos, addr
 
 	/* copy */
 	slot_copy_heap(&make, pos);
-	GetLocationSlot(make, &value);
-	SetLocationSlot(pos, value);
-	GetAccessSlot(make, &value);
-	SetAccessSlot(pos, value);
+	getlocation_slot(make, &value);
+	setlocation_slot(pos, value);
+	getaccess_slot(make, &value);
+	setaccess_slot(pos, value);
 
 	return Result(ret, make);
 }
@@ -304,7 +306,7 @@ static int function_structure_reader2(Execute ptr, addr var)
 		return fmte_("The argument ~S must be a structure-list.", var, NULL);
 	/* access */
 	GetSlotStructureType(data, &slot);
-	GetAccessSlot(slot, &index);
+	getaccess_slot(slot, &index);
 	Return(getnth_(var, index, &var));
 	setresult_control(ptr, var);
 
@@ -493,7 +495,7 @@ static int structure_define2_callname_(struct defstruct *str, addr *ret, addr po
 	addr name;
 
 	Check(! slotp(pos), "type error");
-	GetNameSlot(pos, &pos);
+	getname_slot(pos, &pos);
 	Check(! symbolp(pos), "type error");
 	GetNameSymbol(pos, &pos);
 	if (str->conc_name == Unbound) {
@@ -523,7 +525,7 @@ static int structure_define2_intern_(struct defstruct *str,
 	Return(parse_callname_error_(&call, symbol));
 
 	/* push access */
-	GetNameSlot(pos, &pos);
+	getname_slot(pos, &pos);
 	cons_heap(&pos, pos, symbol);
 	instance = str->instance;
 	GetAccessStructure(instance, &cons);
@@ -548,7 +550,7 @@ int structure_define2_call_(struct defstruct *str)
 
 		structure_type(str, pos, &type);
 		defun_structure_reader2(type, call);
-		GetReadOnlySlot(pos, &readonly);
+		getreadonly_slot(pos, &readonly);
 		if (readonly == Nil)
 			defun_structure_writer2(type, call);
 	}
@@ -570,7 +572,7 @@ int structure_define3_call_(struct defstruct *str)
 
 		structure_type(str, pos, &type);
 		defun_structure_reader3(type, call);
-		GetReadOnlySlot(pos, &readonly);
+		getreadonly_slot(pos, &readonly);
 		if (readonly == Nil)
 			defun_structure_writer3(type, call);
 	}

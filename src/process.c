@@ -1,6 +1,9 @@
 #include "clos.h"
-#include "clos_class.h"
+#include "clos_instance.h"
+#include "clos_object.h"
 #include "clos_slot.h"
+#include "closget.h"
+#include "closget_slot.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
@@ -24,7 +27,7 @@ static void process_defclass_slot(addr slots, size_t n, constindex index)
 	slot_heap(&slot);
 	GetConstant(index, &pos);
 	Check(! symbolp(pos), "type error");
-	SetNameSlot(slot, pos);
+	setname_slot(slot, pos);
 	SetSlotVector(slots, n, slot);
 }
 

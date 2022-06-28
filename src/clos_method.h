@@ -2,17 +2,8 @@
 #define __CLOS_METHOD_HEADER__
 
 #include "execute.h"
+#include "typedef.h"
 
-#define stdget_method_function_ _n(stdget_method_function_)
-#define stdset_method_function_ _n(stdset_method_function_)
-#define stdget_method_generic_function_ _n(stdget_method_generic_function_)
-#define stdset_method_generic_function_ _n(stdset_method_generic_function_)
-#define stdget_method_lambda_list_ _n(stdget_method_lambda_list_)
-#define stdset_method_lambda_list_ _n(stdset_method_lambda_list_)
-#define stdget_method_qualifiers_ _n(stdget_method_qualifiers_)
-#define stdset_method_qualifiers_ _n(stdset_method_qualifiers_)
-#define stdget_method_specializers_ _n(stdget_method_specializers_)
-#define stdset_method_specializers_ _n(stdset_method_specializers_)
 #define method_instance_call_ _n(method_instance_call_)
 #define method_instance_lambda_ _n(method_instance_lambda_)
 #define method_find_method_nil_ _n(method_find_method_nil_)
@@ -26,18 +17,6 @@
 #define methodget_document_ _n(methodget_document_)
 #define methodset_document_ _n(methodset_document_)
 #define method_make_method_lambda _n(method_make_method_lambda)
-
-/* access */
-int stdget_method_function_(addr pos, addr *ret);
-int stdset_method_function_(addr pos, addr value);
-int stdget_method_generic_function_(addr pos, addr *ret);
-int stdset_method_generic_function_(addr pos, addr value);
-int stdget_method_lambda_list_(addr pos, addr *ret);
-int stdset_method_lambda_list_(addr pos, addr value);
-int stdget_method_qualifiers_(addr pos, addr *ret);
-int stdset_method_qualifiers_(addr pos, addr value);
-int stdget_method_specializers_(addr pos, addr *ret);
-int stdset_method_specializers_(addr pos, addr value);
 
 /* control */
 int method_instance_call_(LocalRoot local, addr *ret, addr clos, addr call);

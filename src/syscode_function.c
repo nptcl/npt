@@ -5,6 +5,7 @@
 #include "callname.h"
 #include "character.h"
 #include "clos.h"
+#include "clos_object.h"
 #include "cmpl.h"
 #include "condition.h"
 #include "cons.h"

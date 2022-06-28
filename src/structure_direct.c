@@ -1,6 +1,7 @@
 #include "array_vector.h"
 #include "clos.h"
-#include "clos_slot.h"
+#include "clos_object.h"
+#include "closget_slot.h"
 #include "condition.h"
 #include "cons_list.h"
 #include "heap.h"
@@ -119,7 +120,7 @@ static int structure_getdirect_(addr vector, size_t index, addr *ret)
 int structure_getarray_(addr vector, addr slot, addr *ret)
 {
 	size_t index;
-	GetAccessSlot(slot, &index);
+	getaccess_slot(slot, &index);
 	return structure_getdirect_(vector, index, ret);
 }
 
@@ -143,7 +144,7 @@ int structure_write1_(Execute ptr, addr instance, addr slot, addr value)
 	size_t index;
 
 	/* check */
-	GetTypeSlot(slot, &type);
+	gettype_slot(slot, &type);
 	if (value != Unbound) {
 		Return(structure_setcheck_error_(ptr, type, value));
 	}
@@ -152,7 +153,7 @@ int structure_write1_(Execute ptr, addr instance, addr slot, addr value)
 	}
 
 	/* write */
-	GetLocationSlot(slot, &index);
+	getlocation_slot(slot, &index);
 	GetValueClos(instance, &var);
 	SetClosValue(var, index, value);
 	return 0;
@@ -164,11 +165,11 @@ int structure_write2_(Execute ptr, addr list, addr slot, addr value)
 	size_t index;
 
 	/* check */
-	GetTypeSlot(slot, &type);
+	gettype_slot(slot, &type);
 	Return(structure_setcheck_error_(ptr, type, value));
 
 	/* write */
-	GetAccessSlot(slot, &index);
+	getaccess_slot(slot, &index);
 	return setnth_(list, index, value);
 }
 
@@ -178,12 +179,12 @@ int structure_write3_(Execute ptr, addr vector, addr slot, addr type1, addr valu
 	size_t index;
 
 	/* check */
-	GetTypeSlot(slot, &type2);
+	gettype_slot(slot, &type2);
 	Return(structure_setcheck_error_(ptr, type1, value));
 	Return(structure_setcheck_error_(ptr, type2, value));
 
 	/* write */
-	GetAccessSlot(slot, &index);
+	getaccess_slot(slot, &index);
 	return setelt_sequence_(vector, index, value);
 }
 

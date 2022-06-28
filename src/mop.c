@@ -3,6 +3,7 @@
  *    Common Lisp Object System - Metaobject Protocol
  */
 #include "clos.h"
+#include "clos_object.h"
 #include "cons.h"
 #include "lambda.h"
 #include "mop.h"

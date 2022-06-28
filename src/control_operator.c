@@ -1,7 +1,7 @@
 #include <stdarg.h>
 #include "clos.h"
-#include "clos_class.h"
 #include "clos_type.h"
+#include "closget_class.h"
 #include "condition.h"
 #include "cons.h"
 #include "cons_list.h"
