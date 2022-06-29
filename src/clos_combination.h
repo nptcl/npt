@@ -19,18 +19,19 @@
 
 /* control */
 int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret);
-int method_combination_qualifiers_count_(addr comb, size_t *ret);
+int method_combination_qualifiers_count_(Execute ptr, addr comb, size_t *ret);
 int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 		size_t *rsize, int *ret);
 int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize);
-void build_clos_combination(void);
+void build_clos_combination(Execute ptr);
 
 /* generic-function */
-int mop_find_method_combination_(addr symbol, addr list, addr *ret);
-int clos_find_method_combination_(addr list, addr *ret);
-int ensure_define_combination_short_common_(
+int mop_find_method_combination_(Execute ptr, addr symbol, addr list, addr *ret);
+int clos_find_method_combination_(Execute ptr, addr list, addr *ret);
+int ensure_define_combination_short_common_(Execute ptr,
 		addr name, addr doc, addr ident, addr oper);
-int ensure_define_combination_long_common_(addr name, addr lambda, addr spec,
+int ensure_define_combination_long_common_(Execute ptr,
+		addr name, addr lambda, addr spec,
 		addr args, addr gen, addr doc, addr form, addr decl);
 
 /* long form */

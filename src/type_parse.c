@@ -1207,7 +1207,7 @@ static int parse_type_type(Execute ptr, addr *ret, addr pos)
 		return Result(ret, pos);
 
 	/* built-in-class */
-	Return(stdget_class_name_(x, &x));
+	Return(stdget_class_name_(ptr, x, &x));
 	return parse_type_(ptr, ret, x, Nil);  /* don't use env */
 }
 
@@ -1223,7 +1223,7 @@ static int parse_type_clos(Execute ptr, addr *ret, addr pos)
 	}
 
 	/* built-in-class */
-	Return(stdget_class_name_(pos, &x));
+	Return(stdget_class_name_(ptr, pos, &x));
 	return parse_type_(ptr, ret, x, Nil);  /* don't use env */
 }
 

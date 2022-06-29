@@ -16,8 +16,8 @@
 #define system_generic_method_ _n(system_generic_method_)
 
 void generic_cache_heap(addr *ret);
-int generic_make_(addr *ret, addr call, addr args);
-int generic_make_empty_(addr call, addr lambda, addr *ret);
+int generic_make_(Execute ptr, addr *ret, addr call, addr args);
+int generic_make_empty_(Execute ptr, addr call, addr lambda, addr *ret);
 int ensure_generic_function_name_(addr name, addr *ret);
 int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret);
 int mop_generic_new_(Execute ptr, addr name, addr rest, addr *ret);

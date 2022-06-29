@@ -622,10 +622,7 @@ static int equalp_function_hashtable_(addr a, addr b, int *ret)
 
 static int equalp_function_structure_(addr a, addr b, int *ret)
 {
-	int check;
-
-	Return(structure_instance_p_(b, &check));
-	if (check)
+	if (structure_instance_p(b))
 		return equalp_structure_(a, b, ret);
 	else
 		return Result(ret, 0);
@@ -925,10 +922,7 @@ static int equalrt_function_hashtable_(addr a, addr b, int *ret)
 
 static int equalrt_function_structure_(addr a, addr b, int *ret)
 {
-	int check;
-
-	Return(structure_instance_p_(b, &check));
-	if (check)
+	if (structure_instance_p(b))
 		return equalrt_structure_(a, b, ret);
 	else
 		return Result(ret, 0);

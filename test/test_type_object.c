@@ -19,8 +19,10 @@
 static int check_type_object(addr x, const char *str)
 {
 	addr y;
+	Execute ptr;
 
-	type_object_(&x, x);
+	ptr = Execute_Thread;
+	type_object_(ptr, &x, x);
 	y = readr_debug(str);
 	return equal_debug(x, y);
 }
@@ -72,10 +74,12 @@ static int test_type_object_asterisk(void)
 static int check_type_objectc(const char *str)
 {
 	addr x, y;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	x = readr_debug(str);
 	parse_type_unsafe(&y, x);
-	type_object_(&y, y);
+	type_object_(ptr, &y, y);
 
 	return equal_debug(x, y);
 }
@@ -173,34 +177,36 @@ static void parse_type_values_unsafe(addr *ret, addr pos)
 static int test_type_object_values(void)
 {
 	addr x, y;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	x = readr_debug("(values)");
 	parse_type_values_unsafe(&x, x);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	y = readr_debug("(values &rest t)");
 	test(equal_debug(x, y), "type_object_values1");
 
 	x = readr_debug("(values fixnum integer symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	y = readr_debug("(values fixnum integer symbol &rest t)");
 	test(equal_debug(x, y), "type_object_values2");
 
 	x = readr_debug("(values &optional fixnum integer symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	y = readr_debug("(values &optional fixnum integer symbol &rest t)");
 	test(equal_debug(x, y), "type_object_values3");
 
 	x = readr_debug("(values &optional fixnum integer &rest symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	y = readr_debug("(values &optional fixnum integer &rest symbol)");
 	test(equal_debug(x, y), "type_object_values4");
 
 	x = readr_debug("(values fixnum &optional integer &rest symbol)");
 	parse_type_values_unsafe(&x, x);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	y = readr_debug("(values fixnum &optional integer &rest symbol)");
 	test(equal_debug(x, y), "type_object_values5");
 
@@ -447,15 +453,17 @@ static int test_type_object_complex(void)
 static int test_type_object_call(void)
 {
 	addr x;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetTypeTable(&x, Atom);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	test(equal_debug(x, readr_debug("atom")), "type_object1");
 
 	GetTypeTable(&x, Atom);
 	type_copy_heap(&x, x);
 	type_setnotdecl(x, 1);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	test(equal_debug(x, readr_debug("(not atom)")), "type_object2");
 
 	RETURN;

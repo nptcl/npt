@@ -315,7 +315,7 @@ static void defun_array_dimensions(void)
 /* (defun array-element-type (array) ...) -> typespec */
 static int function_array_element_type(Execute ptr, addr var)
 {
-	Return(array_element_type_common_(var, &var));
+	Return(array_element_type_common_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

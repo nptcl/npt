@@ -70,7 +70,7 @@ int array_setf_aref_bit_(addr pos, addr args, addr value);
 
 int array_equal_type(struct array_struct *a, enum ARRAY_TYPE type, unsigned size);
 int array_equal_dimension(addr left, addr right);
-int array_get_element_type_(addr pos, addr *ret);
+int array_get_element_type_(Execute ptr, addr pos, addr *ret);
 int array_get_vector_length_(addr pos, int fill, size_t *ret);
 void array_get_rowlength(addr pos, size_t *ret);
 

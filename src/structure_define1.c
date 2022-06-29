@@ -62,10 +62,12 @@ static int structure_instance1_include_(struct defstruct *str, addr instance)
 int structure_instance1_(struct defstruct *str)
 {
 	addr clos, instance;
+	Execute ptr;
 
 	/* structure */
+	ptr = str->ptr;
 	GetConst(CLOS_STRUCTURE_CLASS, &clos);
-	Return(clos_instance_heap_(clos, &instance));
+	Return(clos_instance_heap_(ptr, clos, &instance));
 	SetClassOfClos(instance, clos);
 	/* name */
 	Return(stdset_structure_name_(instance, str->name));
@@ -461,7 +463,7 @@ int structure_define1_call_(struct defstruct *str)
 	size_t size, i;
 
 	instance = str->instance;
-	Check(! structure_class_p_debug(instance), "type error");
+	Check(! structure_class_p(instance), "type error");
 	Return(getpackage_(str->ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
@@ -757,10 +759,7 @@ int structure_define1_predicate_(struct defstruct *str)
 static int method_defstruct_default(Execute ptr,
 		addr method, addr next, addr var, addr stream)
 {
-	int check;
-
-	Return(structure_instance_p_(var, &check));
-	if (! check)
+	if (! structure_instance_p(var))
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	Return(print_structure_(ptr, stream, var));
 	setresult_control(ptr, var);
@@ -780,7 +779,7 @@ static int structure_print_default_method_(struct defstruct *str, addr name, add
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
+	Return(method_instance_lambda_(str->ptr, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 
 	return Result(ret, pos);
@@ -812,11 +811,9 @@ static int structure_print_default_(struct defstruct *str)
 static int method_defstruct_object(Execute ptr,
 		addr method, addr next, addr var, addr stream)
 {
-	int check;
 	addr call;
 
-	Return(structure_instance_p_(var, &check));
-	if (! check)
+	if (! structure_instance_p(var))
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	getdata_control(ptr, &call);
 	Return(apply1_control_(ptr, &call, call, Nil));
@@ -839,7 +836,7 @@ static int structure_print_object_method_(struct defstruct *str, addr name, addr
 	SetDataFunction(call, str->print_object);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
+	Return(method_instance_lambda_(str->ptr, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 
 	return Result(ret, pos);
@@ -860,11 +857,9 @@ static int structure_print_object_(struct defstruct *str)
 static int method_defstruct_function(Execute ptr,
 		addr method, addr next, addr var, addr stream)
 {
-	int check;
 	addr call, pos;
 
-	Return(structure_instance_p_(var, &check));
-	if (! check)
+	if (! structure_instance_p(var))
 		return fmte_("Invalid structure type ~S.", var, NULL);
 	GetConst(SPECIAL_PRINT_LEVEL, &pos);
 	Return(getspecialcheck_local_(ptr, pos, &pos));
@@ -889,7 +884,7 @@ static int structure_print_function_method_(struct defstruct *str, addr name, ad
 	SetDataFunction(call, str->print_function);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	Return(method_instance_lambda_(str->ptr->local, &pos, Nil, pos));
+	Return(method_instance_lambda_(str->ptr, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 
 	return Result(ret, pos);
@@ -940,7 +935,7 @@ int structure_define1_(struct defstruct *str)
 {
 	/* make instance */
 	Return(structure_instance1_(str));
-	Check(! structure_class_p_debug(str->instance), "type error");
+	Check(! structure_class_p(str->instance), "type error");
 	clos_define_class(str->name, str->instance);
 
 	/* settings */

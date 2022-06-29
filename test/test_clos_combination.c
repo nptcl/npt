@@ -179,10 +179,12 @@ static void test_standard_qualifiers(addr *ret)
 static void test_make_instance_longcomb(addr *ret)
 {
 	addr pos, comb;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	test_standard_qualifiers(&pos);
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &comb);
-	clos_instance_heap_(comb, &comb);
+	clos_instance_heap_(ptr, comb, &comb);
 	stdset_longcomb_qualifiers_(comb, pos);
 	*ret = comb;
 }
@@ -214,9 +216,11 @@ static int test_check_qualifiers_equal_long(void)
 static void test_make_instance_shortcomb(addr *ret)
 {
 	addr comb;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &comb);
-	clos_instance_heap_(comb, &comb);
+	clos_instance_heap_(ptr, comb, &comb);
 	*ret = comb;
 }
 
@@ -229,6 +233,7 @@ static int test_check_qualifiers_equal_short(void)
 	internchar_debug(LISP_COMMON_USER, "HELLO", &name);
 	stdset_shortcomb_name_(comb, name);
 
+	check = 0;
 	check_qualifiers_equal_short_(comb, Nil, &check);
 	test(! check, "check_qualifiers_equal_short1");
 	check_qualifiers_equal_short_(comb, T, &check);
@@ -295,19 +300,21 @@ static int test_method_combination_qualifiers_count(void)
 {
 	addr comb;
 	size_t size;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	/* standard */
-	method_combination_qualifiers_count_(Nil, &size);
+	method_combination_qualifiers_count_(ptr, Nil, &size);
 	test(size == Clos_standard_size, "method_combination_qualifiers_count1");
 
 	/* long */
 	test_make_instance_longcomb(&comb);
-	method_combination_qualifiers_count_(comb, &size);
+	method_combination_qualifiers_count_(ptr, comb, &size);
 	test(size == 5, "method_combination_qualifiers_count2");
 
 	/* short */
 	test_make_instance_shortcomb(&comb);
-	method_combination_qualifiers_count_(comb, &size);
+	method_combination_qualifiers_count_(ptr, comb, &size);
 	test(size == 2, "method_combination_qualifiers_count3");
 
 	RETURN;

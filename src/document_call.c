@@ -287,22 +287,22 @@ int document_package_set_(addr pos, addr value)
 /*
  *  standard-class
  */
-int document_standard_class_get_(addr pos, addr *ret)
+int document_standard_class_get_(Execute ptr, addr pos, addr *ret)
 {
 	addr value;
 
-	Return(stdget_class_document_(pos, &value));
+	Return(stdget_class_documentation_(ptr, pos, &value));
 	if (value != Nil)
 		return Result(ret, value);
 
 	/* contents */
-	Return(stdget_class_name_(pos, &pos));
+	Return(stdget_class_name_(ptr, pos, &pos));
 	return document_type_(pos, ret);
 }
 
-int document_standard_class_set_(addr pos, addr value)
+int document_standard_class_set_(Execute ptr, addr pos, addr value)
 {
-	return stdset_class_document_(pos, value);
+	return stdset_class_documentation_(ptr, pos, value);
 }
 
 

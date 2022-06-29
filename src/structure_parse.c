@@ -281,14 +281,12 @@ static int structure_check_predicate_(struct defstruct *str)
 
 static int structure_check1_include_(struct defstruct *str)
 {
-	int check;
 	addr instance;
 
 	/* instance check */
 	if (! structure_get_class(str->iname, &instance))
 		return fmte_(":INCLUDE ~S structure don't exist.", str->iname, NULL);
-	Return(structure_class_p_(instance, &check));
-	if (! check)
+	if (! structure_class_p(instance))
 		return fmte_(":INCLUDE ~S must be structure type.", instance, NULL);
 
 	/* instance */
@@ -363,7 +361,7 @@ static int structure_find_slots_(struct defstruct *str,
 	addr slots, pos, value;
 	size_t size, i;
 
-	Check(! structure_class_object_p_debug(instance), "type error");
+	Check(! structure_class_object_p(instance), "type error");
 	Check(! symbolp(name), "type error");
 
 	/* find */

@@ -17,41 +17,41 @@
 /*
  *  check
  */
-int clos_subclass_p_(addr clos, addr super, int *ret)
+int clos_subclass_p_(Execute ptr, addr clos, addr super, int *ret)
 {
 	CheckType(clos, LISPTYPE_CLOS);
 	CheckType(super, LISPTYPE_CLOS);
-	Return(stdget_class_precedence_list_(clos, &clos));
+	Return(stdget_class_precedence_list_(ptr, clos, &clos));
 
 	return Result(ret, find_list_eq_unsafe(super, clos));
 }
 
-int clos_subtype_p_(addr clos, addr super, int *ret)
+int clos_subtype_p_(Execute ptr, addr clos, addr super, int *ret)
 {
 	CheckType(clos, LISPTYPE_CLOS);
 	CheckType(super, LISPTYPE_CLOS);
 	GetClassOfClos(clos, &clos);
 	Check(clos == Unbound, "unbound error");
 
-	return clos_subclass_p_(clos, super, ret);
+	return clos_subclass_p_(ptr, clos, super, ret);
 }
 
-static int clos_constant_p_(addr clos, constindex index, int *ret)
+static int clos_constant_p_(Execute ptr, addr clos, constindex index, int *ret)
 {
 	addr super;
 
 	if (! closp(clos))
 		return Result(ret, 0);
 	GetConstant(index, &super);
-	return clos_subtype_p_(clos, super, ret);
+	return clos_subtype_p_(ptr, clos, super, ret);
 }
 
-int clos_class_p_(addr clos, int *ret)
+int clos_class_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_CLASS, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_CLASS, ret);
 }
 
-int clos_funcallable_p_(addr clos, int *ret)
+int clos_funcallable_p_(Execute ptr, addr clos, int *ret)
 {
 	addr super;
 
@@ -60,52 +60,54 @@ int clos_funcallable_p_(addr clos, int *ret)
 	if (clos_funcall_p(clos))
 		return Result(ret, 1);
 	GetConst(CLOS_FUNCALLABLE_STANDARD_OBJECT, &super);
-	return clos_subtype_p_(clos, super, ret);
+	return clos_subtype_p_(ptr, clos, super, ret);
 }
 
-int clos_generic_p_(addr clos, int *ret)
+int clos_generic_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_GENERIC_FUNCTION, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_GENERIC_FUNCTION, ret);
 }
 
-int clos_method_p_(addr clos, int *ret)
+int clos_method_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_METHOD, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_METHOD, ret);
 }
 
-int clos_define_combination_p_(addr clos, int *ret)
+int clos_define_combination_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_DEFINE_METHOD_COMBINATION, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_DEFINE_METHOD_COMBINATION, ret);
 }
 
-int clos_define_long_combination_p_(addr clos, int *ret)
+int clos_define_long_combination_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION, ret);
+	return clos_constant_p_(ptr, clos,
+			CONSTANT_CLOS_DEFINE_LONG_METHOD_COMBINATION, ret);
 }
 
-int clos_define_short_combination_p_(addr clos, int *ret)
+int clos_define_short_combination_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION, ret);
+	return clos_constant_p_(ptr, clos,
+			CONSTANT_CLOS_DEFINE_SHORT_METHOD_COMBINATION, ret);
 }
 
-int clos_combination_p_(addr clos, int *ret)
+int clos_combination_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_METHOD_COMBINATION, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_METHOD_COMBINATION, ret);
 }
 
-int clos_long_combination_p_(addr clos, int *ret)
+int clos_long_combination_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_LONG_METHOD_COMBINATION, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_LONG_METHOD_COMBINATION, ret);
 }
 
-int clos_short_combination_p_(addr clos, int *ret)
+int clos_short_combination_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_SHORT_METHOD_COMBINATION, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_SHORT_METHOD_COMBINATION, ret);
 }
 
-int clos_specializer_p_(addr clos, int *ret)
+int clos_specializer_p_(Execute ptr, addr clos, int *ret)
 {
-	return clos_constant_p_(clos, CONSTANT_CLOS_EQL_SPECIALIZER, ret);
+	return clos_constant_p_(ptr, clos, CONSTANT_CLOS_EQL_SPECIALIZER, ret);
 }
 
 int clos_referenced_p_(addr clos, int *ret)
@@ -119,17 +121,17 @@ int clos_referenced_p_(addr clos, int *ret)
 	return Result(ret, clos == super);
 }
 
-int clos_built_p_(addr clos, int *ret)
+int clos_built_p_(Execute ptr, addr clos, int *ret)
 {
 	addr super;
 
 	if (! closp(clos))
 		return Result(ret, 0);
 	GetConst(CLOS_BUILT_IN_CLASS, &super);
-	return clos_subtype_p_(clos, super, ret);
+	return clos_subtype_p_(ptr, clos, super, ret);
 }
 
-int funcallp_(addr pos, int *ret)
+int funcallp_(Execute ptr, addr pos, int *ret)
 {
 	switch (GetType(pos)) {
 		case LISPTYPE_FUNCTION:
@@ -139,7 +141,7 @@ int funcallp_(addr pos, int *ret)
 			if (clos_funcall_p(pos))
 				return Result(ret, 1);
 			else
-				return clos_funcallable_p_(pos, ret);
+				return clos_funcallable_p_(ptr, pos, ret);
 
 		default:
 			return Result(ret, 0);
@@ -215,41 +217,43 @@ static int clos_instance_unsafe_(LocalRoot local, addr clos, addr slots, addr *r
 
 	return Result(ret, instance);
 }
-int clos_instance_alloc_(LocalRoot local, addr clos, addr *ret)
+int clos_instance_alloc_(Execute ptr, LocalRoot local, addr clos, addr *ret)
 {
 	addr pos;
 
+	Check(ptr == NULL, "execute error.");
 	/* finalized-p check */
-	Return(stdget_class_finalized_p_(clos, &pos));
+	Return(stdget_class_finalized_p_(ptr, clos, &pos));
 	if (pos == Nil) {
 		*ret = Nil;
 		return fmte_("The class ~S is not finalized.", clos, NULL);
 	}
 
 	/* make-instance */
-	Return(stdget_class_slots_(clos, &pos));
+	Return(stdget_class_slots_(ptr, clos, &pos));
 	return clos_instance_unsafe_(local, clos, pos, ret);
 }
-int clos_instance_local_(LocalRoot local, addr clos, addr *ret)
+int clos_instance_local_(Execute ptr, addr clos, addr *ret)
 {
-	CheckLocal(local);
-	return clos_instance_alloc_(local, clos, ret);
+	return clos_instance_alloc_(ptr, ptr->local, clos, ret);
 }
-int clos_instance_heap_(addr clos, addr *ret)
+int clos_instance_heap_(Execute ptr, addr clos, addr *ret)
 {
-	return clos_instance_alloc_(NULL, clos, ret);
+	return clos_instance_alloc_(ptr, NULL, clos, ret);
 }
 
 
 /*
  *  class-precedence-list
  */
-static int clos_precedence_classes_(LocalRoot local, addr right, addr *ret)
+static int clos_precedence_classes_(Execute ptr, addr right, addr *ret)
 {
 	addr left, list;
+	LocalRoot local;
 
+	local = ptr->local;
 	conscar_local(local, &list, right);
-	Return(stdget_class_direct_superclasses_(right, &right));
+	Return(stdget_class_direct_superclasses_(ptr, right, &right));
 	while (right != Nil) {
 		GetCons(right, &left, &right);
 		cons_local(local, &list, left, list);
@@ -260,11 +264,13 @@ static int clos_precedence_classes_(LocalRoot local, addr right, addr *ret)
 	return 0;
 }
 
-static int clos_precedence_pair_(LocalRoot local, addr right, addr *ret)
+static int clos_precedence_pair_(Execute ptr, addr right, addr *ret)
 {
 	addr child, result, cons, left, temp;
+	LocalRoot local;
 
-	Return(clos_precedence_classes_(local, right, &right));
+	local = ptr->local;
+	Return(clos_precedence_classes_(ptr, right, &right));
 	child = result = Nil;
 	while (right != Nil) {
 		GetCons(right, &left, &right);
@@ -284,14 +290,14 @@ static int clos_precedence_pair_(LocalRoot local, addr right, addr *ret)
 	return Result(ret, result);
 }
 
-static int clos_precedence_super_(
-		LocalRoot local, addr pos, addr *ret, addr x, addr list)
+static int clos_precedence_super_(Execute ptr, addr pos, addr *ret, addr x, addr list)
 {
 	addr stack, result, temp, supers, super;
+	LocalRoot local;
 
+	local = ptr->local;
 	result = Nil;
 	conscar_local(local, &stack, pos);
-
 	while (stack != Nil) {
 		for (temp = Nil; stack != Nil; ) {
 			GetCons(stack, &supers, &stack);
@@ -302,7 +308,7 @@ static int clos_precedence_super_(
 					supers = list;
 				}
 				else {
-					Return(stdget_class_direct_superclasses_(supers, &supers));
+					Return(stdget_class_direct_superclasses_(ptr, supers, &supers));
 				}
 				/* supers */
 				while (supers != Nil) {
@@ -339,13 +345,15 @@ static int clos_precedence_find(addr a1, addr cons)
 	return 0;
 }
 
-static int clos_precedence_chain_(LocalRoot local, addr pos, addr *ret)
+static int clos_precedence_chain_(Execute ptr, addr pos, addr *ret)
 {
 	addr one, chain, result;
+	LocalRoot local;
 
+	local = ptr->local;
 	for (result = Nil; pos != Nil; ) {
 		GetCons(pos, &one, &pos);
-		Return(clos_precedence_pair_(local, one, &one));
+		Return(clos_precedence_pair_(ptr, one, &one));
 		while (one != Nil) {
 			GetCons(one, &chain, &one);
 			/* pushnew */
@@ -413,13 +421,12 @@ static int clos_precedence_remove_(addr key, addr right2, addr *ret)
 	return Result(ret, result);
 }
 
-static int clos_precedence_result_(
-		LocalRoot local, addr pos, addr *ret, addr x, addr list)
+static int clos_precedence_result_(Execute ptr, addr pos, addr *ret, addr x, addr list)
 {
 	addr root, key;
 
-	Return(clos_precedence_super_(local, pos, &pos, x, list));
-	Return(clos_precedence_chain_(local, pos, &pos));
+	Return(clos_precedence_super_(ptr, pos, &pos, x, list));
+	Return(clos_precedence_chain_(ptr, pos, &pos));
 	for (root = Nil; pos != Nil; ) {
 		Return(clos_precedence_top_(pos, &key));
 		cons_heap(&root, key, root);
@@ -430,23 +437,24 @@ static int clos_precedence_result_(
 	return 0;
 }
 
-int clos_precedence_list_redefine_(
-		LocalRoot local, addr pos, addr *ret, addr x, addr list)
+int clos_precedence_list_redefine_(Execute ptr, addr pos, addr *ret, addr x, addr list)
 {
+	LocalRoot local;
 	LocalStack stack;
 
+	local = ptr->local;
 	CheckLocal(local);
 	CheckType(pos, LISPTYPE_CLOS);
 	push_local(local, &stack);
-	Return(clos_precedence_result_(local, pos, ret, x, list));
+	Return(clos_precedence_result_(ptr, pos, ret, x, list));
 	rollback_local(local, stack);
 
 	return 0;
 }
 
-int clos_precedence_list_(LocalRoot local, addr pos, addr *ret)
+int clos_precedence_list_(Execute ptr, addr pos, addr *ret)
 {
-	return clos_precedence_list_redefine_(local, pos, ret, Unbound, Nil);
+	return clos_precedence_list_redefine_(ptr, pos, ret, Unbound, Nil);
 }
 
 
@@ -484,16 +492,18 @@ static int clos_slots_push_(addr pos, addr check)
 	return 0;
 }
 
-static int clos_slots_loop_(LocalRoot local, addr list, addr *ret, size_t *rsize)
+static int clos_slots_loop_(Execute ptr, addr list, addr *ret, size_t *rsize)
 {
 	addr root, slots, a, b;
 	size_t count, i, size;
+	LocalRoot local;
 
+	local = ptr->local;
 	root = Nil;
 	count = 0;
 	while (list != Nil) {
 		GetCons(list, &slots, &list);
-		Return(stdget_class_direct_slots_(slots, &slots));
+		Return(stdget_class_direct_slots_(ptr, slots, &slots));
 		LenSlotVector(slots, &size);
 		for (i = 0; i < size; i++) {
 			GetSlotVector(slots, i, &a);
@@ -514,13 +524,13 @@ static int clos_slots_loop_(LocalRoot local, addr list, addr *ret, size_t *rsize
 	return 0;
 }
 
-static int clos_slots_gather_(LocalRoot local, addr clos, addr *ret)
+static int clos_slots_gather_(Execute ptr, addr clos, addr *ret)
 {
 	addr slots, pos;
 	size_t i;
 
-	Return(stdget_class_precedence_list_(clos, &clos));
-	Return(clos_slots_loop_(local, clos, &clos, &i));
+	Return(stdget_class_precedence_list_(ptr, clos, &clos));
+	Return(clos_slots_loop_(ptr, clos, &clos, &i));
 	slot_vector_heap(&slots, i);
 	for (i = 0; clos != Nil; i++) {
 		GetCons(clos, &pos, &clos);
@@ -531,14 +541,16 @@ static int clos_slots_gather_(LocalRoot local, addr clos, addr *ret)
 	return Result(ret, slots);
 }
 
-int clos_compute_slots_(LocalRoot local, addr clos, addr *ret)
+int clos_compute_slots_(Execute ptr, addr clos, addr *ret)
 {
+	LocalRoot local;
 	LocalStack stack;
 
+	local = ptr->local;
 	CheckLocal(local);
 	CheckType(clos, LISPTYPE_CLOS);
 	push_local(local, &stack);
-	Return(clos_slots_gather_(local, clos, ret));
+	Return(clos_slots_gather_(ptr, clos, ret));
 	rollback_local(local, stack);
 
 	return 0;
@@ -685,13 +697,13 @@ static void clos_stdclass_slots(addr *ret)
 	SlotMakeForm(slots, DEFAULT_INITARGS, class_default_initargs);
 	SlotMakeForm(slots, DIRECT_DEFAULT_INITARGS, class_direct_default_initargs);
 	SlotMakeVersion(slots, VERSION, class_version);
-	SlotMakeForm(slots, DOCUMENTATION, class_document);
+	SlotMakeForm(slots, DOCUMENTATION, class_documentation);
 	SlotMakeForm(slots, REDEFINED_CLASS, class_redefined_class);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
 
-int clos_stdclass_direct_slots_(addr instance, addr slots)
+int clos_stdclass_direct_slots_(Execute ptr, addr instance, addr slots)
 {
 #ifdef LISP_DEBUG
 	addr check;
@@ -708,40 +720,40 @@ int clos_stdclass_direct_slots_(addr instance, addr slots)
 #endif
 		setclass_slot(slot, instance);
 	}
-	return stdset_class_direct_slots_(instance, slots);
+	return stdset_class_direct_slots_(ptr, instance, slots);
 }
 
-static int clos_stdclass_dummy_(addr *ret, addr slots)
+static int clos_stdclass_dummy_(Execute ptr, addr *ret, addr slots)
 {
 	addr instance;
 
 	clos_heap(&instance, slots);
 	SetClassOfClos(instance, Nil);
-	Return(clos_stdclass_direct_slots_(instance, slots));
-	Return(stdset_class_slots_(instance, slots));
-	Return(stdset_class_finalized_p_(instance, T));
+	Return(clos_stdclass_direct_slots_(ptr, instance, slots));
+	Return(stdset_class_slots_(ptr, instance, slots));
+	Return(stdset_class_finalized_p_(ptr, instance, T));
 
 	return Result(ret, instance);
 }
 
-static int clos_stdclass_make_(addr *ret, addr clos, addr name, addr slots)
+static int clos_stdclass_make_(Execute ptr, addr *ret, addr clos, addr name, addr slots)
 {
 	addr instance;
 
 	Check(! symbolp(name), "type error");
-	Return(clos_instance_heap_(clos, &instance));
-	Return(stdset_class_name_(instance, name));
-	Return(clos_stdclass_direct_slots_(instance, slots));
-	Return(stdset_class_prototype_(instance, instance));
+	Return(clos_instance_heap_(ptr, clos, &instance));
+	Return(stdset_class_name_(ptr, instance, name));
+	Return(clos_stdclass_direct_slots_(ptr, instance, slots));
+	Return(stdset_class_prototype_(ptr, instance, instance));
 
 	return Result(ret, instance);
 }
 
-static int clos_stdclass_empty_(addr *ret, addr clos, addr name)
+static int clos_stdclass_empty_(Execute ptr, addr *ret, addr clos, addr name)
 {
 	addr slots;
 	slot_vector_heap(&slots, 0);
-	return clos_stdclass_make_(ret, clos, name, slots);
+	return clos_stdclass_make_(ptr, ret, clos, name, slots);
 }
 
 static void clos_stdclass_class_of(addr instance, addr class_of)
@@ -805,22 +817,22 @@ static void clos_stdclass_prototype_initialize(addr pos, addr slots)
 	}
 }
 
-int clos_stdclass_prototype_(addr clos)
+int clos_stdclass_prototype_(Execute ptr, addr clos)
 {
 	addr pos, slots, value;
 
 	/* make prototype */
-	Return(stdget_class_slots_(clos, &slots));
+	Return(stdget_class_slots_(ptr, clos, &slots));
 	slot_vector_prototype(clos, slots, &value);
 	clos_heap(&pos, value);
 	SetClassOfClos(pos, clos);
 	/* initialize shared slots */
 	clos_stdclass_prototype_initialize(pos, slots);
 	/* result */
-	return stdset_class_prototype_(clos, pos);
+	return stdset_class_prototype_(ptr, clos, pos);
 }
 
-static int clos_stdclass_inherit_(LocalRoot local, addr pos, addr clos, addr supers)
+static int clos_stdclass_inherit_(Execute ptr, addr pos, addr clos, addr supers)
 {
 	int check;
 	addr list, super;
@@ -828,78 +840,78 @@ static int clos_stdclass_inherit_(LocalRoot local, addr pos, addr clos, addr sup
 	/* class-of */
 	clos_stdclass_class_of(pos, clos);
 	/* direct-superclasses */
-	Return(stdset_class_direct_superclasses_(pos, supers));
+	Return(stdset_class_direct_superclasses_(ptr, pos, supers));
 	/* forward-referenced-class check */
 	Return(list_referenced_check_(supers, &check));
 	if (! check) {
 		/* class-precedence-list */
-		Return(clos_precedence_list_(local, pos, &list));
-		Return(stdset_class_precedence_list_(pos, list));
+		Return(clos_precedence_list_(ptr, pos, &list));
+		Return(stdset_class_precedence_list_(ptr, pos, list));
 		/* effective-slots */
-		Return(clos_compute_slots_(local, pos, &list));
-		Return(stdset_class_slots_(pos, list));
+		Return(clos_compute_slots_(ptr, pos, &list));
+		Return(stdset_class_slots_(ptr, pos, list));
 		/* finalized-p */
-		Return(clos_stdclass_prototype_(pos));
-		Return(stdset_class_finalized_p_(pos, T));
+		Return(clos_stdclass_prototype_(ptr, pos));
+		Return(stdset_class_finalized_p_(ptr, pos, T));
 	}
 	/* direct-subclasses */
 	while (supers != Nil) {
 		GetCons(supers, &super, &supers);
 		Return(clos_referenced_p_(super, &check));
 		if (! check) {
-			Return(stdget_class_direct_subclasses_(super, &list));
+			Return(stdget_class_direct_subclasses_(ptr, super, &list));
 			cons_heap(&list, pos, list);
-			Return(stdset_class_direct_subclasses_(super, list));
+			Return(stdset_class_direct_subclasses_(ptr, super, list));
 		}
 	}
 	/* setf-find-class */
-	Return(stdget_class_name_(pos, &list));
+	Return(stdget_class_name_(ptr, pos, &list));
 	clos_define_class(list, pos);
 
 	return 0;
 }
 
-static int clos_stdclass_single_(LocalRoot local, addr pos, addr clos, addr super)
+static int clos_stdclass_single_(Execute ptr, addr pos, addr clos, addr super)
 {
 	conscar_heap(&super, super);
-	return clos_stdclass_inherit_(local, pos, clos, super);
+	return clos_stdclass_inherit_(ptr, pos, clos, super);
 }
 
-static int clos_stdclass_metaclass_(LocalRoot local, addr *ret)
+static int clos_stdclass_metaclass_(Execute ptr, addr *ret)
 {
 	addr slots, name;
 	addr builtin, tc, stdobject, classc, stdclass, metaobject, specializer;
 
 	/* dummy metaclass */
 	clos_stdclass_slots(&slots);
-	Return(clos_stdclass_dummy_(&stdclass, slots));
+	Return(clos_stdclass_dummy_(ptr, &stdclass, slots));
 	/* class */
 	slot_vector_clear(slots);
 	GetConst(COMMON_CLASS, &name);
-	Return(clos_stdclass_make_(&classc, stdclass, name, slots));
-	Return(clos_stdclass_inherit_(local, classc, classc, Nil));
+	Return(clos_stdclass_make_(ptr, &classc, stdclass, name, slots));
+	Return(clos_stdclass_inherit_(ptr, classc, classc, Nil));
 
 	/* object */
-	Return(clos_stdclass_empty_(&tc, classc, T));
+	Return(clos_stdclass_empty_(ptr, &tc, classc, T));
 	GetConst(COMMON_STANDARD_OBJECT, &name);
-	Return(clos_stdclass_empty_(&stdobject, classc, name));
+	Return(clos_stdclass_empty_(ptr, &stdobject, classc, name));
 	GetConst(CLOSNAME_METAOBJECT, &name);
-	Return(clos_stdclass_empty_(&metaobject, classc, name));
+	Return(clos_stdclass_empty_(ptr, &metaobject, classc, name));
 	GetConst(CLOSNAME_SPECIALIZER, &name);
-	Return(clos_stdclass_empty_(&specializer, classc, name));
+	Return(clos_stdclass_empty_(ptr, &specializer, classc, name));
 	GetConst(COMMON_STANDARD_CLASS, &name);
-	Return(clos_stdclass_empty_(&stdclass, classc, name));
+	Return(clos_stdclass_empty_(ptr, &stdclass, classc, name));
 	GetConst(COMMON_BUILT_IN_CLASS, &name);
-	Return(clos_stdclass_empty_(&builtin, classc, name));
+	Return(clos_stdclass_empty_(ptr, &builtin, classc, name));
 
 	/* inheritance */
-	Return(clos_stdclass_inherit_(local, tc, classc, Nil));
-	Return(clos_stdclass_single_(local, stdobject, classc, tc));
-	Return(clos_stdclass_single_(local, metaobject, classc, stdobject));
-	Return(clos_stdclass_single_(local, specializer, classc, metaobject));
-	Return(clos_stdclass_single_(local, classc, classc, specializer));
-	Return(clos_stdclass_single_(local, stdclass, stdclass, classc));
-	Return(clos_stdclass_single_(local, builtin, stdclass, classc));
+	Return(clos_stdclass_inherit_(ptr, tc, classc, Nil));
+	Return(clos_stdclass_single_(ptr, stdobject, classc, tc));
+	Return(clos_stdclass_single_(ptr, metaobject, classc, stdobject));
+	Return(clos_stdclass_single_(ptr, specializer, classc, metaobject));
+	Return(clos_stdclass_single_(ptr, classc, classc, specializer));
+	Return(clos_stdclass_single_(ptr, stdclass, stdclass, classc));
+	Return(clos_stdclass_single_(ptr, builtin, stdclass, classc));
 	Clos_standard_class = stdclass;
 
 	/* update class-of */
@@ -924,22 +936,22 @@ static int clos_stdclass_metaclass_(LocalRoot local, addr *ret)
 	return Result(ret, stdclass);
 }
 
-int clos_stdclass_supers_(LocalRoot local,
+int clos_stdclass_supers_(Execute ptr,
 		addr *ret, addr metaclass, addr name, addr slots, addr supers)
 {
 	addr instance;
 
-	Return(clos_stdclass_make_(&instance, metaclass, name, slots));
-	Return(clos_stdclass_inherit_(local, instance, metaclass, supers));
+	Return(clos_stdclass_make_(ptr, &instance, metaclass, name, slots));
+	Return(clos_stdclass_inherit_(ptr, instance, metaclass, supers));
 	return Result(ret, instance);
 }
 
-static int clos_stdclass_type_(LocalRoot local,
+static int clos_stdclass_type_(Execute ptr,
 		addr *ret, addr metaclass, addr name, addr supers)
 {
 	addr slots;
 	slot_vector_heap(&slots, 0);
-	return clos_stdclass_supers_(local, ret, metaclass, name, slots, supers);
+	return clos_stdclass_supers_(ptr, ret, metaclass, name, slots, supers);
 }
 
 static void clos_stdclass_va_list(addr *ret, va_list args)
@@ -959,7 +971,7 @@ static void clos_stdclass_va_list(addr *ret, va_list args)
 	nreverse(ret, list);
 }
 
-static int clos_stdclass_va_(LocalRoot local, addr m, constindex n, constindex c, ...)
+static int clos_stdclass_va_(Execute ptr, addr m, constindex n, constindex c, ...)
 {
 	va_list args;
 	addr list, clos, name;
@@ -971,7 +983,7 @@ static int clos_stdclass_va_(LocalRoot local, addr m, constindex n, constindex c
 	/* make class */
 	GetConstant(n, &name);
 	Check(! symbolp(name), "type error");
-	Return(clos_stdclass_type_(local, &clos, m, name, list));
+	Return(clos_stdclass_type_(ptr, &clos, m, name, list));
 	clos_define_class(name, clos);
 	SetConstant(c, clos);
 
@@ -987,7 +999,7 @@ static int clos_stdclass_va_(LocalRoot local, addr m, constindex n, constindex c
 				CONSTANT_##a,CONSTANT_##b,CONSTANT_##c,CONSTANT_##d,CONSTANT_EMPTY)); \
 }
 
-static int clos_stdclass_slotsconstant_(LocalRoot local, addr metaclass, addr slots,
+static int clos_stdclass_slotsconstant_(Execute ptr, addr metaclass, addr slots,
 		constindex n, constindex c, constindex s)
 {
 	addr name, supers, clos;
@@ -997,7 +1009,7 @@ static int clos_stdclass_slotsconstant_(LocalRoot local, addr metaclass, addr sl
 	GetConstant(s, &supers);
 	CheckType(supers, LISPTYPE_CLOS);
 	conscar_heap(&supers, supers);
-	Return(clos_stdclass_supers_(local, &clos, metaclass, name, slots, supers));
+	Return(clos_stdclass_supers_(ptr, &clos, metaclass, name, slots, supers));
 	clos_define_class(name, clos);
 	SetConstant(c, clos);
 
@@ -1008,7 +1020,7 @@ static int clos_stdclass_slotsconstant_(LocalRoot local, addr metaclass, addr sl
 				CONSTANT_##a,CONSTANT_##b,CONSTANT_##c)); \
 }
 
-static int clos_stdclass2_slotsconstant_(LocalRoot local,
+static int clos_stdclass2_slotsconstant_(Execute ptr,
 		addr metaclass, addr slots,
 		constindex n, constindex c,
 		constindex x, constindex y)
@@ -1023,7 +1035,7 @@ static int clos_stdclass2_slotsconstant_(LocalRoot local,
 	CheckType(c1, LISPTYPE_CLOS);
 	CheckType(c2, LISPTYPE_CLOS);
 	list_heap(&supers, c1, c2, NULL);
-	Return(clos_stdclass_supers_(local, &clos, metaclass, name, slots, supers));
+	Return(clos_stdclass_supers_(ptr, &clos, metaclass, name, slots, supers));
 	clos_define_class(name, clos);
 	SetConstant(c, clos);
 
@@ -1055,27 +1067,27 @@ static void clos_structure_slots(addr *ret)
 	*ret = slots;
 }
 
-static int build_clos_class_standard_(LocalRoot local)
+static int build_clos_class_standard_(Execute ptr)
 {
 	addr metaclass, structure, slots;
 
 	/* standard-class, others */
-	Return(clos_stdclass_metaclass_(local, &metaclass));
+	Return(clos_stdclass_metaclass_(ptr, &metaclass));
 	/* structure-class */
 	clos_structure_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_STRUCTURE_CLASS,
 			CLOS_STRUCTURE_CLASS,
 			CLOS_CLASS);
 	/* structure-object */
 	GetConst(CLOS_STRUCTURE_CLASS, &structure);
-	ClosMakeClass1_(local, structure,
+	ClosMakeClass1_(ptr, structure,
 			COMMON_STRUCTURE_OBJECT,
 			CLOS_STRUCTURE_OBJECT,
 			CLOS_T);
 	/* forward-referenced-class */
 	clos_stdclass_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			CLOSNAME_FORWARD_REFERENCED_CLASS,
 			CLOS_FORWARD_REFERENCED_CLASS,
 			CLOS_CLASS);
@@ -1111,37 +1123,37 @@ static void clos_stdgeneric_slots(addr *ret)
 	*ret = slots;
 }
 
-static int build_clos_class_generic_(LocalRoot local)
+static int build_clos_class_generic_(Execute ptr)
 {
 	addr metaclass, builtin, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	GetConst(CLOS_BUILT_IN_CLASS, &builtin);
 	/* function */
-	ClosMakeClass1_(local, builtin,
+	ClosMakeClass1_(ptr, builtin,
 			COMMON_FUNCTION,
 			CLOS_FUNCTION,
 			CLOS_T);
 	/* funcallable-standard-object */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			CLOSNAME_FUNCALLABLE_STANDARD_OBJECT,
 			CLOS_FUNCALLABLE_STANDARD_OBJECT,
 			CLOS_FUNCTION,
 			CLOS_STANDARD_OBJECT);
 	/* funcallable-standard-class */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			CLOSNAME_FUNCALLABLE_STANDARD_CLASS,
 			CLOS_FUNCALLABLE_STANDARD_CLASS,
 			CLOS_CLASS);
 	/* generic-function */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			COMMON_GENERIC_FUNCTION,
 			CLOS_GENERIC_FUNCTION,
 			CLOS_METAOBJECT,
 			CLOS_FUNCALLABLE_STANDARD_OBJECT);
 	/* standard-generic-function */
 	clos_stdgeneric_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_STANDARD_GENERIC_FUNCTION,
 			CLOS_STANDARD_GENERIC_FUNCTION,
 			CLOS_GENERIC_FUNCTION);
@@ -1167,34 +1179,34 @@ static void clos_stdmethod_slots(addr *ret)
 	*ret = slots;
 }
 
-static int build_clos_class_method_(LocalRoot local)
+static int build_clos_class_method_(Execute ptr)
 {
 	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* method */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_METHOD,
 			CLOS_METHOD,
 			CLOS_METAOBJECT);
 	/* standard-method */
 	clos_stdmethod_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_STANDARD_METHOD,
 			CLOS_STANDARD_METHOD,
 			CLOS_METHOD);
 	/* standard-accessor-method */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			CLOSNAME_STANDARD_ACCESSOR_METHOD,
 			CLOS_STANDARD_ACCESSOR_METHOD,
 			CLOS_STANDARD_METHOD);
 	/* standard-reader-method */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			CLOSNAME_STANDARD_READER_METHOD,
 			CLOS_STANDARD_READER_METHOD,
 			CLOS_STANDARD_ACCESSOR_METHOD);
 	/* standard-writer-method */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			CLOSNAME_STANDARD_WRITER_METHOD,
 			CLOS_STANDARD_WRITER_METHOD,
 			CLOS_STANDARD_ACCESSOR_METHOD);
@@ -1267,42 +1279,42 @@ static void clos_stdshortdef_slots(addr *ret)
 	*ret = slots;
 }
 
-static int build_clos_class_combination_(LocalRoot local)
+static int build_clos_class_combination_(Execute ptr)
 {
 	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* method-combination */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_METHOD_COMBINATION,
 			CLOS_METHOD_COMBINATION,
 			CLOS_METAOBJECT);
 	/* long-method-combination */
 	clos_stdlongcomb_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			CLOSNAME_LONG_METHOD_COMBINATION,
 			CLOS_LONG_METHOD_COMBINATION,
 			CLOS_METHOD_COMBINATION);
 	/* short-method-combination */
 	clos_stdshortcomb_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			CLOSNAME_SHORT_METHOD_COMBINATION,
 			CLOS_SHORT_METHOD_COMBINATION,
 			CLOS_METHOD_COMBINATION);
 	/* define-method-combination */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_DEFINE_METHOD_COMBINATION,
 			CLOS_DEFINE_METHOD_COMBINATION,
 			CLOS_STANDARD_OBJECT);
 	/* define-long-method-combination */
 	clos_stdlongdef_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			CLOSNAME_DEFINE_LONG_METHOD_COMBINATION,
 			CLOS_DEFINE_LONG_METHOD_COMBINATION,
 			CLOS_DEFINE_METHOD_COMBINATION);
 	/* define-short-method-combination */
 	clos_stdshortdef_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			CLOSNAME_DEFINE_SHORT_METHOD_COMBINATION,
 			CLOS_DEFINE_SHORT_METHOD_COMBINATION,
 			CLOS_DEFINE_METHOD_COMBINATION);
@@ -1325,14 +1337,14 @@ static void clos_stdspecializer_slots(addr *ret)
 	*ret = slots;
 }
 
-static int build_clos_class_specializer_(LocalRoot local)
+static int build_clos_class_specializer_(Execute ptr)
 {
 	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* eql-specializer */
 	clos_stdspecializer_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			CLOSNAME_EQL_SPECIALIZER,
 			CLOS_EQL_SPECIALIZER,
 			CLOS_SPECIALIZER);
@@ -1393,219 +1405,219 @@ static void clos_simple_condition_slots(addr *ret)
 	*ret = slots;
 }
 
-static int build_clos_class_condition_(LocalRoot local)
+static int build_clos_class_condition_(Execute ptr)
 {
 	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* condition */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_CONDITION,
 			CLOS_CONDITION,
 			CLOS_STANDARD_OBJECT);
 	/* serious-condition (condition) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_SERIOUS_CONDITION,
 			CONDITION_SERIOUS_CONDITION,
 			CLOS_CONDITION);
 	/* simple-condition (condition) :format-control :format-arguments*/
 	clos_simple_condition_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_SIMPLE_CONDITION,
 			CONDITION_SIMPLE_CONDITION,
 			CLOS_CONDITION);
 	/* warning (condition) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_WARNING,
 			CONDITION_WARNING,
 			CLOS_CONDITION);
 	/* error (serious-condition) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_ERROR,
 			CONDITION_ERROR,
 			CONDITION_SERIOUS_CONDITION);
 	/* storage-condition (serious-condition) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_STORAGE_CONDITION,
 			CONDITION_STORAGE_CONDITION,
 			CONDITION_SERIOUS_CONDITION);
 	/* arithmetic-error (error) :operation :operands */
 	SlotMakeCondition2(&slots, OPERATION, OPERANDS);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_ARITHMETIC_ERROR,
 			CONDITION_ARITHMETIC_ERROR,
 			CONDITION_ERROR);
 	/* cell-error (error) :name */
 	SlotMakeCondition1(&slots, NAME);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_CELL_ERROR,
 			CONDITION_CELL_ERROR,
 			CONDITION_ERROR);
 	/* control-error (error) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_CONTROL_ERROR,
 			CONDITION_CONTROL_ERROR,
 			CONDITION_ERROR);
 	/* file-error (error) :pathname */
 	SlotMakeCondition1(&slots, PATHNAME);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_FILE_ERROR,
 			CONDITION_FILE_ERROR,
 			CONDITION_ERROR);
 	/* package-error (error) :package */
 	SlotMakeCondition1(&slots, PACKAGE);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_PACKAGE_ERROR,
 			CONDITION_PACKAGE_ERROR,
 			CONDITION_ERROR);
 	/* parse-error (error) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_PARSE_ERROR,
 			CONDITION_PARSE_ERROR,
 			CONDITION_ERROR);
 	/* print-not-readable (error) :object */
 	SlotMakeCondition1(&slots, OBJECT);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_PRINT_NOT_READABLE,
 			CONDITION_PRINT_NOT_READABLE,
 			CONDITION_ERROR);
 	/* program-error (error) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_PROGRAM_ERROR,
 			CONDITION_PROGRAM_ERROR,
 			CONDITION_ERROR);
 	/* stream-error (error) :stream */
 	SlotMakeCondition1(&slots, STREAM);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_STREAM_ERROR,
 			CONDITION_STREAM_ERROR,
 			CONDITION_ERROR);
 	/* type-error (error) :datum :expected-type */
 	SlotMakeCondition2(&slots, DATUM, EXPECTED_TYPE);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_TYPE_ERROR,
 			CONDITION_TYPE_ERROR,
 			CONDITION_ERROR);
 	/* unbound-slot (cell-error) :instance :name */
 	SlotMakeCondition1(&slots, INSTANCE);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			COMMON_UNBOUND_SLOT,
 			CONDITION_UNBOUND_SLOT,
 			CONDITION_CELL_ERROR);
 	/* unbound-variable (cell-error) :name */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_UNBOUND_VARIABLE,
 			CONDITION_UNBOUND_VARIABLE,
 			CONDITION_CELL_ERROR);
 	/* undefined-function (cell-error) :name */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_UNDEFINED_FUNCTION,
 			CONDITION_UNDEFINED_FUNCTION,
 			CONDITION_CELL_ERROR);
 	/* style-warning (warning) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_STYLE_WARNING,
 			CONDITION_STYLE_WARNING,
 			CONDITION_WARNING);
 	/* simple-error (simple-condition error) :format-control :format-arguments */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			COMMON_SIMPLE_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_SIMPLE_CONDITION,
 			CONDITION_ERROR);
 	/* simple_type_error (simple-condition type_error)
 	 *   :format-control :format-arguments :datum :expected-type */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			COMMON_SIMPLE_TYPE_ERROR,
 			CONDITION_SIMPLE_TYPE_ERROR,
 			CONDITION_SIMPLE_CONDITION,
 			CONDITION_TYPE_ERROR);
 	/* simple-warning (simple-condition warning) :format-control :format-arguments */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			COMMON_SIMPLE_WARNING,
 			CONDITION_SIMPLE_WARNING,
 			CONDITION_SIMPLE_CONDITION,
 			CONDITION_WARNING);
 	/* division-by-zero (arithmetic-error) :operation :operands */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_DIVISION_BY_ZERO,
 			CONDITION_DIVISION_BY_ZERO,
 			CONDITION_ARITHMETIC_ERROR);
 	/* floating-point-inexact (arithmetic-error) :operation :operands */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_FLOATING_POINT_INEXACT,
 			CONDITION_FLOATING_POINT_INEXACT,
 			CONDITION_ARITHMETIC_ERROR);
 	/* floating-point-invalid-operation (arithmetic-error) :operation :operands */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_FLOATING_POINT_INVALID_OPERATION,
 			CONDITION_FLOATING_POINT_INVALID_OPERATION,
 			CONDITION_ARITHMETIC_ERROR);
 	/* floating-point-overflow (arithmetic-error) :operation :operands */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_FLOATING_POINT_OVERFLOW,
 			CONDITION_FLOATING_POINT_OVERFLOW,
 			CONDITION_ARITHMETIC_ERROR);
 	/* floating-point-underflow (arithmetic-error) :operation :operands */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_FLOATING_POINT_UNDERFLOW,
 			CONDITION_FLOATING_POINT_UNDERFLOW,
 			CONDITION_ARITHMETIC_ERROR);
 	/* end-of-file (stream-error) :stream */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			COMMON_END_OF_FILE,
 			CONDITION_END_OF_FILE,
 			CONDITION_STREAM_ERROR);
 	/* reader-error (parse-error stream-error) :stream */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			COMMON_READER_ERROR,
 			CONDITION_READER_ERROR,
 			CONDITION_PARSE_ERROR,
 			CONDITION_STREAM_ERROR);
 	/* lisp-system::simple-control-error (simple-error control-error) */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			SYSTEM_SIMPLE_CONTROL_ERROR,
 			CONDITION_SIMPLE_CONTROL_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_CONTROL_ERROR);
 	/* lisp-system::simple-file-error (simple-error file-error) */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			SYSTEM_SIMPLE_FILE_ERROR,
 			CONDITION_SIMPLE_FILE_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_FILE_ERROR);
 	/* lisp-system::simple-package-error (simple-error package-error) */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			SYSTEM_SIMPLE_PACKAGE_ERROR,
 			CONDITION_SIMPLE_PACKAGE_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_PACKAGE_ERROR);
 	/* lisp-system::simple-parse-error (simple-error parse-error) */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			SYSTEM_SIMPLE_PARSE_ERROR,
 			CONDITION_SIMPLE_PARSE_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_PARSE_ERROR);
 	/* lisp-system::simple-program-error (simple-error program-error) */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			SYSTEM_SIMPLE_PROGRAM_ERROR,
 			CONDITION_SIMPLE_PROGRAM_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_PROGRAM_ERROR);
 	/* lisp-system::simple-reader-error (simple-error reader-error) */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			SYSTEM_SIMPLE_READER_ERROR,
 			CONDITION_SIMPLE_READER_ERROR,
 			CONDITION_SIMPLE_ERROR,
 			CONDITION_READER_ERROR);
 	/* lisp-system::simple-style-warning (simple-warning style-warning) */
-	ClosMakeClass2_(local, metaclass,
+	ClosMakeClass2_(ptr, metaclass,
 			SYSTEM_SIMPLE_STYLE_WARNING,
 			CONDITION_SIMPLE_STYLE_WARNING,
 			CONDITION_SIMPLE_WARNING,
 			CONDITION_STYLE_WARNING);
 	/* lisp-system::delay-warning (warning) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			SYSTEM_DELAY_WARNING,
 			CONDITION_DELAY_WARNING,
 			CONDITION_WARNING);
@@ -1613,19 +1625,19 @@ static int build_clos_class_condition_(LocalRoot local)
 	return 0;
 }
 
-static int build_clos_class_system_(LocalRoot local)
+static int build_clos_class_system_(Execute ptr)
 {
 	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* savecore (serious-condition) */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			SYSTEM_SAVECORE,
 			CONDITION_SAVECORE,
 			CONDITION_SERIOUS_CONDITION);
 	/* exit (serious-condition) */
 	SlotMakeCondition1(&slots, VALUE);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			SYSTEM_EXIT,
 			CONDITION_EXIT,
 			CONDITION_SERIOUS_CONDITION);
@@ -1637,31 +1649,31 @@ static int build_clos_class_system_(LocalRoot local)
 /*
  *  lisp type
  */
-static int clos_stdtype_buildin_(LocalRoot local, constindex n, constindex c, addr list)
+static int clos_stdtype_buildin_(Execute ptr, constindex n, constindex c, addr list)
 {
 	addr metaclass, name, clos;
 
 	GetConst(CLOS_BUILT_IN_CLASS, &metaclass);
 	GetConstant(n, &name);
 	Check(! symbolp(name), "type error");
-	Return(clos_stdclass_type_(local, &clos, metaclass, name, list));
+	Return(clos_stdclass_type_(ptr, &clos, metaclass, name, list));
 	clos_define_class(name, clos);
 	SetConstant(c, clos);
 
 	return 0;
 }
 
-static int clos_stdtype_buildin0_(LocalRoot local,
+static int clos_stdtype_buildin0_(Execute ptr,
 		constindex n, constindex c)
 {
 	addr list;
 
 	GetConst(CLOS_T, &list);
 	list_heap(&list, list, NULL);
-	return clos_stdtype_buildin_(local, n, c, list);
+	return clos_stdtype_buildin_(ptr, n, c, list);
 }
 
-static int clos_stdtype_buildin1_(LocalRoot local,
+static int clos_stdtype_buildin1_(Execute ptr,
 		constindex n, constindex c, constindex s1)
 {
 	addr list, clos1, clos2;
@@ -1671,10 +1683,10 @@ static int clos_stdtype_buildin1_(LocalRoot local,
 	CheckType(clos1, LISPTYPE_CLOS);
 	CheckType(clos2, LISPTYPE_CLOS);
 	list_heap(&list, clos1, clos2, NULL);
-	return clos_stdtype_buildin_(local, n, c, list);
+	return clos_stdtype_buildin_(ptr, n, c, list);
 }
 
-static int clos_stdtype_buildin2_(LocalRoot local,
+static int clos_stdtype_buildin2_(Execute ptr,
 		constindex n, constindex c, constindex s1, constindex s2)
 {
 	addr list, clos1, clos2, clos3;
@@ -1686,7 +1698,7 @@ static int clos_stdtype_buildin2_(LocalRoot local,
 	CheckType(clos2, LISPTYPE_CLOS);
 	CheckType(clos3, LISPTYPE_CLOS);
 	list_heap(&list, clos1, clos2, clos3, NULL);
-	return clos_stdtype_buildin_(local, n, c, list);
+	return clos_stdtype_buildin_(ptr, n, c, list);
 }
 
 #define ClosMakeType0_(p,x) { \
@@ -1702,67 +1714,67 @@ static int clos_stdtype_buildin2_(LocalRoot local,
 				CONSTANT_CLOS_##y, CONSTANT_CLOS_##z)); \
 }
 
-static int build_clos_class_type_(LocalRoot local)
+static int build_clos_class_type_(Execute ptr)
 {
-	ClosMakeType0_(local, ARRAY);
-	ClosMakeType0_(local, CHARACTER);
-	ClosMakeType0_(local, HASH_TABLE);
-	ClosMakeType0_(local, NUMBER);
-	ClosMakeType0_(local, PACKAGE);
-	ClosMakeType0_(local, PATHNAME);
-	ClosMakeType0_(local, RANDOM_STATE);
-	ClosMakeType0_(local, READTABLE);
-	ClosMakeType0_(local, RESTART);
-	ClosMakeType0_(local, SEQUENCE);
-	ClosMakeType0_(local, STREAM);
-	ClosMakeType0_(local, SYMBOL);
-	ClosMakeType1_(local, LOGICAL_PATHNAME, PATHNAME);
+	ClosMakeType0_(ptr, ARRAY);
+	ClosMakeType0_(ptr, CHARACTER);
+	ClosMakeType0_(ptr, HASH_TABLE);
+	ClosMakeType0_(ptr, NUMBER);
+	ClosMakeType0_(ptr, PACKAGE);
+	ClosMakeType0_(ptr, PATHNAME);
+	ClosMakeType0_(ptr, RANDOM_STATE);
+	ClosMakeType0_(ptr, READTABLE);
+	ClosMakeType0_(ptr, RESTART);
+	ClosMakeType0_(ptr, SEQUENCE);
+	ClosMakeType0_(ptr, STREAM);
+	ClosMakeType0_(ptr, SYMBOL);
+	ClosMakeType1_(ptr, LOGICAL_PATHNAME, PATHNAME);
 
-	ClosMakeType1_(local, LIST, SEQUENCE);
-	ClosMakeType1_(local, CONS, LIST);
-	ClosMakeType2_(local, VECTOR, ARRAY, SEQUENCE);
-	ClosMakeType1_(local, BIT_VECTOR, VECTOR);
-	ClosMakeType2_(local, NULL, SYMBOL, LIST);
-	ClosMakeType1_(local, STRING, VECTOR);
+	ClosMakeType1_(ptr, LIST, SEQUENCE);
+	ClosMakeType1_(ptr, CONS, LIST);
+	ClosMakeType2_(ptr, VECTOR, ARRAY, SEQUENCE);
+	ClosMakeType1_(ptr, BIT_VECTOR, VECTOR);
+	ClosMakeType2_(ptr, NULL, SYMBOL, LIST);
+	ClosMakeType1_(ptr, STRING, VECTOR);
 
-	ClosMakeType1_(local, COMPLEX, NUMBER);
-	ClosMakeType1_(local, REAL, NUMBER);
-	ClosMakeType1_(local, FLOAT, REAL);
-	ClosMakeType1_(local, RATIONAL, REAL);
-	ClosMakeType1_(local, INTEGER, RATIONAL);
-	ClosMakeType1_(local, RATIO, RATIONAL);
+	ClosMakeType1_(ptr, COMPLEX, NUMBER);
+	ClosMakeType1_(ptr, REAL, NUMBER);
+	ClosMakeType1_(ptr, FLOAT, REAL);
+	ClosMakeType1_(ptr, RATIONAL, REAL);
+	ClosMakeType1_(ptr, INTEGER, RATIONAL);
+	ClosMakeType1_(ptr, RATIO, RATIONAL);
 
-	ClosMakeType1_(local, BROADCAST_STREAM, STREAM);
-	ClosMakeType1_(local, CONCATENATED_STREAM, STREAM);
-	ClosMakeType1_(local, ECHO_STREAM, STREAM);
-	ClosMakeType1_(local, FILE_STREAM, STREAM);
-	ClosMakeType1_(local, STRING_STREAM, STREAM);
-	ClosMakeType1_(local, SYNONYM_STREAM, STREAM);
-	ClosMakeType1_(local, TWO_WAY_STREAM, STREAM);
+	ClosMakeType1_(ptr, BROADCAST_STREAM, STREAM);
+	ClosMakeType1_(ptr, CONCATENATED_STREAM, STREAM);
+	ClosMakeType1_(ptr, ECHO_STREAM, STREAM);
+	ClosMakeType1_(ptr, FILE_STREAM, STREAM);
+	ClosMakeType1_(ptr, STRING_STREAM, STREAM);
+	ClosMakeType1_(ptr, SYNONYM_STREAM, STREAM);
+	ClosMakeType1_(ptr, TWO_WAY_STREAM, STREAM);
 
-	ClosMakeType1_(local, BASE_CHAR, CHARACTER);
-	ClosMakeType1_(local, EXTENDED_CHAR, CHARACTER);
-	ClosMakeType1_(local, STANDARD_CHAR, BASE_CHAR);
-	ClosMakeType1_(local, SIMPLE_ARRAY, ARRAY);
-	ClosMakeType2_(local, SIMPLE_VECTOR, VECTOR, SIMPLE_ARRAY);
+	ClosMakeType1_(ptr, BASE_CHAR, CHARACTER);
+	ClosMakeType1_(ptr, EXTENDED_CHAR, CHARACTER);
+	ClosMakeType1_(ptr, STANDARD_CHAR, BASE_CHAR);
+	ClosMakeType1_(ptr, SIMPLE_ARRAY, ARRAY);
+	ClosMakeType2_(ptr, SIMPLE_VECTOR, VECTOR, SIMPLE_ARRAY);
 
-	ClosMakeType1_(local, BASE_STRING, STRING);
-	ClosMakeType2_(local, SIMPLE_STRING, STRING, SIMPLE_ARRAY);
-	ClosMakeType2_(local, SIMPLE_BASE_STRING, BASE_STRING, SIMPLE_STRING);
-	ClosMakeType2_(local, SIMPLE_BIT_VECTOR, BIT_VECTOR, SIMPLE_ARRAY);
-	ClosMakeType1_(local, BIGNUM, INTEGER);
-	ClosMakeType1_(local, FIXNUM, INTEGER);
-	ClosMakeType1_(local, SHORT_FLOAT, FLOAT);
-	ClosMakeType1_(local, SINGLE_FLOAT, FLOAT);
-	ClosMakeType1_(local, DOUBLE_FLOAT, FLOAT);
-	ClosMakeType1_(local, LONG_FLOAT, FLOAT);
-	ClosMakeType1_(local, SIGNED_BYTE, INTEGER);
-	ClosMakeType1_(local, UNSIGNED_BYTE, SIGNED_BYTE);
-	ClosMakeType1_(local, BIT, UNSIGNED_BYTE);
-	ClosMakeType1_(local, COMPILED_FUNCTION, FUNCTION);
-	ClosMakeType1_(local, KEYWORD, SYMBOL);
+	ClosMakeType1_(ptr, BASE_STRING, STRING);
+	ClosMakeType2_(ptr, SIMPLE_STRING, STRING, SIMPLE_ARRAY);
+	ClosMakeType2_(ptr, SIMPLE_BASE_STRING, BASE_STRING, SIMPLE_STRING);
+	ClosMakeType2_(ptr, SIMPLE_BIT_VECTOR, BIT_VECTOR, SIMPLE_ARRAY);
+	ClosMakeType1_(ptr, BIGNUM, INTEGER);
+	ClosMakeType1_(ptr, FIXNUM, INTEGER);
+	ClosMakeType1_(ptr, SHORT_FLOAT, FLOAT);
+	ClosMakeType1_(ptr, SINGLE_FLOAT, FLOAT);
+	ClosMakeType1_(ptr, DOUBLE_FLOAT, FLOAT);
+	ClosMakeType1_(ptr, LONG_FLOAT, FLOAT);
+	ClosMakeType1_(ptr, SIGNED_BYTE, INTEGER);
+	ClosMakeType1_(ptr, UNSIGNED_BYTE, SIGNED_BYTE);
+	ClosMakeType1_(ptr, BIT, UNSIGNED_BYTE);
+	ClosMakeType1_(ptr, COMPILED_FUNCTION, FUNCTION);
+	ClosMakeType1_(ptr, KEYWORD, SYMBOL);
 
-	Return(clos_stdtype_buildin0_(local, CONSTANT_SYSTEM_PAPER, CONSTANT_CLOS_PAPER));
+	Return(clos_stdtype_buildin0_(ptr, CONSTANT_SYSTEM_PAPER, CONSTANT_CLOS_PAPER));
 
 	return 0;
 }
@@ -1789,42 +1801,42 @@ static void clos_mop_slot_definition_slots(addr *ret)
 	*ret = slots;
 }
 
-static int build_clos_class_mop_(LocalRoot local)
+static int build_clos_class_mop_(Execute ptr)
 {
 	addr metaclass, slots;
 
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* slot-definition */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			CLOSNAME_SLOT_DEFINITION,
 			CLOS_SLOT_DEFINITION,
 			CLOS_METAOBJECT);
 	/* direct-slot-definition */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			CLOSNAME_DIRECT_SLOT_DEFINITION,
 			CLOS_DIRECT_SLOT_DEFINITION,
 			CLOS_SLOT_DEFINITION);
 	/* effective-slot-definition */
-	ClosMakeClass1_(local, metaclass,
+	ClosMakeClass1_(ptr, metaclass,
 			CLOSNAME_EFFECTIVE_SLOT_DEFINITION,
 			CLOS_EFFECTIVE_SLOT_DEFINITION,
 			CLOS_SLOT_DEFINITION);
 	/* standard-slot-definition */
 	clos_mop_slot_definition_slots(&slots);
-	ClosMakeClassSlot_(local, metaclass, slots,
+	ClosMakeClassSlot_(ptr, metaclass, slots,
 			CLOSNAME_STANDARD_SLOT_DEFINITION,
 			CLOS_STANDARD_SLOT_DEFINITION,
 			CLOS_SLOT_DEFINITION);
 	/* standard-direct-slot-definition */
 	clos_mop_slot_definition_slots(&slots);
-	ClosMakeClass2Slot_(local, metaclass, slots,
+	ClosMakeClass2Slot_(ptr, metaclass, slots,
 			CLOSNAME_STANDARD_DIRECT_SLOT_DEFINITION,
 			CLOS_STANDARD_DIRECT_SLOT_DEFINITION,
 			CLOS_STANDARD_SLOT_DEFINITION,
 			CLOS_DIRECT_SLOT_DEFINITION);
 	/* standard-effective-slot-definition */
 	clos_mop_slot_definition_slots(&slots);
-	ClosMakeClass2Slot_(local, metaclass, slots,
+	ClosMakeClass2Slot_(ptr, metaclass, slots,
 			CLOSNAME_STANDARD_EFFECTIVE_SLOT_DEFINITION,
 			CLOS_STANDARD_EFFECTIVE_SLOT_DEFINITION,
 			CLOS_STANDARD_SLOT_DEFINITION,
@@ -1869,26 +1881,26 @@ static void build_clos_class_variable(void)
 	Clos_standard_specializer = pos;
 }
 
-static int build_clos_class_call_(LocalRoot local)
+static int build_clos_class_call_(Execute ptr)
 {
 	build_clos_class_init();
-	Return(build_clos_class_standard_(local));
-	Return(build_clos_class_generic_(local));
-	Return(build_clos_class_method_(local));
-	Return(build_clos_class_combination_(local));
-	Return(build_clos_class_specializer_(local));
-	Return(build_clos_class_condition_(local));
-	Return(build_clos_class_system_(local));
-	Return(build_clos_class_type_(local));
-	Return(build_clos_class_mop_(local));
+	Return(build_clos_class_standard_(ptr));
+	Return(build_clos_class_generic_(ptr));
+	Return(build_clos_class_method_(ptr));
+	Return(build_clos_class_combination_(ptr));
+	Return(build_clos_class_specializer_(ptr));
+	Return(build_clos_class_condition_(ptr));
+	Return(build_clos_class_system_(ptr));
+	Return(build_clos_class_type_(ptr));
+	Return(build_clos_class_mop_(ptr));
 	build_clos_class_variable();
 
 	return 0;
 }
 
-void build_clos_class(LocalRoot local)
+void build_clos_class(Execute ptr)
 {
-	Error(build_clos_class_call_(local));
+	Error(build_clos_class_call_(ptr));
 }
 
 
@@ -1898,40 +1910,60 @@ void build_clos_class(LocalRoot local)
 int clos_subclass_p_debug(addr clos, addr super)
 {
 	int check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	check = 0;
-	Error(clos_subclass_p_(clos, super, &check));
+	Error(clos_subclass_p_(ptr, clos, super, &check));
+
 	return check;
 }
 
 int clos_subtype_p_debug(addr clos, addr super)
 {
 	int check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	check = 0;
-	Error(clos_subtype_p_(clos, super, &check));
+	Error(clos_subtype_p_(ptr, clos, super, &check));
+
 	return check;
 }
 
 int clos_generic_p_debug(addr clos)
 {
 	int check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	check = 0;
-	Error(clos_generic_p_(clos, &check));
+	Error(clos_generic_p_(ptr, clos, &check));
+
 	return check;
 }
 
 int clos_method_p_debug(addr clos)
 {
 	int check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	check = 0;
-	Error(clos_method_p_(clos, &check));
+	Error(clos_method_p_(ptr, clos, &check));
+
 	return check;
 }
 
 int clos_define_combination_p_debug(addr clos)
 {
 	int check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	check = 0;
-	Error(clos_define_combination_p_(clos, &check));
+	Error(clos_define_combination_p_(ptr, clos, &check));
+
 	return check;
 }
 

@@ -209,7 +209,7 @@ void build_clos(Execute ptr)
 	Clos_standard_ignore = 0;
 	/* build */
 	build_clos_table(ptr);
-	build_clos_class(ptr->local);
-	build_clos_combination();
+	build_clos_class(ptr);
+	build_clos_combination(ptr);
 }
 

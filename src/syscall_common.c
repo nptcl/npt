@@ -1482,7 +1482,7 @@ static void defun_set_slots(void)
 /* (defun intern-eql-specializer (instance slots values) ...) -> t */
 static int syscall_intern_eql_specializer(Execute ptr, addr var)
 {
-	Return(intern_eql_specializer_syscode_(var, &var));
+	Return(intern_eql_specializer_syscode_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }

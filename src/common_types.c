@@ -116,7 +116,7 @@ static void defun_subtypep(void)
 /* (defun type-of (object) ...) -> type-spec */
 static int function_type_of(Execute ptr, addr pos)
 {
-	Return(type_of_common_(pos, &pos));
+	Return(type_of_common_(ptr, pos, &pos));
 	setresult_control(ptr, pos);
 	return 0;
 }

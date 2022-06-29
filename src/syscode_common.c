@@ -433,9 +433,9 @@ int set_slots_syscode_(addr var, addr slots, addr values)
 
 
 /* intern-eql-specializer */
-int intern_eql_specializer_syscode_(addr var, addr *ret)
+int intern_eql_specializer_syscode_(Execute ptr, addr var, addr *ret)
 {
-	return clos_intern_specializer_(var, ret);
+	return clos_intern_specializer_(ptr, var, ret);
 }
 
 

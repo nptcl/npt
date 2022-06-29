@@ -51,17 +51,18 @@ void generic_cache_heap(addr *ret)
 			HASHTABLE_REHASH_THRESHOLD_DEFAULT);
 }
 
-static int generic_make_methods_(addr *ret, addr comb)
+static int generic_make_methods_(Execute ptr, addr *ret, addr comb)
 {
 	size_t size;
 
-	Return(method_combination_qualifiers_count_(comb, &size));
+	Return(method_combination_qualifiers_count_(ptr, comb, &size));
 	vector4_heap(ret, size);
 
 	return 0;
 }
 
-static int generic_make_instance_(addr *ret, addr call, addr args, int finalp)
+static int generic_make_instance_(Execute ptr,
+		addr *ret, addr call, addr args, int finalp)
 {
 	addr name, lambda, pos, vector, method, cache;
 
@@ -74,13 +75,13 @@ static int generic_make_instance_(addr *ret, addr call, addr args, int finalp)
 	Return(argument_generic_lambda_heap_(&lambda, args));
 
 	/* methods */
-	Return(generic_make_methods_(&vector, Nil));
+	Return(generic_make_methods_(ptr, &vector, Nil));
 	GetConst(CLOS_STANDARD_METHOD, &method);
 	generic_cache_heap(&cache);
 
 	/* make-instance */
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	Return(clos_instance_heap_(pos, &pos));
+	Return(clos_instance_heap_(ptr, pos, &pos));
 
 	/* setf */
 	Return(stdset_generic_name_(pos, name));
@@ -103,7 +104,7 @@ static int generic_make_instance_(addr *ret, addr call, addr args, int finalp)
 	return Result(ret, pos);
 }
 
-int generic_make_(addr *ret, addr call, addr args)
+int generic_make_(Execute ptr, addr *ret, addr call, addr args)
 {
 #ifdef LISP_DEBUG
 	addr pos;
@@ -112,12 +113,12 @@ int generic_make_(addr *ret, addr call, addr args)
 	Check(pos != Nil, "generic function error");
 #endif
 	CheckType(call, LISPTYPE_CALLNAME);
-	return generic_make_instance_(ret, call, args, 0);
+	return generic_make_instance_(ptr, ret, call, args, 0);
 }
 
-int generic_make_empty_(addr call, addr args, addr *ret)
+int generic_make_empty_(Execute ptr, addr call, addr args, addr *ret)
 {
-	return generic_make_instance_(ret, call, args, 1);
+	return generic_make_instance_(ptr, ret, call, args, 1);
 }
 
 
@@ -161,8 +162,10 @@ static int generic_find_method_combination_(struct generic_argument *str, addr *
 {
 	int check;
 	addr pos, standard;
+	Execute ptr;
 
 	/* standard */
+	ptr = str->ptr;
 	pos = str->combination;
 	if (pos == Nil)
 		return Result(ret, Nil);
@@ -173,28 +176,30 @@ static int generic_find_method_combination_(struct generic_argument *str, addr *
 		return Result(ret, Nil);
 
 	/* ensure-generic-function */
-	Return(clos_combination_p_(pos, &check));
+	Return(clos_combination_p_(ptr, pos, &check));
 	if (check)
 		return Result(ret, pos);
 
 	/* defgeneric */
-	return clos_find_method_combination_(pos, ret);
+	return clos_find_method_combination_(ptr, pos, ret);
 }
 
 static int generic_new_(struct generic_argument *str, addr *ret)
 {
 	addr pos, comb, vector, cache, order;
+	Execute ptr;
 
+	ptr = str->ptr;
 	/* check */
 	Return(generic_new_order_(str->args, str->order, &order));
 
 	/* (make-instance generic-function-class) */
 	GetConst(COMMON_MAKE_INSTANCE, &pos);
-	Return(funcall1_control_(str->ptr, &pos, pos, str->generic, NULL));
+	Return(funcall1_control_(ptr, &pos, pos, str->generic, NULL));
 
 	/* value */
 	Return(generic_find_method_combination_(str, &comb));
-	Return(generic_make_methods_(&vector, comb));
+	Return(generic_make_methods_(ptr, &vector, comb));
 	generic_cache_heap(&cache);
 
 	/* setf */
@@ -322,7 +327,7 @@ static int generic_change_method_(struct generic_argument *str)
 	ptr = str->ptr;
 	gen = str->instance;
 	Return(stdget_generic_method_combination_(gen, &vector));
-	Return(generic_make_methods_(&vector, vector));
+	Return(generic_make_methods_(ptr, &vector, vector));
 	Return(stdset_generic_vector_(gen, vector));
 
 	/* methods */
@@ -494,7 +499,7 @@ int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret
 	getglobal_parse_callname(call, &value);
 	if (value == Unbound)
 		return ensure_generic_function_call_(ptr, Nil, name, rest, ret);
-	Return(clos_generic_p_(value, &check));
+	Return(clos_generic_p_(ptr, value, &check));
 	if (check)
 		return ensure_generic_function_call_(ptr, value, name, rest, ret);
 

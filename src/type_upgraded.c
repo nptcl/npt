@@ -484,7 +484,7 @@ int upgraded_complex_type_(Execute ptr, addr env, addr type, addr *ret)
 
 	/* error */
 	*ret = 0;
-	Return(type_object_(&type, type));
+	Return(type_object_(ptr, &type, type));
 	return fmte_("COMPLEX type ~S must be a subtype of a real.", type, NULL);
 }
 
@@ -544,7 +544,7 @@ static int upgraded_complex_const_(Execute ptr, addr env, addr pos, addr *ret)
 
 	/* error */
 	*ret = 0;
-	Return(type_object_(&pos, pos));
+	Return(type_object_(ptr, &pos, pos));
 	return fmte_("COMPLEX type ~S must be a subtype of a real.", pos, NULL);
 }
 

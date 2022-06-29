@@ -980,7 +980,7 @@ static int sleep_execute_restart_(Execute ptr, addr var, addr *ret)
 
 	/* invoke-debugger */
 	strvect_char_heap(&condition, "Break SIGINT");
-	Return(instance_simple_condition_(&condition, condition, Nil));
+	Return(instance_simple_condition_(ptr, &condition, condition, Nil));
 	localhold_push(hold, condition);
 	Return(invoke_debugger_(ptr, condition));
 	localhold_end(hold);

@@ -458,7 +458,7 @@ int subtypep_number_syscode_(Execute ptr, addr x, addr *ret)
 	Return(parse_type_(ptr, &x, x, Nil));
 	Return(type_subtypep_throw_heap_(ptr->local, x, &x));
 	get_type_subtypep(&x, x);
-	Return(type_object_(&x, x));
+	Return(type_object_(ptr, &x, x));
 
 	return Result(ret, x);
 }
@@ -572,7 +572,7 @@ error:
 int parse_type_syscode_(Execute ptr, addr var, addr *ret)
 {
 	Return(parse_type_(ptr, &var, var, Nil));
-	Return(type_object_(&var, var));
+	Return(type_object_(ptr, &var, var));
 
 	return Result(ret, var);
 }

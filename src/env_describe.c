@@ -102,7 +102,7 @@ static int defmethod_describe_object_(Execute ptr, addr name, addr gen,
 	/* method */
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos); /* print-object */
-	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
+	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
@@ -248,11 +248,11 @@ static int build_environment_describe_call_(Execute ptr)
 	GetConst(COMMON_DESCRIBE_OBJECT, &symbol);
 	mop_argument_generic_var2(&gen);
 	Return(parse_callname_error_(&name, symbol));
-	Return(generic_make_(&gen, name, gen));
+	Return(generic_make_(ptr, &gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(build_describe_object_method_(ptr, name, gen));
-	return common_method_finalize_(gen);
+	return common_method_finalize_(ptr, gen);
 }
 
 void build_environment_describe(Execute ptr)

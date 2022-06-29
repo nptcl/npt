@@ -255,11 +255,11 @@ int array_dimensions_common_(addr var, addr *ret)
 /*
  *  array-element-type
  */
-int array_element_type_common_(addr var, addr *ret)
+int array_element_type_common_(Execute ptr, addr var, addr *ret)
 {
 	switch (GetType(var)) {
 		case LISPTYPE_ARRAY:
-			return array_get_element_type_(var, ret);
+			return array_get_element_type_(ptr, var, ret);
 
 		case LISPTYPE_VECTOR:
 			*ret = T;

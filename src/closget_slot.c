@@ -31,23 +31,96 @@
 #define GetAccessSlot_Low(x,y)			(*(y) = struct_slot(x)->access)
 #define SetAccessSlot_Low(x,y)			(struct_slot(x)->access = (y))
 
+/*
+ *  slot-value
+ */
 void getname_slot(addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetNameSlot_Low(pos, ret);
 }
 
+void gettype_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetTypeSlot_Low(pos, ret);
+}
+
+void getargs_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetArgsSlot_Low(pos, ret);
+}
+
+void getform_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetFormSlot_Low(pos, ret);
+}
+
+void getfunction_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetFunctionSlot_Low(pos, ret);
+}
+
+void getreaders_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetReadersSlot_Low(pos, ret);
+}
+
+void getwriters_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetWritersSlot_Low(pos, ret);
+}
+
+void getdocument_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetDocumentSlot_Low(pos, ret);
+}
+
+void getclass_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetClassSlot_Low(pos, ret);
+}
+
+void getreadonly_slot(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetReadOnlySlot_Low(pos, ret);
+}
+
+void getallocation_slot(addr pos, int *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetAllocationSlot_Low(pos, ret);
+}
+
+void getlocation_slot(addr pos, size_t *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetLocationSlot_Low(pos, ret);
+}
+
+void getaccess_slot(addr pos, size_t *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetAccessSlot_Low(pos, ret);
+}
+
+
+/*
+ *  (setf slot-value)
+ */
 void setname_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetNameSlot_Low(pos, value);
-}
-
-void gettype_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetTypeSlot_Low(pos, ret);
 }
 
 void settype_slot(addr pos, addr value)
@@ -57,23 +130,11 @@ void settype_slot(addr pos, addr value)
 	SetTypeSlot_Low(pos, value);
 }
 
-void getargs_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetArgsSlot_Low(pos, ret);
-}
-
 void setargs_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetArgsSlot_Low(pos, value);
-}
-
-void getform_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetFormSlot_Low(pos, ret);
 }
 
 void setform_slot(addr pos, addr value)
@@ -83,23 +144,11 @@ void setform_slot(addr pos, addr value)
 	SetFormSlot_Low(pos, value);
 }
 
-void getfunction_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetFunctionSlot_Low(pos, ret);
-}
-
 void setfunction_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFunctionSlot_Low(pos, value);
-}
-
-void getreaders_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetReadersSlot_Low(pos, ret);
 }
 
 void setreaders_slot(addr pos, addr value)
@@ -109,23 +158,11 @@ void setreaders_slot(addr pos, addr value)
 	SetReadersSlot_Low(pos, value);
 }
 
-void getwriters_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetWritersSlot_Low(pos, ret);
-}
-
 void setwriters_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetWritersSlot_Low(pos, value);
-}
-
-void getdocument_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetDocumentSlot_Low(pos, ret);
 }
 
 void setdocument_slot(addr pos, addr value)
@@ -135,23 +172,11 @@ void setdocument_slot(addr pos, addr value)
 	SetDocumentSlot_Low(pos, value);
 }
 
-void getclass_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetClassSlot_Low(pos, ret);
-}
-
 void setclass_slot(addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClassSlot_Low(pos, value);
-}
-
-void getreadonly_slot(addr pos, addr *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetReadOnlySlot_Low(pos, ret);
 }
 
 void setreadonly_slot(addr pos, addr value)
@@ -161,12 +186,6 @@ void setreadonly_slot(addr pos, addr value)
 	SetReadOnlySlot_Low(pos, value);
 }
 
-void getallocation_slot(addr pos, int *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetAllocationSlot_Low(pos, ret);
-}
-
 void setallocation_slot(addr pos, int value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
@@ -174,23 +193,11 @@ void setallocation_slot(addr pos, int value)
 	SetAllocationSlot_Low(pos, value);
 }
 
-void getlocation_slot(addr pos, size_t *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetLocationSlot_Low(pos, ret);
-}
-
 void setlocation_slot(addr pos, size_t value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetLocationSlot_Low(pos, value);
-}
-
-void getaccess_slot(addr pos, size_t *ret)
-{
-	CheckType(pos, LISPSYSTEM_SLOT);
-	GetAccessSlot_Low(pos, ret);
 }
 
 void setaccess_slot(addr pos, size_t value)

@@ -140,11 +140,13 @@ static int function_standard_lambda(Execute ptr)
 	return 0;
 }
 
-static int comb_standard_qualifiers_(LocalRoot local,
+static int comb_standard_qualifiers_(Execute ptr,
 		addr *ret, addr gen, addr before, addr primary, addr after)
 {
 	addr clos, call, data, name;
+	LocalRoot local;
 
+	local = ptr->local;
 	Return(stdget_generic_method_class_(gen, &clos));
 	GetConst(SYSTEM_STANDARD, &name);
 	ParseCallName(local, &name, name);
@@ -152,7 +154,7 @@ static int comb_standard_qualifiers_(LocalRoot local,
 	setcompiled_any(call, p_defun_standard_lambda);
 	list_local(local, &data, before, primary, after, NULL);
 	SetDataFunction(call, data);
-	return method_instance_call_(local, ret, clos, call);
+	return method_instance_call_(ptr, local, ret, clos, call);
 }
 
 static int generic_no_applicable_method_(Execute ptr, addr gen, addr args)
@@ -181,7 +183,7 @@ static int comb_standard_execute_(Execute ptr, addr inst, addr gen, addr rest)
 	local = ptr->local;
 	GetCdr(primary, &temp);
 	if (before != Nil || after != Nil || temp != Nil) {
-		Return(comb_standard_qualifiers_(local, &temp, gen, before, primary, after));
+		Return(comb_standard_qualifiers_(ptr, &temp, gen, before, primary, after));
 		list_local(local, &primary, temp, NULL);
 	}
 	return comb_standard_funcall_(ptr, rest, around, primary);
@@ -257,12 +259,12 @@ static int comb_lambda_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 		return comb_standard_(ret, data);
 
 	/* long-form */
-	Return(clos_long_combination_p_(comb, &check));
+	Return(clos_long_combination_p_(ptr, comb, &check));
 	if (check)
 		return comb_long_(ptr, ret, gen, comb, data);
 
 	/* short-form */
-	Return(clos_short_combination_p_(comb, &check));
+	Return(clos_short_combination_p_(ptr, comb, &check));
 	if (check)
 		return comb_short_(ptr, ret, gen, comb, data);
 
@@ -275,30 +277,30 @@ static int comb_lambda_(Execute ptr, addr *ret, addr gen, addr comb, addr data)
 /*****************************************************************************
  *  generic-finalize
  *****************************************************************************/
-int generic_eql_specializer_(addr left, addr right, int check, int *ret)
+int generic_eql_specializer_(Execute ptr, addr left, addr right, int check, int *ret)
 {
 	int check1, check2;
 
-	Return(clos_specializer_p_(left, &check1));
-	Return(clos_specializer_p_(right, &check2));
+	Return(clos_specializer_p_(ptr, left, &check1));
+	Return(clos_specializer_p_(ptr, right, &check2));
 	if (check1 && check2) {
 		return Result(ret, left == right);
 	}
 	if (check1) {
 		Return(stdget_specializer_type_(left, &left));
-		return clos_subclass_p_(left, right, ret);
+		return clos_subclass_p_(ptr, left, right, ret);
 	}
 	if (check2) {
 		if (! check)
 			return Result(ret, 0);
 		Return(stdget_specializer_type_(right, &right));
-		return clos_subclass_p_(left, right, ret);
+		return clos_subclass_p_(ptr, left, right, ret);
 	}
 
-	return clos_subclass_p_(left, right, ret);
+	return clos_subclass_p_(ptr, left, right, ret);
 }
 
-static int generic_make_method_check_(addr argtype, addr method, int *ret)
+static int generic_make_method_check_(Execute ptr, addr argtype, addr method, int *ret)
 {
 	int check;
 	addr left, right;
@@ -308,7 +310,7 @@ static int generic_make_method_check_(addr argtype, addr method, int *ret)
 		Check(argtype == Nil || method == Nil, "argument error");
 		GetCons(argtype, &left, &argtype);
 		GetCons(method, &right, &method);
-		Return(generic_eql_specializer_(left, right, 0, &check));
+		Return(generic_eql_specializer_(ptr, left, right, 0, &check));
 		if (! check)
 			return Result(ret, 0);
 	}
@@ -316,18 +318,18 @@ static int generic_make_method_check_(addr argtype, addr method, int *ret)
 	return Result(ret, 1);
 }
 
-static int generic_compare_class_(addr left, addr right, int *ret)
+static int generic_compare_class_(Execute ptr, addr left, addr right, int *ret)
 {
 	int check;
 
 	if (left == right)
 		return Result(ret, 0);
-	Return(clos_subclass_p_(left, right, &check));
+	Return(clos_subclass_p_(ptr, left, right, &check));
 
 	return Result(ret, check? -1: 1);
 }
 
-static int generic_compare_eql_(addr left, addr right, int *ret)
+static int generic_compare_eql_(Execute ptr, addr left, addr right, int *ret)
 {
 	if (left == right)
 		return Result(ret, 0);
@@ -338,46 +340,46 @@ static int generic_compare_eql_(addr left, addr right, int *ret)
 			"a difference value ~S /= ~S.", left, right, NULL);
 }
 
-static int generic_compare_eql_type_(addr left, addr right, int *ret)
+static int generic_compare_eql_type_(Execute ptr, addr left, addr right, int *ret)
 {
 	int check;
 
 	Return(stdget_specializer_type_(left, &left));
-	Return(generic_compare_class_(left, right, &check));
+	Return(generic_compare_class_(ptr, left, right, &check));
 
 	return Result(ret, check == 0? -1: check);
 }
 
-static int generic_compare_type_eql_(addr left, addr right, int *ret)
+static int generic_compare_type_eql_(Execute ptr, addr left, addr right, int *ret)
 {
 	int check;
 
 	Return(stdget_specializer_type_(right, &right));
-	Return(generic_compare_class_(left, right, &check));
+	Return(generic_compare_class_(ptr, left, right, &check));
 
 	return Result(ret, check == 0? 1: check);
 }
 
-static int generic_compare_specializer_(addr left, addr right, int *ret)
+static int generic_compare_specializer_(Execute ptr, addr left, addr right, int *ret)
 {
 	int check1, check2;
 
-	Return(clos_specializer_p_(left, &check1));
-	Return(clos_specializer_p_(right, &check2));
+	Return(clos_specializer_p_(ptr, left, &check1));
+	Return(clos_specializer_p_(ptr, right, &check2));
 	if (check1 && check2)
-		return generic_compare_eql_(left, right, ret);
+		return generic_compare_eql_(ptr, left, right, ret);
 	if (check1)
-		return generic_compare_eql_type_(left, right, ret);
+		return generic_compare_eql_type_(ptr, left, right, ret);
 	if (check2)
-		return generic_compare_type_eql_(left, right, ret);
+		return generic_compare_type_eql_(ptr, left, right, ret);
 	if (left == right)
 		return Result(ret, 0);
 
-	return generic_compare_class_(left, right, ret);
+	return generic_compare_class_(ptr, left, right, ret);
 }
 
-static int generic_sort_compare_(addr a, addr b, int *ret,
-		int (*call_)(addr, addr, int *))
+static int generic_sort_compare_(Execute ptr, addr a, addr b, int *ret,
+		int (*call_)(Execute, addr, addr, int *))
 {
 	int check;
 	addr x, y;
@@ -387,7 +389,7 @@ static int generic_sort_compare_(addr a, addr b, int *ret,
 			break;
 		GetCons(a, &x, &a);
 		GetCons(b, &y, &b);
-		Return((*call_)(x, y, &check));
+		Return((*call_)(ptr, x, y, &check));
 		if (check < 0)
 			return Result(ret, 1);
 		if (0 < check)
@@ -397,15 +399,15 @@ static int generic_sort_compare_(addr a, addr b, int *ret,
 	return Result(ret, 1);
 }
 
-static int generic_sort_call_(addr left, addr right, int *ret)
+static int generic_sort_call_(Execute ptr, addr left, addr right, int *ret)
 {
 	Return(stdget_method_specializers_(left, &left));
 	Return(stdget_method_specializers_(right, &right));
-	return generic_sort_compare_(left, right, ret, generic_compare_specializer_);
+	return generic_sort_compare_(ptr, left, right, ret, generic_compare_specializer_);
 }
 
-static int generic_sort_(addr order,
-		int (*call_)(addr, addr, int *),
+static int generic_sort_(Execute ptr, addr order,
+		int (*call_)(Execute, addr, addr, int *),
 		addr a, addr b, int *ret)
 {
 	int check;
@@ -417,7 +419,7 @@ static int generic_sort_(addr order,
 		GetIndex(pos, &i);
 		getnth_unsafe(a, i, &x);
 		getnth_unsafe(b, i, &y);
-		Return((*call_)(x, y, &check));
+		Return((*call_)(ptr, x, y, &check));
 		if (check < 0)
 			return Result(ret, 1);
 		if (0 < check)
@@ -427,29 +429,30 @@ static int generic_sort_(addr order,
 	return Result(ret, 1);
 }
 
-static int generic_sort_order_call_(addr order, addr left, addr right, int *ret)
+static int generic_sort_order_call_(Execute ptr,
+		addr order, addr left, addr right, int *ret)
 {
 	Return(stdget_method_specializers_(left, &left));
 	Return(stdget_method_specializers_(right, &right));
-	return generic_sort_(order, generic_compare_specializer_, left, right, ret);
+	return generic_sort_(ptr, order, generic_compare_specializer_, left, right, ret);
 }
 
-static int generic_specializers_sort_(addr *ret, addr gen, addr list)
+static int generic_specializers_sort_(Execute ptr, addr *ret, addr gen, addr list)
 {
 	addr order;
 
 	Return(stdget_generic_precedence_index_(gen, &order));
 	if (order != Nil) {
-		return simplesort_info_cons_unsafe_(ret,
-				list, order, generic_sort_order_call_);
+		return simplesort_info_cons_unsafe_(ptr,
+				ret, list, order, generic_sort_order_call_);
 	}
 	else {
-		return simplesort_cons_unsafe_(ret,
-				list, generic_sort_call_);
+		return simplesort_cons_unsafe_(ptr,
+				ret, list, generic_sort_call_);
 	}
 }
 
-static int generic_make_array_(addr *ret, addr gen, addr type)
+static int generic_make_array_(Execute ptr, addr *ret, addr gen, addr type)
 {
 	int check;
 	addr array, data, methods, method, list;
@@ -463,12 +466,12 @@ static int generic_make_array_(addr *ret, addr gen, addr type)
 		/* remove-if-not */
 		for (list = Nil; methods != Nil; ) {
 			GetCons(methods, &method, &methods);
-			Return(generic_make_method_check_(type, method, &check));
+			Return(generic_make_method_check_(ptr, type, method, &check));
 			if (check)
 				cons_heap(&list, method, list);
 		}
 		/* sort */
-		Return(generic_specializers_sort_(&list, gen, list));
+		Return(generic_specializers_sort_(ptr, &list, gen, list));
 		SetArrayA4(data, index, list);
 	}
 
@@ -481,7 +484,7 @@ static int generic_make_type_(Execute ptr, addr *ret, addr gen, addr type)
 	LocalHold hold;
 
 	Return(stdget_generic_method_combination_(gen, &comb));
-	Return(generic_make_array_(&data, gen, type));
+	Return(generic_make_array_(ptr, &data, gen, type));
 	hold = LocalHold_local_push(ptr, data);
 	Return(comb_lambda_(ptr, ret, gen, comb, data));
 	localhold_end(hold);
@@ -594,7 +597,7 @@ int generic_finalize_(addr gen)
 /*****************************************************************************
  *  execute clos
  *****************************************************************************/
-static int funcallable_p_(addr pos, int *ret)
+static int funcallable_p_(Execute ptr, addr pos, int *ret)
 {
 	addr clos;
 
@@ -602,7 +605,7 @@ static int funcallable_p_(addr pos, int *ret)
 		return 0;
 	GetConst(CLOS_FUNCALLABLE_STANDARD_OBJECT, &clos);
 
-	return clos_subtype_p_(pos, clos, ret);
+	return clos_subtype_p_(ptr, pos, clos, ret);
 }
 
 int closrun_execute_(Execute ptr, addr clos, addr args)
@@ -611,7 +614,7 @@ int closrun_execute_(Execute ptr, addr clos, addr args)
 	addr pos;
 	clos_generic_call call;
 
-	Return(funcallable_p_(clos, &check));
+	Return(funcallable_p_(ptr, clos, &check));
 	if (! check)
 		return fmte_("Cannot exexute a funcallable instance ~S.", clos, NULL);
 	Return(stdget_generic_call_(clos, &pos));
@@ -662,17 +665,18 @@ int generic_order_(addr gen, addr order, addr list)
 /*
  *  common
  */
-int generic_compute_applicable_methods_(LocalRoot local,
-		addr gen, addr args, addr *ret)
+int generic_compute_applicable_methods_(Execute ptr, addr gen, addr args, addr *ret)
 {
 	addr data, root, list, pos;
+	LocalRoot local;
 	LocalStack stack;
 	size_t size, i;
 
+	local = ptr->local;
 	push_local(local, &stack);
 	Return(stdget_generic_eqlcheck_(gen, &data));
 	Return(generic_make_mapcar_class_of_(local, &data, data, args));
-	Return(generic_make_array_(&data, gen, data));
+	Return(generic_make_array_(ptr, &data, gen, data));
 	LenArrayA4(data, &size);
 	root = Nil;
 	for (i = 0; i < size; i++) {

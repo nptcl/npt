@@ -10,10 +10,10 @@
 static constindex TypeNameTable[LISPTYPE_SIZE];
 #define DefTypeName(x,y) (TypeNameTable[x] = CONSTANT_##y)
 
-static int type_name_clos_(addr pos, addr *value, int *ret)
+static int type_name_clos_(Execute ptr, addr pos, addr *value, int *ret)
 {
 	Return(clos_class_of_(pos, &pos));
-	Return(stdget_class_name_(pos, value));
+	Return(stdget_class_name_(ptr, pos, value));
 	return Result(ret, 0);
 }
 
@@ -117,7 +117,7 @@ normal:
 	return Result(ret, 0);
 }
 
-int type_name_p_(addr pos, addr *value, int *ret)
+int type_name_p_(Execute ptr, addr pos, addr *value, int *ret)
 {
 	enum LISPTYPE type;
 	constindex index;
@@ -133,7 +133,7 @@ int type_name_p_(addr pos, addr *value, int *ret)
 	/* others */
 	switch (type) {
 		case LISPTYPE_CLOS:
-			return type_name_clos_(pos, value, ret);
+			return type_name_clos_(ptr, pos, value, ret);
 
 		case LISPTYPE_SYMBOL:
 			return type_name_symbol_(pos, value, ret);
@@ -150,11 +150,11 @@ int type_name_p_(addr pos, addr *value, int *ret)
 	}
 }
 
-int type_name_(addr pos, addr *value)
+int type_name_(Execute ptr, addr pos, addr *value)
 {
 	int check;
 
-	Return(type_name_p_(pos, value, &check));
+	Return(type_name_p_(ptr, pos, value, &check));
 	if (check) {
 		*value = Nil;
 		return fmte_("The type ~S don't have a name.", pos, NULL);

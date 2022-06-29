@@ -253,7 +253,7 @@ static int WriteBody_error_(Execute ptr, addr stream, addr pos)
 	int check;
 
 	Return(print_ascii_stream_(stream, "INVALID-OBJECT"));
-	Return(type_name_p_(pos, &pos, &check));
+	Return(type_name_p_(ptr, pos, &pos, &check));
 	if (check)
 		return 0;
 	Return(write_char_stream_(stream, ' '));
@@ -1658,7 +1658,7 @@ static int WriteCall_symbol_(Execute ptr, addr stream, addr pos)
 static int WriteCall_type_(Execute ptr, addr stream, addr pos)
 {
 	CheckType(pos, LISPTYPE_TYPE);
-	Return(type_object_(&pos, pos));
+	Return(type_object_(ptr, &pos, pos));
 	Return(print_ascii_stream_(stream, "#<TYPE "));
 	Return(prin1_print_(ptr, stream, pos));
 	Return(print_ascii_stream_(stream, ">"));

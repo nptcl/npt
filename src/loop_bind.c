@@ -119,7 +119,7 @@ static int loop_typep_(Execute ptr, addr pos, addr value, addr type)
 	}
 	Return(typep_clang_(ptr, value, type, &check));
 	if (! check) {
-		Return(type_object_(&type, type));
+		Return(type_object_(ptr, &type, type));
 		return fmte_("LOOP let ~A form ~S must be a ~A type.", pos, value, type, NULL);
 	}
 

@@ -44,7 +44,7 @@ int subtypep_call_clos_(Execute ptr, addr x, addr y, SubtypepResult *ret)
 	if (type_asterisk_p(x))
 		return ReturnFalse(ret);
 
-	Return(clos_subclass_p_(x, y, &check));
+	Return(clos_subclass_p_(ptr, x, y, &check));
 	if (check)
 		return ReturnInclude(ret);
 

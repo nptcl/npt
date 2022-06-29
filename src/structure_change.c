@@ -29,8 +29,8 @@ static int structure_change1_instance_(struct defstruct *str)
 	change = str->instance;
 	str->instance = instance;
 	str->change = change;
-	Check(! structure_class_p_debug(change), "type error");
-	Check(! structure_class_p_debug(instance), "type error");
+	Check(! structure_class_p(change), "type error");
+	Check(! structure_class_p(instance), "type error");
 
 	/* swap */
 	clos_swap(instance, change);

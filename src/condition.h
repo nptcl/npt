@@ -3,8 +3,8 @@
 
 #include <stdarg.h>
 #include "condition_define.h"
-#include "constant.h"
 #include "execute.h"
+#include "typedef.h"
 
 #define conditionp_ _n(conditionp_)
 #define conditionp_debug _n(conditionp_debug)
@@ -17,9 +17,9 @@
 #define build_condition _n(build_condition)
 #define init_condition _n(init_condition)
 
-int conditionp_(addr pos, int *ret);
+int conditionp_(Execute ptr, addr pos, int *ret);
 int conditionp_debug(addr pos);
-int condition_instance_p_(addr pos, int *ret);
+int condition_instance_p_(Execute ptr, addr pos, int *ret);
 int signal_function_(Execute ptr, addr condition);
 int error_function_(Execute ptr, addr condition);
 int warning_restart_case_(Execute ptr, addr instance);

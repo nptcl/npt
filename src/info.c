@@ -618,7 +618,10 @@ void infoprint_once(addr pos, const char *name)
 
 void infotype(addr pos)
 {
-	if (type_object_(&pos, pos))
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	if (type_object_(ptr, &pos, pos))
 		Abort("escape error.");
 	infoprint(pos);
 }

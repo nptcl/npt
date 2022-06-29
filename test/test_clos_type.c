@@ -154,35 +154,37 @@ static int test_clos_intern_specializer(void)
 {
 	int check;
 	addr value, value1, value2;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	clos_forget_all_specializer_unsafe();
 
 	fixnum_heap(&value, 100);
-	clos_intern_specializer_(value, &value1);
+	clos_intern_specializer_(ptr, value, &value1);
 	test(closp(value1), "clos_intern_specializer1");
-	clos_intern_specializer_(value, &value2);
+	clos_intern_specializer_(ptr, value, &value2);
 	test(value1 == value2, "clos_intern_specializer2");
 
 	fixnum_heap(&value, 101);
-	clos_intern_specializer_(value, &value2);
+	clos_intern_specializer_(ptr, value, &value2);
 	test(value1 != value2, "clos_intern_specializer3");
 
 	character_heap(&value, 100);
-	clos_intern_specializer_(value, &value1);
+	clos_intern_specializer_(ptr, value, &value1);
 	character_heap(&value, 100);
-	clos_intern_specializer_(value, &value2);
+	clos_intern_specializer_(ptr, value, &value2);
 	test(value1 == value2, "clos_intern_specializer4");
 
 	character_heap(&value, 101);
-	clos_intern_specializer_(value, &value2);
+	clos_intern_specializer_(ptr, value, &value2);
 	test(value1 != value2, "clos_intern_specializer5");
 
 	fixnum_heap(&value, 100);
-	clos_intern_specializer_(value, &value1);
-	clos_specializer_p_(value1, &check);
+	clos_intern_specializer_(ptr, value, &value1);
+	clos_specializer_p_(ptr, value1, &check);
 	test(check, "eql_specializer_p1");
 	GetConst(CLOS_STANDARD_CLASS, &value1);
-	clos_specializer_p_(value1, &check);
+	clos_specializer_p_(ptr, value1, &check);
 	test(! check, "eql_specializer_p2");
 
 	clos_forget_all_specializer_unsafe();

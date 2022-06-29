@@ -46,9 +46,11 @@ static int test_stdget_call(addr pos,
 static int test_stdget_generic(void)
 {
 	addr pos;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	clos_instance_heap_(pos, &pos);
+	clos_instance_heap_(ptr, pos, &pos);
 
 	CheckStdGetGeneric(pos, NAME, name);
 	CheckStdGetGeneric(pos, METHODS, methods);
@@ -68,9 +70,11 @@ static int test_stdboundp_generic(void)
 {
 	int check;
 	addr pos;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
-	clos_instance_heap_(pos, &pos);
+	clos_instance_heap_(ptr, pos, &pos);
 
 	check = 0;
 	stdboundp_generic_argument_precedence_order_(pos, &check);
@@ -97,9 +101,11 @@ static int test_stdboundp_generic(void)
 static int test_stdget_specializer(void)
 {
 	addr pos;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_EQL_SPECIALIZER, &pos);
-	clos_instance_heap_(pos, &pos);
+	clos_instance_heap_(ptr, pos, &pos);
 
 	CheckStdGetSpecializer(pos, OBJECT, object);
 	CheckStdGetSpecializer(pos, TYPE, type);
@@ -139,15 +145,21 @@ static int test_clos_generic_call_heap(void)
 static void test_make_generic(addr *ret)
 {
 	addr clos;
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &clos);
-	clos_instance_heap_(clos, ret);
+	clos_instance_heap_(ptr, clos, ret);
 }
 
 static void test_make_method(addr *ret)
 {
 	addr clos;
+	Execute ptr;
+
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_METHOD, &clos);
-	clos_instance_heap_(clos, ret);
+	clos_instance_heap_(ptr, clos, ret);
 }
 
 static int test_comb_standard_method_call(Execute ptr, addr right)
@@ -295,7 +307,7 @@ static int test_comb_standard_qualifiers(void)
 	setcompiled_dynamic(call, p_debug1);
 	stdset_method_function_(method, call);
 	list_heap(&primary, method, NULL);
-	comb_standard_qualifiers_(local, &method, generic, Nil, primary, Nil);
+	comb_standard_qualifiers_(ptr, &method, generic, Nil, primary, Nil);
 	/* run method */
 	push_control(ptr, &control);
 	list_heap(&args, T, NULL);
@@ -362,30 +374,32 @@ static int test_generic_eql_specializer(void)
 {
 	int check;
 	addr left, right, value;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 	fixnum_heap(&value, 40);
-	clos_intern_specializer_(value, &left);
+	clos_intern_specializer_(ptr, value, &left);
 	fixnum_heap(&value, 40);
-	clos_intern_specializer_(value, &right);
-	generic_eql_specializer_(left, right, 1, &check);
+	clos_intern_specializer_(ptr, value, &right);
+	generic_eql_specializer_(ptr, left, right, 1, &check);
 	test(check, "generic_eql_specializer1");
 
 	GetConst(CLOS_REAL, &right);
-	generic_eql_specializer_(left, right, 1, &check);
+	generic_eql_specializer_(ptr, left, right, 1, &check);
 	test(check, "generic_eql_specializer2");
 
 	fixnum_heap(&value, 40);
-	clos_intern_specializer_(value, &right);
+	clos_intern_specializer_(ptr, value, &right);
 	GetConst(CLOS_FIXNUM, &left);
-	generic_eql_specializer_(left, right, 1, &check);
+	generic_eql_specializer_(ptr, left, right, 1, &check);
 	test(check, "generic_eql_specializer3");
-	generic_eql_specializer_(left, right, 0, &check);
+	generic_eql_specializer_(ptr, left, right, 0, &check);
 	test(! check, "generic_eql_specializer4");
 
 	GetConst(CLOS_FIXNUM, &left);
 	GetConst(CLOS_REAL, &right);
-	generic_eql_specializer_(left, right, 1, &check);
+	generic_eql_specializer_(ptr, left, right, 1, &check);
 	test(check, "generic_eql_specializer5");
 
 	RETURN;
@@ -395,7 +409,9 @@ static int test_generic_make_method_check(void)
 {
 	int check;
 	addr method, pos1, pos2, argtype;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 	test_make_method(&method);
 	GetConst(CLOS_REAL, &pos1);
@@ -405,15 +421,15 @@ static int test_generic_make_method_check(void)
 
 	GetConst(CLOS_INTEGER, &pos1);
 	fixnum_heap(&pos2, 10);
-	clos_intern_specializer_(pos2, &pos2);
+	clos_intern_specializer_(ptr, pos2, &pos2);
 	list_heap(&argtype, pos1, pos2, NULL);
-	generic_make_method_check_(argtype, method, &check);
+	generic_make_method_check_(ptr, argtype, method, &check);
 	test(check, "generic_make_method_check1");
 
 	character_heap(&pos2, 10);
-	clos_intern_specializer_(pos2, &pos2);
+	clos_intern_specializer_(ptr, pos2, &pos2);
 	list_heap(&argtype, pos1, pos2, NULL);
-	generic_make_method_check_(argtype, method, &check);
+	generic_make_method_check_(ptr, argtype, method, &check);
 	test(! check, "generic_make_method_check2");
 
 	RETURN;
@@ -423,18 +439,20 @@ static int test_generic_compare_class(void)
 {
 	int check;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 	GetConst(CLOS_INTEGER, &left);
-	generic_compare_class_(left, left, &check);
+	generic_compare_class_(ptr, left, left, &check);
 	test(check == 0, "generic_compare_class1");
 
 	GetConst(CLOS_REAL, &right);
-	generic_compare_class_(left, right, &check);
+	generic_compare_class_(ptr, left, right, &check);
 	test(check < 0, "generic_compare_class2");
 
 	GetConst(CLOS_FIXNUM, &right);
-	generic_compare_class_(left, right, &check);
+	generic_compare_class_(ptr, left, right, &check);
 	test(check > 0, "generic_compare_class3");
 
 	RETURN;
@@ -443,9 +461,11 @@ static int test_generic_compare_class(void)
 static int test_generic_compare_eql(void)
 {
 	int check;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
-	generic_compare_eql_(T, T, &check);
+	generic_compare_eql_(ptr, T, T, &check);
 	test(check == 0, "generic_compare_eql1");
 
 	RETURN;
@@ -455,21 +475,23 @@ static int test_generic_compare_eql_type(void)
 {
 	int check;
 	addr left, right, pos;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 	fixnum_heap(&left, 10);
-	clos_intern_specializer_(left, &left);
+	clos_intern_specializer_(ptr, left, &left);
 	GetConst(CLOS_REAL, &right);
-	generic_compare_eql_type_(left, right, &check);
+	generic_compare_eql_type_(ptr, left, right, &check);
 	test(check < 0, "generic_compare_eql_type1");
 
 	GetConst(CLOS_FIXNUM, &right);
-	generic_compare_eql_type_(left, right, &check);
+	generic_compare_eql_type_(ptr, left, right, &check);
 	test(check < 0, "generic_compare_eql_type2");
 
 	GetConst(CLOS_INTEGER, &pos);
 	stdset_specializer_type_(left, pos);
-	generic_compare_eql_type_(left, right, &check);
+	generic_compare_eql_type_(ptr, left, right, &check);
 	test(check > 0, "generic_compare_eql_type3");
 	clos_forget_all_specializer_unsafe();
 
@@ -480,22 +502,23 @@ static int test_generic_compare_type_eql(void)
 {
 	int check;
 	addr left, right, pos;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
-
 	fixnum_heap(&right, 10);
-	clos_intern_specializer_(right, &right);
+	clos_intern_specializer_(ptr, right, &right);
 	GetConst(CLOS_REAL, &left);
-	generic_compare_type_eql_(left, right, &check);
+	generic_compare_type_eql_(ptr, left, right, &check);
 	test(check > 0, "generic_compare_type_eql1");
 
 	GetConst(CLOS_FIXNUM, &left);
-	generic_compare_type_eql_(left, right, &check);
+	generic_compare_type_eql_(ptr, left, right, &check);
 	test(check > 0, "generic_compare_type_eql2");
 
 	GetConst(CLOS_INTEGER, &pos);
 	stdset_specializer_type_(right, pos);
-	generic_compare_type_eql_(left, right, &check);
+	generic_compare_type_eql_(ptr, left, right, &check);
 	test(check < 0, "generic_compare_type_eql3");
 	clos_forget_all_specializer_unsafe();
 
@@ -506,23 +529,24 @@ static int test_generic_compare_specializer(void)
 {
 	int check;
 	addr left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
-
 	fixnum_heap(&left, 10);
-	clos_intern_specializer_(left, &left);
-	generic_compare_specializer_(left, left, &check);
+	clos_intern_specializer_(ptr, left, &left);
+	generic_compare_specializer_(ptr, left, left, &check);
 	test(check == 0, "generic_compare_specializer1");
 
 	GetConst(CLOS_REAL, &right);
-	generic_compare_specializer_(left, right, &check);
+	generic_compare_specializer_(ptr, left, right, &check);
 	test(check < 0, "generic_compare_specializer2");
-	generic_compare_specializer_(right, left, &check);
+	generic_compare_specializer_(ptr, right, left, &check);
 	test(check > 0, "generic_compare_specializer3");
-	generic_compare_specializer_(right, right, &check);
+	generic_compare_specializer_(ptr, right, right, &check);
 	test(check == 0, "generic_compare_specializer4");
 	GetConst(CLOS_INTEGER, &left);
-	generic_compare_specializer_(left, right, &check);
+	generic_compare_specializer_(ptr, left, right, &check);
 	test(check < 0, "generic_compare_specializer5");
 
 	RETURN;
@@ -532,7 +556,9 @@ static int test_generic_sort_compare(void)
 {
 	int check;
 	addr fixnum, integer, real, cons1, cons2;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 
 	GetConst(CLOS_FIXNUM, &fixnum);
@@ -541,11 +567,11 @@ static int test_generic_sort_compare(void)
 	list_heap(&cons1, fixnum, real, integer, NULL);
 	list_heap(&cons2, fixnum, integer, fixnum, NULL);
 	check = 0;
-	generic_sort_compare_(cons1, cons2, &check, generic_compare_specializer_);
+	generic_sort_compare_(ptr, cons1, cons2, &check, generic_compare_specializer_);
 	test(! check, "generic_sort_compare1");
-	generic_sort_compare_(cons2, cons1, &check, generic_compare_specializer_);
+	generic_sort_compare_(ptr, cons2, cons1, &check, generic_compare_specializer_);
 	test(check, "generic_sort_compare2");
-	generic_sort_compare_(cons1, cons1, &check, generic_compare_specializer_);
+	generic_sort_compare_(ptr, cons1, cons1, &check, generic_compare_specializer_);
 	test(check, "generic_sort_compare3");
 
 	RETURN;
@@ -555,7 +581,9 @@ static int test_generic_sort_call(void)
 {
 	int check;
 	addr fixnum, integer, real, cons1, cons2, method1, method2;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 
 	test_make_method(&method1);
@@ -568,11 +596,11 @@ static int test_generic_sort_call(void)
 	stdset_method_specializers_(method1, cons1);
 	stdset_method_specializers_(method2, cons2);
 
-	generic_sort_call_(method1, method2, &check);
+	generic_sort_call_(ptr, method1, method2, &check);
 	test(! check, "generic_sort_call1");
-	generic_sort_call_(method2, method1, &check);
+	generic_sort_call_(ptr, method2, method1, &check);
 	test(check, "generic_sort_call2");
-	generic_sort_call_(method1, method1, &check);
+	generic_sort_call_(ptr, method1, method1, &check);
 	test(check, "generic_sort_call3");
 
 	RETURN;
@@ -583,7 +611,9 @@ static int test_generic_sort(void)
 	int check;
 	addr fixnum, integer, real, cons1, cons2;
 	addr order, value1, value2, value3;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 
 	GetConst(CLOS_FIXNUM, &fixnum);
@@ -596,18 +626,18 @@ static int test_generic_sort(void)
 	index_heap(&value2, 1);
 	index_heap(&value3, 2);
 	list_heap(&order, value1, value2, value3, NULL);
-	generic_sort_(order, generic_compare_specializer_, cons1, cons2, &check);
+	generic_sort_(ptr, order, generic_compare_specializer_, cons1, cons2, &check);
 	test(! check, "generic_sort1");
-	generic_sort_(order, generic_compare_specializer_, cons2, cons1, &check);
+	generic_sort_(ptr, order, generic_compare_specializer_, cons2, cons1, &check);
 	test(check, "generic_sort2");
-	generic_sort_(order, generic_compare_specializer_, cons1, cons1, &check);
+	generic_sort_(ptr, order, generic_compare_specializer_, cons1, cons1, &check);
 	test(check, "generic_sort3");
 
 	list_heap(&order, value2, value1, value3, NULL);
-	generic_sort_(order, generic_compare_specializer_, cons1, cons2, &check);
+	generic_sort_(ptr, order, generic_compare_specializer_, cons1, cons2, &check);
 	test(! check, "generic_sort4");
 	list_heap(&order, value3, value2, value1, NULL);
-	generic_sort_(order, generic_compare_specializer_, cons1, cons2, &check);
+	generic_sort_(ptr, order, generic_compare_specializer_, cons1, cons2, &check);
 	test(check, "generic_sort5");
 
 	RETURN;
@@ -618,7 +648,9 @@ static int test_generic_sort_order_call(void)
 	int check;
 	addr fixnum, integer, real, cons1, cons2, method1, method2;
 	addr order, value1, value2, value3;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 
 	GetConst(CLOS_FIXNUM, &fixnum);
@@ -635,18 +667,18 @@ static int test_generic_sort_order_call(void)
 	index_heap(&value2, 1);
 	index_heap(&value3, 2);
 	list_heap(&order, value1, value2, value3, NULL);
-	generic_sort_order_call_(order, method1, method2, &check);
+	generic_sort_order_call_(ptr, order, method1, method2, &check);
 	test(! check, "generic_sort_order_call1");
-	generic_sort_order_call_(order, method2, method1, &check);
+	generic_sort_order_call_(ptr, order, method2, method1, &check);
 	test(check, "generic_sort_order_call2");
-	generic_sort_order_call_(order, method1, method1, &check);
+	generic_sort_order_call_(ptr, order, method1, method1, &check);
 	test(check, "generic_sort_order_call3");
 
 	list_heap(&order, value2, value1, value3, NULL);
-	generic_sort_order_call_(order, method1, method2, &check);
+	generic_sort_order_call_(ptr, order, method1, method2, &check);
 	test(! check, "generic_sort_order_call4");
 	list_heap(&order, value3, value2, value1, NULL);
-	generic_sort_order_call_(order, method1, method2, &check);
+	generic_sort_order_call_(ptr, order, method1, method2, &check);
 	test(check, "generic_sort_order_call5");
 
 	RETURN;
@@ -658,7 +690,9 @@ static int test_generic_specializers_sort(void)
 	addr cons1, cons2, cons3, method1, method2, method3;
 	addr order, value1, value2, value3;
 	addr generic;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_FIXNUM, &fixnum);
 	GetConst(CLOS_INTEGER, &integer);
 	GetConst(CLOS_REAL, &real);
@@ -679,7 +713,7 @@ static int test_generic_specializers_sort(void)
 	list_heap(&order, value2, value1, value3, NULL);
 	stdset_generic_precedence_index_(generic, order);
 	list_heap(&cons1, method1, method2, method3, NULL);
-	generic_specializers_sort_(&cons1, generic, cons1);
+	generic_specializers_sort_(ptr, &cons1, generic, cons1);
 
 	GetCons(cons1, &cons2, &cons1);
 	test(cons2 == method2, "generic_specializers_sort1");
@@ -690,7 +724,7 @@ static int test_generic_specializers_sort(void)
 
 	stdset_generic_precedence_index_(generic, Nil);
 	list_heap(&cons1, method1, method2, method3, NULL);
-	generic_specializers_sort_(&cons1, generic, cons1);
+	generic_specializers_sort_(ptr, &cons1, generic, cons1);
 	GetCons(cons1, &cons2, &cons1);
 	test(cons2 == method2, "generic_specializers_sort4");
 	GetCons(cons1, &cons2, &cons1);
@@ -752,15 +786,17 @@ static int test_generic_make_type(void)
 static int test_generic_make_mapcar_class_of(void)
 {
 	addr pos, eql, eqlchecks, args, value1, value2, check;
+	Execute ptr;
 	LocalRoot local;
 	LocalStack stack;
 
+	ptr = Execute_Thread;
 	local = Local_Thread;
 	push_local(local, &stack);
 	fixnum_heap(&value1, 10);
 	fixnum_heap(&value2, 20);
 	clos_forget_all_specializer_unsafe();
-	clos_intern_specializer_(value1, &eql);
+	clos_intern_specializer_(ptr, value1, &eql);
 	list_heap(&eqlchecks, T, T, Nil, NULL);
 	list_heap(&args, value2, value1, value1, value1, value1, NULL);
 	generic_make_mapcar_class_of_(local, &args, eqlchecks, args);
@@ -837,7 +873,7 @@ static int test_closrun_execute(void)
 
 	argument_generic_heap_(ptr->local, &lambda, lambda);
 	parse_callname_error_(&name, name);
-	generic_make_empty_(name, lambda, &generic);
+	generic_make_empty_(ptr, name, lambda, &generic);
 	list_heap(&pos, Nil, NULL);
 	stdset_generic_eqlcheck_(generic, pos);
 	/* method */

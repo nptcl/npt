@@ -5,6 +5,7 @@
 #include "closget_structure.h"
 #include "condition.h"
 #include "cons.h"
+#include "cons_list.h"
 #include "constant.h"
 #include "equal.h"
 #include "execute.h"
@@ -24,48 +25,29 @@
 /*
  *  control
  */
-int structure_class_p_(addr pos, int *ret)
+int structure_class_p(addr pos)
 {
-	addr check;
+	addr x, y;
 
-	if (GetType(pos) != LISPTYPE_CLOS)
-		return Result(ret, 0);
-	Return(clos_class_of_(pos, &pos));
-	GetConst(CLOS_STRUCTURE_CLASS, &check);
-	return clos_subclass_p_(pos, check, ret);
+	if (! closp(pos))
+		return 0;
+	GetClassOfClos(pos, &x);
+	GetConst(CLOS_STRUCTURE_CLASS, &y);
+
+	return x == y;
 }
 
-int structure_class_p_debug(addr pos)
+int structure_class_object_p(addr pos)
 {
-	int check;
-	check = 0;
-	Error(structure_class_p_(pos, &check));
-	return check;
+	return structure_object_p(pos) || structure_class_p(pos);
 }
 
-int structure_class_object_p_debug(addr pos)
+int structure_instance_p(addr pos)
 {
-	return structure_object_p(pos)
-		|| structure_class_p_debug(pos);
-}
-
-int structure_instance_p_(addr pos, int *ret)
-{
-	addr right;
-
-	if (GetType(pos) != LISPTYPE_CLOS)
-		return Result(ret, 0);
-	Return(clos_class_of_(pos, &pos));
-	GetConst(CLOS_STRUCTURE_OBJECT, &right);
-	return clos_subclass_p_(pos, right, ret);
-}
-
-int structure_instance_p_debug(addr pos)
-{
-	int check;
-	check = 0;
-	Error(structure_instance_p_(pos, &check));
-	return check;
+	if (! closp(pos))
+		return 0;
+	GetClassOfClos(pos, &pos);
+	return structure_class_p(pos);
 }
 
 static int equalcall_structure_(addr a, addr b, int *ret,
@@ -80,13 +62,11 @@ static int equalcall_structure_(addr a, addr b, int *ret,
 		return Result(ret, 0);
 	if (! closp(b))
 		return Result(ret, 0);
-	Return(clos_class_of_(a, &c));
-	Return(clos_class_of_(b, &d));
+	GetClassOfClos(a, &c);
+	GetClassOfClos(b, &d);
 	if (c != d)
 		return Result(ret, 0);
-	GetConst(CLOS_STRUCTURE_OBJECT, &d);
-	Return(clos_subclass_p_(c, d, &check));
-	if (! check)
+	if (! structure_class_p(c))
 		return Result(ret, 0);
 
 	/* slots */
@@ -117,16 +97,18 @@ int equalrt_structure_(addr a, addr b, int *ret)
 	return equalcall_structure_(a, b, ret, equalrt_function_);
 }
 
-int typep_structure_(addr value, addr instance, int *ret)
+int typep_structure_(addr instance, addr clos, int *ret)
 {
-	int check;
+	addr list;
 
-	Check(! structure_class_p_debug(instance), "type error");
-	Return(structure_instance_p_(value, &check));
-	if (! check)
+	Check(! structure_class_p(clos), "type error");
+	if (! structure_instance_p(instance))
 		return Result(ret, 0);
-	else
-		return clos_subtype_p_(value, instance, ret);
+
+	/* subtypep */
+	GetClassOfClos(instance, &list);
+	Return(stdget_structure_precedence_list_(list, &list));
+	return Result(ret, find_list_eq_unsafe(clos, list));
 }
 
 int structure_get_object(addr pos, addr *ret)
@@ -169,7 +151,7 @@ int structure_get(addr pos, addr *ret)
 		|| structure_get_object(pos, ret);
 }
 
-static int structure_get_type_upgraded_(addr pos, addr *ret)
+static int structure_get_type_upgraded_(Execute ptr, addr pos, addr *ret)
 {
 	enum ARRAY_TYPE type1;
 	int type2;
@@ -177,14 +159,14 @@ static int structure_get_type_upgraded_(addr pos, addr *ret)
 
 	gettype_structure(pos, &type1, &type2);
 	upgraded_array_object(type1, type2, &pos);
-	Return(type_object_(&pos, pos));
+	Return(type_object_(ptr, &pos, pos));
 	GetConst(COMMON_VECTOR, &vector);
 	list_heap(ret, vector, pos, NULL);
 
 	return 0;
 }
 
-int structure_get_type_(addr pos, addr *ret)
+int structure_get_type_(Execute ptr, addr pos, addr *ret)
 {
 	addr value;
 
@@ -201,7 +183,7 @@ int structure_get_type_(addr pos, addr *ret)
 			return 0;
 		}
 		if (structure_vector_p(value))
-			return structure_get_type_upgraded_(value, ret);
+			return structure_get_type_upgraded_(ptr, value, ret);
 	}
 
 	/* nil */
@@ -214,14 +196,12 @@ int structure_get_type_(addr pos, addr *ret)
  */
 static int getdoc_structure_class_(addr symbol, addr *ret)
 {
-	int check;
 	addr pos;
 
 	clos_find_class_nil(symbol, &pos);
 	if (pos == Nil)
 		return Result(ret, Unbound);
-	Return(structure_class_p_(pos, &check));
-	if (! check)
+	if (! structure_class_p(pos))
 		return Result(ret, Unbound);
 
 	return stdget_structure_documentation_(pos, ret);
@@ -259,14 +239,12 @@ int getdoc_structure_(addr symbol, addr *ret)
 
 static int setdoc_structure_class_(addr symbol, addr value, int *ret)
 {
-	int check;
 	addr pos;
 
 	clos_find_class_nil(symbol, &pos);
 	if (pos == Nil)
 		return Result(ret, 0);
-	Return(structure_class_p_(pos, &check));
-	if (! check)
+	if (! structure_class_p(pos))
 		return Result(ret, 0);
 	Return(stdset_structure_documentation_(pos, value));
 
@@ -314,7 +292,6 @@ int structure_reader_(Execute ptr, addr symbol, addr rest, addr *ret)
 
 int structure_constructor_common_(Execute ptr, addr symbol, addr rest, addr *ret)
 {
-	int check;
 	addr instance;
 
 	if (! symbolp(symbol)) {
@@ -324,8 +301,7 @@ int structure_constructor_common_(Execute ptr, addr symbol, addr rest, addr *ret
 
 	/* class */
 	if (structure_get_class(symbol, &instance)) {
-		Return(structure_class_p_(instance, &check));
-		if (! check) {
+		if (! structure_class_p(instance)) {
 			*ret = Nil;
 			return fmte_("The class ~S don't be a structure-class.", symbol, NULL);
 		}
@@ -368,7 +344,7 @@ void copy_structure_common(addr inst, addr *ret)
 	addr class_of, slots, clos, src, dst, pos;
 	size_t size, i;
 
-	Check(! structure_instance_p_debug(inst), "type error");
+	Check(! structure_instance_p(inst), "type error");
 	/* source */
 	GetClassOfClos(inst, &class_of);
 	GetSlotClos(inst, &slots);

@@ -17,31 +17,36 @@
 /*
  *  condition for clang
  */
-int conditionp_(addr pos, int *ret)
+int conditionp_(Execute ptr, addr pos, int *ret)
 {
 	addr super;
 
 	if (GetType(pos) != LISPTYPE_CLOS)
 		return Result(ret, 0);
 	GetConst(CLOS_CONDITION, &super);
-	return clos_subclass_p_(pos, super, ret);
+	return clos_subclass_p_(ptr, pos, super, ret);
 }
 
 int conditionp_debug(addr pos)
 {
-	int check = 0;
-	Error(conditionp_(pos, &check));
+	int check;
+	Execute ptr;
+
+	ptr = Execute_Thread;
+	check = 0;
+	Error(conditionp_(ptr, pos, &check));
+
 	return check;
 }
 
-int condition_instance_p_(addr pos, int *ret)
+int condition_instance_p_(Execute ptr, addr pos, int *ret)
 {
 	addr super;
 
 	if (GetType(pos) != LISPTYPE_CLOS)
 		return Result(ret, 0);
 	GetConst(CLOS_CONDITION, &super);
-	return clos_subtype_p_(pos, super, ret);
+	return clos_subtype_p_(ptr, pos, super, ret);
 }
 
 static void signal_restart(addr *ret)
@@ -164,16 +169,15 @@ int warning_restart_case_(Execute ptr, addr instance)
 	addr type, control, restart;
 
 	/* type check */
+	Check(ptr == NULL, "execute error.");
 	GetConst(CONDITION_WARNING, &type);
-	Return(clos_subtype_p_(instance, type, &check));
+	Return(clos_subtype_p_(ptr, instance, type, &check));
 	if (! check) {
 		return call_type_error_va_(ptr, instance, type,
 				"The instance ~S must be a WARNING type.", instance, NULL);
 	}
 
 	/* warn */
-	if (ptr == NULL)
-		ptr = Execute_Thread;
 	push_control(ptr, &control);
 	warning_restart_make(&restart);
 	(void)restart1_control_(ptr, restart, signal_function_, instance);
@@ -182,6 +186,7 @@ int warning_restart_case_(Execute ptr, addr instance)
 
 int callclang_warning_(const char *str, ...)
 {
+	Execute ptr;
 	addr format, args, instance;
 	va_list va;
 
@@ -189,8 +194,10 @@ int callclang_warning_(const char *str, ...)
 	va_start(va, str);
 	copylocal_list_stdarg(NULL, &args, va);
 	va_end(va);
-	Return(instance_simple_warning_(&instance, format, args));
-	return warning_restart_case_(NULL, instance);
+
+	ptr = Execute_Thread;
+	Return(instance_simple_warning_(ptr, &instance, format, args));
+	return warning_restart_case_(ptr, instance);
 }
 
 

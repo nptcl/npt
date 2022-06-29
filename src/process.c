@@ -54,7 +54,7 @@ static void process_defclass_slots(addr *ret)
 	*ret = slots;
 }
 
-static int process_defclass_class_(LocalRoot local, addr slots)
+static int process_defclass_class_(Execute ptr, addr slots)
 {
 	addr name, supers, metaclass, instance;
 
@@ -68,10 +68,10 @@ static int process_defclass_class_(LocalRoot local, addr slots)
 	/* metaclass */
 	GetConst(CLOS_STANDARD_CLASS, &metaclass);
 	/* defclass */
-	return clos_stdclass_supers_(local, &instance, metaclass, name, slots, supers);
+	return clos_stdclass_supers_(ptr, &instance, metaclass, name, slots, supers);
 }
 
-static int process_defclass_(LocalRoot local)
+static int process_defclass_(Execute ptr)
 {
 	addr pos, slots;
 
@@ -83,7 +83,7 @@ static int process_defclass_(LocalRoot local)
 
 	/* defclass */
 	process_defclass_slots(&slots);
-	return process_defclass_class_(local, slots);
+	return process_defclass_class_(ptr, slots);
 }
 
 
@@ -331,7 +331,7 @@ static int process_instance_(Execute ptr, addr var, addr args, addr rest, addr *
 	/* make-instance */
 	GetConst(SYSTEM_PROCESS, &pos);
 	Return(clos_find_class_(pos, &pos));
-	Return(clos_instance_heap_(pos, &pos));
+	Return(clos_instance_heap_(ptr, pos, &pos));
 	/* setf slot */
 	Return(ClosSetConst_(pos, KEYWORD_PROGRAM, var));
 	Return(ClosSetConst_(pos, KEYWORD_ARGS, args));
@@ -347,7 +347,7 @@ static int process_instance_(Execute ptr, addr var, addr args, addr rest, addr *
  */
 int run_process_(Execute ptr, addr var, addr args, addr rest, addr *ret)
 {
-	Return(process_defclass_(ptr->local));
+	Return(process_defclass_(ptr));
 	Return(process_instance_(ptr, var, args, rest, &var));
 	return run_process_arch_(ptr, var, ret);
 }

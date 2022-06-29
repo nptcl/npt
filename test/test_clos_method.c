@@ -44,9 +44,11 @@ static int test_stdget_call(addr pos,
 static int test_stdget_method(void)
 {
 	addr pos;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_METHOD, &pos);
-	clos_instance_heap_(pos, &pos);
+	clos_instance_heap_(ptr, pos, &pos);
 
 	CheckStdGetMethod(pos, FUNCTION, function);
 	CheckStdGetMethod(pos, GENERIC_FUNCTION, generic_function);
@@ -64,8 +66,10 @@ static int test_stdget_method(void)
 static int test_method_instance_heap(void)
 {
 	addr instance, clos;
+	Execute ptr;
 
-	method_instance_heap_(&instance, Nil, Nil, Nil, Nil, Nil);
+	ptr = Execute_Thread;
+	method_instance_heap_(ptr, &instance, Nil, Nil, Nil, Nil, Nil);
 	GetConst(CLOS_STANDARD_METHOD, &clos);
 	test(clos_subtype_p_debug(instance, clos), "method_instance_heap1");
 
@@ -75,8 +79,10 @@ static int test_method_instance_heap(void)
 static int test_method_instance_call(void)
 {
 	addr instance, clos;
+	Execute ptr;
 
-	method_instance_call_(NULL, &instance, Nil, T);
+	ptr = Execute_Thread;
+	method_instance_call_(ptr, NULL, &instance, Nil, T);
 	GetConst(CLOS_STANDARD_METHOD, &clos);
 	test(clos_subtype_p_debug(instance, clos), "method_instance_call1");
 	stdget_method_function_(instance, &clos);
@@ -93,9 +99,11 @@ static void argument_method_char(addr *ret, const char *str)
 static int test_method_specializer_list(void)
 {
 	addr lambda, left, right;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	argument_method_char(&lambda, "(a (b integer))");
-	method_specializer_list_(&lambda, lambda);
+	method_specializer_list_(ptr, &lambda, lambda);
 	GetCons(lambda, &left, &lambda);
 	GetConst(CLOS_T, &right);
 	test(left == right, "method_specializer_list1");
@@ -105,7 +113,7 @@ static int test_method_specializer_list(void)
 	test(lambda == Nil, "method_specializer_list3");
 
 	argument_method_char(&lambda, "((a (eql hello)) b)");
-	method_specializer_list_(&lambda, lambda);
+	method_specializer_list_(ptr, &lambda, lambda);
 	GetCons(lambda, &left, &lambda);
 	right = readr_debug("hello");
 	clos_find_specializer_(right, &right);
@@ -121,12 +129,14 @@ static int test_method_specializer_list(void)
 static int test_method_instance_lambda(void)
 {
 	addr lambda, check;
+	Execute ptr;
 	LocalRoot local;
 
+	ptr = Execute_Thread;
 	local = Local_Thread;
 	lambda = readr_debug("(a (b integer))");
 	argument_method_heap_(local, &lambda, lambda);
-	method_instance_lambda_(local, &lambda, Nil, lambda);
+	method_instance_lambda_(ptr, &lambda, Nil, lambda);
 
 	stdget_method_lambda_list_(lambda, &check);
 	test(check != Nil, "method_instance_lambda1");
@@ -143,13 +153,15 @@ static int test_method_instance_lambda(void)
 static int test_method_check_method_class(void)
 {
 	addr generic, method;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap_(generic, &generic);
+	clos_instance_heap_(ptr, generic, &generic);
 	GetConst(CLOS_STANDARD_METHOD, &method);
 	stdset_generic_method_class_(generic, method);
-	method_instance_call_(NULL, &method, Nil, Nil);
-	method_check_method_class_(generic, method);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
+	method_check_method_class_(ptr, generic, method);
 	test(1, "method_check_method_class1");
 
 	RETURN;
@@ -158,13 +170,15 @@ static int test_method_check_method_class(void)
 static int test_method_check_method_qualifiers(void)
 {
 	addr gen, method, cons;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	/* generic */
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &gen);
-	clos_instance_heap_(gen, &gen);
+	clos_instance_heap_(ptr, gen, &gen);
 	stdset_generic_method_combination_(gen, Nil);
 	/* method */
-	method_instance_call_(NULL, &method, Nil, Nil);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	GetConst(KEYWORD_AFTER, &cons);
 	conscar_heap(&cons, cons);
 	stdset_method_qualifiers_(method, cons);
@@ -298,14 +312,16 @@ static int test_method_arguments_check4(void)
 static void test_method_arguments(const char *left, const char *right)
 {
 	addr generic, method, lambda;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	/* generic */
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap_(generic, &generic);
+	clos_instance_heap_(ptr, generic, &generic);
 	argument_generic_char(&lambda, left);
 	stdset_generic_argument_(generic, lambda);
 	/* method */
-	method_instance_call_(NULL, &method, Nil, Nil);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	argument_method_char(&lambda, right);
 	stdset_method_lambda_list_(method, lambda);
 	/* check */
@@ -338,12 +354,14 @@ static int test_method_eqlcheck(void)
 {
 	addr method, check;
 	LocalRoot local;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	local = Local_Thread;
 	method = readr_debug("((a (eql hello)) b (c integer))");
 	argument_method_heap_(local, &method, method);
-	method_instance_lambda_(local, &method, Nil, method);
-	method_eqlcheck_(method, &method);
+	method_instance_lambda_(ptr, &method, Nil, method);
+	method_eqlcheck_(ptr, method, &method);
 
 	GetCons(method, &check, &method);
 	test(check == T, "method_eqlcheck1");
@@ -359,10 +377,12 @@ static int test_method_eqlcheck(void)
 static int test_method_update_eqlcheck(void)
 {
 	addr generic, method, key, cons, cache, value;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap_(generic, &generic);
-	method_instance_call_(NULL, &method, Nil, Nil);
+	clos_instance_heap_(ptr, generic, &generic);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	hashtable_full_heap(&cache, HASHTABLE_TEST_CACHE, 8,
 			HASHTABLE_REHASH_SIZE_DEFAULT, HASHTABLE_REHASH_THRESHOLD_DEFAULT);
 	stdset_generic_cache_(generic, cache);
@@ -375,7 +395,7 @@ static int test_method_update_eqlcheck(void)
 
 	stdget_generic_cache_(generic, &cache);
 	intern_hashheap_(cache, key, &value);
-	method_update_eqlcheck_(generic, method, 1);
+	method_update_eqlcheck_(ptr, generic, method, 1);
 	find_hashtable_(cache, key, &value);
 	test(value != Unbound, "method_update_eqlcheck1");
 
@@ -389,11 +409,11 @@ static int test_method_update_eqlcheck(void)
 	test(cons == Nil, "method_update_eqlcheck5");
 
 	fixnum_heap(&value, 100);
-	clos_intern_specializer_(value, &value);
+	clos_intern_specializer_(ptr, value, &value);
 	GetConst(CLOS_INTEGER, &cons);
 	list_heap(&cons, cons, cons, value, NULL);
 	stdset_method_specializers_(method, cons);
-	method_update_eqlcheck_(generic, method, 1);
+	method_update_eqlcheck_(ptr, generic, method, 1);
 	find_hashtable_(cache, key, &value);
 	test(value == Unbound, "method_update_eqlcheck6");
 
@@ -413,10 +433,12 @@ static int test_method_update_check(void)
 {
 	int check;
 	addr generic, method, cons, cache;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap_(generic, &generic);
-	method_instance_call_(NULL, &method, Nil, Nil);
+	clos_instance_heap_(ptr, generic, &generic);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	hashtable_full_heap(&cache, HASHTABLE_TEST_CACHE, 8,
 			HASHTABLE_REHASH_SIZE_DEFAULT, HASHTABLE_REHASH_THRESHOLD_DEFAULT);
 	stdset_generic_cache_(generic, cache);
@@ -427,11 +449,11 @@ static int test_method_update_check(void)
 
 	stdboundp_generic_eqlcheck_(generic, &check);
 	test(! check, "method_update_check1");
-	method_update_check_(generic, method, 1);
+	method_update_check_(ptr, generic, method, 1);
 	stdboundp_generic_eqlcheck_(generic, &check);
 	test(check, "method_update_check2");
 
-	method_update_check_(generic, method, 1);
+	method_update_check_(ptr, generic, method, 1);
 	stdboundp_generic_eqlcheck_(generic, &check);
 	test(check, "method_update_check3");
 
@@ -445,12 +467,12 @@ static int test_method_push_generic(void)
 
 	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap_(generic, &generic);
+	clos_instance_heap_(ptr, generic, &generic);
 	stdset_generic_method_combination_(generic, Nil);
 	vector4_heap(&array, 4);
 	stdset_generic_vector_(generic, array);
 
-	method_instance_call_(NULL, &method, Nil, Nil);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	stdset_method_qualifiers_(method, Nil);
 	method_push_generic_(ptr, generic, method);
 	stdget_generic_vector_(generic, &array);
@@ -467,7 +489,9 @@ static int test_method_cache_check(void)
 {
 	int check;
 	addr eqlcheck, args, keys, fixnum, integer, real;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	check = 0;
 
 	GetConst(CLOS_FIXNUM, &fixnum);
@@ -476,43 +500,43 @@ static int test_method_cache_check(void)
 	list_heap(&eqlcheck, Nil, Nil, Nil, NULL);
 	list_heap(&args, integer, integer, integer, NULL);
 	list_heap(&keys, integer, integer, integer, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(check, "method_cache_check1");
 
 	list_heap(&args, integer, fixnum, integer, NULL);
 	list_heap(&keys, integer, integer, real, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(! check, "method_cache_check2");
 
 	list_heap(&args, real, fixnum, integer, NULL);
 	list_heap(&keys, integer, integer, real, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(! check, "method_cache_check3");
 
 	list_heap(&args, real, integer, integer, NULL);
 	list_heap(&keys, integer, fixnum, fixnum, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(check, "method_cache_check4");
 
 	list_heap(&eqlcheck, T, T, T, NULL);
 	list_heap(&args, integer, integer, integer, NULL);
 	list_heap(&keys, integer, integer, integer, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(check, "method_cache_check5");
 
 	list_heap(&args, integer, fixnum, integer, NULL);
 	list_heap(&keys, integer, integer, real, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(! check, "method_cache_check6");
 
 	list_heap(&args, real, fixnum, integer, NULL);
 	list_heap(&keys, integer, integer, real, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(! check, "method_cache_check7");
 
 	list_heap(&args, real, integer, integer, NULL);
 	list_heap(&keys, integer, fixnum, fixnum, NULL);
-	method_cache_check_(eqlcheck, args, keys, &check);
+	method_cache_check_(ptr, eqlcheck, args, keys, &check);
 	test(check, "method_cache_check8");
 
 	RETURN;
@@ -521,12 +545,12 @@ static int test_method_cache_check(void)
 static int test_method_cache_remove(void)
 {
 	addr generic, method, key, cons, cache, fixnum, integer, real, value;
-	LocalRoot local;
+	Execute ptr;
 
-	local = Local_Thread;
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap_(generic, &generic);
-	method_cache_remove_(local, generic, NULL);
+	clos_instance_heap_(ptr, generic, &generic);
+	method_cache_remove_(ptr, generic, NULL);
 	test(1, "method_cache_remove1");
 
 	hashtable_full_heap(&cache, HASHTABLE_TEST_CACHE, 8,
@@ -536,7 +560,7 @@ static int test_method_cache_remove(void)
 	list_heap(&cons, T, Nil, NULL);
 	stdset_generic_eqlcheck_(generic, cons);
 
-	method_instance_call_(NULL, &method, Nil, Nil);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	GetConst(CLOS_FIXNUM, &fixnum);
 	GetConst(CLOS_INTEGER, &integer);
 	GetConst(CLOS_REAL, &real);
@@ -544,7 +568,7 @@ static int test_method_cache_remove(void)
 	list_heap(&cons, real, real, NULL);
 	intern_hashheap_(cache, key, &value);
 	stdset_method_specializers_(method, cons);
-	method_cache_remove_(local, generic, method);
+	method_cache_remove_(ptr, generic, method);
 	find_hashtable_(cache, key, &value);
 	test(value == Unbound, "method_cache_remove2");
 
@@ -552,7 +576,7 @@ static int test_method_cache_remove(void)
 	list_heap(&cons, fixnum, fixnum, NULL);
 	intern_hashheap_(cache, key, &value);
 	stdset_method_specializers_(method, cons);
-	method_cache_remove_(local, generic, method);
+	method_cache_remove_(ptr, generic, method);
 	find_hashtable_(cache, key, &value);
 	test(value != Unbound, "method_cache_remove3");
 
@@ -560,7 +584,7 @@ static int test_method_cache_remove(void)
 	list_heap(&cons, real, fixnum, NULL);
 	intern_hashheap_(cache, key, &value);
 	stdset_method_specializers_(method, cons);
-	method_cache_remove_(local, generic, method);
+	method_cache_remove_(ptr, generic, method);
 	find_hashtable_(cache, key, &value);
 	test(value != Unbound, "method_cache_remove4");
 
@@ -570,9 +594,11 @@ static int test_method_cache_remove(void)
 static void test_generic_array(addr *ret, addr *array)
 {
 	addr generic;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &generic);
-	clos_instance_heap_(generic, &generic);
+	clos_instance_heap_(ptr, generic, &generic);
 	stdset_generic_method_combination_(generic, Nil);
 	vector4_heap(array, 4);
 	stdset_generic_vector_(generic, *array);
@@ -584,10 +610,11 @@ static int test_method_find_method_nil(void)
 	addr generic, method, pos, fixnum, integer, array, cons, qua;
 	Execute ptr;
 
+	ptr = Execute_Thread;
 	/* generic */
 	test_generic_array(&generic, &array);
 	/* method */
-	method_instance_call_(NULL, &method, Nil, Nil);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers_(method, qua);
@@ -598,7 +625,6 @@ static int test_method_find_method_nil(void)
 	list_heap(&pos, method, NULL);
 	SetArrayA4(array, 1, pos);
 	/* check */
-	ptr = Execute_Thread;
 	list_heap(&pos, T, T, NULL);
 	method_find_method_nil_(ptr, generic, pos, T, &pos);
 	test(pos == Nil, "method_find_method_nil1");
@@ -621,10 +647,11 @@ static int test_method_find_method(void)
 	addr generic, method, pos, fixnum, integer, array, cons, qua;
 	Execute ptr;
 
+	ptr = Execute_Thread;
 	/* generic */
 	test_generic_array(&generic, &array);
 	/* method */
-	method_instance_call_(NULL, &method, Nil, Nil);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers_(method, qua);
@@ -635,7 +662,6 @@ static int test_method_find_method(void)
 	list_heap(&pos, method, NULL);
 	SetArrayA4(array, 1, pos);
 	/* check */
-	ptr = Execute_Thread;
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	list_heap(&cons, fixnum, integer, NULL);
@@ -652,10 +678,11 @@ static int test_method_remove_method_unsafe(void)
 	addr temp;
 	Execute ptr;
 
+	ptr = Execute_Thread;
 	/* generic */
 	test_generic_array(&generic, &array);
 	/* method */
-	method_instance_call_(NULL, &method, Nil, Nil);
+	method_instance_call_(ptr, NULL, &method, Nil, Nil);
 	GetConst(KEYWORD_BEFORE, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers_(method, qua);
@@ -667,8 +694,7 @@ static int test_method_remove_method_unsafe(void)
 	SetArrayA4(array, 1, pos);
 
 	/* check */
-	ptr = Execute_Thread;
-	method_instance_call_(NULL, &temp, Nil, Nil);
+	method_instance_call_(ptr, NULL, &temp, Nil, Nil);
 	GetConst(KEYWORD_AFTER, &qua);
 	list_heap(&qua, qua, NULL);
 	stdset_method_qualifiers_(temp, qua);

@@ -64,7 +64,7 @@ static int typep_clos_(Execute ptr, addr value, addr type, int *ret)
 	if (type_asterisk_p(type))
 		return Result(ret, 1);
 
-	return clos_subtype_p_(value, type, ret);
+	return clos_subtype_p_(ptr, value, type, ret);
 }
 
 static int typep_asterisk_(Execute ptr, addr value, addr type, int *ret)

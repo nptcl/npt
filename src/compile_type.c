@@ -18,7 +18,7 @@ static int faslwritetype_clos_(Execute ptr, addr stream, addr pos)
 		GetConst(COMMON_ASTERISK, &pos);
 	}
 	else {
-		Return(stdget_class_name_(pos, &pos));
+		Return(stdget_class_name_(ptr, pos, &pos));
 	}
 
 	return faslwrite_value_symbol_(ptr, stream, pos);

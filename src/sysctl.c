@@ -227,7 +227,7 @@ static int sysctl_structure_delete_(Execute ptr, addr pos)
 
 static int sysctl_structure_type_(Execute ptr, addr pos)
 {
-	Return(structure_get_type_(pos, &pos));
+	Return(structure_get_type_(ptr, pos, &pos));
 	setvalues_control(ptr, pos, T, NULL);
 
 	return 0;

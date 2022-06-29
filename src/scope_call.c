@@ -275,8 +275,8 @@ int scope_values_call_(Execute ptr, addr args, addr *rargs, addr *rtype)
  */
 static int scope_the_check_warning_(Execute ptr, addr type, addr expected)
 {
-	Return(type_object_(&type, type));
-	Return(type_object_(&expected, expected));
+	Return(type_object_(ptr, &type, type));
+	Return(type_object_(ptr, &expected, expected));
 	return checkvalue_error_(ptr, Nil, expected,
 			"The special operator THE accept a ~S type, "
 			"but actually the form is ~S type.",

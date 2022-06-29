@@ -200,8 +200,8 @@ static int scope_checktype_function_(Execute ptr, addr table, addr eval)
 	Return(checktype_p_(ptr, type, eval, &false_p, &exclude_p));
 	if (exclude_p) {
 		GetCallName(name, &name);
-		Return(type_object_(&eval, eval));
-		Return(type_object_(&type, type));
+		Return(type_object_(ptr, &eval, eval));
+		Return(type_object_(ptr, &type, type));
 		Return(fmte_("The function ~S must be ~S type, but ~S.",
 					name, eval, type, NULL));
 	}

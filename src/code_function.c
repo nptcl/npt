@@ -895,7 +895,7 @@ int funcall_code(Execute ptr, CodeValue x)
 	/* multiple-value-call only used. */
 	getargs_list_control_unsafe(ptr, 0, &pos);
 	GetCons(pos, &pos, &list);
-	Return(funcallp_(pos, &check));
+	Return(funcallp_(ptr, pos, &check));
 	if (! check)
 		return TypeError_(pos, FUNCTION);
 

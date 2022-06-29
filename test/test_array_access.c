@@ -96,16 +96,18 @@ static int test_array_equal_dimension(void)
 
 static int test_array_get_element_type(void)
 {
+	Execute ptr;
 	addr pos, check;
 
+	ptr = Execute_Thread;
 	GetTypeTable(&pos, T);
 	array_make_array_(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_get_element_type_(pos, &pos);
+	array_get_element_type_(ptr, pos, &pos);
 	test(pos == T, "array_get_element_type.1");
 
 	GetTypeTable(&pos, LongFloat);
 	array_make_array_(&pos, Nil, pos, Unbound, Unbound, Nil, Nil, Nil, Nil);
-	array_get_element_type_(pos, &pos);
+	array_get_element_type_(ptr, pos, &pos);
 	GetConst(COMMON_LONG_FLOAT, &check);
 	test(pos == check, "array_get_element_type.2");
 

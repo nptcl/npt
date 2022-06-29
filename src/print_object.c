@@ -32,13 +32,16 @@
  */
 static int method_print_clos_name_(Execute ptr, addr stream, addr pos)
 {
+	int check;
+
 	if (pos == Unbound)
 		goto unbound;
 	if (! closp(pos))
 		goto unbound;
-	stdget_class_name_check(pos, &pos);
-	if (pos == Unbound)
+	Return(stdboundp_class_name_(ptr, pos, &check));
+	if (! check)
 		goto unbound;
+	Return(stdget_class_name_(ptr, pos, &pos));
 	return princ_print_(ptr, stream, pos);
 unbound:
 	return print_ascii_stream_(stream, "Unbound");
@@ -91,7 +94,6 @@ static int method_print_object_class_(Execute ptr,
  */
 static int write_structure_(Execute ptr, addr stream, addr pos)
 {
-	int check;
 	addr x, y, z;
 	size_t size, i;
 
@@ -99,8 +101,7 @@ static int write_structure_(Execute ptr, addr stream, addr pos)
 	GetClassOfClos(pos, &x);
 	if (x == Unbound)
 		return print_ascii_stream_(stream, "#S(INVALID)");
-	Return(structure_class_p_(x, &check));
-	if (! check)
+	if (! structure_class_p(x))
 		return print_ascii_stream_(stream, "#S(INVALID)");
 	Return(stdget_structure_name_(x, &x));
 	Return(print_ascii_stream_(stream, "#S("));
@@ -153,7 +154,7 @@ static int method_print_object_generic_function_(Execute ptr,
 	addr class_of, name;
 
 	Return(clos_class_of_(pos, &class_of));
-	Return(stdget_class_name_(class_of, &class_of));
+	Return(stdget_class_name_(ptr, class_of, &class_of));
 	Return(stdget_generic_name_(pos, &name));
 	/* #<CLASS-OF CLASS-NAME> */
 	Return(print_ascii_stream_(stream, "#<"));
@@ -255,7 +256,7 @@ static int defmethod_print_object_(Execute ptr, addr name, addr gen,
 	/* method */
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos);
-	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
+	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
@@ -299,10 +300,10 @@ int build_print_object_(Execute ptr)
 	GetConst(COMMON_PRINT_OBJECT, &symbol);
 	mop_argument_generic_var2(&gen);
 	Return(parse_callname_error_(&name, symbol));
-	Return(generic_make_(&gen, name, gen));
+	Return(generic_make_(ptr, &gen, name, gen));
 	SetFunctionSymbol(symbol, gen);
 	/* method */
 	Return(build_print_object_method_(ptr, name, gen));
-	return common_method_finalize_(gen);
+	return common_method_finalize_(ptr, gen);
 }
 

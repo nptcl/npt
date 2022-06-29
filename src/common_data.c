@@ -363,7 +363,7 @@ static void defun_function_lambda_expression(void)
 static int function_functionp(Execute ptr, addr var)
 {
 	int check;
-	Return(funcallp_(var, &check));
+	Return(funcallp_(ptr, var, &check));
 	setbool_control(ptr, check);
 	return 0;
 }

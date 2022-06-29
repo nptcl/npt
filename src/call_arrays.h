@@ -51,7 +51,7 @@ int aref_common_(addr var, addr rest, addr *ret);
 int setf_aref_common_(addr value, addr var, addr rest);
 int array_dimension_common_(addr var, addr axis, addr *ret);
 int array_dimensions_common_(addr var, addr *ret);
-int array_element_type_common_(addr var, addr *ret);
+int array_element_type_common_(Execute ptr, addr var, addr *ret);
 int array_has_fill_pointer_p_common_(addr var, int *ret);
 int array_displacement_common_(addr pos, addr *ret, addr *offset);
 int array_in_bounds_p_common_(addr array, addr rest, int *ret);

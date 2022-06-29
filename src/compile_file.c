@@ -61,7 +61,7 @@ static int function_handler_compile(Execute ptr, addr condition)
 
 	/* warning */
 	GetConst(CONDITION_WARNING, &value);
-	Return(clos_subtype_p_(condition, value, &check));
+	Return(clos_subtype_p_(ptr, condition, value, &check));
 	if (check) {
 		GetConst(SYSTEM_COMPILE_WARNING, &value);
 		setspecial_local(ptr, value, T);
@@ -69,7 +69,7 @@ static int function_handler_compile(Execute ptr, addr condition)
 
 	/* style-warning */
 	GetConst(CONDITION_STYLE_WARNING, &value);
-	Return(clos_subtype_p_(condition, value, &check));
+	Return(clos_subtype_p_(ptr, condition, value, &check));
 	if (check) {
 		GetConst(SYSTEM_COMPILE_STYLE_WARNING, &value);
 		setspecial_local(ptr, value, T);

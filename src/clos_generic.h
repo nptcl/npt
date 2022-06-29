@@ -16,14 +16,13 @@
 #define init_clos_generic _n(init_clos_generic)
 
 /* generic-function */
-int generic_eql_specializer_(addr left, addr right, int check, int *ret);
+int generic_eql_specializer_(Execute ptr, addr left, addr right, int check, int *ret);
 int generic_finalize_(addr gen);
 int closrun_execute_(Execute ptr, addr clos, addr args);
 int generic_order_(addr gen, addr order, addr list);
 
 /* common */
-int generic_compute_applicable_methods_(LocalRoot local,
-		addr gen, addr args, addr *ret);
+int generic_compute_applicable_methods_(Execute ptr, addr gen, addr args, addr *ret);
 int generic_find_method_(Execute ptr,
 		addr gen, addr qua, addr spec, addr errorp, addr *ret);
 

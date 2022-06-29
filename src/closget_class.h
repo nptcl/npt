@@ -4,7 +4,6 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define stdget_class_name_check _n(stdget_class_name_check)
 #define stdget_class_name_ _n(stdget_class_name_)
 #define stdget_class_direct_slots_ _n(stdget_class_direct_slots_)
 #define stdget_class_direct_subclasses_ _n(stdget_class_direct_subclasses_)
@@ -16,7 +15,7 @@
 #define stdget_class_default_initargs_ _n(stdget_class_default_initargs_)
 #define stdget_class_direct_default_initargs_ _n(stdget_class_direct_default_initargs_)
 #define stdget_class_version_ _n(stdget_class_version_)
-#define stdget_class_document_ _n(stdget_class_document_)
+#define stdget_class_documentation_ _n(stdget_class_documentation_)
 #define stdget_class_redefined_class_ _n(stdget_class_redefined_class_)
 
 #define stdset_class_name_ _n(stdset_class_name_)
@@ -30,7 +29,7 @@
 #define stdset_class_default_initargs_ _n(stdset_class_default_initargs_)
 #define stdset_class_direct_default_initargs_ _n(stdset_class_direct_default_initargs_)
 #define stdset_class_version_ _n(stdset_class_version_)
-#define stdset_class_document_ _n(stdset_class_document_)
+#define stdset_class_documentation_ _n(stdset_class_documentation_)
 #define stdset_class_redefined_class_ _n(stdset_class_redefined_class_)
 
 #define stdboundp_class_name_ _n(stdboundp_class_name_)
@@ -44,51 +43,50 @@
 #define stdboundp_class_default_initargs_ _n(stdboundp_class_default_initargs_)
 #define stdboundp_class_direct_default_initargs_ _n(stdboundp_class_direct_default_initargs_)
 #define stdboundp_class_version_ _n(stdboundp_class_version_)
-#define stdboundp_class_document_ _n(stdboundp_class_document_)
+#define stdboundp_class_documentation_ _n(stdboundp_class_documentation_)
 #define stdboundp_class_redefined_class_ _n(stdboundp_class_redefined_class_)
 
-void stdget_class_name_check(addr pos, addr *ret);
-int stdget_class_name_(addr pos, addr *ret);
-int stdget_class_direct_slots_(addr pos, addr *ret);
-int stdget_class_direct_subclasses_(addr pos, addr *ret);
-int stdget_class_direct_superclasses_(addr pos, addr *ret);
-int stdget_class_precedence_list_(addr pos, addr *ret);
-int stdget_class_slots_(addr pos, addr *ret);
-int stdget_class_finalized_p_(addr pos, addr *ret);
-int stdget_class_prototype_(addr pos, addr *ret);
-int stdget_class_default_initargs_(addr pos, addr *ret);
-int stdget_class_direct_default_initargs_(addr pos, addr *ret);
-int stdget_class_version_(addr pos, addr *ret);
-int stdget_class_document_(addr pos, addr *ret);
-int stdget_class_redefined_class_(addr pos, addr *ret);
+int stdget_class_name_(Execute ptr, addr pos, addr *ret);
+int stdget_class_direct_slots_(Execute ptr, addr pos, addr *ret);
+int stdget_class_direct_subclasses_(Execute ptr, addr pos, addr *ret);
+int stdget_class_direct_superclasses_(Execute ptr, addr pos, addr *ret);
+int stdget_class_precedence_list_(Execute ptr, addr pos, addr *ret);
+int stdget_class_slots_(Execute ptr, addr pos, addr *ret);
+int stdget_class_finalized_p_(Execute ptr, addr pos, addr *ret);
+int stdget_class_prototype_(Execute ptr, addr pos, addr *ret);
+int stdget_class_default_initargs_(Execute ptr, addr pos, addr *ret);
+int stdget_class_direct_default_initargs_(Execute ptr, addr pos, addr *ret);
+int stdget_class_version_(Execute ptr, addr pos, addr *ret);
+int stdget_class_documentation_(Execute ptr, addr pos, addr *ret);
+int stdget_class_redefined_class_(Execute ptr, addr pos, addr *ret);
 
-int stdset_class_name_(addr pos, addr value);
-int stdset_class_direct_slots_(addr pos, addr value);
-int stdset_class_direct_subclasses_(addr pos, addr value);
-int stdset_class_direct_superclasses_(addr pos, addr value);
-int stdset_class_precedence_list_(addr pos, addr value);
-int stdset_class_slots_(addr pos, addr value);
-int stdset_class_finalized_p_(addr pos, addr value);
-int stdset_class_prototype_(addr pos, addr value);
-int stdset_class_default_initargs_(addr pos, addr value);
-int stdset_class_direct_default_initargs_(addr pos, addr value);
-int stdset_class_version_(addr pos, addr value);
-int stdset_class_document_(addr pos, addr value);
-int stdset_class_redefined_class_(addr pos, addr value);
+int stdset_class_name_(Execute ptr, addr pos, addr value);
+int stdset_class_direct_slots_(Execute ptr, addr pos, addr value);
+int stdset_class_direct_subclasses_(Execute ptr, addr pos, addr value);
+int stdset_class_direct_superclasses_(Execute ptr, addr pos, addr value);
+int stdset_class_precedence_list_(Execute ptr, addr pos, addr value);
+int stdset_class_slots_(Execute ptr, addr pos, addr value);
+int stdset_class_finalized_p_(Execute ptr, addr pos, addr value);
+int stdset_class_prototype_(Execute ptr, addr pos, addr value);
+int stdset_class_default_initargs_(Execute ptr, addr pos, addr value);
+int stdset_class_direct_default_initargs_(Execute ptr, addr pos, addr value);
+int stdset_class_version_(Execute ptr, addr pos, addr value);
+int stdset_class_documentation_(Execute ptr, addr pos, addr value);
+int stdset_class_redefined_class_(Execute ptr, addr pos, addr value);
 
-int stdboundp_class_name_(addr pos, int *ret);
-int stdboundp_class_direct_slots_(addr pos, int *ret);
-int stdboundp_class_direct_subclasses_(addr pos, int *ret);
-int stdboundp_class_direct_superclasses_(addr pos, int *ret);
-int stdboundp_class_precedence_list_(addr pos, int *ret);
-int stdboundp_class_slots_(addr pos, int *ret);
-int stdboundp_class_finalized_p_(addr pos, int *ret);
-int stdboundp_class_prototype_(addr pos, int *ret);
-int stdboundp_class_default_initargs_(addr pos, int *ret);
-int stdboundp_class_direct_default_initargs_(addr pos, int *ret);
-int stdboundp_class_version_(addr pos, int *ret);
-int stdboundp_class_document_(addr pos, int *ret);
-int stdboundp_class_redefined_class_(addr pos, int *ret);
+int stdboundp_class_name_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_direct_slots_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_direct_subclasses_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_direct_superclasses_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_precedence_list_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_slots_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_finalized_p_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_prototype_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_default_initargs_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_direct_default_initargs_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_version_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_documentation_(Execute ptr, addr pos, int *ret);
+int stdboundp_class_redefined_class_(Execute ptr, addr pos, int *ret);
 
 #endif
 

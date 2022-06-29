@@ -560,7 +560,9 @@ static int test_typecopy_function(void)
 {
 	addr x, y, check;
 	const char *str;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	parse_type_string(&x, "function");
 	type_copy_heap(&y, x);
 	test(testlispdecl(y, LISPDECL_FUNCTION), "typecopy_function1");
@@ -587,9 +589,9 @@ static int test_typecopy_function(void)
 		"(values integer &rest nil))";
 	parse_type_string(&x, str);
 	type_copy_heap(&x, x);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	parse_type_string(&y, str);
-	type_object_(&y, y);
+	type_object_(ptr, &y, y);
 	test(equal_debug(x, y), "typecopy_function10");
 
 	RETURN;
@@ -598,12 +600,14 @@ static int test_typecopy_function(void)
 static int test_typecopy_char(const char *str)
 {
 	addr x, y;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	parse_type_string(&x, str);
 	type_copy_heap(&x, x);
-	type_object_(&x, x);
+	type_object_(ptr, &x, x);
 	parse_type_string(&y, str);
-	type_object_(&y, y);
+	type_object_(ptr, &y, y);
 
 	return equal_debug(x, y);
 }
@@ -689,13 +693,15 @@ static int test_typecopy_simple_array(void)
 static int test_typecopy_real_check(constindex type, const char *str)
 {
 	addr x, y;
+	Execute ptr;
 
+	ptr = Execute_Thread;
 	GetConstant(type, &x);
 	cons_heap(&x, x, readr_debug(str));
 	parse_type_unsafe(&x, x);
 	type_copy_heap(&y, x);
-	type_object_(&x, x);
-	type_object_(&y, y);
+	type_object_(ptr, &x, x);
+	type_object_(ptr, &y, y);
 
 	return equal_debug(x, y);
 }

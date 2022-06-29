@@ -95,7 +95,7 @@ int ed_function_syscode_(Execute ptr, addr file);
 int trace_add_syscode_(Execute ptr, addr var, addr *ret);
 int trace_del_syscode_(Execute ptr, addr var, addr *ret);
 int set_slots_syscode_(addr var, addr slots, addr values);
-int intern_eql_specializer_syscode_(addr var, addr *ret);
+int intern_eql_specializer_syscode_(Execute ptr, addr var, addr *ret);
 int defgeneric_define_syscode_(Execute ptr, addr name, addr args, addr *ret);
 int defgeneric_method_syscode_(addr inst, addr args);
 int condition_restarts_push_syscode_(addr condition, addr restarts);

@@ -163,10 +163,10 @@ int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret)
 
 	if (comb == Nil)
 		return Result(ret, check_qualifiers_equal_standard(qua));
-	Return(clos_long_combination_p_(comb, &check));
+	Return(clos_long_combination_p_(ptr, comb, &check));
 	if (check)
 		return check_qualifiers_equal_long_(ptr, comb, qua, ret);
-	Return(clos_short_combination_p_(comb, &check));
+	Return(clos_short_combination_p_(ptr, comb, &check));
 	if (check)
 		return check_qualifiers_equal_short_(comb, qua, ret);
 	/* error */
@@ -178,18 +178,18 @@ int check_qualifiers_equal_(Execute ptr, addr comb, addr qua, int *ret)
 /*****************************************************************************
  *  qualifiers-position
  *****************************************************************************/
-int method_combination_qualifiers_count_(addr comb, size_t *ret)
+int method_combination_qualifiers_count_(Execute ptr, addr comb, size_t *ret)
 {
 	int check;
 
 	if (comb == Nil)
 		return Result(ret, Clos_standard_size);
-	Return(clos_long_combination_p_(comb, &check));
+	Return(clos_long_combination_p_(ptr, comb, &check));
 	if (check) {
 		Return(stdget_longcomb_qualifiers_(comb, &comb));
 		return Result(ret, length_list_unsafe(comb));
 	}
-	Return(clos_short_combination_p_(comb, &check));
+	Return(clos_short_combination_p_(ptr, comb, &check));
 	if (check)
 		return Result(ret, Clos_short_size);
 	/* error */
@@ -286,10 +286,10 @@ int qualifiers_position_nil_(Execute ptr, addr qua, addr comb,
 	Check(clos_define_combination_p_debug(comb), "type error");
 	if (comb == Nil)
 		return Result(ret, qualifiers_position_standard_nil(qua, rsize));
-	Return(clos_long_combination_p_(comb, &check));
+	Return(clos_long_combination_p_(ptr, comb, &check));
 	if (check)
 		return qualifiers_position_long_nil_(ptr, qua, comb, rsize, ret);
-	Return(clos_short_combination_p_(comb, &check));
+	Return(clos_short_combination_p_(ptr, comb, &check));
 	if (check)
 		return qualifiers_position_short_nil_(qua, comb, rsize, ret);
 	/* error */
@@ -315,12 +315,12 @@ int qualifiers_position_(Execute ptr, addr qua, addr comb, size_t *rsize)
 /*****************************************************************************
  *  standard method-combination
  *****************************************************************************/
-static int build_clos_method_combination_standard_(void)
+static int build_clos_method_combination_standard_(Execute ptr)
 {
 	addr clos, inst, name;
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &clos);
-	Return(clos_instance_heap_(clos, &inst));
+	Return(clos_instance_heap_(ptr, clos, &inst));
 	GetConst(COMMON_STANDARD, &name);
 	Return(stdset_longcomb_name_(inst, name));
 	SetConst(CLOS_COMBINATION_STANDARD, inst);
@@ -328,12 +328,12 @@ static int build_clos_method_combination_standard_(void)
 	return 0;
 }
 
-static int build_clos_method_combination_short_(constindex n, int ident)
+static int build_clos_method_combination_short_(Execute ptr, constindex n, int ident)
 {
 	addr clos, inst, name;
 
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &clos);
-	Return(clos_instance_heap_(clos, &inst));
+	Return(clos_instance_heap_(ptr, clos, &inst));
 	GetConstant(n, &name);
 	Return(stdset_shortdef_name_(inst, name));
 	Return(stdset_shortdef_document_(inst, Nil));
@@ -344,25 +344,25 @@ static int build_clos_method_combination_short_(constindex n, int ident)
 	return 0;
 }
 
-static int build_clos_combination_call_(void)
+static int build_clos_combination_call_(Execute ptr)
 {
-	Return(build_clos_method_combination_standard_());
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_PLUS, 1));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_AND, 1));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_APPEND, 1));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_LIST, 0));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_MAX, 1));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_MIN, 1));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_NCONC, 1));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_OR, 1));
-	Return(build_clos_method_combination_short_(CONSTANT_COMMON_PROGN, 1));
+	Return(build_clos_method_combination_standard_(ptr));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_PLUS, 1));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_AND, 1));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_APPEND, 1));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_LIST, 0));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_MAX, 1));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_MIN, 1));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_NCONC, 1));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_OR, 1));
+	Return(build_clos_method_combination_short_(ptr, CONSTANT_COMMON_PROGN, 1));
 
 	return 0;
 }
 
-void build_clos_combination(void)
+void build_clos_combination(Execute ptr)
 {
-	Error(build_clos_combination_call_());
+	Error(build_clos_combination_call_(ptr));
 }
 
 
@@ -386,12 +386,12 @@ static int clos_method_combination_standard_(addr comb, addr list, addr *ret)
 	return Result(ret, Nil);
 }
 
-static int clos_method_combination_long_(addr comb, addr list, addr *ret)
+static int clos_method_combination_long_(Execute ptr, addr comb, addr list, addr *ret)
 {
 	addr pos, value;
 
 	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
-	Return(clos_instance_heap_(pos, &pos));
+	Return(clos_instance_heap_(ptr, pos, &pos));
 	/* copy */
 	Return(stdget_longdef_name_(comb, &value));
 	Return(stdset_longcomb_name_(pos, value));
@@ -434,14 +434,14 @@ error:
 			":most-specific-first or :most-specific-last.", list, NULL);
 }
 
-static int clos_method_combination_short_(addr comb, addr list, addr *ret)
+static int clos_method_combination_short_(Execute ptr, addr comb, addr list, addr *ret)
 {
 	addr pos, value, order;
 
 	/* (&optional argument-precedence-order) */
 	Return(clos_method_combination_short_arguments_(list, &order));
 	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
-	Return(clos_instance_heap_(pos, &pos));
+	Return(clos_instance_heap_(ptr, pos, &pos));
 	/* copy */
 	Return(stdget_shortdef_name_(comb, &value));
 	Return(stdset_shortcomb_name_(pos, value));
@@ -457,7 +457,7 @@ static int clos_method_combination_short_(addr comb, addr list, addr *ret)
 	return Result(ret, pos);
 }
 
-static int find_method_combination_(addr symbol, addr list, addr *ret)
+static int find_method_combination_(Execute ptr, addr symbol, addr list, addr *ret)
 {
 	int check;
 	addr pos;
@@ -471,25 +471,25 @@ static int find_method_combination_(addr symbol, addr list, addr *ret)
 
 	/* long form */
 	Return(clos_find_combination_(symbol, &pos));
-	Return(clos_define_long_combination_p_(pos, &check));
+	Return(clos_define_long_combination_p_(ptr, pos, &check));
 	if (check)
-		return clos_method_combination_long_(pos, list, ret);
+		return clos_method_combination_long_(ptr, pos, list, ret);
 
 	/* short form */
-	Return(clos_define_short_combination_p_(pos, &check));
+	Return(clos_define_short_combination_p_(ptr, pos, &check));
 	if (check)
-		return clos_method_combination_short_(pos, list, ret);
+		return clos_method_combination_short_(ptr, pos, list, ret);
 
 	/* error */
 	*ret = Nil;
 	return fmte_("Invalid method-combination instance ~S, ~S.", pos, list, NULL);
 }
 
-int mop_find_method_combination_(addr symbol, addr list, addr *ret)
+int mop_find_method_combination_(Execute ptr, addr symbol, addr list, addr *ret)
 {
 	addr pos;
 
-	Return(find_method_combination_(symbol, list, &pos));
+	Return(find_method_combination_(ptr, symbol, list, &pos));
 	if (pos == Nil) {
 		GetConst(CLOS_COMBINATION_STANDARD, &pos);
 	}
@@ -497,7 +497,7 @@ int mop_find_method_combination_(addr symbol, addr list, addr *ret)
 	return Result(ret, pos);
 }
 
-int clos_find_method_combination_(addr list, addr *ret)
+int clos_find_method_combination_(Execute ptr, addr list, addr *ret)
 {
 	addr pos, tail;
 
@@ -506,21 +506,21 @@ int clos_find_method_combination_(addr list, addr *ret)
 		return fmte_("Invalid method-combination instance ~S.", list, NULL);
 	}
 
-	return find_method_combination_(pos, tail, ret);
+	return find_method_combination_(ptr, pos, tail, ret);
 }
 
 
 /*
  *  ensure-define-combination
  */
-int ensure_define_combination_short_common_(
+int ensure_define_combination_short_common_(Execute ptr,
 		addr name, addr doc, addr ident, addr oper)
 {
 	addr pos;
 
 	/* instance */
 	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
-	Return(clos_instance_heap_(pos, &pos));
+	Return(clos_instance_heap_(ptr, pos, &pos));
 	Return(stdset_shortdef_name_(pos, name));
 	Return(stdset_shortdef_document_(pos, doc));
 	Return(stdset_shortdef_identity_(pos, ident));
@@ -531,14 +531,15 @@ int ensure_define_combination_short_common_(
 	return 0;
 }
 
-int ensure_define_combination_long_common_(addr name, addr lambda, addr spec,
+int ensure_define_combination_long_common_(Execute ptr,
+		addr name, addr lambda, addr spec,
 		addr args, addr gen, addr doc, addr form, addr decl)
 {
 	addr pos;
 
 	/* instance */
 	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
-	Return(clos_instance_heap_(pos, &pos));
+	Return(clos_instance_heap_(ptr, pos, &pos));
 	Return(stdset_longdef_name_(pos, name));
 	Return(stdset_longdef_lambda_list_(pos, lambda));
 	Return(stdset_longdef_qualifiers_(pos, spec));

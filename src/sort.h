@@ -12,10 +12,10 @@
 #define merge_sort_sequence_ _n(merge_sort_sequence_)
 
 /* unsafe */
-int simplesort_cons_unsafe_(addr *ret,
-		addr cons, int (*call_)(addr left, addr right, int *ret));
-int simplesort_info_cons_unsafe_(addr *ret, addr cons, addr info,
-		int (*call_)(addr info, addr left, addr right, int *ret));
+int simplesort_cons_unsafe_(Execute ptr, addr *ret, addr cons,
+		int (*call_)(Execute ptr, addr left, addr right, int *ret));
+int simplesort_info_cons_unsafe_(Execute ptr, addr *ret, addr cons, addr info,
+		int (*call_)(Execute ptr, addr info, addr left, addr right, int *ret));
 
 /* sort */
 int simple_sort_sequence_(Execute ptr, addr pos, addr call, addr key);

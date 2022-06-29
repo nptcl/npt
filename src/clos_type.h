@@ -1,6 +1,7 @@
 #ifndef __CLOS_TYPE_HEADER__
 #define __CLOS_TYPE_HEADER__
 
+#include "execute.h"
 #include "typedef.h"
 
 #define init_clos_type _n(init_clos_type)
@@ -12,7 +13,7 @@ void init_clos_type(void);
 int clos_class_of_(addr object, addr *ret);
 
 /* specializer */
-int clos_intern_specializer_(addr object, addr *ret);
+int clos_intern_specializer_(Execute ptr, addr object, addr *ret);
 
 #endif
 

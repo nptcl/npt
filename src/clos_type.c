@@ -336,7 +336,7 @@ int clos_class_of_(addr object, addr *ret)
 /*
  *  specializer
  */
-int clos_intern_specializer_(addr object, addr *ret)
+int clos_intern_specializer_(Execute ptr, addr object, addr *ret)
 {
 	addr pos, type;
 
@@ -346,7 +346,7 @@ int clos_intern_specializer_(addr object, addr *ret)
 
 	/* make eql-specializer */
 	GetConst(CLOS_EQL_SPECIALIZER, &pos);
-	Return(clos_instance_heap_(pos, &pos));
+	Return(clos_instance_heap_(ptr, pos, &pos));
 	/* define eql-specializer */
 	Return(clos_class_of_(object, &type));
 	Return(stdset_specializer_object_(pos, object));

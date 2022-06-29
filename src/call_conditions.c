@@ -230,7 +230,7 @@ static int error_datum_common_(Execute ptr, addr datum, addr rest, addr *ret)
 	/* symbol -> (make-instance symbol ...) */
 	if (symbolp(datum)) {
 		Return(clos_find_class_(datum, &datum));
-		Return(conditionp_(datum, &check));
+		Return(conditionp_(ptr, datum, &check));
 		if (! check) {
 			*ret = Nil;
 			return fmte_("The class ~S is not a condition subclass.", datum, NULL);
@@ -240,7 +240,7 @@ static int error_datum_common_(Execute ptr, addr datum, addr rest, addr *ret)
 	}
 
 	/* condition -> (error condition) */
-	Return(condition_instance_p_(datum, &check));
+	Return(condition_instance_p_(ptr, datum, &check));
 	if (! check) {
 		*ret = Nil;
 		return fmte_("Invalid datum argument ~S.", datum, NULL);
@@ -367,7 +367,7 @@ static int check_type_expand_common_(Execute ptr, addr env, addr *ret,
 	if (string == Nil) {
 		Return(parse_type_(ptr, &string, type, env));
 		localhold_push(hold, string);
-		Return(type_object_(&string, string));
+		Return(type_object_(ptr, &string, string));
 		localhold_push(hold, string);
 		Return(princ_string_heap_(ptr, &string, string));
 	}
@@ -478,7 +478,7 @@ int invalid_method_error_common_(Execute ptr, addr method, addr format, addr arg
 
 	strvect_char_heap(&control, "Method error: ~S~%~?");
 	list_heap(&arguments, method, format, args, NULL);
-	Return(instance_simple_error_(&pos, control, arguments));
+	Return(instance_simple_error_(ptr, &pos, control, arguments));
 	return error_function_(ptr, pos);
 }
 
@@ -492,7 +492,7 @@ int method_combination_error_common_(Execute ptr, addr format, addr args)
 
 	strvect_char_heap(&control, "Method-Combination error:~%~?");
 	list_heap(&arguments, format, args, NULL);
-	Return(instance_simple_error_(&pos, control, arguments));
+	Return(instance_simple_error_(ptr, &pos, control, arguments));
 	return error_function_(ptr, pos);
 }
 
@@ -504,7 +504,7 @@ int signal_common_(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-condition */
-		Return(instance_simple_condition_(&datum, datum, rest));
+		Return(instance_simple_condition_(ptr, &datum, datum, rest));
 	}
 	else {
 		Return(error_datum_common_(ptr, datum, rest, &datum));
@@ -520,7 +520,7 @@ int warn_common_(Execute ptr, addr datum, addr rest)
 {
 	if (stringp(datum)) {
 		/* string -> simple-warning */
-		Return(instance_simple_warning_(&datum, datum, rest));
+		Return(instance_simple_warning_(ptr, &datum, datum, rest));
 	}
 	else {
 		Return(error_datum_common_(ptr, datum, rest, &datum));
@@ -540,7 +540,7 @@ static int break_invoke_common_(Execute ptr, addr format, addr args)
 
 	GetConst(SPECIAL_DEBUGGER_HOOK, &symbol);
 	pushspecial_control(ptr, symbol, Nil);
-	Return(instance_simple_condition_(&condition, format, args));
+	Return(instance_simple_condition_(ptr, &condition, format, args));
 
 	hold = LocalHold_local_push(ptr, condition);
 	Return(invoke_debugger_(ptr, condition));
@@ -826,7 +826,7 @@ int make_condition_common_(Execute ptr, addr args, addr *ret)
 	if (symbolp(condition)) {
 		Return(clos_find_class_(condition, &condition));
 	}
-	Return(conditionp_(condition, &check));
+	Return(conditionp_(ptr, condition, &check));
 	if (! check) {
 		GetConst(COMMON_CONDITION, &expected);
 		return call_type_error_va_(ptr, condition, expected,

@@ -26,7 +26,7 @@ int clos_ensure_class_supers_(addr args, addr *ret, int *referp);
 int clos_ensure_class_slots_(addr args, addr *ret);
 int clos_ensure_class_direct_default_initargs_(LocalRoot local,
 		addr pos, addr args, addr *ret);
-int clos_ensure_class_init_(LocalRoot local, addr pos, int pushp);
+int clos_ensure_class_init_(Execute ptr, addr pos, int pushp);
 
 int clos_finalize_(Execute ptr, addr pos, int *ret);
 int clos_ensure_class_(Execute ptr, addr name, addr args, addr *ret);

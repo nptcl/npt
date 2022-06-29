@@ -40,7 +40,7 @@ static int coerce_error_(Execute ptr, addr pos, addr type)
 {
 	copyheap(&pos, pos);
 	copyheap(&type, type);
-	Return(type_object_(&type, type));
+	Return(type_object_(ptr, &type, type));
 	return call_type_error_va_(ptr, pos, type,
 			"Cannot covert value ~A to a ~S type.", pos, type, NULL);
 }

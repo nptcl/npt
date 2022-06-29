@@ -43,7 +43,7 @@ int structure_delete1_call_(addr instance)
 {
 	addr list, pos;
 
-	Check(! structure_class_p_debug(instance), "type error");
+	Check(! structure_class_p(instance), "type error");
 	Return(stdget_structure_access_(instance, &list));
 	while (list != Nil) {
 		GetCons(list, &pos, &list);
@@ -88,7 +88,7 @@ int structure_delete1_copier_(addr instance)
 {
 	addr symbol;
 
-	Check(! structure_class_p_debug(instance), "type error");
+	Check(! structure_class_p(instance), "type error");
 	Return(stdget_structure_copier_(instance, &symbol));
 	if (symbol != Nil) {
 		SetFunctionSymbol(symbol, Unbound);
@@ -123,7 +123,7 @@ int structure_delete1_predicate_(addr instance)
 {
 	addr symbol;
 
-	Check(! structure_class_p_debug(instance), "type error");
+	Check(! structure_class_p(instance), "type error");
 	Return(stdget_structure_predicate_(instance, &symbol));
 	if (symbol != Nil) {
 		SetFunctionSymbol(symbol, Unbound);
@@ -158,7 +158,7 @@ int structure_delete1_constructor_(addr instance)
 {
 	addr list, symbol;
 
-	Check(! structure_class_p_debug(instance), "type error");
+	Check(! structure_class_p(instance), "type error");
 	Return(stdget_structure_constructor_(instance, &list));
 	while (list != Nil) {
 		GetCons(list, &symbol, &list);
@@ -208,7 +208,7 @@ int structure_delete1_print_(Execute ptr, addr instance)
 {
 	addr gen, method;
 
-	Check(! structure_class_p_debug(instance), "type error");
+	Check(! structure_class_p(instance), "type error");
 	GetConst(COMMON_PRINT_OBJECT, &gen);
 	GetFunctionSymbol(gen, &gen);
 	Return(structure_delete1_method_(ptr, instance, gen, &method));

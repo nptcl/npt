@@ -1,6 +1,7 @@
 #ifndef __CLOS_INSTANCE_HEADER__
 #define __CLOS_INSTANCE_HEADER__
 
+#include "execute.h"
 #include "local.h"
 #include "typedef.h"
 
@@ -39,44 +40,44 @@
 #define clos_define_combination_p_debug _n(clos_define_combination_p_debug)
 
 /* check */
-int clos_subclass_p_(addr clos, addr super, int *ret);
-int clos_subtype_p_(addr clos, addr super, int *ret);
-int clos_class_p_(addr clos, int *ret);
-int clos_funcallable_p_(addr clos, int *ret);
-int clos_generic_p_(addr clos, int *ret);
-int clos_method_p_(addr clos, int *ret);
+int clos_subclass_p_(Execute ptr, addr clos, addr super, int *ret);
+int clos_subtype_p_(Execute ptr, addr clos, addr super, int *ret);
+int clos_class_p_(Execute ptr, addr clos, int *ret);
+int clos_funcallable_p_(Execute ptr, addr clos, int *ret);
+int clos_generic_p_(Execute ptr, addr clos, int *ret);
+int clos_method_p_(Execute ptr, addr clos, int *ret);
 
-int clos_define_combination_p_(addr clos, int *ret);
-int clos_define_long_combination_p_(addr pos, int *ret);
-int clos_define_short_combination_p_(addr pos, int *ret);
-int clos_combination_p_(addr pos, int *ret);
-int clos_long_combination_p_(addr pos, int *ret);
-int clos_short_combination_p_(addr pos, int *ret);
+int clos_define_combination_p_(Execute ptr, addr clos, int *ret);
+int clos_define_long_combination_p_(Execute ptr, addr pos, int *ret);
+int clos_define_short_combination_p_(Execute ptr, addr pos, int *ret);
+int clos_combination_p_(Execute ptr, addr pos, int *ret);
+int clos_long_combination_p_(Execute ptr, addr pos, int *ret);
+int clos_short_combination_p_(Execute ptr, addr pos, int *ret);
 
-int clos_specializer_p_(addr clos, int *ret);
+int clos_specializer_p_(Execute ptr, addr clos, int *ret);
 int clos_referenced_p_(addr clos, int *ret);
-int clos_built_p_(addr clos, int *ret);
-int funcallp_(addr pos, int *ret);
+int clos_built_p_(Execute ptr, addr clos, int *ret);
+int funcallp_(Execute ptr, addr pos, int *ret);
 
 /* make-instance */
-int clos_instance_alloc_(LocalRoot local, addr clos, addr *ret);
-int clos_instance_local_(LocalRoot local, addr clos, addr *ret);
-int clos_instance_heap_(addr clos, addr *ret);
+int clos_instance_alloc_(Execute ptr, LocalRoot local, addr clos, addr *ret);
+int clos_instance_local_(Execute ptr, addr clos, addr *ret);
+int clos_instance_heap_(Execute ptr, addr clos, addr *ret);
 
 /* interface */
 int clos_find_slotname(addr slots, size_t size, addr name);
 int clos_precedence_list_redefine_(
-		LocalRoot local, addr pos, addr *ret, addr x, addr list);
-int clos_precedence_list_(LocalRoot local, addr pos, addr *ret);
-int clos_compute_slots_(LocalRoot local, addr clos, addr *ret);
+		Execute ptr, addr pos, addr *ret, addr x, addr list);
+int clos_precedence_list_(Execute ptr, addr pos, addr *ret);
+int clos_compute_slots_(Execute ptr, addr clos, addr *ret);
 void slotvector_set_location(addr slots);
-int clos_stdclass_direct_slots_(addr instance, addr slots);
-int clos_stdclass_prototype_(addr clos);
-int clos_stdclass_supers_(LocalRoot local,
+int clos_stdclass_direct_slots_(Execute ptr, addr instance, addr slots);
+int clos_stdclass_prototype_(Execute ptr, addr clos);
+int clos_stdclass_supers_(Execute ptr,
 		addr *ret, addr metaclass, addr name, addr slots, addr supers);
 
 /* build */
-void build_clos_class(LocalRoot local);
+void build_clos_class(Execute ptr);
 
 /* debug */
 int clos_subclass_p_debug(addr clos, addr super);

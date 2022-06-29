@@ -178,17 +178,19 @@ int clos_ensure_class_direct_default_initargs_(LocalRoot local,
 	return 0;
 }
 
-static int clos_ensure_class_default_initargs_(LocalRoot local, addr pos, addr *ret)
+static int clos_ensure_class_default_initargs_(Execute ptr, addr pos, addr *ret)
 {
 	addr root, check, list, args, init, key;
+	LocalRoot local;
 	LocalStack stack;
 
-	Return(stdget_class_precedence_list_(pos, &list));
+	local = ptr->local;
+	Return(stdget_class_precedence_list_(ptr, pos, &list));
 	root = check = Nil;
 	push_local(local, &stack);
 	while (list != Nil) {
 		Return_getcons(list, &args, &list);
-		Return(stdget_class_direct_default_initargs_(args, &args));
+		Return(stdget_class_direct_default_initargs_(ptr, args, &args));
 		while (args != Nil) {
 			Return_getcons(args, &init, &args);
 			Return_getcar(init, &key);
@@ -292,7 +294,7 @@ static int clos_ensure_class_function_check_(Execute ptr, addr pos)
 	addr slots, slot, list;
 	size_t size, i;
 
-	Return(stdget_class_slots_(pos, &slots));
+	Return(stdget_class_slots_(ptr, pos, &slots));
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
@@ -308,21 +310,21 @@ static int clos_ensure_class_function_check_(Execute ptr, addr pos)
 }
 
 /* reader/writer generic */
-static int clos_ensure_reader_generic_(addr name)
+static int clos_ensure_reader_generic_(Execute ptr, addr name)
 {
 	addr lambda;
 	mop_argument_generic_var1(&lambda);
-	return generic_make_empty_(name, lambda, &name);
+	return generic_make_empty_(ptr, name, lambda, &name);
 }
 
-static int clos_ensure_writer_generic_(addr name)
+static int clos_ensure_writer_generic_(Execute ptr, addr name)
 {
 	addr lambda;
 	mop_argument_generic_var2(&lambda);
-	return generic_make_empty_(name, lambda, &name);
+	return generic_make_empty_(ptr, name, lambda, &name);
 }
 
-static int clos_ensure_readers_generic_(addr list)
+static int clos_ensure_readers_generic_(Execute ptr, addr list)
 {
 	addr name, gen;
 
@@ -332,13 +334,13 @@ static int clos_ensure_readers_generic_(addr list)
 		getglobal_parse_callname(name, &gen);
 		if (gen != Unbound)
 			continue;
-		Return(clos_ensure_reader_generic_(name));
+		Return(clos_ensure_reader_generic_(ptr, name));
 	}
 
 	return 0;
 }
 
-static int clos_ensure_writers_generic_(addr list)
+static int clos_ensure_writers_generic_(Execute ptr, addr list)
 {
 	addr name, gen;
 
@@ -348,27 +350,27 @@ static int clos_ensure_writers_generic_(addr list)
 		getglobal_parse_callname(name, &gen);
 		if (gen != Unbound)
 			continue;
-		Return(clos_ensure_writer_generic_(name));
+		Return(clos_ensure_writer_generic_(ptr, name));
 	}
 
 	return 0;
 }
 
-static int clos_ensure_class_function_generic_(addr pos)
+static int clos_ensure_class_function_generic_(Execute ptr, addr pos)
 {
 	addr slots, slot, list;
 	size_t size, i;
 
-	Return(stdget_class_slots_(pos, &slots));
+	Return(stdget_class_slots_(ptr, pos, &slots));
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
 		/* reader */
 		getreaders_slot(slot, &list);
-		Return(clos_ensure_readers_generic_(list));
+		Return(clos_ensure_readers_generic_(ptr, list));
 		/* writer */
 		getwriters_slot(slot, &list);
-		Return(clos_ensure_writers_generic_(list));
+		Return(clos_ensure_writers_generic_(ptr, list));
 	}
 
 	return 0;
@@ -417,7 +419,7 @@ static int clos_ensure_reader_method_(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	method_argument_clos_ensure_reader(clos, &pos);
-	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
+	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return method_add_method_(ptr, gen, pos);
 }
@@ -466,7 +468,7 @@ static int clos_ensure_writer_method_(Execute ptr,
 	settype_function(call, type);
 	/* method */
 	method_argument_clos_ensure_writer(clos, &pos);
-	Return(method_instance_lambda_(ptr->local, &pos, Nil, pos));
+	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
 	Return(stdset_method_function_(pos, call));
 	return method_add_method_(ptr, gen, pos);
 }
@@ -506,7 +508,7 @@ static int clos_ensure_class_method_(Execute ptr, addr pos)
 	addr slots, slot, symbol, list;
 	size_t size, i;
 
-	Return(stdget_class_slots_(pos, &slots));
+	Return(stdget_class_slots_(ptr, pos, &slots));
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
@@ -527,42 +529,42 @@ static int clos_ensure_class_function_(Execute ptr, addr pos)
 	/* check */
 	Return(clos_ensure_class_function_check_(ptr, pos));
 	/* make generic-function */
-	Return(clos_ensure_class_function_generic_(pos));
+	Return(clos_ensure_class_function_generic_(ptr, pos));
 	/* make method */
 	return clos_ensure_class_method_(ptr, pos);
 }
 
-static int clos_ensure_class_subclasses_(addr pos)
+static int clos_ensure_class_subclasses_(Execute ptr, addr pos)
 {
 	addr supers, super, list;
 
-	Return(stdget_class_direct_superclasses_(pos, &supers));
+	Return(stdget_class_direct_superclasses_(ptr, pos, &supers));
 	while (supers != Nil) {
 		Return_getcons(supers, &super, &supers);
-		Return(stdget_class_direct_subclasses_(super, &list));
+		Return(stdget_class_direct_subclasses_(ptr, super, &list));
 		pushnew_heap(list, pos, &list);
-		Return(stdset_class_direct_subclasses_(super, list));
+		Return(stdset_class_direct_subclasses_(ptr, super, list));
 	}
 
 	return 0;
 }
 
-static int clos_built_in_class_check_(addr pos)
+static int clos_built_in_class_check_(Execute ptr, addr pos)
 {
 	int check;
 	addr list, super, tclass, built;
 
-	Return(stdget_class_direct_superclasses_(pos, &list));
+	Return(stdget_class_direct_superclasses_(ptr, pos, &list));
 	GetConst(CLOS_T, &tclass);
 	GetConst(CLOS_BUILT_IN_CLASS, &built);
 	while (list != Nil) {
 		GetCons(list, &super, &list);
 		if (super == tclass)
 			continue;
-		Return(clos_subtype_p_(super, built, &check));
+		Return(clos_subtype_p_(ptr, super, built, &check));
 		if (check) {
-			Return(stdget_class_name_(pos, &pos));
-			return call_type_error_va_(NULL, pos, Nil,
+			Return(stdget_class_name_(ptr, pos, &pos));
+			return call_type_error_va_(ptr, pos, Nil,
 					"Invalid superclass ~S in ~S.", super, pos, NULL);
 		}
 	}
@@ -570,30 +572,30 @@ static int clos_built_in_class_check_(addr pos)
 	return 0;
 }
 
-int clos_ensure_class_init_(LocalRoot local, addr pos, int pushp)
+int clos_ensure_class_init_(Execute ptr, addr pos, int pushp)
 {
 	addr value;
 
 	/* class-precedence-list */
-	Return(clos_built_in_class_check_(pos));
-	Return(clos_precedence_list_(local, pos, &value));
-	Return(stdset_class_precedence_list_(pos, value));
+	Return(clos_built_in_class_check_(ptr, pos));
+	Return(clos_precedence_list_(ptr, pos, &value));
+	Return(stdset_class_precedence_list_(ptr, pos, value));
 	/* effective-slots */
-	Return(clos_compute_slots_(local, pos, &value));
-	Return(stdset_class_slots_(pos, value));
+	Return(clos_compute_slots_(ptr, pos, &value));
+	Return(stdset_class_slots_(ptr, pos, value));
 	/* default-initargs */
-	Return(clos_ensure_class_default_initargs_(local, pos, &value));
-	Return(stdset_class_default_initargs_(pos, value));
+	Return(clos_ensure_class_default_initargs_(ptr, pos, &value));
+	Return(stdset_class_default_initargs_(ptr, pos, value));
 	/* subclasses */
 	if (pushp) {
-		Return(clos_ensure_class_subclasses_(pos));
+		Return(clos_ensure_class_subclasses_(ptr, pos));
 	}
 
 	return 0;
 }
 
-static int clos_ensure_class_set_(
-		LocalRoot local, addr pos, addr name, addr args, int pushp)
+static int clos_ensure_class_set_(Execute ptr,
+		addr pos, addr name, addr args, int pushp)
 {
 	int referp;
 	addr supers, slots, value;
@@ -602,15 +604,15 @@ static int clos_ensure_class_set_(
 	Return(clos_ensure_class_supers_(args, &supers, &referp));
 	Return(clos_ensure_class_slots_(args, &slots));
 	/* set value */
-	Return(stdset_class_name_(pos, name));
-	Return(clos_stdclass_direct_slots_(pos, slots));
-	Return(stdset_class_direct_superclasses_(pos, supers));
+	Return(stdset_class_name_(ptr, pos, name));
+	Return(clos_stdclass_direct_slots_(ptr, pos, slots));
+	Return(stdset_class_direct_superclasses_(ptr, pos, supers));
 	/* direct-default-initargs */
-	Return(clos_ensure_class_direct_default_initargs_(local, pos, args, &value));
-	Return(stdset_class_direct_default_initargs_(pos, value));
+	Return(clos_ensure_class_direct_default_initargs_(ptr->local, pos, args, &value));
+	Return(stdset_class_direct_default_initargs_(ptr, pos, value));
 	/* forward-referenced-class */
 	if (! referp)
-		return clos_ensure_class_init_(local, pos, pushp);
+		return clos_ensure_class_init_(ptr, pos, pushp);
 
 	return 0;
 }
@@ -621,7 +623,7 @@ static int clos_finalize_forward_(Execute ptr, addr pos, addr *value, int *ret)
 	int check;
 	addr name;
 
-	Return(stdget_class_name_(pos, &name));
+	Return(stdget_class_name_(ptr, pos, &name));
 	Return(clos_find_class_(name, &pos));
 	Return(clos_finalize_(ptr, pos, &check));
 	if (check)
@@ -638,7 +640,7 @@ static int clos_finalize_forward_p_(Execute ptr, addr clos, int *refp, int *ret)
 	LocalStack stack;
 
 	/* update */
-	Return(stdget_class_direct_superclasses_(clos, &list));
+	Return(stdget_class_direct_superclasses_(ptr, clos, &list));
 	value = 0;
 	local = ptr->local;
 	push_local(local, &stack);
@@ -656,7 +658,7 @@ static int clos_finalize_forward_p_(Execute ptr, addr clos, int *refp, int *ret)
 	/* replace */
 	if (value) {
 		reverse_list_heap_unsafe(&root, root);
-		Return(stdset_class_direct_superclasses_(clos, root));
+		Return(stdset_class_direct_superclasses_(ptr, clos, root));
 	}
 	rollback_local(local, stack);
 	*refp = value;
@@ -670,7 +672,7 @@ int clos_finalize_(Execute ptr, addr pos, int *ret)
 	addr list, value;
 
 	/* finalized check */
-	Return(stdget_class_finalized_p_(pos, &value));
+	Return(stdget_class_finalized_p_(ptr, pos, &value));
 	if (value != Nil)
 		return Result(ret, 0);
 
@@ -680,11 +682,11 @@ int clos_finalize_(Execute ptr, addr pos, int *ret)
 		return Result(ret, 1);
 	if (refp) {
 		/* make class */
-		Return(clos_ensure_class_init_(ptr->local, pos, 1));
+		Return(clos_ensure_class_init_(ptr, pos, 1));
 	}
 
 	/* superclasses */
-	Return(stdget_class_direct_superclasses_(pos, &list));
+	Return(stdget_class_direct_superclasses_(ptr, pos, &list));
 	while (list != Nil) {
 		GetCons(list, &value, &list);
 		Return(clos_finalize_(ptr, value, &check));
@@ -693,9 +695,9 @@ int clos_finalize_(Execute ptr, addr pos, int *ret)
 	}
 
 	/* prototype */
-	Return(clos_stdclass_prototype_(pos));
+	Return(clos_stdclass_prototype_(ptr, pos));
 	Return(clos_ensure_class_function_(ptr, pos));
-	Return(stdset_class_finalized_p_(pos, T));
+	Return(stdset_class_finalized_p_(ptr, pos, T));
 
 	return Result(ret, 0);
 }
@@ -727,7 +729,7 @@ int clos_ensure_class_(Execute ptr, addr name, addr args, addr *ret)
 	Return(clos_ensure_class_object_(ptr, name, args, &pos));
 
 	/* define class */
-	Return(clos_ensure_class_set_(ptr->local, pos, name, args, 1));
+	Return(clos_ensure_class_set_(ptr, pos, name, args, 1));
 	clos_define_class(name, pos);
 
 	return Result(ret, pos);
@@ -752,7 +754,7 @@ int allocate_instance_standard_(Execute ptr, addr clos, addr *ret)
 	}
 
 	/* allocate */
-	Return(stdget_class_slots_(clos, &slots));
+	Return(stdget_class_slots_(ptr, clos, &slots));
 	slot_vector_copyheap_alloc(NULL, &slots, slots);
 	clos_heap(&instance, slots);
 
@@ -911,7 +913,7 @@ static int make_instance_initargs_(Execute ptr, addr clos, addr rest, addr *ret)
 	LocalRoot local;
 
 	local = ptr->local;
-	Return(stdget_class_default_initargs_(clos, &list));
+	Return(stdget_class_default_initargs_(ptr, clos, &list));
 	if (list == Nil) {
 		cons_local(local, ret, clos, rest);
 		return 0;
@@ -930,7 +932,7 @@ static int make_instance_initargs_(Execute ptr, addr clos, addr rest, addr *ret)
 	}
 
 	/* default-initargs */
-	Return(stdget_class_slots_(clos, &slots));
+	Return(stdget_class_slots_(ptr, clos, &slots));
 	for (root = Nil; list != Nil; ) {
 		Return_getcons(list, &temp, &list);
 		Return(list_bind_(temp, &key, &value, &call, NULL));
@@ -956,7 +958,7 @@ static int make_instance_check_(Execute ptr, addr clos, addr rest)
 	addr slots, slot, key, value;
 	size_t size, i;
 
-	Return(stdget_class_slots_(clos, &slots));
+	Return(stdget_class_slots_(ptr, clos, &slots));
 	LenSlotVector(slots, &size);
 	Return_getcdr(rest, &rest);
 	while (rest != Nil) {
@@ -1078,7 +1080,7 @@ int slot_boundp_using_class_common_(Execute ptr,
 		else {
 			/* :class */
 			getclass_slot(slot, &pos);
-			Return(stdget_class_prototype_(pos, &pos));
+			Return(stdget_class_prototype_(ptr, pos, &pos));
 			return slot_boundp_call_(ptr, pos, key, ret);
 		}
 	}
@@ -1123,7 +1125,7 @@ int slot_makunbound_using_class_(Execute ptr, addr clos, addr pos, addr key)
 		else {
 			/* :class */
 			getclass_slot(slot, &pos);
-			Return(stdget_class_prototype_(pos, &pos));
+			Return(stdget_class_prototype_(ptr, pos, &pos));
 			return slot_makunbound_call_(ptr, pos, key);
 		}
 	}
@@ -1168,7 +1170,7 @@ static int slot_value_using_class_getp_(Execute ptr,
 		else {
 			/* :class */
 			getclass_slot(slot, &pos);
-			Return(stdget_class_prototype_(pos, &pos));
+			Return(stdget_class_prototype_(ptr, pos, &pos));
 			return slot_value_call_(ptr, pos, key, ret);
 		}
 	}
@@ -1223,7 +1225,7 @@ int setf_slot_value_using_class_common_(Execute ptr,
 		else {
 			/* :class */
 			getclass_slot(slot, &pos);
-			Return(stdget_class_prototype_(pos, &pos));
+			Return(stdget_class_prototype_(ptr, pos, &pos));
 			return setf_slot_value_call_(ptr, pos, key, value);
 		}
 	}

@@ -8,10 +8,10 @@
 #include "typedef.h"
 
 /* type-of */
-int type_of_common_(addr pos, addr *ret)
+int type_of_common_(Execute ptr, addr pos, addr *ret)
 {
 	Return(type_value_(&pos, pos));
-	Return(type_object_(ret, pos));
+	Return(type_object_(ptr, ret, pos));
 	return 0;
 }
 

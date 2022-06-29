@@ -62,18 +62,18 @@ static void setdiscard_redefine(addr pos, addr value)
 /*
  *  redefine check
  */
-static int clos_finalized_p_(addr pos, int *ret)
+static int clos_finalized_p_(Execute ptr, addr pos, int *ret)
 {
-	Return(stdget_class_finalized_p_(pos, &pos));
+	Return(stdget_class_finalized_p_(ptr, pos, &pos));
 	return Result(ret, pos != Nil);
 }
 
-static int clos_superclasses_referenced_p_(addr pos, int *ret)
+static int clos_superclasses_referenced_p_(Execute ptr, addr pos, int *ret)
 {
 	int check;
 	addr list;
 
-	Return(stdget_class_direct_superclasses_(pos, &list));
+	Return(stdget_class_direct_superclasses_(ptr, pos, &list));
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
 		Return(clos_referenced_p_(pos, &check));
@@ -84,30 +84,29 @@ static int clos_superclasses_referenced_p_(addr pos, int *ret)
 	return Result(ret, 0);
 }
 
-static int clos_redefine_check_subclasses_(
-		LocalRoot local, addr pos, addr x, addr list)
+static int clos_redefine_check_subclasses_(Execute ptr, addr pos, addr x, addr list)
 {
 	addr root;
 
 	/* class-precedence-list check */
-	Return(clos_precedence_list_redefine_(local, pos, &root, x, list));
+	Return(clos_precedence_list_redefine_(ptr, pos, &root, x, list));
 	/* subclasses */
-	Return(stdget_class_direct_subclasses_(pos, &root));
+	Return(stdget_class_direct_subclasses_(ptr, pos, &root));
 	while (root != Nil) {
 		Return_getcons(root, &pos, &root);
-		Return(clos_redefine_check_subclasses_(local, pos, x, list));
+		Return(clos_redefine_check_subclasses_(ptr, pos, x, list));
 	}
 
 	return 0;
 }
 
-static int clos_redefine_slots_(addr pos, addr clos, addr slots1)
+static int clos_redefine_slots_(Execute ptr, addr pos, addr clos, addr slots1)
 {
 	/* slots1 -> slots2 */
 	addr slots2, slot, name, list;
 	size_t size1, size2, i;
 
-	Return(stdget_class_slots_(clos, &slots2));
+	Return(stdget_class_slots_(ptr, clos, &slots2));
 	LenSlotVector(slots1, &size1);
 	LenSlotVector(slots2, &size2);
 
@@ -136,20 +135,20 @@ static int clos_redefine_slots_(addr pos, addr clos, addr slots1)
 	return 0;
 }
 
-static int clos_redefine_information_(LocalRoot local, addr clos, addr slots)
+static int clos_redefine_information_(Execute ptr, addr clos, addr slots)
 {
 	addr pos, value;
 
 	/* redefined */
 	redefine_heap(&pos);
-	Return(clos_redefine_slots_(pos, clos, slots));
-	Return(stdset_class_redefined_class_(clos, pos));
+	Return(clos_redefine_slots_(ptr, pos, clos, slots));
+	Return(stdset_class_redefined_class_(ptr, clos, pos));
 	/* increment */
-	Return(stdget_class_version_(clos, &value));
-	Return(oneplus_integer_common_(local, value, &value));
-	Return(stdset_class_version_(clos, value));
+	Return(stdget_class_version_(ptr, clos, &value));
+	Return(oneplus_integer_common_(ptr->local, value, &value));
+	Return(stdset_class_version_(ptr, clos, value));
 	/* finalized_p */
-	Return(stdset_class_finalized_p_(clos, Nil));
+	Return(stdset_class_finalized_p_(ptr, clos, Nil));
 
 	return 0;
 }
@@ -230,47 +229,46 @@ static int clos_redefine_delete_accessor_(Execute ptr, addr clos, addr slots)
 	return 0;
 }
 
-static int clos_redefine_superclasses_(addr clos, addr supers)
+static int clos_redefine_superclasses_(Execute ptr, addr clos, addr supers)
 {
 	addr list, x, y;
 
 	/* delete subclases */
-	Return(stdget_class_direct_superclasses_(clos, &list));
+	Return(stdget_class_direct_superclasses_(ptr, clos, &list));
 	while (list != Nil) {
 		Return_getcons(list, &x, &list);
-		Return(stdget_class_direct_subclasses_(x, &y));
+		Return(stdget_class_direct_subclasses_(ptr, x, &y));
 		delete_list_eq_unsafe(clos, y, &y);
-		Return(stdset_class_direct_subclasses_(x, y));
+		Return(stdset_class_direct_subclasses_(ptr, x, y));
 	}
 
 	/* push subclasses */
-	Return(stdset_class_direct_superclasses_(clos, supers));
+	Return(stdset_class_direct_superclasses_(ptr, clos, supers));
 	while (supers != Nil) {
 		Return_getcons(supers, &x, &supers);
-		Return(stdget_class_direct_subclasses_(x, &y));
+		Return(stdget_class_direct_subclasses_(ptr, x, &y));
 		pushnew_heap(y, clos, &y);
-		Return(stdset_class_direct_subclasses_(x, y));
+		Return(stdset_class_direct_subclasses_(ptr, x, y));
 	}
 
 	return 0;
 }
 
-static int clos_redefine_update_subclasses_(
-		LocalRoot local, addr clos, addr x, addr list)
+static int clos_redefine_update_subclasses_(Execute ptr, addr clos, addr x, addr list)
 {
 	addr root, slots;
 
 	/* update */
-	Return(stdget_class_slots_(clos, &slots));
-	Return(clos_ensure_class_init_(local, clos, 0));
+	Return(stdget_class_slots_(ptr, clos, &slots));
+	Return(clos_ensure_class_init_(ptr, clos, 0));
 	/* subclasses */
-	Return(stdget_class_direct_subclasses_(clos, &root));
+	Return(stdget_class_direct_subclasses_(ptr, clos, &root));
 	while (root != Nil) {
 		Return_getcons(root, &clos, &root);
-		Return(clos_redefine_update_subclasses_(local, clos, x, list));
+		Return(clos_redefine_update_subclasses_(ptr, clos, x, list));
 	}
 	/* version increment */
-	return clos_redefine_information_(local, clos, slots);
+	return clos_redefine_information_(ptr, clos, slots);
 }
 
 static int clos_redefine_finalized_(Execute ptr, addr clos, addr name, addr rest)
@@ -280,17 +278,17 @@ static int clos_redefine_finalized_(Execute ptr, addr clos, addr name, addr rest
 
 	/* class-precedence-list check */
 	local = ptr->local;
-	Return(stdget_class_slots_(clos, &prev_slots));
+	Return(stdget_class_slots_(ptr, clos, &prev_slots));
 	Return(clos_ensure_class_supers_(rest, &supers, NULL));
 	Return(clos_ensure_class_slots_(rest, &slots));
 	Return(clos_ensure_class_direct_default_initargs_(local, clos, rest, &value));
-	Return(clos_redefine_check_subclasses_(local, clos, clos, supers));
+	Return(clos_redefine_check_subclasses_(ptr, clos, clos, supers));
 	/* update redefine */
-	Return(clos_stdclass_direct_slots_(clos, slots));
+	Return(clos_stdclass_direct_slots_(ptr, clos, slots));
 	Return(clos_redefine_delete_accessor_(ptr, clos, prev_slots));
-	Return(clos_redefine_superclasses_(clos, supers));
-	Return(stdset_class_direct_default_initargs_(clos, value));
-	Return(clos_redefine_update_subclasses_(local, clos, clos, supers));
+	Return(clos_redefine_superclasses_(ptr, clos, supers));
+	Return(stdset_class_direct_default_initargs_(ptr, clos, value));
+	Return(clos_redefine_update_subclasses_(ptr, clos, clos, supers));
 
 	return 0;
 }
@@ -307,9 +305,9 @@ static int clos_redefine_reference_(Execute ptr, addr clos, addr name, addr rest
 	Return(clos_ensure_class_slots_(rest, &slots));
 	Return(clos_ensure_class_direct_default_initargs_(local, clos, rest, &value));
 	/* update redefine */
-	Return(clos_stdclass_direct_slots_(clos, slots));
-	Return(clos_redefine_superclasses_(clos, supers));
-	Return(stdset_class_direct_default_initargs_(clos, value));
+	Return(clos_stdclass_direct_slots_(ptr, clos, slots));
+	Return(clos_redefine_superclasses_(ptr, clos, supers));
+	Return(stdset_class_direct_default_initargs_(ptr, clos, value));
 
 	return 0;
 }
@@ -318,7 +316,7 @@ static int clos_redefine_make_(Execute ptr, addr clos, addr name, addr rest)
 {
 	int check;
 
-	Return(clos_superclasses_referenced_p_(clos, &check));
+	Return(clos_superclasses_referenced_p_(ptr, clos, &check));
 	if (check)
 		return clos_redefine_reference_(ptr, clos, name, rest);
 	else
@@ -339,7 +337,7 @@ static int clos_redefine_finalize_(Execute ptr, addr clos, addr name, addr rest)
 	int check;
 
 	/* finalize check */
-	Return(clos_finalized_p_(clos, &check));
+	Return(clos_finalized_p_(ptr, clos, &check));
 	Return(clos_redefine_make_(ptr, clos, name, rest));
 
 	/* finalize */
@@ -425,7 +423,7 @@ static void clos_redefined_set_value(addr slots, addr values, addr x, addr v)
 	}
 }
 
-static int clos_redefined_instance_(addr pos, addr clos)
+static int clos_redefined_instance_(Execute ptr, addr pos, addr clos)
 {
 	addr pslots, pvalues, slots, values, x, v;
 	size_t size, i;
@@ -435,12 +433,12 @@ static int clos_redefined_instance_(addr pos, addr clos)
 	GetValueClos(pos, &pvalues);
 
 	/* version */
-	Return(stdget_class_version_(clos, &x));
+	Return(stdget_class_version_(ptr, clos, &x));
 	GetFixnum(x, &version);
 	SetVersionClos(pos, version);
 
 	/* update */
-	Return(stdget_class_slots_(clos, &slots));
+	Return(stdget_class_slots_(ptr, clos, &slots));
 	LenSlotVector(slots, &size);
 	clos_value_heap(&values, size);
 	SetSlotClos(pos, slots);
@@ -470,10 +468,10 @@ static int clos_redefined_class_(Execute ptr, addr pos, addr clos)
 
 	/* update instance */
 	Return(getproperty_redefine_(pos, &prop));
-	Return(clos_redefined_instance_(pos, clos));
+	Return(clos_redefined_instance_(ptr, pos, clos));
 
 	/* argument */
-	Return(stdget_class_redefined_class_(clos, &clos));
+	Return(stdget_class_redefined_class_(ptr, clos, &clos));
 	getadd_redefine(clos, &add);
 	getdiscard_redefine(clos, &del);
 
@@ -483,14 +481,14 @@ static int clos_redefined_class_(Execute ptr, addr pos, addr clos)
 	return funcall1_control_(ptr, &call, call, pos, add, del, prop, NULL);
 }
 
-int clos_version_diff_p_(addr pos, int *ret)
+int clos_version_diff_p_(Execute ptr, addr pos, int *ret)
 {
 	addr clos, check;
 	fixnum a, b;
 
 	Return(clos_class_of_(pos, &clos));
 	GetVersionClos(pos, &a);
-	Return(stdget_class_version_(clos, &check));
+	Return(stdget_class_version_(ptr, clos, &check));
 	GetFixnum(check, &b);
 
 	return Result(ret, a != b);
@@ -502,7 +500,7 @@ int clos_version_check_(Execute ptr, addr pos, addr clos)
 	fixnum a, b;
 
 	GetVersionClos(pos, &a);
-	Return(stdget_class_version_(clos, &check));
+	Return(stdget_class_version_(ptr, clos, &check));
 	GetFixnum(check, &b);
 	if (a == b)
 		return 0;

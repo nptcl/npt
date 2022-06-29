@@ -29,7 +29,7 @@
 /*
  *  apply
  */
-static int check_data_function_(addr call, addr *ret)
+static int check_data_function_(Execute ptr, addr call, addr *ret)
 {
 	int check;
 
@@ -38,7 +38,7 @@ static int check_data_function_(addr call, addr *ret)
 		if (macro_function_p(call))
 			return fmte_("Cannot call the macro-function ~S.", call, NULL);
 	}
-	Return(funcallp_(call, &check));
+	Return(funcallp_(ptr, call, &check));
 	if (! check)
 		return fmte_("The argument ~S is not executable.", call, NULL);
 
@@ -47,7 +47,7 @@ static int check_data_function_(addr call, addr *ret)
 
 int apply_common_(Execute ptr, addr call, addr arg, addr args)
 {
-	Return(check_data_function_(call, &call));
+	Return(check_data_function_(ptr, call, &call));
 	Return(lista_safe_local_(ptr->local, &args, arg, args));
 	return apply_named_control_(ptr, call, args);
 }
@@ -217,7 +217,7 @@ int fmakunbound_common_(addr name)
  */
 int funcall_common_(Execute ptr, addr call, addr args)
 {
-	Return(check_data_function_(call, &call));
+	Return(check_data_function_(ptr, call, &call));
 	return apply_named_control_(ptr, call, args);
 }
 

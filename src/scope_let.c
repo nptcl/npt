@@ -86,7 +86,7 @@ int checkvalue_error_(Execute ptr, addr datum, addr expected, const char *str, .
 
 	/* condition */
 	if (eval_compile_p(ptr)) {
-		Return(instance_simple_warning_(&instance, format, list));
+		Return(instance_simple_warning_(ptr, &instance, format, list));
 		return warning_restart_case_(ptr, instance);
 	}
 	else {
@@ -96,8 +96,8 @@ int checkvalue_error_(Execute ptr, addr datum, addr expected, const char *str, .
 
 static int checkvalue_warning_(Execute ptr, addr name, addr type, addr expected)
 {
-	Return(type_object_(&type, type));
-	Return(type_object_(&expected, expected));
+	Return(type_object_(ptr, &type, type));
+	Return(type_object_(ptr, &expected, expected));
 	return checkvalue_error_(ptr, name, expected,
 			"The object ~S must be a ~S type, but ~S type.",
 			name, expected, type, NULL);

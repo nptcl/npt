@@ -6,7 +6,7 @@
 /*
  *  unsafe
  */
-static int test_compare2_(addr left, addr right, int *ret)
+static int test_compare2_(Execute ptr, addr left, addr right, int *ret)
 {
 	fixnum value1, value2;
 	GetFixnum(left, &value1);
@@ -18,7 +18,7 @@ static int test_simplesort_cons_unsafe(void)
 {
 	addr cons, value1, value2, value3, left, left2, left3;
 
-	simplesort_cons_unsafe_(&cons, Nil, test_compare2_);
+	simplesort_cons_unsafe_(NULL, &cons, Nil, test_compare2_);
 	test(cons == Nil, "simplesort_cons_unsafe.1");
 
 	fixnum_heap(&value1, 100);
@@ -26,7 +26,7 @@ static int test_simplesort_cons_unsafe(void)
 	fixnum_heap(&value3, 300);
 	list_heap(&cons, value1, NULL);
 	conscar_heap(&cons, value1);
-	simplesort_cons_unsafe_(&cons, cons, test_compare2_);
+	simplesort_cons_unsafe_(NULL, &cons, cons, test_compare2_);
 	test(cons != Nil, "simplesort_cons_unsafe.2");
 	GetCons(cons, &left, &cons);
 	test(left == value1, "simplesort_cons_unsafe.3");
@@ -34,7 +34,7 @@ static int test_simplesort_cons_unsafe(void)
 
 	/* test */
 	list_heap(&cons, value1, value2, value3, NULL);
-	simplesort_cons_unsafe_(&cons, cons, test_compare2_);
+	simplesort_cons_unsafe_(NULL, &cons, cons, test_compare2_);
 	/* check */
 	GetCons(cons, &left, &cons);
 	GetCons(cons, &left2, &cons);
@@ -47,7 +47,7 @@ static int test_simplesort_cons_unsafe(void)
 	conscar_heap(&cons, value1);
 	cons_heap(&cons, value2, cons);
 	cons_heap(&cons, value3, cons);
-	simplesort_cons_unsafe_(&cons, cons, test_compare2_);
+	simplesort_cons_unsafe_(NULL, &cons, cons, test_compare2_);
 	/* check */
 	GetCons(cons, &left, &cons);
 	GetCons(cons, &left2, &cons);
@@ -57,7 +57,7 @@ static int test_simplesort_cons_unsafe(void)
 
 	/* test */
 	list_heap(&cons, value2, value3, value1, NULL);
-	simplesort_cons_unsafe_(&cons, cons, test_compare2_);
+	simplesort_cons_unsafe_(NULL, &cons, cons, test_compare2_);
 	/* check */
 	GetCons(cons, &left, &cons);
 	GetCons(cons, &left2, &cons);
@@ -68,7 +68,7 @@ static int test_simplesort_cons_unsafe(void)
 	RETURN;
 }
 
-static int test_compare3_(addr info, addr left, addr right, int *ret)
+static int test_compare3_(Execute ptr, addr info, addr left, addr right, int *ret)
 {
 	fixnum value1, value2;
 	if (info == T)
@@ -82,14 +82,14 @@ static int test_simplesort_info_cons_unsafe(void)
 {
 	addr cons, value1, value2, value3, left, left2, left3;
 
-	simplesort_info_cons_unsafe_(&cons, Nil, Nil, test_compare3_);
+	simplesort_info_cons_unsafe_(NULL, &cons, Nil, Nil, test_compare3_);
 	test(cons == Nil, "simplesort_info_cons_unsafe.1");
 
 	fixnum_heap(&value1, 100);
 	fixnum_heap(&value2, 200);
 	fixnum_heap(&value3, 300);
 	list_heap(&cons, value1, NULL);
-	simplesort_info_cons_unsafe_(&cons, cons, Nil, test_compare3_);
+	simplesort_info_cons_unsafe_(NULL, &cons, cons, Nil, test_compare3_);
 	test(cons != Nil, "simplesort_info_cons_unsafe.2");
 	GetCons(cons, &left, &cons);
 	test(left == value1, "simplesort_info_cons_unsafe.3");
@@ -97,7 +97,7 @@ static int test_simplesort_info_cons_unsafe(void)
 
 	/* test */
 	list_heap(&cons, value1, value2, value3, NULL);
-	simplesort_info_cons_unsafe_(&cons, cons, Nil, test_compare3_);
+	simplesort_info_cons_unsafe_(NULL, &cons, cons, Nil, test_compare3_);
 	/* check */
 	GetCons(cons, &left, &cons);
 	GetCons(cons, &left2, &cons);
@@ -107,7 +107,7 @@ static int test_simplesort_info_cons_unsafe(void)
 
 	/* test */
 	list_heap(&cons, value3, value2, value1, NULL);
-	simplesort_info_cons_unsafe_(&cons, cons, Nil, test_compare3_);
+	simplesort_info_cons_unsafe_(NULL, &cons, cons, Nil, test_compare3_);
 	/* check */
 	GetCons(cons, &left, &cons);
 	GetCons(cons, &left2, &cons);
@@ -117,7 +117,7 @@ static int test_simplesort_info_cons_unsafe(void)
 
 	/* test */
 	list_heap(&cons, value2, value3, value1, NULL);
-	simplesort_info_cons_unsafe_(&cons, cons, Nil, test_compare3_);
+	simplesort_info_cons_unsafe_(NULL, &cons, cons, Nil, test_compare3_);
 	/* check */
 	GetCons(cons, &left, &cons);
 	GetCons(cons, &left2, &cons);
@@ -127,7 +127,7 @@ static int test_simplesort_info_cons_unsafe(void)
 
 	/* test */
 	list_heap(&cons, value2, value3, value1, NULL);
-	simplesort_info_cons_unsafe_(&cons, cons, T, test_compare3_);
+	simplesort_info_cons_unsafe_(NULL, &cons, cons, T, test_compare3_);
 	/* check */
 	GetCons(cons, &left, &cons);
 	GetCons(cons, &left2, &cons);

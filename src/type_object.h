@@ -10,7 +10,7 @@
  *     input: type
  *    output: (or symbol cons)
  */
-int type_object_(addr *ret, addr value);
+int type_object_(Execute ptr, addr *ret, addr pos);
 void init_type_object(void);
 
 #endif

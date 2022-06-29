@@ -576,7 +576,7 @@ int find_restart_control_(Execute ptr,
 		return fmte_("The argument ~S must be a symbol.", name, NULL);
 	}
 	if (condition != Nil) {
-		Return(condition_instance_p_(condition, &check));
+		Return(condition_instance_p_(ptr, condition, &check));
 		if (! check) {
 			*value = Nil;
 			*ret = 0;
@@ -606,7 +606,7 @@ int compute_restarts_control_(Execute ptr, addr condition, addr *ret)
 	LocalHold hold;
 
 	if (condition != Nil) {
-		Return(condition_instance_p_(condition, &check));
+		Return(condition_instance_p_(ptr, condition, &check));
 		if (! check) {
 			*ret = Nil;
 			return fmte_("The argument ~S "

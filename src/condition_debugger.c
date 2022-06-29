@@ -107,7 +107,7 @@ static int function_handler_warning(Execute ptr, addr condition)
 
 	Return(error_output_stream_(ptr, &stream));
 	GetConst(CONDITION_SIMPLE_WARNING, &pos);
-	Return(clos_subtype_p_(condition, pos, &check));
+	Return(clos_subtype_p_(ptr, condition, pos, &check));
 	if (check) {
 		Return(simple_condition_format_control_(condition, &format));
 		Return(simple_condition_format_arguments_(condition, &args));
@@ -215,7 +215,7 @@ static int output_type_error_(Execute ptr, addr stream, addr instance)
 	Return(type_error_datum_(instance, &datum));
 	Return(type_error_expected_(instance, &expected));
 	if (GetType(expected) == LISPTYPE_TYPE) {
-		Return(type_object_(&expected, expected));
+		Return(type_object_(ptr, &expected, expected));
 	}
 	return format_stream_(ptr, stream,
 			"The value ~S must be a ~S type.~%", datum, expected, NULL);
@@ -226,39 +226,39 @@ static int output_condition_(Execute ptr, addr stream, addr condition)
 	return 0;
 }
 
-static int condition_check_p_(constindex index, addr condition, int *ret)
+static int condition_check_p_(Execute ptr, constindex index, addr condition, int *ret)
 {
 	int check;
 	addr super;
 
-	Return(condition_instance_p_(condition, &check));
+	Return(condition_instance_p_(ptr, condition, &check));
 	if (! check)
 		return Result(ret, 0);
 	GetConstant(index, &super);
-	return clos_subtype_p_(condition, super, ret);
+	return clos_subtype_p_(ptr, condition, super, ret);
 }
-#define ConditionCheck_(x,y,r) condition_check_p_(CONSTANT_CONDITION_##x,(y),(r))
+#define ConditionCheck_(p,x,y,r) condition_check_p_((p),CONSTANT_CONDITION_##x,(y),(r))
 
 static int output_debugger_(Execute ptr, addr stream, addr pos)
 {
 	int check;
 
-	Return(ConditionCheck_(UNBOUND_VARIABLE, pos, &check));
+	Return(ConditionCheck_(ptr, UNBOUND_VARIABLE, pos, &check));
 	if (check)
 		return output_unbound_variable_(ptr, stream, pos);
-	Return(ConditionCheck_(UNDEFINED_FUNCTION, pos, &check));
+	Return(ConditionCheck_(ptr, UNDEFINED_FUNCTION, pos, &check));
 	if (check)
 		return output_undefined_function_(ptr, stream, pos);
-	Return(ConditionCheck_(UNBOUND_SLOT, pos, &check));
+	Return(ConditionCheck_(ptr, UNBOUND_SLOT, pos, &check));
 	if (check)
 		return output_unbound_slot_(ptr, stream, pos);
-	Return(ConditionCheck_(SIMPLE_CONDITION, pos, &check));
+	Return(ConditionCheck_(ptr, SIMPLE_CONDITION, pos, &check));
 	if (check)
 		return output_simple_error_(ptr, stream, pos);
-	Return(ConditionCheck_(TYPE_ERROR, pos, &check));
+	Return(ConditionCheck_(ptr, TYPE_ERROR, pos, &check));
 	if (check)
 		return output_type_error_(ptr, stream, pos);
-	Return(condition_instance_p_(pos, &check));
+	Return(condition_instance_p_(ptr, pos, &check));
 	if (check)
 		return output_condition_(ptr, stream, pos);
 	/* otherwise */
@@ -270,7 +270,7 @@ static int invoke_standard_header_(Execute ptr, addr io, addr condition)
 	addr pos;
 
 	Return(clos_class_of_(condition, &pos));
-	Return(stdget_class_name_(pos, &pos));
+	Return(stdget_class_name_(ptr, pos, &pos));
 	(void)text_color_terme(ptr, print_color_bright_red);
 	Return(finish_output_stream_(io));
 	Return(format_stream_(ptr, io, "~&ERROR: ~S~%", pos, NULL));

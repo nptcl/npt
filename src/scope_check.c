@@ -42,8 +42,8 @@ static int scope_call_first(Execute ptr, addr *ret, addr first)
  */
 static int check_tablecall_warning_(Execute ptr, addr name, addr type, addr expected)
 {
-	Return(type_object_(&type, type));
-	Return(type_object_(&expected, expected));
+	Return(type_object_(ptr, &type, type));
+	Return(type_object_(ptr, &expected, expected));
 	return checkvalue_error_(ptr, name, expected,
 			"Value ~S expected ~S type, but initialize form is ~S type.",
 			name, expected, type, NULL);

@@ -24,7 +24,7 @@
 /*
  *  defmethod
  */
-static int method_instance_alloc_(LocalRoot local, addr *ret, addr clos,
+static int method_instance_alloc_(Execute ptr, LocalRoot local, addr *ret, addr clos,
 		addr lambda, addr qua, addr spec, addr call)
 {
 	addr pos;
@@ -32,7 +32,7 @@ static int method_instance_alloc_(LocalRoot local, addr *ret, addr clos,
 	/* make-instance */
 	if (clos == Nil)
 		GetConst(CLOS_STANDARD_METHOD, &clos);
-	Return(clos_instance_alloc_(local, clos, &pos));
+	Return(clos_instance_alloc_(ptr, local, clos, &pos));
 	Return(stdset_method_lambda_list_(pos, lambda));
 	Return(stdset_method_qualifiers_(pos, qua));
 	Return(stdset_method_specializers_(pos, spec));
@@ -41,18 +41,18 @@ static int method_instance_alloc_(LocalRoot local, addr *ret, addr clos,
 	return Result(ret, pos);
 }
 
-static int method_instance_heap_(addr *ret, addr clos,
+static int method_instance_heap_(Execute ptr, addr *ret, addr clos,
 		addr lambda, addr qua, addr spec, addr call)
 {
-	return method_instance_alloc_(NULL, ret, clos, lambda, qua, spec, call);
+	return method_instance_alloc_(ptr, NULL, ret, clos, lambda, qua, spec, call);
 }
 
-int method_instance_call_(LocalRoot local, addr *ret, addr clos, addr call)
+int method_instance_call_(Execute ptr, LocalRoot local, addr *ret, addr clos, addr call)
 {
-	return method_instance_alloc_(local, ret, clos, Nil, Nil, Nil, call);
+	return method_instance_alloc_(ptr, local, ret, clos, Nil, Nil, Nil, call);
 }
 
-static int method_specializer_list_(addr *ret, addr list)
+static int method_specializer_list_(Execute ptr, addr *ret, addr list)
 {
 	addr root, var, spec;
 
@@ -69,7 +69,7 @@ static int method_specializer_list_(addr *ret, addr list)
 			/* (eql spec) */
 			GetCdr(spec, &spec); /* eql */
 			GetCar(spec, &spec); /* spec */
-			Return(clos_intern_specializer_(spec, &spec));
+			Return(clos_intern_specializer_(ptr, spec, &spec));
 		}
 		else {
 			/* type */
@@ -84,13 +84,13 @@ static int method_specializer_list_(addr *ret, addr list)
 	return 0;
 }
 
-int method_instance_lambda_(LocalRoot local, addr *ret, addr clos, addr lambda)
+int method_instance_lambda_(Execute ptr, addr *ret, addr clos, addr lambda)
 {
 	addr spec;
 
 	Check(! argumentp(lambda), "type error");
-	Return(method_specializer_list_(&spec, lambda));
-	return method_instance_heap_(ret, clos, lambda, Nil, spec, Nil);
+	Return(method_specializer_list_(ptr, &spec, lambda));
+	return method_instance_heap_(ptr, ret, clos, lambda, Nil, spec, Nil);
 }
 
 
@@ -110,12 +110,12 @@ static int method_check_generic_function_(addr gen, addr method)
 	return 0;
 }
 
-static int method_check_method_class_(addr gen, addr method)
+static int method_check_method_class_(Execute ptr, addr gen, addr method)
 {
 	int check;
 
 	Return(stdget_generic_method_class_(gen, &gen));
-	Return(clos_subtype_p_(method, gen, &check));
+	Return(clos_subtype_p_(ptr, method, gen, &check));
 	if (! check)
 		return fmte_("The method don't push in the generic-function.", NULL);
 
@@ -263,7 +263,7 @@ static int method_check_method_arguments_(addr gen, addr method)
 	return 0;
 }
 
-static int method_eqlcheck_(addr method, addr *ret)
+static int method_eqlcheck_(Execute ptr, addr method, addr *ret)
 {
 	int check;
 	addr cons, spec;
@@ -271,7 +271,7 @@ static int method_eqlcheck_(addr method, addr *ret)
 	Return(stdget_method_specializers_(method, &method));
 	for (cons = Nil; method != Nil; ) {
 		GetCons(method, &spec, &method);
-		Return(clos_specializer_p_(spec, &check));
+		Return(clos_specializer_p_(ptr, spec, &check));
 		spec = check? T: Nil;
 		cons_heap(&cons, spec, cons);
 	}
@@ -280,15 +280,15 @@ static int method_eqlcheck_(addr method, addr *ret)
 	return 0;
 }
 
-static int method_update_eqlcheck_p_(addr value, addr spec, int *ret)
+static int method_update_eqlcheck_p_(Execute ptr, addr value, addr spec, int *ret)
 {
 	if (value != Nil)
 		return Result(ret, 1);
 	else
-		return clos_specializer_p_(spec, ret);
+		return clos_specializer_p_(ptr, spec, ret);
 }
 
-static int method_update_eqlcheck_(addr gen, addr method, int deletep)
+static int method_update_eqlcheck_(Execute ptr, addr gen, addr method, int deletep)
 {
 	int update, check;
 	addr eqlcheck, value, specs, spec, next;
@@ -301,7 +301,7 @@ static int method_update_eqlcheck_(addr gen, addr method, int deletep)
 		GetCons(eqlcheck, &value, &next);
 		Check(specs == Nil, "method-specializers error");
 		GetCons(specs, &spec, &specs);
-		Return(method_update_eqlcheck_p_(value, spec, &check));
+		Return(method_update_eqlcheck_p_(ptr, value, spec, &check));
 		spec = check? T: Nil;
 		if (spec != value) {
 			SetCar(eqlcheck, spec);
@@ -318,16 +318,16 @@ static int method_update_eqlcheck_(addr gen, addr method, int deletep)
 	return 0;
 }
 
-static int method_update_check_(addr gen, addr method, int deletep)
+static int method_update_check_(Execute ptr, addr gen, addr method, int deletep)
 {
 	int check;
 
 	Return(stdboundp_generic_eqlcheck_(gen, &check));
 	if (check) {
-		Return(method_update_eqlcheck_(gen, method, deletep));
+		Return(method_update_eqlcheck_(ptr, gen, method, deletep));
 	}
 	else {
-		Return(method_eqlcheck_(method, &method));
+		Return(method_eqlcheck_(ptr, method, &method));
 		Return(stdset_generic_eqlcheck_(gen, method));
 	}
 
@@ -356,7 +356,8 @@ static int method_push_generic_(Execute ptr, addr gen, addr method)
 	return 0;
 }
 
-static int method_cache_check_(addr eqlcheck, addr args, addr keys, int *ret)
+static int method_cache_check_(Execute ptr,
+		addr eqlcheck, addr args, addr keys, int *ret)
 {
 	int every;
 	addr check, arg, key;
@@ -368,10 +369,10 @@ static int method_cache_check_(addr eqlcheck, addr args, addr keys, int *ret)
 		GetCons(args, &arg, &args);
 		GetCons(keys, &key, &keys);
 		if (check != Nil) {
-			Return(generic_eql_specializer_(key, arg, 1, &every));
+			Return(generic_eql_specializer_(ptr, key, arg, 1, &every));
 		}
 		else {
-			Return(clos_subclass_p_(key, arg, &every));
+			Return(clos_subclass_p_(ptr, key, arg, &every));
 		}
 		if (! every)
 			return Result(ret, 0);
@@ -380,10 +381,11 @@ static int method_cache_check_(addr eqlcheck, addr args, addr keys, int *ret)
 	return Result(ret, 1);
 }
 
-static int method_cache_remove_(LocalRoot local, addr gen, addr method)
+static int method_cache_remove_(Execute ptr, addr gen, addr method)
 {
 	int check;
 	addr eqlcheck, args, cache, key, keys;
+	LocalRoot local;
 	LocalStack stack;
 
 	Return(stdboundp_generic_eqlcheck_(gen, &check));
@@ -393,11 +395,12 @@ static int method_cache_remove_(LocalRoot local, addr gen, addr method)
 	Return(stdget_generic_eqlcheck_(gen, &eqlcheck));
 	Return(stdget_method_specializers_(method, &args));
 
+	local = ptr->local;
 	push_local(local, &stack);
 	allkeys_hashtable_local(local, cache, &keys);
 	while (keys != Nil) {
 		GetCons(keys, &key, &keys);
-		Return(method_cache_check_(eqlcheck, args, key, &check));
+		Return(method_cache_check_(ptr, eqlcheck, args, key, &check));
 		if (check) {
 			Return(delete_hashtable_(cache, key, &check));
 		}
@@ -473,7 +476,7 @@ int method_remove_method_(Execute ptr, addr gen, addr method)
 	Return(method_remove_method_unsafe_(ptr, gen, method, &check));
 	if (! check)
 		return 0;
-	Return(method_cache_remove_(ptr->local, gen, method));
+	Return(method_cache_remove_(ptr, gen, method));
 	return generic_finalize_(gen);
 }
 
@@ -497,7 +500,7 @@ static int method_add_replace_(Execute ptr,
 static int method_add_check_(Execute ptr, addr gen, addr method)
 {
 	Return(method_check_generic_function_(gen, method));
-	Return(method_check_method_class_(gen, method));
+	Return(method_check_method_class_(ptr, gen, method));
 	Return(method_check_method_qualifiers_(ptr, gen, method));
 	Return(method_check_method_arguments_(gen, method));
 
@@ -514,11 +517,11 @@ int method_add_method_(Execute ptr, addr gen, addr method)
 		Return(method_add_replace_(ptr, gen, method, check_method));
 	}
 	else {
-		Return(method_update_check_(gen, method, 1));
+		Return(method_update_check_(ptr, gen, method, 1));
 		Return(method_push_generic_(ptr, gen, method));
 		Return(stdset_method_generic_function_(method, gen));
 	}
-	Return(method_cache_remove_(ptr->local, gen, method));
+	Return(method_cache_remove_(ptr, gen, method));
 	return generic_finalize_(gen);
 }
 
@@ -539,11 +542,11 @@ int common_method_add_(Execute ptr, addr gen, addr method)
 		return fmte_("The method is already exists.", NULL);
 	}
 	else {
-		Return(method_update_check_(gen, method, 1));
+		Return(method_update_check_(ptr, gen, method, 1));
 		Return(method_push_generic_(ptr, gen, method));
 		Return(stdset_method_generic_function_(method, gen));
 	}
-	Return(method_cache_remove_(ptr->local, gen, method));
+	Return(method_cache_remove_(ptr, gen, method));
 	return generic_finalize_(gen);
 }
 #else
@@ -556,12 +559,13 @@ int common_method_add_(Execute ptr, addr gen, addr method)
 }
 #endif
 
-static int defmethod_make_generic_function_(addr name, addr lambda, addr *ret)
+static int defmethod_make_generic_function_(Execute ptr,
+		addr name, addr lambda, addr *ret)
 {
 	Check(! callnamep(name), "type error");
 	Check(! argumentp(lambda), "type error");
 	argument_method_to_generic(lambda, &lambda);
-	return generic_make_empty_(name, lambda, ret);
+	return generic_make_empty_(ptr, name, lambda, ret);
 }
 
 int ensure_method_common_(Execute ptr, addr *ret,
@@ -577,15 +581,15 @@ int ensure_method_common_(Execute ptr, addr *ret,
 		Return(argument_method_heap_(ptr->local, &lambda, lambda));
 	}
 	if (gen == Unbound) {
-		Return(defmethod_make_generic_function_(name, lambda, &gen));
+		Return(defmethod_make_generic_function_(ptr, name, lambda, &gen));
 	}
-	Return(clos_generic_p_(gen, &check));
+	Return(clos_generic_p_(ptr, gen, &check));
 	if (! check)
 		return fmte_("The function ~S is not generic-function.", gen, NULL);
 	Return(stdget_generic_method_class_(gen, &clos));
 
 	hold = LocalHold_array(ptr, 1);
-	Return(method_instance_heap_(&method, clos, lambda, qua, spec, call));
+	Return(method_instance_heap_(ptr, &method, clos, lambda, qua, spec, call));
 	localhold_set(hold, 0, method);
 	Return(method_add_method_(ptr, gen, method));
 	localhold_end(hold);
@@ -593,7 +597,7 @@ int ensure_method_common_(Execute ptr, addr *ret,
 	return Result(ret, method);
 }
 
-static int common_method_set_finalize_(addr gen)
+static int common_method_set_finalize_(Execute ptr, addr gen)
 {
 	addr pos, list, method;
 	size_t size, i;
@@ -604,13 +608,13 @@ static int common_method_set_finalize_(addr gen)
 		GetArrayA4(pos, i, &list);
 		while (list != Nil) {
 			GetCons(list, &method, &list);
-			Return(method_update_check_(gen, method, 0));
+			Return(method_update_check_(ptr, gen, method, 0));
 		}
 	}
 	return generic_finalize_(gen);
 }
 
-int common_method_finalize_(addr gen)
+int common_method_finalize_(Execute ptr, addr gen)
 {
 #ifdef LISP_DEBUG
 	addr pos;
@@ -622,7 +626,7 @@ int common_method_finalize_(addr gen)
 	clear_hashtable(pos);
 #endif
 	/* build generic */
-	return common_method_set_finalize_(gen);
+	return common_method_set_finalize_(ptr, gen);
 }
 
 

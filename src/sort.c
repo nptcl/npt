@@ -15,8 +15,8 @@
 /*
  *  unsafe
  */
-int simplesort_cons_unsafe_(addr *ret,
-		addr cons, int (*call_)(addr left, addr right, int *ret))
+int simplesort_cons_unsafe_(Execute ptr, addr *ret, addr cons,
+		int (*call_)(Execute ptr, addr left, addr right, int *ret))
 {
 	int check;
 	addr value, left, right;
@@ -26,7 +26,7 @@ int simplesort_cons_unsafe_(addr *ret,
 		GetCons(cons, &left, &value);
 		while (value != Nil) {
 			GetCar(value, &right);
-			Return((*call_)(left, right, &check));
+			Return((*call_)(ptr, left, right, &check));
 			if (! check) {
 				/* swap */
 				SetCar(cons, right);
@@ -41,8 +41,8 @@ int simplesort_cons_unsafe_(addr *ret,
 	return 0;
 }
 
-int simplesort_info_cons_unsafe_(addr *ret, addr cons, addr info,
-		int (*call_)(addr info, addr left, addr right, int *ret))
+int simplesort_info_cons_unsafe_(Execute ptr, addr *ret, addr cons, addr info,
+		int (*call_)(Execute ptr, addr info, addr left, addr right, int *ret))
 {
 	int check;
 	addr value, left, right;
@@ -52,7 +52,7 @@ int simplesort_info_cons_unsafe_(addr *ret, addr cons, addr info,
 		GetCons(cons, &left, &value);
 		while (value != Nil) {
 			GetCar(value, &right);
-			Return((*call_)(info, left, right, &check));
+			Return((*call_)(ptr, info, left, right, &check));
 			if (! check) {
 				/* swap */
 				SetCar(cons, right);
