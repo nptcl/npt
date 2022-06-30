@@ -75,7 +75,7 @@ static int defmethod_make_method_lambda_std_(Execute ptr, addr name, addr gen)
 	/* method */
 	method_argument_make_method_lambda_std(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 

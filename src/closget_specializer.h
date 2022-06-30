@@ -11,12 +11,12 @@
 #define stdboundp_specializer_object_ _n(stdboundp_specializer_object_)
 #define stdboundp_specializer_type_ _n(stdboundp_specializer_type_)
 
-int stdget_specializer_object_(addr pos, addr *ret);
-int stdget_specializer_type_(addr pos, addr *ret);
-int stdset_specializer_object_(addr pos, addr value);
-int stdset_specializer_type_(addr pos, addr value);
-int stdboundp_specializer_object_(addr pos, int *ret);
-int stdboundp_specializer_type_(addr pos, int *ret);
+int stdget_specializer_object_(Execute ptr, addr pos, addr *ret);
+int stdget_specializer_type_(Execute ptr, addr pos, addr *ret);
+int stdset_specializer_object_(Execute ptr, addr pos, addr value);
+int stdset_specializer_type_(Execute ptr, addr pos, addr value);
+int stdboundp_specializer_object_(Execute ptr, addr pos, int *ret);
+int stdboundp_specializer_type_(Execute ptr, addr pos, int *ret);
 
 #endif
 

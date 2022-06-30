@@ -770,7 +770,9 @@ static int method_defstruct_default(Execute ptr,
 static int structure_print_default_method_(struct defstruct *str, addr name, addr *ret)
 {
 	addr pos, call, type;
+	Execute ptr;
 
+	ptr = str->ptr;
 	/* function */
 	compiled_heap(&call, name);
 	GetCallName(name, &name);
@@ -779,8 +781,8 @@ static int structure_print_default_method_(struct defstruct *str, addr name, add
 	settype_function(call, type);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	Return(method_instance_lambda_(str->ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
+	Return(stdset_method_function_(ptr, pos, call));
 
 	return Result(ret, pos);
 }
@@ -826,7 +828,9 @@ static int method_defstruct_object(Execute ptr,
 static int structure_print_object_method_(struct defstruct *str, addr name, addr *ret)
 {
 	addr pos, call, type;
+	Execute ptr;
 
+	ptr = str->ptr;
 	/* function */
 	compiled_heap(&call, name);
 	GetCallName(name, &name);
@@ -836,8 +840,8 @@ static int structure_print_object_method_(struct defstruct *str, addr name, addr
 	SetDataFunction(call, str->print_object);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	Return(method_instance_lambda_(str->ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
+	Return(stdset_method_function_(ptr, pos, call));
 
 	return Result(ret, pos);
 }
@@ -874,7 +878,9 @@ static int method_defstruct_function(Execute ptr,
 static int structure_print_function_method_(struct defstruct *str, addr name, addr *ret)
 {
 	addr pos, call, type;
+	Execute ptr;
 
+	ptr = str->ptr;
 	/* function */
 	compiled_heap(&call, name);
 	GetCallName(name, &name);
@@ -884,8 +890,8 @@ static int structure_print_function_method_(struct defstruct *str, addr name, ad
 	SetDataFunction(call, str->print_function);
 	/* method */
 	mop_argument_method_print_object(&pos, str->instance);
-	Return(method_instance_lambda_(str->ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
+	Return(stdset_method_function_(ptr, pos, call));
 
 	return Result(ret, pos);
 }

@@ -84,21 +84,21 @@ static int generic_make_instance_(Execute ptr,
 	Return(clos_instance_heap_(ptr, pos, &pos));
 
 	/* setf */
-	Return(stdset_generic_name_(pos, name));
-	Return(stdset_generic_methods_(pos, Nil));
-	Return(stdset_generic_lambda_list_(pos, lambda));
-	Return(stdset_generic_argument_precedence_order_(pos, Nil));
-	Return(stdset_generic_method_class_(pos, method));
-	Return(stdset_generic_method_combination_(pos, Nil));
-	Return(stdset_generic_vector_(pos, vector));
-	Return(stdset_generic_remove_(pos, Nil));
-	Return(stdset_generic_argument_(pos, args));
-	Return(stdset_generic_cache_(pos, cache));
-	Return(stdset_generic_precedence_index_(pos, Nil));
+	Return(stdset_generic_name_(ptr, pos, name));
+	Return(stdset_generic_methods_(ptr, pos, Nil));
+	Return(stdset_generic_lambda_list_(ptr, pos, lambda));
+	Return(stdset_generic_argument_precedence_order_(ptr, pos, Nil));
+	Return(stdset_generic_method_class_(ptr, pos, method));
+	Return(stdset_generic_method_combination_(ptr, pos, Nil));
+	Return(stdset_generic_vector_(ptr, pos, vector));
+	Return(stdset_generic_remove_(ptr, pos, Nil));
+	Return(stdset_generic_argument_(ptr, pos, args));
+	Return(stdset_generic_cache_(ptr, pos, cache));
+	Return(stdset_generic_precedence_index_(ptr, pos, Nil));
 
 	/* result */
 	if (finalp) {
-		Return(generic_finalize_(pos));
+		Return(generic_finalize_(ptr, pos));
 	}
 	Return(setglobal_parse_callname_(name, pos));
 	return Result(ret, pos);
@@ -203,21 +203,21 @@ static int generic_new_(struct generic_argument *str, addr *ret)
 	generic_cache_heap(&cache);
 
 	/* setf */
-	Return(stdset_generic_name_(pos, str->name));
-	Return(stdset_generic_methods_(pos, Nil));
-	Return(stdset_generic_lambda_list_(pos, str->lambda));
-	Return(stdset_generic_argument_precedence_order_(pos, str->order));
-	Return(stdset_generic_declarations_(pos, str->declare));
-	Return(stdset_generic_method_class_(pos, str->method));
-	Return(stdset_generic_method_combination_(pos, comb));
-	Return(stdset_generic_vector_(pos, vector));
-	Return(stdset_generic_argument_(pos, str->args));
-	Return(stdset_generic_documentation_(pos, str->doc));
-	Return(stdset_generic_cache_(pos, cache));
-	Return(stdset_generic_precedence_index_(pos, order));
+	Return(stdset_generic_name_(ptr, pos, str->name));
+	Return(stdset_generic_methods_(ptr, pos, Nil));
+	Return(stdset_generic_lambda_list_(ptr, pos, str->lambda));
+	Return(stdset_generic_argument_precedence_order_(ptr, pos, str->order));
+	Return(stdset_generic_declarations_(ptr, pos, str->declare));
+	Return(stdset_generic_method_class_(ptr, pos, str->method));
+	Return(stdset_generic_method_combination_(ptr, pos, comb));
+	Return(stdset_generic_vector_(ptr, pos, vector));
+	Return(stdset_generic_argument_(ptr, pos, str->args));
+	Return(stdset_generic_documentation_(ptr, pos, str->doc));
+	Return(stdset_generic_cache_(ptr, pos, cache));
+	Return(stdset_generic_precedence_index_(ptr, pos, order));
 
 	/* result */
-	Return(generic_finalize_(pos));
+	Return(generic_finalize_(ptr, pos));
 	Return(setglobal_parse_callname_(str->name, pos));
 	return Result(ret, pos);
 }
@@ -235,13 +235,13 @@ static int generic_change_remove_(struct generic_argument *str)
 	ptr = str->ptr;
 	gen = str->instance;
 	if (str->redefined) {
-		Return(stdget_generic_remove_(gen, &list));
+		Return(stdget_generic_remove_(ptr, gen, &list));
 		while (list != Nil) {
 			GetCons(list, &method, &list);
 			Return(method_remove_method_unsafe_(ptr, gen, method, &ignore));
 		}
 	}
-	Return(stdset_generic_remove_(gen, Nil));
+	Return(stdset_generic_remove_(ptr, gen, Nil));
 
 	return 0;
 }
@@ -259,13 +259,17 @@ static int generic_change_equal_(struct generic_argument *str, int *ret)
 static int generic_change_lambda_list_(struct generic_argument *str)
 {
 	addr pos, lambda, args;
+	Execute ptr;
+	LocalRoot local;
 
 	if (str->lambda_p) {
+		ptr = str->ptr;
+		local = ptr->local;
 		pos = str->instance;
 		lambda = str->lambda;
-		Return(argument_generic_heap_(str->ptr->local, &args, lambda));
-		Return(stdset_generic_lambda_list_(pos, lambda));
-		Return(stdset_generic_argument_(pos, args));
+		Return(argument_generic_heap_(local, &args, lambda));
+		Return(stdset_generic_lambda_list_(ptr, pos, lambda));
+		Return(stdset_generic_argument_(ptr, pos, args));
 		str->args = args;
 	}
 
@@ -275,20 +279,22 @@ static int generic_change_lambda_list_(struct generic_argument *str)
 static int generic_change_order_(struct generic_argument *str)
 {
 	addr pos, order, index;
+	Execute ptr;
 
 	/* &key */
+	ptr = str->ptr;
 	pos = str->instance;
 	if (str->order_p) {
 		order = str->order;
 	}
 	else {
-		Return(stdget_generic_argument_precedence_order_(pos, &order));
+		Return(stdget_generic_argument_precedence_order_(ptr, pos, &order));
 	}
 
 	/* set */
 	Return(generic_new_order_(str->args, order, &index));
-	Return(stdset_generic_argument_precedence_order_(pos, order));
-	Return(stdset_generic_precedence_index_(pos, index));
+	Return(stdset_generic_argument_precedence_order_(ptr, pos, order));
+	Return(stdset_generic_precedence_index_(ptr, pos, index));
 
 	return 0;
 }
@@ -308,11 +314,13 @@ static int generic_change_change_class_(struct generic_argument *str)
 static int generic_change_combination_(struct generic_argument *str)
 {
 	addr pos, value;
+	Execute ptr;
 
 	if (str->combination_p) {
+		ptr = str->ptr;
 		pos = str->instance;
 		Return(generic_find_method_combination_(str, &value));
-		Return(stdset_generic_method_combination_(pos, value));
+		Return(stdset_generic_method_combination_(ptr, pos, value));
 	}
 
 	return 0;
@@ -326,13 +334,13 @@ static int generic_change_method_(struct generic_argument *str)
 	/* vector */
 	ptr = str->ptr;
 	gen = str->instance;
-	Return(stdget_generic_method_combination_(gen, &vector));
+	Return(stdget_generic_method_combination_(ptr, gen, &vector));
 	Return(generic_make_methods_(ptr, &vector, vector));
-	Return(stdset_generic_vector_(gen, vector));
+	Return(stdset_generic_vector_(ptr, gen, vector));
 
 	/* methods */
-	Return(stdget_generic_methods_(gen, &list));
-	Return(stdset_generic_methods_(gen, Nil));
+	Return(stdget_generic_methods_(ptr, gen, &list));
+	Return(stdset_generic_methods_(ptr, gen, Nil));
 
 	/* add method */
 	while (list != Nil) {
@@ -346,6 +354,7 @@ static int generic_change_method_(struct generic_argument *str)
 static int generic_change_execute_(struct generic_argument *str)
 {
 	addr pos, cache;
+	Execute ptr;
 
 	Return(generic_change_lambda_list_(str));
 	Return(generic_change_order_(str));
@@ -355,14 +364,15 @@ static int generic_change_execute_(struct generic_argument *str)
 	generic_cache_heap(&cache);
 
 	/* setf */
+	ptr = str->ptr;
 	pos = str->instance;
-	Return(stdset_generic_declarations_(pos, str->declare));
-	Return(stdset_generic_method_class_(pos, str->method));
-	Return(stdset_generic_documentation_(pos, str->doc));
-	Return(stdset_generic_cache_(pos, cache));
+	Return(stdset_generic_declarations_(ptr, pos, str->declare));
+	Return(stdset_generic_method_class_(ptr, pos, str->method));
+	Return(stdset_generic_documentation_(ptr, pos, str->doc));
+	Return(stdset_generic_cache_(ptr, pos, cache));
 
 	/* result */
-	return generic_finalize_(pos);
+	return generic_finalize_(ptr, pos);
 }
 
 static void generic_change_copy_vector(addr methods, addr *ret)
@@ -380,21 +390,21 @@ static void generic_change_copy_vector(addr methods, addr *ret)
 	*ret = pos;
 }
 
-static int generic_change_copy_(addr gen, addr *ret)
+static int generic_change_copy_(Execute ptr, addr gen, addr *ret)
 {
 	addr pos, value;
 
 	clos_allcopy_alloc(NULL, gen, &pos);
 
 	/* methods */
-	Return(stdget_generic_methods_(pos, &value));
+	Return(stdget_generic_methods_(ptr, pos, &value));
 	copy_list_heap_unsafe(&value, value);
-	Return(stdset_generic_methods_(pos, value));
+	Return(stdset_generic_methods_(ptr, pos, value));
 
 	/* vector */
-	Return(stdget_generic_vector_(pos, &value));
+	Return(stdget_generic_vector_(ptr, pos, &value));
 	generic_change_copy_vector(value, &value);
-	Return(stdset_generic_vector_(pos, value));
+	Return(stdset_generic_vector_(ptr, pos, value));
 
 	return Result(ret, pos);
 }
@@ -403,21 +413,23 @@ static int generic_change_call_(struct generic_argument *str)
 {
 	int check;
 	addr pos, save, list;
+	Execute ptr;
 	LocalHold hold;
 
 	/* save */
+	ptr = str->ptr;
 	pos = str->instance;
 	hold = LocalHold_array(str->ptr, 4);
 	localhold_set(hold, 0, str->callname);
 	localhold_set(hold, 1, str->args);
 
 	/* instance */
-	Return(generic_change_copy_(pos, &save));
+	Return(generic_change_copy_(ptr, pos, &save));
 	localhold_set(hold, 2, save);
 
 	/* method */
 	Return(generic_change_remove_(str));
-	Return(stdget_generic_methods_(pos, &list));
+	Return(stdget_generic_methods_(ptr, pos, &list));
 	localhold_set(hold, 3, list);
 
 	/* execute */
@@ -631,16 +643,16 @@ int system_generic_define_(Execute ptr, addr name, addr args, addr *ret)
 	return 0;
 }
 
-int system_generic_method_(addr gen, addr args)
+int system_generic_method_(Execute ptr, addr gen, addr args)
 {
 	addr list, pos;
 
-	Return(stdget_generic_remove_(gen, &list));
+	Return(stdget_generic_remove_(ptr, gen, &list));
 	while (args != Nil) {
 		GetCons(args, &pos, &args);
 		cons_heap(&list, pos, list);
 	}
-	Return(stdset_generic_remove_(gen, list));
+	Return(stdset_generic_remove_(ptr, gen, list));
 
 	return 0;
 }

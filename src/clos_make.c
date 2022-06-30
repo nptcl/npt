@@ -220,13 +220,13 @@ static int clos_ensure_reader_check_(Execute ptr, addr gen)
 		return fmte_("The function ~S must be a generic-function.", gen, NULL);
 
 	/* qualifiers */
-	Return(stdget_generic_method_combination_(gen, &pos));
+	Return(stdget_generic_method_combination_(ptr, gen, &pos));
 	Return(qualifiers_position_nil_(ptr, Nil, pos, &index, &check));
 	if (check)
 		return fmte_("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
-	Return(stdget_generic_argument_(gen, &pos));
+	Return(stdget_generic_argument_(ptr, gen, &pos));
 	Check(! argumentp(pos), "type error");
 	if (ArgumentStruct(pos)->var != 1)
 		return fmte_("The generic-function ~S must be a 1 specializer.", gen, NULL);
@@ -247,13 +247,13 @@ static int clos_ensure_writer_method_check_(Execute ptr, addr gen)
 		return fmte_("The function ~S must be a generic-function.", gen, NULL);
 
 	/* qualifiers */
-	Return(stdget_generic_method_combination_(gen, &pos));
+	Return(stdget_generic_method_combination_(ptr, gen, &pos));
 	Return(qualifiers_position_nil_(ptr, Nil, pos, &index, &check));
 	if (check)
 		return fmte_("The generic-function ~S don't have a NIL qualifier.", gen, NULL);
 
 	/* specializer */
-	Return(stdget_generic_argument_(gen, &pos));
+	Return(stdget_generic_argument_(ptr, gen, &pos));
 	Check(! argumentp(pos), "type error");
 	if (ArgumentStruct(pos)->var != 2)
 		return fmte_("The generic-function ~S must be a 2 specializers.", gen, NULL);
@@ -420,7 +420,7 @@ static int clos_ensure_reader_method_(Execute ptr,
 	/* method */
 	method_argument_clos_ensure_reader(clos, &pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return method_add_method_(ptr, gen, pos);
 }
 
@@ -469,7 +469,7 @@ static int clos_ensure_writer_method_(Execute ptr,
 	/* method */
 	method_argument_clos_ensure_writer(clos, &pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return method_add_method_(ptr, gen, pos);
 }
 

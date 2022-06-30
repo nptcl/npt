@@ -31,13 +31,15 @@ static int stdget_specializer_constant_(addr pos, addr *ret,
 #define StdGetSpecializer_(p,r,a,b) \
 	stdget_specializer_constant_((p), (r), Clos_specializer_##a, CONSTANT_CLOSNAME_##b)
 
-int stdget_specializer_object_(addr pos, addr *ret)
+int stdget_specializer_object_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetSpecializer_(pos, ret, object, OBJECT);
 }
 
-int stdget_specializer_type_(addr pos, addr *ret)
+int stdget_specializer_type_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetSpecializer_(pos, ret, type, TYPE);
 }
 
@@ -68,13 +70,15 @@ static int stdset_specializer_constant_(addr pos, addr value,
 #define StdSetSpecializer_(p,r,a,b) \
 	stdset_specializer_constant_((p), (r), Clos_specializer_##a, CONSTANT_CLOSNAME_##b)
 
-int stdset_specializer_object_(addr pos, addr value)
+int stdset_specializer_object_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetSpecializer_(pos, value, object, OBJECT);
 }
 
-int stdset_specializer_type_(addr pos, addr value)
+int stdset_specializer_type_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetSpecializer_(pos, value, type, TYPE);
 }
 
@@ -106,13 +110,15 @@ static int stdboundp_specializer_constant_(addr pos, int *ret,
 #define StdBoundpSpecializer_(p,r,a,b) \
 	stdboundp_specializer_constant_((p), (r), Clos_specializer_##a, CONSTANT_CLOSNAME_##b)
 
-int stdboundp_specializer_object_(addr pos, int *ret)
+int stdboundp_specializer_object_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpSpecializer_(pos, ret, object, OBJECT);
 }
 
-int stdboundp_specializer_type_(addr pos, int *ret)
+int stdboundp_specializer_type_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpSpecializer_(pos, ret, type, TYPE);
 }
 

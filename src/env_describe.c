@@ -103,7 +103,7 @@ static int defmethod_describe_object_(Execute ptr, addr name, addr gen,
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos); /* print-object */
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 

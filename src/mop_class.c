@@ -210,7 +210,7 @@ static int defmethod_ensure_class_using_class_null_(Execute ptr, addr name, addr
 	/* method */
 	argument_method_ensure_class_using_class(&pos, CONSTANT_CLOS_NULL);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -249,7 +249,7 @@ static int defmethod_ensure_class_using_class_class_(Execute ptr,
 	/* method */
 	argument_method_ensure_class_using_class(&pos, CONSTANT_CLOS_CLASS);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -340,7 +340,7 @@ static int defmethod_allocate_instance_(Execute ptr,
 	/* method */
 	argument_method_allocate_instance(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -392,7 +392,7 @@ static int defmethod_initialize_instance_stdobject_(Execute ptr, addr name, addr
 	/* method */
 	argument_method_allocate_instance(&pos, CONSTANT_CLOS_STANDARD_OBJECT);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -439,7 +439,7 @@ static int defmethod_reinitialize_instance_stdobject_(Execute ptr, addr name, ad
 	/* method */
 	argument_method_allocate_instance(&pos, CONSTANT_CLOS_STANDARD_OBJECT);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -522,7 +522,7 @@ static int defmethod_shared_initialize_stdobject_(Execute ptr, addr name, addr g
 	/* method */
 	argument_method_shared_initialize(&pos, CONSTANT_CLOS_STANDARD_OBJECT);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -587,7 +587,7 @@ static int defmethod_make_instance_symbol_(Execute ptr, addr name, addr gen)
 	/* method */
 	ArgumentMethod_var1rest(&pos, SYMBOL);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -628,7 +628,7 @@ static int defmethod_make_instance_stdclass_(Execute ptr, addr name, addr gen)
 	/* method */
 	ArgumentMethod_var1rest(&pos, STANDARD_CLASS);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -669,7 +669,7 @@ static int defmethod_make_instance_structure_(Execute ptr, addr name, addr gen)
 	/* method */
 	ArgumentMethod_var1rest(&pos, STRUCTURE_CLASS);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -734,7 +734,7 @@ static int defmethod_make_instances_obsolete_symbol_(
 	/* method */
 	ArgumentMethod_var1(&pos, SYMBOL);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -770,7 +770,7 @@ static int defmethod_make_instances_obsolete_stdclass_(
 	/* method */
 	ArgumentMethod_var1(&pos, STANDARD_CLASS);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -835,7 +835,7 @@ static int defmethod_make_load_form_class_(Execute ptr, addr name, addr gen)
 	/* method */
 	ArgumentMethod_var1opt1(&pos, CLASS, T);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -851,7 +851,7 @@ static int defmethod_make_load_form_condition_(Execute ptr, addr name, addr gen)
 	/* method */
 	ArgumentMethod_var1opt1(&pos, CONDITION, T);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -873,7 +873,7 @@ static int defmethod_make_load_form_standard_object_(Execute ptr, addr name, add
 	/* method */
 	ArgumentMethod_var1opt1(&pos, STANDARD_OBJECT, T);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -889,7 +889,7 @@ static int defmethod_make_load_form_structure_object_(Execute ptr, addr name, ad
 	/* method */
 	ArgumentMethod_var1opt1(&pos, STRUCTURE_OBJECT, T);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -964,7 +964,7 @@ static int defmethod_slot_missing_(Execute ptr, addr name, addr gen)
 	/* method */
 	method_argument_slot_missing(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1048,7 +1048,7 @@ static int defmethod_slot_unbound_(Execute ptr, addr name, addr gen)
 	/* method */
 	method_argument_slot_unbound(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1110,7 +1110,7 @@ static int defmethod_update_instance_for_different_class_(
 	/* method */
 	method_argument_update_instance_for_different_class(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1190,7 +1190,7 @@ static int defmethod_update_instance_for_redefined_class_(
 	/* method */
 	method_argument_update_instance_for_redefined_class(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1268,7 +1268,7 @@ static int defmethod_slot_boundp_using_class_(Execute ptr,
 	/* method */
 	method_argument_slot_boundp_using_class(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1323,7 +1323,7 @@ static int defmethod_slot_exists_p_using_class_(Execute ptr,
 	/* method */
 	method_argument_slot_boundp_using_class(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1380,7 +1380,7 @@ static int defmethod_slot_makunbound_using_class_(Execute ptr,
 	/* method */
 	method_argument_slot_boundp_using_class(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1439,7 +1439,7 @@ static int defmethod_slot_value_using_class_(Execute ptr,
 	/* method */
 	method_argument_slot_boundp_using_class(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1536,7 +1536,7 @@ static int defmethod_setf_slot_value_using_class_(Execute ptr,
 	/* method */
 	method_argument_setf_slot_value_using_class(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1617,7 +1617,7 @@ static int defmethod_change_class_stdclass_(Execute ptr, addr name, addr gen)
 	/* method */
 	method_argument_change_class_stdclass(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1677,7 +1677,7 @@ static int defmethod_change_class_symbol_(Execute ptr, addr name, addr gen)
 	/* method */
 	method_argument_change_class_symbol(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 

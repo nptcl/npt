@@ -349,8 +349,8 @@ int clos_intern_specializer_(Execute ptr, addr object, addr *ret)
 	Return(clos_instance_heap_(ptr, pos, &pos));
 	/* define eql-specializer */
 	Return(clos_class_of_(object, &type));
-	Return(stdset_specializer_object_(pos, object));
-	Return(stdset_specializer_type_(pos, type));
+	Return(stdset_specializer_object_(ptr, pos, object));
+	Return(stdset_specializer_type_(ptr, pos, type));
 	Return(clos_define_specializer_(object, pos));
 	/* result */
 	return Result(ret, pos);

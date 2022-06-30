@@ -72,7 +72,7 @@ enum Clos_method_Index {
 
 enum Clos_shortcomb_Index {
 	Clos_shortcomb_name,
-	Clos_shortcomb_document,
+	Clos_shortcomb_documentation,
 	Clos_shortcomb_identity,
 	Clos_shortcomb_operator,
 	Clos_shortcomb_order,
@@ -81,20 +81,19 @@ enum Clos_shortcomb_Index {
 
 enum Clos_longcomb_Index {
 	Clos_longcomb_name,
-	Clos_longcomb_document,
+	Clos_longcomb_documentation,
 	Clos_longcomb_lambda_list,
 	Clos_longcomb_binding,
 	Clos_longcomb_qualifiers,
 	Clos_longcomb_arguments,
 	Clos_longcomb_generic,
 	Clos_longcomb_form,
-	Clos_longcomb_function,
 	Clos_longcomb_size
 };
 
 enum Clos_shortdef_Index {
 	Clos_shortdef_name,
-	Clos_shortdef_document,
+	Clos_shortdef_documentation,
 	Clos_shortdef_identity,
 	Clos_shortdef_operator,
 	Clos_shortdef_size
@@ -102,7 +101,7 @@ enum Clos_shortdef_Index {
 
 enum Clos_longdef_Index {
 	Clos_longdef_name,
-	Clos_longdef_document,
+	Clos_longdef_documentation,
 	Clos_longdef_lambda_list,
 	Clos_longdef_qualifiers,
 	Clos_longdef_arguments,

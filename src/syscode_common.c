@@ -445,9 +445,9 @@ int defgeneric_define_syscode_(Execute ptr, addr name, addr args, addr *ret)
 	return system_generic_define_(ptr, name, args, ret);
 }
 
-int defgeneric_method_syscode_(addr inst, addr args)
+int defgeneric_method_syscode_(Execute ptr, addr inst, addr args)
 {
-	return system_generic_method_(inst, args);
+	return system_generic_method_(ptr, inst, args);
 }
 
 

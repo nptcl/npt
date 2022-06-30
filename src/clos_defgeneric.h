@@ -23,7 +23,7 @@ int ensure_generic_function_common_(Execute ptr, addr name, addr rest, addr *ret
 int mop_generic_new_(Execute ptr, addr name, addr rest, addr *ret);
 int mop_generic_change_(Execute ptr, addr clos, addr name, addr rest);
 int system_generic_define_(Execute ptr, addr name, addr args, addr *ret);
-int system_generic_method_(addr gen, addr method);
+int system_generic_method_(Execute ptr, addr gen, addr method);
 
 #endif
 

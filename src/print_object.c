@@ -155,7 +155,7 @@ static int method_print_object_generic_function_(Execute ptr,
 
 	Return(clos_class_of_(pos, &class_of));
 	Return(stdget_class_name_(ptr, class_of, &class_of));
-	Return(stdget_generic_name_(pos, &name));
+	Return(stdget_generic_name_(ptr, pos, &name));
 	/* #<CLASS-OF CLASS-NAME> */
 	Return(print_ascii_stream_(stream, "#<"));
 	Return(princ_print_(ptr, stream, class_of));
@@ -257,7 +257,7 @@ static int defmethod_print_object_(Execute ptr, addr name, addr gen,
 	GetConstant(index, &pos);
 	mop_argument_method_print_object(&pos, pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 

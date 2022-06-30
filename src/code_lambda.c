@@ -207,7 +207,7 @@ int lambda_doc_code(Execute ptr, CodeValue x)
 {
 	addr pos;
 	getresult_control(ptr, &pos);
-	return set_documentation_function_object_(pos, x.pos);
+	return set_documentation_function_object_(ptr, pos, x.pos);
 }
 
 int lambda_form_code(Execute ptr, CodeValue x)

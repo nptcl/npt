@@ -60,7 +60,7 @@ static int defmethod_class_name_(Execute ptr, addr name, addr gen, constindex in
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -145,7 +145,7 @@ static int defmethod_setf_class_name_class_(Execute ptr, addr name, addr gen)
 	/* method */
 	method_argument_setf_class_name(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -274,7 +274,7 @@ static int defmethod_class_slots_(Execute ptr, addr name, addr gen, constindex i
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -328,7 +328,7 @@ static int defmethod_class_direct_slots_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -380,7 +380,7 @@ static int defmethod_class_default_initargs_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -433,7 +433,7 @@ static int defmethod_class_direct_default_initargs_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -486,7 +486,7 @@ static int defmethod_class_precedence_list_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -541,7 +541,7 @@ static int defmethod_class_direct_superclasses_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -594,7 +594,7 @@ static int defmethod_class_direct_subclasses_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -647,7 +647,7 @@ static int defmethod_class_finalized_p_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -700,7 +700,7 @@ static int defmethod_class_prototype_(Execute ptr,
 	/* method */
 	mop_argument_method_var1(&pos, index);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -768,7 +768,7 @@ static int defmethod_slot_definition_name_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -819,7 +819,7 @@ static int defmethod_slot_definition_type_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -882,7 +882,7 @@ static int defmethod_slot_definition_allocation_(Execute ptr, addr name, addr ge
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -934,7 +934,7 @@ static int defmethod_slot_definition_initargs_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -986,7 +986,7 @@ static int defmethod_slot_definition_initform_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1038,7 +1038,7 @@ static int defmethod_slot_definition_initfunction_(Execute ptr, addr name, addr 
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_SLOT_DEFINITION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1067,7 +1067,7 @@ int defgeneric_slot_definition_initfunction_(Execute ptr)
 static int method_generic_function_name(Execute ptr,
 		addr method, addr next, addr var)
 {
-	Return(stdget_generic_name_(var, &var));
+	Return(stdget_generic_name_(ptr, var, &var));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -1085,7 +1085,7 @@ static int defmethod_generic_function_name_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1116,7 +1116,7 @@ static int method_setf_generic_function_name(Execute ptr,
 	addr ignore;
 
 	Return(parse_callname_error_(&ignore, var));
-	Return(stdset_generic_name_(clos, var));
+	Return(stdset_generic_name_(ptr, clos, var));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -1165,7 +1165,7 @@ static int defmethod_setf_generic_function_name_(Execute ptr, addr name, addr ge
 	/* method */
 	method_argument_setf_generic_function_name(&pos);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1195,7 +1195,7 @@ static int method_generic_function_methods(Execute ptr,
 	addr root, list, pos;
 	size_t size, i;
 
-	Return(stdget_generic_vector_(var, &var));
+	Return(stdget_generic_vector_(ptr, var, &var));
 	lenarray(var, &size);
 	root = Nil;
 	for (i = 0; i < size; i++) {
@@ -1223,7 +1223,7 @@ static int defmethod_generic_function_methods_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1250,7 +1250,7 @@ int defgeneric_generic_function_methods_(Execute ptr)
 static int method_generic_function_lambda_list(Execute ptr,
 		addr method, addr next, addr var)
 {
-	Return(stdget_generic_lambda_list_(var, &var));
+	Return(stdget_generic_lambda_list_(ptr, var, &var));
 	Check(argumentp(var), "type error");
 	setresult_control(ptr, var);
 
@@ -1269,7 +1269,7 @@ static int defmethod_generic_function_lambda_list_(Execute ptr, addr name, addr 
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1296,7 +1296,7 @@ int defgeneric_generic_function_lambda_list_(Execute ptr)
 static int method_generic_function_argument_precedence_order(Execute ptr,
 		addr method, addr next, addr var)
 {
-	Return(stdget_generic_argument_precedence_order_(var, &var));
+	Return(stdget_generic_argument_precedence_order_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1314,7 +1314,7 @@ static int defmethod_generic_function_argument_precedence_order_(
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1341,7 +1341,7 @@ int defgeneric_generic_function_argument_precedence_order_(Execute ptr)
 static int method_generic_function_declarations(Execute ptr,
 		addr method, addr next, addr var)
 {
-	Return(stdget_generic_declarations_(var, &var));
+	Return(stdget_generic_declarations_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1358,7 +1358,7 @@ static int defmethod_generic_function_declarations_(Execute ptr, addr name, addr
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1385,7 +1385,7 @@ int defgeneric_generic_function_declarations_(Execute ptr)
 static int method_generic_function_method_class(Execute ptr,
 		addr method, addr next, addr var)
 {
-	Return(stdget_generic_method_class_(var, &var));
+	Return(stdget_generic_method_class_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1402,7 +1402,7 @@ static int defmethod_generic_function_method_class_(Execute ptr, addr name, addr
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1429,7 +1429,7 @@ int defgeneric_generic_function_method_class_(Execute ptr)
 static int method_generic_function_method_combination(Execute ptr,
 		addr method, addr next, addr var)
 {
-	Return(stdget_generic_method_combination_(var, &var));
+	Return(stdget_generic_method_combination_(ptr, var, &var));
 	if (var == Nil)
 		GetConst(CLOS_COMBINATION_STANDARD, &var);
 	setresult_control(ptr, var);
@@ -1450,7 +1450,7 @@ static int defmethod_generic_function_method_combination_(
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_GENERIC_FUNCTION);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1476,7 +1476,7 @@ int defgeneric_generic_function_method_combination_(Execute ptr)
  ***********************************************************************/
 static int method_method_function(Execute ptr, addr method, addr next, addr var)
 {
-	Return(stdget_method_function_(var, &var));
+	Return(stdget_method_function_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1493,7 +1493,7 @@ static int defmethod_method_function_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1520,7 +1520,7 @@ int defgeneric_method_function_(Execute ptr)
 static int method_method_generic_function(Execute ptr,
 		addr method, addr next, addr var)
 {
-	Return(stdget_method_generic_function_(var, &var));
+	Return(stdget_method_generic_function_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1537,7 +1537,7 @@ static int defmethod_method_generic_function_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1563,7 +1563,7 @@ int defgeneric_method_generic_function_(Execute ptr)
  ***********************************************************************/
 static int method_method_lambda_list(Execute ptr, addr method, addr next, addr var)
 {
-	Return(stdget_method_lambda_list_(var, &var));
+	Return(stdget_method_lambda_list_(ptr, var, &var));
 	if (argumentp(var)) {
 		Return(argument_method_lambda_heap_(&var, var));
 	}
@@ -1584,7 +1584,7 @@ static int defmethod_method_lambda_list_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1610,7 +1610,7 @@ int defgeneric_method_lambda_list_(Execute ptr)
  ***********************************************************************/
 static int method_method_specializers(Execute ptr, addr method, addr next, addr var)
 {
-	Return(stdget_method_specializers_(var, &var));
+	Return(stdget_method_specializers_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1627,7 +1627,7 @@ static int defmethod_method_specializers_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1653,7 +1653,7 @@ int defgeneric_method_specializers_(Execute ptr)
  ***********************************************************************/
 static int method_method_qualifiers(Execute ptr, addr method, addr next, addr var)
 {
-	Return(stdget_method_qualifiers_(var, &var));
+	Return(stdget_method_qualifiers_(ptr, var, &var));
 	setresult_control(ptr, var);
 	return 0;
 }
@@ -1670,7 +1670,7 @@ static int defmethod_method_qualifiers_(Execute ptr, addr name, addr gen)
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 
@@ -1712,7 +1712,7 @@ static int defmethod_accessor_method_slot_definition_(Execute ptr, addr name, ad
 	/* method */
 	mop_argument_method_var1(&pos, CONSTANT_CLOS_STANDARD_METHOD);
 	Return(method_instance_lambda_(ptr, &pos, Nil, pos));
-	Return(stdset_method_function_(pos, call));
+	Return(stdset_method_function_(ptr, pos, call));
 	return common_method_add_(ptr, gen, pos);
 }
 

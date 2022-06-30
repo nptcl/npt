@@ -30,49 +30,52 @@ static int stdget_longcomb_constant_(addr pos, addr *ret,
 #define StdGetLongCombination_(p,r,a,b) \
 	stdget_longcomb_constant_((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
 
-int stdget_longcomb_name_(addr pos, addr *ret)
+int stdget_longcomb_name_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongCombination_(pos, ret, name, NAME);
 }
 
-int stdget_longcomb_document_(addr pos, addr *ret)
+int stdget_longcomb_documentation_(Execute ptr, addr pos, addr *ret)
 {
-	return StdGetLongCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdGetLongCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdget_longcomb_lambda_list_(addr pos, addr *ret)
+int stdget_longcomb_lambda_list_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
 
-int stdget_longcomb_binding_(addr pos, addr *ret)
+int stdget_longcomb_binding_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongCombination_(pos, ret, binding, BINDING);
 }
 
-int stdget_longcomb_qualifiers_(addr pos, addr *ret)
+int stdget_longcomb_qualifiers_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
 
-int stdget_longcomb_arguments_(addr pos, addr *ret)
+int stdget_longcomb_arguments_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongCombination_(pos, ret, arguments, ARGUMENTS);
 }
 
-int stdget_longcomb_generic_(addr pos, addr *ret)
+int stdget_longcomb_generic_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongCombination_(pos, ret, generic, GENERIC);
 }
 
-int stdget_longcomb_form_(addr pos, addr *ret)
+int stdget_longcomb_form_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongCombination_(pos, ret, form, FORM);
-}
-
-int stdget_longcomb_function_(addr pos, addr *ret)
-{
-	return StdGetLongCombination_(pos, ret, function, FUNCTION);
 }
 
 
@@ -99,28 +102,33 @@ static int stdget_shortcomb_constant_(addr pos, addr *ret,
 #define StdGetShortCombination_(p,r,a,b) \
 	stdget_shortcomb_constant_((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
 
-int stdget_shortcomb_name_(addr pos, addr *ret)
+int stdget_shortcomb_name_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetShortCombination_(pos, ret, name, NAME);
 }
 
-int stdget_shortcomb_document_(addr pos, addr *ret)
+int stdget_shortcomb_documentation_(Execute ptr, addr pos, addr *ret)
 {
-	return StdGetShortCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdGetShortCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdget_shortcomb_identity_(addr pos, addr *ret)
+int stdget_shortcomb_identity_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetShortCombination_(pos, ret, identity, IDENTITY);
 }
 
-int stdget_shortcomb_operator_(addr pos, addr *ret)
+int stdget_shortcomb_operator_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetShortCombination_(pos, ret, operator, OPERATOR);
 }
 
-int stdget_shortcomb_order_(addr pos, addr *ret)
+int stdget_shortcomb_order_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetShortCombination_(pos, ret, order, ORDER);
 }
 
@@ -148,38 +156,45 @@ static int stdget_longdef_constant_(addr pos, addr *ret,
 #define StdGetLongDefineCombination_(p,r,a,b) \
 	stdget_longdef_constant_((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
 
-int stdget_longdef_name_(addr pos, addr *ret)
+int stdget_longdef_name_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongDefineCombination_(pos, ret, name, NAME);
 }
 
-int stdget_longdef_document_(addr pos, addr *ret)
+int stdget_longdef_documentation_(Execute ptr, addr pos, addr *ret)
 {
-	return StdGetLongDefineCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdGetLongDefineCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdget_longdef_lambda_list_(addr pos, addr *ret)
+int stdget_longdef_lambda_list_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongDefineCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
 
-int stdget_longdef_qualifiers_(addr pos, addr *ret)
+int stdget_longdef_qualifiers_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongDefineCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
 
-int stdget_longdef_arguments_(addr pos, addr *ret)
+int stdget_longdef_arguments_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongDefineCombination_(pos, ret, arguments, ARGUMENTS);
 }
 
-int stdget_longdef_generic_(addr pos, addr *ret)
+int stdget_longdef_generic_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongDefineCombination_(pos, ret, generic, GENERIC);
 }
 
-int stdget_longdef_form_(addr pos, addr *ret)
+int stdget_longdef_form_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetLongDefineCombination_(pos, ret, form, FORM);
 }
 
@@ -207,23 +222,27 @@ static int stdget_shortdef_constant_(addr pos, addr *ret,
 #define StdGetShortDefineCombination_(p,r,a,b) \
 	stdget_shortdef_constant_((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
 
-int stdget_shortdef_name_(addr pos, addr *ret)
+int stdget_shortdef_name_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetShortDefineCombination_(pos, ret, name, NAME);
 }
 
-int stdget_shortdef_document_(addr pos, addr *ret)
+int stdget_shortdef_documentation_(Execute ptr, addr pos, addr *ret)
 {
-	return StdGetShortDefineCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdGetShortDefineCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdget_shortdef_identity_(addr pos, addr *ret)
+int stdget_shortdef_identity_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetShortDefineCombination_(pos, ret, identity, IDENTITY);
 }
 
-int stdget_shortdef_operator_(addr pos, addr *ret)
+int stdget_shortdef_operator_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetShortDefineCombination_(pos, ret, operator, OPERATOR);
 }
 
@@ -255,49 +274,52 @@ static int stdset_longcomb_constant_(addr pos, addr value,
 #define StdSetLongCombination_(p,r,a,b) \
 	stdset_longcomb_constant_((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
 
-int stdset_longcomb_name_(addr pos, addr value)
+int stdset_longcomb_name_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongCombination_(pos, value, name, NAME);
 }
 
-int stdset_longcomb_document_(addr pos, addr value)
+int stdset_longcomb_documentation_(Execute ptr, addr pos, addr value)
 {
-	return StdSetLongCombination_(pos, value, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdSetLongCombination_(pos, value, documentation, DOCUMENTATION);
 }
 
-int stdset_longcomb_lambda_list_(addr pos, addr value)
+int stdset_longcomb_lambda_list_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongCombination_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-int stdset_longcomb_binding_(addr pos, addr value)
+int stdset_longcomb_binding_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongCombination_(pos, value, binding, BINDING);
 }
 
-int stdset_longcomb_qualifiers_(addr pos, addr value)
+int stdset_longcomb_qualifiers_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongCombination_(pos, value, qualifiers, QUALIFIERS);
 }
 
-int stdset_longcomb_arguments_(addr pos, addr value)
+int stdset_longcomb_arguments_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongCombination_(pos, value, arguments, ARGUMENTS);
 }
 
-int stdset_longcomb_generic_(addr pos, addr value)
+int stdset_longcomb_generic_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongCombination_(pos, value, generic, GENERIC);
 }
 
-int stdset_longcomb_form_(addr pos, addr value)
+int stdset_longcomb_form_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongCombination_(pos, value, form, FORM);
-}
-
-int stdset_longcomb_function_(addr pos, addr value)
-{
-	return StdSetLongCombination_(pos, value, function, FUNCTION);
 }
 
 
@@ -325,28 +347,33 @@ static int stdset_shortcomb_constant_(addr pos, addr value,
 #define StdSetShortCombination_(p,r,a,b) \
 	stdset_shortcomb_constant_((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
 
-int stdset_shortcomb_name_(addr pos, addr value)
+int stdset_shortcomb_name_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetShortCombination_(pos, value, name, NAME);
 }
 
-int stdset_shortcomb_document_(addr pos, addr value)
+int stdset_shortcomb_documentation_(Execute ptr, addr pos, addr value)
 {
-	return StdSetShortCombination_(pos, value, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdSetShortCombination_(pos, value, documentation, DOCUMENTATION);
 }
 
-int stdset_shortcomb_identity_(addr pos, addr value)
+int stdset_shortcomb_identity_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetShortCombination_(pos, value, identity, IDENTITY);
 }
 
-int stdset_shortcomb_operator_(addr pos, addr value)
+int stdset_shortcomb_operator_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetShortCombination_(pos, value, operator, OPERATOR);
 }
 
-int stdset_shortcomb_order_(addr pos, addr value)
+int stdset_shortcomb_order_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetShortCombination_(pos, value, order, ORDER);
 }
 
@@ -375,38 +402,45 @@ static int stdset_longdef_constant_(addr pos, addr value,
 #define StdSetLongDefineCombination_(p,r,a,b) \
 	stdset_longdef_constant_((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
 
-int stdset_longdef_name_(addr pos, addr value)
+int stdset_longdef_name_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongDefineCombination_(pos, value, name, NAME);
 }
 
-int stdset_longdef_document_(addr pos, addr value)
+int stdset_longdef_documentation_(Execute ptr, addr pos, addr value)
 {
-	return StdSetLongDefineCombination_(pos, value, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdSetLongDefineCombination_(pos, value, documentation, DOCUMENTATION);
 }
 
-int stdset_longdef_lambda_list_(addr pos, addr value)
+int stdset_longdef_lambda_list_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongDefineCombination_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-int stdset_longdef_qualifiers_(addr pos, addr value)
+int stdset_longdef_qualifiers_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongDefineCombination_(pos, value, qualifiers, QUALIFIERS);
 }
 
-int stdset_longdef_arguments_(addr pos, addr value)
+int stdset_longdef_arguments_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongDefineCombination_(pos, value, arguments, ARGUMENTS);
 }
 
-int stdset_longdef_generic_(addr pos, addr value)
+int stdset_longdef_generic_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongDefineCombination_(pos, value, generic, GENERIC);
 }
 
-int stdset_longdef_form_(addr pos, addr value)
+int stdset_longdef_form_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetLongDefineCombination_(pos, value, form, FORM);
 }
 
@@ -435,23 +469,27 @@ static int stdset_shortdef_constant_(addr pos, addr value,
 #define StdSetShortDefineCombination_(p,r,a,b) \
 	stdset_shortdef_constant_((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
 
-int stdset_shortdef_name_(addr pos, addr value)
+int stdset_shortdef_name_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetShortDefineCombination_(pos, value, name, NAME);
 }
 
-int stdset_shortdef_document_(addr pos, addr value)
+int stdset_shortdef_documentation_(Execute ptr, addr pos, addr value)
 {
-	return StdSetShortDefineCombination_(pos, value, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdSetShortDefineCombination_(pos, value, documentation, DOCUMENTATION);
 }
 
-int stdset_shortdef_identity_(addr pos, addr value)
+int stdset_shortdef_identity_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetShortDefineCombination_(pos, value, identity, IDENTITY);
 }
 
-int stdset_shortdef_operator_(addr pos, addr value)
+int stdset_shortdef_operator_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetShortDefineCombination_(pos, value, operator, OPERATOR);
 }
 
@@ -484,49 +522,52 @@ static int stdboundp_longcomb_constant_(addr pos, int *ret,
 #define StdBoundpLongCombination_(p,r,a,b) \
 	stdboundp_longcomb_constant_((p), (r), Clos_longcomb_##a, CONSTANT_CLOSNAME_##b)
 
-int stdboundp_longcomb_name_(addr pos, int *ret)
+int stdboundp_longcomb_name_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongCombination_(pos, ret, name, NAME);
 }
 
-int stdboundp_longcomb_document_(addr pos, int *ret)
+int stdboundp_longcomb_documentation_(Execute ptr, addr pos, int *ret)
 {
-	return StdBoundpLongCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdBoundpLongCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdboundp_longcomb_lambda_list_(addr pos, int *ret)
+int stdboundp_longcomb_lambda_list_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
 
-int stdboundp_longcomb_binding_(addr pos, int *ret)
+int stdboundp_longcomb_binding_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongCombination_(pos, ret, binding, BINDING);
 }
 
-int stdboundp_longcomb_qualifiers_(addr pos, int *ret)
+int stdboundp_longcomb_qualifiers_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
 
-int stdboundp_longcomb_arguments_(addr pos, int *ret)
+int stdboundp_longcomb_arguments_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongCombination_(pos, ret, arguments, ARGUMENTS);
 }
 
-int stdboundp_longcomb_generic_(addr pos, int *ret)
+int stdboundp_longcomb_generic_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongCombination_(pos, ret, generic, GENERIC);
 }
 
-int stdboundp_longcomb_form_(addr pos, int *ret)
+int stdboundp_longcomb_form_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongCombination_(pos, ret, form, FORM);
-}
-
-int stdboundp_longcomb_function_(addr pos, int *ret)
-{
-	return StdBoundpLongCombination_(pos, ret, function, FUNCTION);
 }
 
 
@@ -555,28 +596,33 @@ static int stdboundp_shortcomb_constant_(addr pos, int *ret,
 #define StdBoundpShortCombination_(p,r,a,b) \
 	stdboundp_shortcomb_constant_((p), (r), Clos_shortcomb_##a, CONSTANT_CLOSNAME_##b)
 
-int stdboundp_shortcomb_name_(addr pos, int *ret)
+int stdboundp_shortcomb_name_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpShortCombination_(pos, ret, name, NAME);
 }
 
-int stdboundp_shortcomb_document_(addr pos, int *ret)
+int stdboundp_shortcomb_documentation_(Execute ptr, addr pos, int *ret)
 {
-	return StdBoundpShortCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdBoundpShortCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdboundp_shortcomb_identity_(addr pos, int *ret)
+int stdboundp_shortcomb_identity_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpShortCombination_(pos, ret, identity, IDENTITY);
 }
 
-int stdboundp_shortcomb_operator_(addr pos, int *ret)
+int stdboundp_shortcomb_operator_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpShortCombination_(pos, ret, operator, OPERATOR);
 }
 
-int stdboundp_shortcomb_order_(addr pos, int *ret)
+int stdboundp_shortcomb_order_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpShortCombination_(pos, ret, order, ORDER);
 }
 
@@ -606,38 +652,45 @@ static int stdboundp_longdef_constant_(addr pos, int *ret,
 #define StdBoundpLongDefineCombination_(p,r,a,b) \
 	stdboundp_longdef_constant_((p), (r), Clos_longdef_##a, CONSTANT_CLOSNAME_##b)
 
-int stdboundp_longdef_name_(addr pos, int *ret)
+int stdboundp_longdef_name_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongDefineCombination_(pos, ret, name, NAME);
 }
 
-int stdboundp_longdef_document_(addr pos, int *ret)
+int stdboundp_longdef_documentation_(Execute ptr, addr pos, int *ret)
 {
-	return StdBoundpLongDefineCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdBoundpLongDefineCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdboundp_longdef_lambda_list_(addr pos, int *ret)
+int stdboundp_longdef_lambda_list_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongDefineCombination_(pos, ret, lambda_list, LAMBDA_LIST);
 }
 
-int stdboundp_longdef_qualifiers_(addr pos, int *ret)
+int stdboundp_longdef_qualifiers_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongDefineCombination_(pos, ret, qualifiers, QUALIFIERS);
 }
 
-int stdboundp_longdef_arguments_(addr pos, int *ret)
+int stdboundp_longdef_arguments_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongDefineCombination_(pos, ret, arguments, ARGUMENTS);
 }
 
-int stdboundp_longdef_generic_(addr pos, int *ret)
+int stdboundp_longdef_generic_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongDefineCombination_(pos, ret, generic, GENERIC);
 }
 
-int stdboundp_longdef_form_(addr pos, int *ret)
+int stdboundp_longdef_form_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpLongDefineCombination_(pos, ret, form, FORM);
 }
 
@@ -667,23 +720,27 @@ static int stdboundp_shortdef_constant_(addr pos, int *ret,
 #define StdBoundpShortDefineCombination_(p,r,a,b) \
 	stdboundp_shortdef_constant_((p), (r), Clos_shortdef_##a, CONSTANT_CLOSNAME_##b)
 
-int stdboundp_shortdef_name_(addr pos, int *ret)
+int stdboundp_shortdef_name_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpShortDefineCombination_(pos, ret, name, NAME);
 }
 
-int stdboundp_shortdef_document_(addr pos, int *ret)
+int stdboundp_shortdef_documentation_(Execute ptr, addr pos, int *ret)
 {
-	return StdBoundpShortDefineCombination_(pos, ret, document, DOCUMENTATION);
+	Check(ptr == NULL, "execute error");
+	return StdBoundpShortDefineCombination_(pos, ret, documentation, DOCUMENTATION);
 }
 
-int stdboundp_shortdef_identity_(addr pos, int *ret)
+int stdboundp_shortdef_identity_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpShortDefineCombination_(pos, ret, identity, IDENTITY);
 }
 
-int stdboundp_shortdef_operator_(addr pos, int *ret)
+int stdboundp_shortdef_operator_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpShortDefineCombination_(pos, ret, operator, OPERATOR);
 }
 

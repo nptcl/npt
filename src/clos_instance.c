@@ -1224,14 +1224,13 @@ static void clos_stdlongcomb_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_longcomb_size);
 	SlotMakeNameSymbol(slots, NAME, longcomb_name);
-	SlotMakeName(slots, DOCUMENTATION, longcomb_document);
+	SlotMakeName(slots, DOCUMENTATION, longcomb_documentation);
 	SlotMakeName(slots, LAMBDA_LIST, longcomb_lambda_list);
 	SlotMakeName(slots, BINDING, longcomb_binding);
 	SlotMakeName(slots, QUALIFIERS, longcomb_qualifiers);
 	SlotMakeName(slots, ARGUMENTS, longcomb_arguments);
 	SlotMakeName(slots, GENERIC, longcomb_generic);
 	SlotMakeName(slots, FORM, longcomb_form);
-	SlotMakeName(slots, FUNCTION, longcomb_function);
 	slotvector_set_location(slots);
 	*ret = slots;
 }
@@ -1242,7 +1241,7 @@ static void clos_stdshortcomb_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_shortcomb_size);
 	SlotMakeNameSymbol(slots, NAME, shortcomb_name);
-	SlotMakeName(slots, DOCUMENTATION, shortcomb_document);
+	SlotMakeName(slots, DOCUMENTATION, shortcomb_documentation);
 	SlotMakeName(slots, IDENTITY, shortcomb_identity);
 	SlotMakeName(slots, OPERATOR, shortcomb_operator);
 	SlotMakeName(slots, ORDER, shortcomb_order);
@@ -1256,7 +1255,7 @@ static void clos_stdlongdef_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_longdef_size);
 	SlotMakeNameSymbol(slots, NAME, longdef_name);
-	SlotMakeName(slots, DOCUMENTATION, longdef_document);
+	SlotMakeName(slots, DOCUMENTATION, longdef_documentation);
 	SlotMakeName(slots, LAMBDA_LIST, longdef_lambda_list);
 	SlotMakeName(slots, QUALIFIERS, longdef_qualifiers);
 	SlotMakeName(slots, ARGUMENTS, longdef_arguments);
@@ -1272,7 +1271,7 @@ static void clos_stdshortdef_slots(addr *ret)
 
 	slot_vector_heap(&slots, Clos_shortdef_size);
 	SlotMakeNameSymbol(slots, NAME, shortdef_name);
-	SlotMakeName(slots, DOCUMENTATION, shortdef_document);
+	SlotMakeName(slots, DOCUMENTATION, shortdef_documentation);
 	SlotMakeName(slots, IDENTITY, shortdef_identity);
 	SlotMakeName(slots, OPERATOR, shortdef_operator);
 	slotvector_set_location(slots);

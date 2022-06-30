@@ -14,8 +14,8 @@
 #define common_method_add_ _n(common_method_add_)
 #define common_method_finalize_ _n(common_method_finalize_)
 #define ensure_method_common_ _n(ensure_method_common_)
-#define methodget_document_ _n(methodget_document_)
-#define methodset_document_ _n(methodset_document_)
+#define methodget_documentation_ _n(methodget_documentation_)
+#define methodset_documentation_ _n(methodset_documentation_)
 #define method_make_method_lambda _n(method_make_method_lambda)
 
 /* control */
@@ -32,8 +32,8 @@ int ensure_method_common_(Execute ptr, addr *ret,
 		addr name, addr lambda, addr qua, addr spec, addr call);
 
 /* document */
-int methodget_document_(addr clos, addr *ret);
-int methodset_document_(addr clos, addr value);
+int methodget_documentation_(Execute ptr, addr clos, addr *ret);
+int methodset_documentation_(Execute ptr, addr clos, addr value);
 
 /* common */
 void method_make_method_lambda(addr list, addr env, addr *ret);

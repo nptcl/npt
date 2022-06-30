@@ -35,24 +35,24 @@
 #define document_variable_symbol_get_ _n(document_variable_symbol_get_)
 #define document_variable_symbol_set_ _n(document_variable_symbol_set_)
 
-int document_function_get_(addr pos, addr *ret);
-int document_function_set_(addr pos, addr value);
-int document_function_setf_get_(addr pos, addr *ret);
-int document_function_setf_set_(addr pos, addr value);
-int document_function_symbol_get_(addr pos, addr *ret);
-int document_function_symbol_set_(addr pos, addr value);
-int document_compiler_macro_symbol_get_(addr pos, addr *ret);
-int document_compiler_macro_symbol_set_(addr pos, addr value);
-int document_compiler_macro_setf_get_(addr pos, addr *ret);
-int document_compiler_macro_setf_set_(addr pos, addr value);
-int document_defsetf_symbol_get_(addr pos, addr *ret);
-int document_defsetf_symbol_set_(addr pos, addr value);
-int document_method_combination_get_(addr pos, addr *ret);
-int document_method_combination_set_(addr pos, addr value);
-int document_method_combination_symbol_get_(addr pos, addr *ret);
-int document_method_combination_symbol_set_(addr pos, addr value);
-int document_standard_method_get_(addr pos, addr *ret);
-int document_standard_method_set_(addr pos, addr value);
+int document_function_get_(Execute ptr, addr pos, addr *ret);
+int document_function_set_(Execute ptr, addr pos, addr value);
+int document_function_setf_get_(Execute ptr, addr pos, addr *ret);
+int document_function_setf_set_(Execute ptr, addr pos, addr value);
+int document_function_symbol_get_(Execute ptr, addr pos, addr *ret);
+int document_function_symbol_set_(Execute ptr, addr pos, addr value);
+int document_compiler_macro_symbol_get_(Execute ptr, addr pos, addr *ret);
+int document_compiler_macro_symbol_set_(Execute ptr, addr pos, addr value);
+int document_compiler_macro_setf_get_(Execute ptr, addr pos, addr *ret);
+int document_compiler_macro_setf_set_(Execute ptr, addr pos, addr value);
+int document_defsetf_symbol_get_(Execute ptr, addr pos, addr *ret);
+int document_defsetf_symbol_set_(Execute ptr, addr pos, addr value);
+int document_method_combination_get_(Execute ptr, addr pos, addr *ret);
+int document_method_combination_set_(Execute ptr, addr pos, addr value);
+int document_method_combination_symbol_get_(Execute ptr, addr pos, addr *ret);
+int document_method_combination_symbol_set_(Execute ptr, addr pos, addr value);
+int document_standard_method_get_(Execute ptr, addr pos, addr *ret);
+int document_standard_method_set_(Execute ptr, addr pos, addr value);
 int document_package_get_(addr pos, addr *ret);
 int document_package_set_(addr pos, addr value);
 int document_standard_class_get_(Execute ptr, addr pos, addr *ret);

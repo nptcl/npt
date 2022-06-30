@@ -1560,7 +1560,7 @@ static void defun_defgeneric_define(void)
 /* (defun defgeneric-method (instance &rest args) ...) -> instance */
 static int syscall_defgeneric_method(Execute ptr, addr var, addr args)
 {
-	Return(defgeneric_method_syscode_(var, args));
+	Return(defgeneric_method_syscode_(ptr, var, args));
 	setresult_control(ptr, var);
 	return 0;
 }

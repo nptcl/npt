@@ -31,28 +31,33 @@ static int stdget_method_constant_(addr pos, addr *ret,
 #define StdGetMethod_(p,r,a,b) \
 	stdget_method_constant_((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
 
-int stdget_method_function_(addr pos, addr *ret)
+int stdget_method_function_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetMethod_(pos, ret, function, FUNCTION);
 }
 
-int stdget_method_generic_function_(addr pos, addr *ret)
+int stdget_method_generic_function_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetMethod_(pos, ret, generic_function, GENERIC_FUNCTION);
 }
 
-int stdget_method_lambda_list_(addr pos, addr *ret)
+int stdget_method_lambda_list_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetMethod_(pos, ret, lambda_list, LAMBDA_LIST);
 }
 
-int stdget_method_qualifiers_(addr pos, addr *ret)
+int stdget_method_qualifiers_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetMethod_(pos, ret, qualifiers, QUALIFIERS);
 }
 
-int stdget_method_specializers_(addr pos, addr *ret)
+int stdget_method_specializers_(Execute ptr, addr pos, addr *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdGetMethod_(pos, ret, specializers, SPECIALIZERS);
 }
 
@@ -83,28 +88,33 @@ static int stdset_method_constant_(addr pos, addr value,
 #define StdSetMethod_(p,r,a,b) \
 	stdset_method_constant_((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
 
-int stdset_method_function_(addr pos, addr value)
+int stdset_method_function_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetMethod_(pos, value, function, FUNCTION);
 }
 
-int stdset_method_generic_function_(addr pos, addr value)
+int stdset_method_generic_function_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetMethod_(pos, value, generic_function, GENERIC_FUNCTION);
 }
 
-int stdset_method_lambda_list_(addr pos, addr value)
+int stdset_method_lambda_list_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetMethod_(pos, value, lambda_list, LAMBDA_LIST);
 }
 
-int stdset_method_qualifiers_(addr pos, addr value)
+int stdset_method_qualifiers_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetMethod_(pos, value, qualifiers, QUALIFIERS);
 }
 
-int stdset_method_specializers_(addr pos, addr value)
+int stdset_method_specializers_(Execute ptr, addr pos, addr value)
 {
+	Check(ptr == NULL, "execute error");
 	return StdSetMethod_(pos, value, specializers, SPECIALIZERS);
 }
 
@@ -136,28 +146,33 @@ static int stdboundp_method_constant_(addr pos, int *ret,
 #define StdBoundpMethod_(p,r,a,b) \
 	stdboundp_method_constant_((p), (r), Clos_method_##a, CONSTANT_CLOSNAME_##b)
 
-int stdboundp_method_function_(addr pos, int *ret)
+int stdboundp_method_function_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpMethod_(pos, ret, function, FUNCTION);
 }
 
-int stdboundp_method_generic_function_(addr pos, int *ret)
+int stdboundp_method_generic_function_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpMethod_(pos, ret, generic_function, GENERIC_FUNCTION);
 }
 
-int stdboundp_method_lambda_list_(addr pos, int *ret)
+int stdboundp_method_lambda_list_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpMethod_(pos, ret, lambda_list, LAMBDA_LIST);
 }
 
-int stdboundp_method_qualifiers_(addr pos, int *ret)
+int stdboundp_method_qualifiers_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpMethod_(pos, ret, qualifiers, QUALIFIERS);
 }
 
-int stdboundp_method_specializers_(addr pos, int *ret)
+int stdboundp_method_specializers_(Execute ptr, addr pos, int *ret)
 {
+	Check(ptr == NULL, "execute error");
 	return StdBoundpMethod_(pos, ret, specializers, SPECIALIZERS);
 }
 

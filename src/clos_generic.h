@@ -17,9 +17,9 @@
 
 /* generic-function */
 int generic_eql_specializer_(Execute ptr, addr left, addr right, int check, int *ret);
-int generic_finalize_(addr gen);
+int generic_finalize_(Execute ptr, addr gen);
 int closrun_execute_(Execute ptr, addr clos, addr args);
-int generic_order_(addr gen, addr order, addr list);
+int generic_order_(Execute ptr, addr gen, addr order, addr list);
 
 /* common */
 int generic_compute_applicable_methods_(Execute ptr, addr gen, addr args, addr *ret);
@@ -27,8 +27,8 @@ int generic_find_method_(Execute ptr,
 		addr gen, addr qua, addr spec, addr errorp, addr *ret);
 
 /* documentation */
-int get_documentation_function_object_(addr pos, addr *ret);
-int set_documentation_function_object_(addr pos, addr value);
+int get_documentation_function_object_(Execute ptr, addr pos, addr *ret);
+int set_documentation_function_object_(Execute ptr, addr pos, addr value);
 
 /* initialize */
 void init_clos_generic(void);

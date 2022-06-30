@@ -21,26 +21,26 @@
 /*
  *  function, t
  */
-static int document_function_name_(addr pos, addr *ret)
+static int document_function_name_(Execute ptr, addr pos, addr *ret)
 {
 	if (functionp(pos)) {
 		GetNameFunction(pos, ret);
 		return 0;
 	}
 
-	return stdget_generic_name_(pos, ret);
+	return stdget_generic_name_(ptr, pos, ret);
 }
 
-int document_function_get_(addr pos, addr *ret)
+int document_function_get_(Execute ptr, addr pos, addr *ret)
 {
 	addr value;
 
-	Return(get_documentation_function_object_(pos, &value));
+	Return(get_documentation_function_object_(ptr, pos, &value));
 	if (value != Nil)
 		return Result(ret, value);
 
 	/* contents */
-	Return(document_function_name_(pos, &pos));
+	Return(document_function_name_(ptr, pos, &pos));
 	if (callnamep(pos))
 		GetCallName(pos, &pos);
 	if (pos == Nil)
@@ -49,22 +49,22 @@ int document_function_get_(addr pos, addr *ret)
 	return document_function_(pos, ret);
 }
 
-int document_function_set_(addr pos, addr value)
+int document_function_set_(Execute ptr, addr pos, addr value)
 {
-	return set_documentation_function_object_(pos, value);
+	return set_documentation_function_object_(ptr, pos, value);
 }
 
 
 /*
  *  (setf name), function
  */
-int document_function_setf_get_(addr pos, addr *ret)
+int document_function_setf_get_(Execute ptr, addr pos, addr *ret)
 {
 	addr value;
 
 	Return(parse_callname_error_(&pos, pos));
 	Return(getglobalcheck_callname_(pos, &value));
-	Return(get_documentation_function_object_(value, &value));
+	Return(get_documentation_function_object_(ptr, value, &value));
 	if (value != Nil)
 		return Result(ret, value);
 
@@ -73,11 +73,11 @@ int document_function_setf_get_(addr pos, addr *ret)
 	return document_function_(pos, ret);
 }
 
-int document_function_setf_set_(addr pos, addr value)
+int document_function_setf_set_(Execute ptr, addr pos, addr value)
 {
 	Return(parse_callname_error_(&pos, pos));
 	Return(getglobalcheck_callname_(pos, &pos));
-	Return(set_documentation_function_object_(pos, value));
+	Return(set_documentation_function_object_(ptr, pos, value));
 
 	return 0;
 }
@@ -102,12 +102,12 @@ static int document_fdefinition_symbol_get_(addr pos, addr *ret)
 	return call_undefined_function_(NULL, pos);
 }
 
-int document_function_symbol_get_(addr pos, addr *ret)
+int document_function_symbol_get_(Execute ptr, addr pos, addr *ret)
 {
 	addr value;
 
 	Return(document_fdefinition_symbol_get_(pos, &value));
-	Return(get_documentation_function_object_(value, &value));
+	Return(get_documentation_function_object_(ptr, value, &value));
 	if (value != Nil)
 		return Result(ret, value);
 
@@ -115,10 +115,10 @@ int document_function_symbol_get_(addr pos, addr *ret)
 	return document_function_(pos, ret);
 }
 
-int document_function_symbol_set_(addr pos, addr value)
+int document_function_symbol_set_(Execute ptr, addr pos, addr value)
 {
 	Return(getfunction_global_(pos, &pos));
-	Return(set_documentation_function_object_(pos, value));
+	Return(set_documentation_function_object_(ptr, pos, value));
 
 	return 0;
 }
@@ -127,24 +127,24 @@ int document_function_symbol_set_(addr pos, addr value)
 /*
  *  symbol, compiler-macro
  */
-int document_compiler_macro_symbol_get_(addr pos, addr *ret)
+int document_compiler_macro_symbol_get_(Execute ptr, addr pos, addr *ret)
 {
 	get_compiler_macro_symbol(pos, &pos);
 	if (pos != Nil) {
-		Return(get_documentation_function_object_(pos, &pos));
+		Return(get_documentation_function_object_(ptr, pos, &pos));
 	}
 
 	return Result(ret, pos);
 }
 
-int document_compiler_macro_symbol_set_(addr pos, addr value)
+int document_compiler_macro_symbol_set_(Execute ptr, addr pos, addr value)
 {
 	addr macro;
 
 	get_compiler_macro_symbol(pos, &macro);
 	if (macro == Nil)
 		return fmte_("There is no compiler-macro, ~S.", pos, NULL);
-	Return(set_documentation_function_object_(macro, value));
+	Return(set_documentation_function_object_(ptr, macro, value));
 
 	return 0;
 }
@@ -153,19 +153,19 @@ int document_compiler_macro_symbol_set_(addr pos, addr value)
 /*
  *  (setf name), compiler-macro
  */
-int document_compiler_macro_setf_get_(addr pos, addr *ret)
+int document_compiler_macro_setf_get_(Execute ptr, addr pos, addr *ret)
 {
 	Return(parse_callname_error_(&pos, pos));
 	GetCallName(pos, &pos);
 	get_setf_compiler_macro_symbol(pos, &pos);
 	if (pos != Nil) {
-		Return(get_documentation_function_object_(pos, &pos));
+		Return(get_documentation_function_object_(ptr, pos, &pos));
 	}
 
 	return Result(ret, pos);
 }
 
-int document_compiler_macro_setf_set_(addr pos, addr value)
+int document_compiler_macro_setf_set_(Execute ptr, addr pos, addr value)
 {
 	addr macro;
 
@@ -174,7 +174,7 @@ int document_compiler_macro_setf_set_(addr pos, addr value)
 	get_setf_compiler_macro_symbol(pos, &macro);
 	if (macro == Nil)
 		return fmte_("There is no compiler-macro, ~S.", pos, NULL);
-	Return(set_documentation_function_object_(macro, value));
+	Return(set_documentation_function_object_(ptr, macro, value));
 
 	return 0;
 }
@@ -183,7 +183,7 @@ int document_compiler_macro_setf_set_(addr pos, addr value)
 /*
  *  symbol, setf
  */
-int document_defsetf_symbol_get_(addr pos, addr *ret)
+int document_defsetf_symbol_get_(Execute ptr, addr pos, addr *ret)
 {
 	addr setf;
 
@@ -194,7 +194,7 @@ int document_defsetf_symbol_get_(addr pos, addr *ret)
 		Return(getsetf_global_(pos, &setf));
 	}
 	/* get documentation */
-	Return(get_documentation_function_object_(setf, &setf));
+	Return(get_documentation_function_object_(ptr, setf, &setf));
 
 	/* contents */
 	if (setf != Nil)
@@ -203,7 +203,7 @@ int document_defsetf_symbol_get_(addr pos, addr *ret)
 	return document_function_(pos, ret);
 }
 
-int document_defsetf_symbol_set_(addr pos, addr value)
+int document_defsetf_symbol_set_(Execute ptr, addr pos, addr value)
 {
 	addr setf;
 
@@ -214,7 +214,7 @@ int document_defsetf_symbol_set_(addr pos, addr value)
 		Return(getsetf_global_(pos, &setf));
 	}
 	/* set documentation */
-	Return(set_documentation_function_object_(setf, value));
+	Return(set_documentation_function_object_(ptr, setf, value));
 
 	return 0;
 }
@@ -223,32 +223,32 @@ int document_defsetf_symbol_set_(addr pos, addr value)
 /*
  *  method-combination
  */
-int document_method_combination_get_(addr pos, addr *ret)
+int document_method_combination_get_(Execute ptr, addr pos, addr *ret)
 {
-	return stdget_longcomb_document_(pos, ret);
+	return stdget_longcomb_documentation_(ptr, pos, ret);
 }
 
-int document_method_combination_set_(addr pos, addr value)
+int document_method_combination_set_(Execute ptr, addr pos, addr value)
 {
-	return stdset_longcomb_document_(pos, value);
+	return stdset_longcomb_documentation_(ptr, pos, value);
 }
 
 
 /*
  *  symbol, method-combination
  */
-int document_method_combination_symbol_get_(addr pos, addr *ret)
+int document_method_combination_symbol_get_(Execute ptr, addr pos, addr *ret)
 {
 	Return(clos_find_combination_(pos, &pos));
-	Return(stdget_longcomb_document_(pos, ret));
+	Return(stdget_longcomb_documentation_(ptr, pos, ret));
 
 	return 0;
 }
 
-int document_method_combination_symbol_set_(addr pos, addr value)
+int document_method_combination_symbol_set_(Execute ptr, addr pos, addr value)
 {
 	Return(clos_find_combination_(pos, &pos));
-	Return(stdset_longcomb_document_(pos, value));
+	Return(stdset_longcomb_documentation_(ptr, pos, value));
 
 	return 0;
 }
@@ -257,14 +257,14 @@ int document_method_combination_symbol_set_(addr pos, addr value)
 /*
  *  standard-method
  */
-int document_standard_method_get_(addr pos, addr *ret)
+int document_standard_method_get_(Execute ptr, addr pos, addr *ret)
 {
-	return methodget_document_(pos, ret);
+	return methodget_documentation_(ptr, pos, ret);
 }
 
-int document_standard_method_set_(addr pos, addr value)
+int document_standard_method_set_(Execute ptr, addr pos, addr value)
 {
-	return methodset_document_(pos, value);
+	return methodset_documentation_(ptr, pos, value);
 }
 
 
@@ -349,7 +349,7 @@ int document_type_symbol_get_(Execute ptr, addr pos, addr doc_type, addr *ret)
 		*ret = Nil;
 		return fmte_("The symbol ~S don't have a deftype function.", pos, NULL);
 	}
-	Return(get_documentation_function_object_(type, &type));
+	Return(get_documentation_function_object_(ptr, type, &type));
 
 	/* contents */
 	if (type != Nil)
@@ -374,7 +374,7 @@ int document_type_symbol_set_(Execute ptr, addr pos, addr doc_type, addr value)
 	getdeftype(pos, &type);
 	if (type == Nil)
 		return fmte_("The symbol ~S don't have a deftype function.", pos, NULL);
-	Return(set_documentation_function_object_(type, value));
+	Return(set_documentation_function_object_(ptr, type, value));
 
 	return 0;
 }

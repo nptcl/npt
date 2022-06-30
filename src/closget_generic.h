@@ -52,53 +52,53 @@
 #define stdboundp_generic_call_ _n(stdboundp_generic_call_)
 #define stdboundp_generic_precedence_index_ _n(stdboundp_generic_precedence_index_)
 
-int stdget_generic_name_(addr pos, addr *ret);
-int stdget_generic_methods_(addr pos, addr *ret);
-int stdget_generic_lambda_list_(addr pos, addr *ret);
-int stdget_generic_argument_precedence_order_(addr pos, addr *ret);
-int stdget_generic_declarations_(addr pos, addr *ret);
-int stdget_generic_method_class_(addr pos, addr *ret);
-int stdget_generic_method_combination_(addr pos, addr *ret);
-int stdget_generic_vector_(addr pos, addr *ret);
-int stdget_generic_remove_(addr pos, addr *ret);
-int stdget_generic_argument_(addr pos, addr *ret);
-int stdget_generic_documentation_(addr pos, addr *ret);
-int stdget_generic_eqlcheck_(addr pos, addr *ret);
-int stdget_generic_cache_(addr pos, addr *ret);
-int stdget_generic_call_(addr pos, addr *ret);
-int stdget_generic_precedence_index_(addr pos, addr *ret);
+int stdget_generic_name_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_methods_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_lambda_list_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_argument_precedence_order_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_declarations_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_method_class_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_method_combination_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_vector_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_remove_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_argument_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_documentation_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_eqlcheck_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_cache_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_call_(Execute ptr, addr pos, addr *ret);
+int stdget_generic_precedence_index_(Execute ptr, addr pos, addr *ret);
 
-int stdset_generic_name_(addr pos, addr value);
-int stdset_generic_methods_(addr pos, addr value);
-int stdset_generic_lambda_list_(addr pos, addr value);
-int stdset_generic_argument_precedence_order_(addr pos, addr value);
-int stdset_generic_declarations_(addr pos, addr value);
-int stdset_generic_method_class_(addr pos, addr value);
-int stdset_generic_method_combination_(addr pos, addr value);
-int stdset_generic_vector_(addr pos, addr value);
-int stdset_generic_remove_(addr pos, addr value);
-int stdset_generic_argument_(addr pos, addr value);
-int stdset_generic_documentation_(addr pos, addr value);
-int stdset_generic_eqlcheck_(addr pos, addr value);
-int stdset_generic_cache_(addr pos, addr value);
-int stdset_generic_call_(addr pos, addr value);
-int stdset_generic_precedence_index_(addr pos, addr value);
+int stdset_generic_name_(Execute ptr, addr pos, addr value);
+int stdset_generic_methods_(Execute ptr, addr pos, addr value);
+int stdset_generic_lambda_list_(Execute ptr, addr pos, addr value);
+int stdset_generic_argument_precedence_order_(Execute ptr, addr pos, addr value);
+int stdset_generic_declarations_(Execute ptr, addr pos, addr value);
+int stdset_generic_method_class_(Execute ptr, addr pos, addr value);
+int stdset_generic_method_combination_(Execute ptr, addr pos, addr value);
+int stdset_generic_vector_(Execute ptr, addr pos, addr value);
+int stdset_generic_remove_(Execute ptr, addr pos, addr value);
+int stdset_generic_argument_(Execute ptr, addr pos, addr value);
+int stdset_generic_documentation_(Execute ptr, addr pos, addr value);
+int stdset_generic_eqlcheck_(Execute ptr, addr pos, addr value);
+int stdset_generic_cache_(Execute ptr, addr pos, addr value);
+int stdset_generic_call_(Execute ptr, addr pos, addr value);
+int stdset_generic_precedence_index_(Execute ptr, addr pos, addr value);
 
-int stdboundp_generic_name_(addr pos, int *ret);
-int stdboundp_generic_methods_(addr pos, int *ret);
-int stdboundp_generic_lambda_list_(addr pos, int *ret);
-int stdboundp_generic_argument_precedence_order_(addr pos, int *ret);
-int stdboundp_generic_declarations_(addr pos, int *ret);
-int stdboundp_generic_method_class_(addr pos, int *ret);
-int stdboundp_generic_method_combination_(addr pos, int *ret);
-int stdboundp_generic_vector_(addr pos, int *ret);
-int stdboundp_generic_remove_(addr pos, int *ret);
-int stdboundp_generic_argument_(addr pos, int *ret);
-int stdboundp_generic_documentation_(addr pos, int *ret);
-int stdboundp_generic_eqlcheck_(addr pos, int *ret);
-int stdboundp_generic_cache_(addr pos, int *ret);
-int stdboundp_generic_call_(addr pos, int *ret);
-int stdboundp_generic_precedence_index_(addr pos, int *ret);
+int stdboundp_generic_name_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_methods_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_lambda_list_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_argument_precedence_order_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_declarations_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_method_class_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_method_combination_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_vector_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_remove_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_argument_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_documentation_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_eqlcheck_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_cache_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_call_(Execute ptr, addr pos, int *ret);
+int stdboundp_generic_precedence_index_(Execute ptr, addr pos, int *ret);
 
 #endif
 

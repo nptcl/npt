@@ -22,23 +22,23 @@
 #define stdboundp_method_qualifiers_ _n(stdboundp_method_qualifiers_)
 #define stdboundp_method_specializers_ _n(stdboundp_method_specializers_)
 
-int stdget_method_function_(addr pos, addr *ret);
-int stdget_method_generic_function_(addr pos, addr *ret);
-int stdget_method_lambda_list_(addr pos, addr *ret);
-int stdget_method_qualifiers_(addr pos, addr *ret);
-int stdget_method_specializers_(addr pos, addr *ret);
+int stdget_method_function_(Execute ptr, addr pos, addr *ret);
+int stdget_method_generic_function_(Execute ptr, addr pos, addr *ret);
+int stdget_method_lambda_list_(Execute ptr, addr pos, addr *ret);
+int stdget_method_qualifiers_(Execute ptr, addr pos, addr *ret);
+int stdget_method_specializers_(Execute ptr, addr pos, addr *ret);
 
-int stdset_method_function_(addr pos, addr value);
-int stdset_method_generic_function_(addr pos, addr value);
-int stdset_method_lambda_list_(addr pos, addr value);
-int stdset_method_qualifiers_(addr pos, addr value);
-int stdset_method_specializers_(addr pos, addr value);
+int stdset_method_function_(Execute ptr, addr pos, addr value);
+int stdset_method_generic_function_(Execute ptr, addr pos, addr value);
+int stdset_method_lambda_list_(Execute ptr, addr pos, addr value);
+int stdset_method_qualifiers_(Execute ptr, addr pos, addr value);
+int stdset_method_specializers_(Execute ptr, addr pos, addr value);
 
-int stdboundp_method_function_(addr pos, int *ret);
-int stdboundp_method_generic_function_(addr pos, int *ret);
-int stdboundp_method_lambda_list_(addr pos, int *ret);
-int stdboundp_method_qualifiers_(addr pos, int *ret);
-int stdboundp_method_specializers_(addr pos, int *ret);
+int stdboundp_method_function_(Execute ptr, addr pos, int *ret);
+int stdboundp_method_generic_function_(Execute ptr, addr pos, int *ret);
+int stdboundp_method_lambda_list_(Execute ptr, addr pos, int *ret);
+int stdboundp_method_qualifiers_(Execute ptr, addr pos, int *ret);
+int stdboundp_method_specializers_(Execute ptr, addr pos, int *ret);
 
 #endif
 
