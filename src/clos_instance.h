@@ -24,15 +24,10 @@
 #define clos_instance_alloc_ _n(clos_instance_alloc_)
 #define clos_instance_local_ _n(clos_instance_local_)
 #define clos_instance_heap_ _n(clos_instance_heap_)
-#define clos_find_slotname _n(clos_find_slotname)
+#define clos_find_slotname_ _n(clos_find_slotname_)
 #define clos_precedence_list_redefine_ _n(clos_precedence_list_redefine_)
 #define clos_precedence_list_ _n(clos_precedence_list_)
 #define clos_compute_slots_ _n(clos_compute_slots_)
-#define slotvector_set_location _n(slotvector_set_location)
-#define clos_stdclass_direct_slots_ _n(clos_stdclass_direct_slots_)
-#define clos_stdclass_prototype_ _n(clos_stdclass_prototype_)
-#define clos_stdclass_supers_ _n(clos_stdclass_supers_)
-#define build_clos_class _n(build_clos_class)
 #define clos_subclass_p_debug _n(clos_subclass_p_debug)
 #define clos_subtype_p_debug _n(clos_subtype_p_debug)
 #define clos_generic_p_debug _n(clos_generic_p_debug)
@@ -65,19 +60,11 @@ int clos_instance_local_(Execute ptr, addr clos, addr *ret);
 int clos_instance_heap_(Execute ptr, addr clos, addr *ret);
 
 /* interface */
-int clos_find_slotname(addr slots, size_t size, addr name);
+int clos_find_slotname_(Execute ptr, addr slots, size_t size, addr name, int *ret);
 int clos_precedence_list_redefine_(
 		Execute ptr, addr pos, addr *ret, addr x, addr list);
 int clos_precedence_list_(Execute ptr, addr pos, addr *ret);
 int clos_compute_slots_(Execute ptr, addr clos, addr *ret);
-void slotvector_set_location(addr slots);
-int clos_stdclass_direct_slots_(Execute ptr, addr instance, addr slots);
-int clos_stdclass_prototype_(Execute ptr, addr clos);
-int clos_stdclass_supers_(Execute ptr,
-		addr *ret, addr metaclass, addr name, addr slots, addr supers);
-
-/* build */
-void build_clos_class(Execute ptr);
 
 /* debug */
 int clos_subclass_p_debug(addr clos, addr super);

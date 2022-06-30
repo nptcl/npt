@@ -1595,7 +1595,7 @@ error:
 /*
  *  make-load-form-saving-slots
  */
-static void make_load_form_saving_slots_list(addr var, addr *ret)
+static int make_load_form_saving_slots_list_(Execute ptr, addr var, addr *ret)
 {
 	addr vector, list, x;
 	size_t size, i;
@@ -1605,10 +1605,12 @@ static void make_load_form_saving_slots_list(addr var, addr *ret)
 	list = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(vector, i, &x);
-		getname_slot(x, &x);
+		Return(getname_slot_(ptr, x, &x));
 		cons_heap(&list, x, list);
 	}
 	nreverse(ret, list);
+
+	return 0;
 }
 
 int make_load_form_saving_slots_common_(Execute ptr,
@@ -1643,8 +1645,9 @@ int make_load_form_saving_slots_common_(Execute ptr,
 
 	/* second */
 	GetConst(SYSTEM_SET_SLOTS, &set);
-	if (list == Unbound)
-		make_load_form_saving_slots_list(var, &list);
+	if (list == Unbound) {
+		Return(make_load_form_saving_slots_list_(ptr, var, &list));
+	}
 	values = Nil;
 	root = list;
 	while (root != Nil) {

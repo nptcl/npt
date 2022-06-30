@@ -117,10 +117,10 @@ static int structure_getdirect_(addr vector, size_t index, addr *ret)
 	return getelt_sequence_(NULL, vector, index, ret);
 }
 
-int structure_getarray_(addr vector, addr slot, addr *ret)
+int structure_getarray_(Execute ptr, addr vector, addr slot, addr *ret)
 {
 	size_t index;
-	getaccess_slot(slot, &index);
+	Return(getaccess_slot_(ptr, slot, &index));
 	return structure_getdirect_(vector, index, ret);
 }
 
@@ -144,7 +144,7 @@ int structure_write1_(Execute ptr, addr instance, addr slot, addr value)
 	size_t index;
 
 	/* check */
-	gettype_slot(slot, &type);
+	Return(gettype_slot_(ptr, slot, &type));
 	if (value != Unbound) {
 		Return(structure_setcheck_error_(ptr, type, value));
 	}
@@ -153,9 +153,10 @@ int structure_write1_(Execute ptr, addr instance, addr slot, addr value)
 	}
 
 	/* write */
-	getlocation_slot(slot, &index);
+	Return(getlocation_slot_(ptr, slot, &index));
 	GetValueClos(instance, &var);
 	SetClosValue(var, index, value);
+
 	return 0;
 }
 
@@ -165,11 +166,11 @@ int structure_write2_(Execute ptr, addr list, addr slot, addr value)
 	size_t index;
 
 	/* check */
-	gettype_slot(slot, &type);
+	Return(gettype_slot_(ptr, slot, &type));
 	Return(structure_setcheck_error_(ptr, type, value));
 
 	/* write */
-	getaccess_slot(slot, &index);
+	Return(getaccess_slot_(ptr, slot, &index));
 	return setnth_(list, index, value);
 }
 
@@ -179,12 +180,12 @@ int structure_write3_(Execute ptr, addr vector, addr slot, addr type1, addr valu
 	size_t index;
 
 	/* check */
-	gettype_slot(slot, &type2);
+	Return(gettype_slot_(ptr, slot, &type2));
 	Return(structure_setcheck_error_(ptr, type1, value));
 	Return(structure_setcheck_error_(ptr, type2, value));
 
 	/* write */
-	getaccess_slot(slot, &index);
+	Return(getaccess_slot_(ptr, slot, &index));
 	return setelt_sequence_(vector, index, value);
 }
 

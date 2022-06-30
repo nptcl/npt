@@ -2,6 +2,7 @@
 #define __CLOS_OBJECT_HEADER__
 
 #include "clos_define.h"
+#include "execute.h"
 #include "local.h"
 #include "typedef.h"
 
@@ -85,8 +86,8 @@ struct clos_struct {
 #define clos_destroy _n(clos_destroy)
 #define clos_swap _n(clos_swap)
 #define clos_copy_alloc _n(clos_copy_alloc)
-#define clos_allcopy_alloc _n(clos_allcopy_alloc)
-#define clos_getslots_heap _n(clos_getslots_heap)
+#define clos_allcopy_alloc_ _n(clos_allcopy_alloc_)
+#define clos_getslots_heap_ _n(clos_getslots_heap_)
 #define clos_funcall_p _n(clos_funcall_p)
 #define clos_set_funcall _n(clos_set_funcall)
 
@@ -115,8 +116,8 @@ void clos_heap(addr *ret, addr slots);
 void clos_destroy(addr pos);
 void clos_swap(addr a, addr b);
 void clos_copy_alloc(LocalRoot local, addr pos, addr *ret);
-void clos_allcopy_alloc(LocalRoot local, addr pos, addr *ret);
-void clos_getslots_heap(addr pos, addr *ret);
+int clos_allcopy_alloc_(Execute ptr, LocalRoot local, addr pos, addr *ret);
+int clos_getslots_heap_(Execute ptr, addr pos, addr *ret);
 int clos_funcall_p(addr pos);
 void clos_set_funcall(addr pos);
 
@@ -145,11 +146,11 @@ void clos_set_funcall(addr pos);
 #define slot_vector_alloc _n(slot_vector_alloc)
 #define slot_vector_local _n(slot_vector_local)
 #define slot_vector_heap _n(slot_vector_heap)
-#define slot_vector_copy_alloc _n(slot_vector_copy_alloc)
-#define slot_vector_copy_local _n(slot_vector_copy_local)
-#define slot_vector_copy_heap _n(slot_vector_copy_heap)
-#define slot_vector_copyheap_alloc _n(slot_vector_copyheap_alloc)
-#define slot_vector_clear _n(slot_vector_clear)
+#define slot_vector_copy_alloc_ _n(slot_vector_copy_alloc_)
+#define slot_vector_copy_local_ _n(slot_vector_copy_local_)
+#define slot_vector_copy_heap_ _n(slot_vector_copy_heap_)
+#define slot_vector_copyheap_alloc_ _n(slot_vector_copyheap_alloc_)
+#define slot_vector_clear_ _n(slot_vector_clear_)
 
 void getslotvector(addr pos, size_t index, addr *ret);
 void setslotvector(addr pos, size_t index, addr value);
@@ -158,11 +159,11 @@ int slot_vector_p(addr pos);
 void slot_vector_alloc(LocalRoot local, addr *ret, size_t size);
 void slot_vector_local(LocalRoot local, addr *ret, size_t size);
 void slot_vector_heap(addr *ret, size_t size);
-void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos);
-void slot_vector_copy_local(LocalRoot local, addr *ret, addr pos);
-void slot_vector_copy_heap(addr *ret, addr pos);
-void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos);
-void slot_vector_clear(addr pos);
+int slot_vector_copy_alloc_(Execute ptr, LocalRoot local, addr *ret, addr pos);
+int slot_vector_copy_local_(Execute ptr, addr *ret, addr pos);
+int slot_vector_copy_heap_(Execute ptr, addr *ret, addr pos);
+int slot_vector_copyheap_alloc_(Execute ptr, LocalRoot local, addr *ret, addr pos);
+int slot_vector_clear_(Execute ptr, addr pos);
 
 #endif
 

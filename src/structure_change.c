@@ -105,7 +105,7 @@ static int structure_change3_include_(struct defstruct *str)
 /*
  *  slots
  */
-static int structure_change_slots_(addr instance, addr slots1, addr slots2)
+static int structure_change_slots_(Execute ptr, addr instance, addr slots1, addr slots2)
 {
 	int check;
 	addr x, y, list;
@@ -121,8 +121,8 @@ static int structure_change_slots_(addr instance, addr slots1, addr slots2)
 	for (i = 0; i < size1; i++) {
 		GetSlotVector(slots1, i, &x);
 		GetSlotVector(slots2, i, &y);
-		getname_slot(x, &x);
-		getname_slot(y, &y);
+		Return(getname_slot_(ptr, x, &x));
+		Return(getname_slot_(ptr, y, &y));
 		GetNameSymbol(x, &x);
 		GetNameSymbol(y, &y);
 		Return(string_equal_(x, y, &check));
@@ -135,7 +135,7 @@ error:
 	list = Nil;
 	for (i = 0; i < size1; i++) {
 		GetSlotVector(slots1, i, &x);
-		getname_slot(x, &x);
+		Return(getname_slot_(ptr, x, &x));
 		cons_heap(&list, x, list);
 	}
 	return fmte_("Cannot change slots ~S in ~S.", list, instance, NULL);
@@ -149,7 +149,7 @@ static int structure_change1_slots_(struct defstruct *str)
 	Return(stdget_structure_direct_slots_(str->instance, &slots1));
 	Return(stdget_structure_direct_slots_(str->change, &slots2));
 
-	return structure_change_slots_(str->instance, slots1, slots2);
+	return structure_change_slots_(str->ptr, str->instance, slots1, slots2);
 }
 
 static int structure_change2_slots_(struct defstruct *str)
@@ -160,7 +160,7 @@ static int structure_change2_slots_(struct defstruct *str)
 	GetSlotsStructure(str->instance, &slots1);
 	GetSlotsStructure(str->change, &slots2);
 
-	return structure_change_slots_(str->instance, slots1, slots2);
+	return structure_change_slots_(str->ptr, str->instance, slots1, slots2);
 }
 
 static int structure_change3_slots_(struct defstruct *str)
@@ -171,7 +171,7 @@ static int structure_change3_slots_(struct defstruct *str)
 	GetSlotsStructure(str->instance, &slots1);
 	GetSlotsStructure(str->change, &slots2);
 
-	return structure_change_slots_(str->instance, slots1, slots2);
+	return structure_change_slots_(str->ptr, str->instance, slots1, slots2);
 }
 
 

@@ -15,74 +15,76 @@
 static int test_getslot(void)
 {
 	int n;
+	Execute ptr;
 	addr pos, check, v;
 	struct slot_struct *str;
 	size_t s;
 
-	slot_heap(&pos);
+	ptr = Execute_Thread;
+	slot_heap_(ptr, &pos);
 	str = struct_slot(pos);
 	test(str, "struct_slot1");
 
 	fixnum_heap(&v, 10);
 	setarray(pos, SLOT_INDEX_NAME, T);
-	getname_slot(pos, &check);
+	getname_slot_(ptr, pos, &check);
 	test(check == T, "getname_slot1");
-	setname_slot(pos, v);
-	getname_slot(pos, &check);
+	setname_slot_(ptr, pos, v);
+	getname_slot_(ptr, pos, &check);
 	test(check == v, "getname_slot2");
 
 	setarray(pos, SLOT_INDEX_TYPE, T);
-	gettype_slot(pos, &check);
+	gettype_slot_(ptr, pos, &check);
 	test(check == T, "gettype_slot1");
-	settype_slot(pos, v);
-	gettype_slot(pos, &check);
+	settype_slot_(ptr, pos, v);
+	gettype_slot_(ptr, pos, &check);
 	test(check == v, "gettype_slot2");
 
 	setarray(pos, SLOT_INDEX_INITARGS, T);
-	getargs_slot(pos, &check);
+	getargs_slot_(ptr, pos, &check);
 	test(check == T, "getargs_slot1");
-	setargs_slot(pos, v);
-	getargs_slot(pos, &check);
+	setargs_slot_(ptr, pos, v);
+	getargs_slot_(ptr, pos, &check);
 	test(check == v, "getargs_slot2");
 
 	setarray(pos, SLOT_INDEX_INITFORM, T);
-	getform_slot(pos, &check);
+	getform_slot_(ptr, pos, &check);
 	test(check == T, "getform_slot1");
-	setform_slot(pos, v);
-	getform_slot(pos, &check);
+	setform_slot_(ptr, pos, v);
+	getform_slot_(ptr, pos, &check);
 	test(check == v, "getform_slot2");
 
 	setarray(pos, SLOT_INDEX_INITFUNCTION, T);
-	getfunction_slot(pos, &check);
+	getfunction_slot_(ptr, pos, &check);
 	test(check == T, "getfunction_slot1");
-	setfunction_slot(pos, v);
-	getfunction_slot(pos, &check);
+	setfunction_slot_(ptr, pos, v);
+	getfunction_slot_(ptr, pos, &check);
 	test(check == v, "getfunction_slot2");
 
 	setarray(pos, SLOT_INDEX_READERS, T);
-	getreaders_slot(pos, &check);
+	getreaders_slot_(ptr, pos, &check);
 	test(check == T, "getreaders_slot1");
-	setreaders_slot(pos, v);
-	getreaders_slot(pos, &check);
+	setreaders_slot_(ptr, pos, v);
+	getreaders_slot_(ptr, pos, &check);
 	test(check == v, "getreaders_slot2");
 
 	setarray(pos, SLOT_INDEX_WRITERS, T);
-	getwriters_slot(pos, &check);
+	getwriters_slot_(ptr, pos, &check);
 	test(check == T, "getwriters_slot1");
-	setwriters_slot(pos, v);
-	getwriters_slot(pos, &check);
+	setwriters_slot_(ptr, pos, v);
+	getwriters_slot_(ptr, pos, &check);
 	test(check == v, "getwriters_slot2");
 
 	test(GetUser(pos) == 0, "getallocation_slot1");
-	setallocation_slot(pos, 100);
+	setallocation_slot_(ptr, pos, 100);
 	test(GetUser(pos) == 1, "getallocation_slot2");
-	getallocation_slot(pos, &n);
+	getallocation_slot_(ptr, pos, &n);
 	test(n == 1, "getallocation_slot3");
 
 	test(str->location == 0, "getlocation_slot1");
-	setlocation_slot(pos, 200);
+	setlocation_slot_(ptr, pos, 200);
 	test(str->location == 200, "getlocation_slot2");
-	getlocation_slot(pos, &s);
+	getlocation_slot_(ptr, pos, &s);
 	test(s == 200, "getlocation_slot3");
 
 	RETURN;
@@ -183,30 +185,34 @@ static int test_getclosvalue(void)
  */
 static int test_slot_alloc(void)
 {
-	addr pos, check;
+	int check;
+	Execute ptr;
+	addr pos, value;
 	LocalRoot local;
 	LocalStack stack;
 
+	ptr = Execute_Thread;
 	local = Local_Thread;
 	push_local(local, &stack);
-	slot_alloc(local, &pos);
+	slot_alloc_(ptr, local, &pos);
 	test(GetType(pos) == LISPSYSTEM_SLOT, "slot_alloc1");
 	test(GetStatusDynamic(pos), "slot_alloc2");
-	test(slot_instance_p(pos), "slot_alloc3");
-	getname_slot(pos, &check);
-	test(check == Unbound, "slot_alloc4");
-	getform_slot(pos, &check);
-	test(check == Unbound, "slot_alloc5");
+	slot_instance_p_(ptr, pos, &check);
+	test(check, "slot_alloc3");
+	getname_slot_(ptr, pos, &value);
+	test(value == Unbound, "slot_alloc4");
+	getform_slot_(ptr, pos, &value);
+	test(value == Unbound, "slot_alloc5");
 
-	slot_alloc(NULL, &pos);
+	slot_alloc_(ptr, NULL, &pos);
 	test(GetType(pos) == LISPSYSTEM_SLOT, "slot_alloc6");
 	test(! GetStatusDynamic(pos), "slot_alloc7");
 
-	slot_local(local, &pos);
+	slot_local_(ptr, &pos);
 	test(GetType(pos) == LISPSYSTEM_SLOT, "slot_alloc8");
 	test(GetStatusDynamic(pos), "slot_alloc9");
 
-	slot_heap(&pos);
+	slot_heap_(ptr, &pos);
 	test(GetType(pos) == LISPSYSTEM_SLOT, "slot_alloc10");
 	test(! GetStatusDynamic(pos), "slot_alloc11");
 
@@ -219,37 +225,39 @@ static int test_slot_copy_alloc(void)
 {
 	int v;
 	addr pos1, pos2, check;
+	Execute ptr;
 	LocalRoot local;
 	LocalStack stack;
 	size_t s;
 
+	ptr = Execute_Thread;
 	local = Local_Thread;
 	push_local(local, &stack);
 
-	slot_heap(&pos1);
-	setallocation_slot(pos1, 1);
-	setlocation_slot(pos1, 22);
-	setform_slot(pos1, T);
+	slot_heap_(ptr, &pos1);
+	setallocation_slot_(ptr, pos1, 1);
+	setlocation_slot_(ptr, pos1, 22);
+	setform_slot_(ptr, pos1, T);
 
-	slot_copy_alloc(local, &pos2, pos1);
+	slot_copy_alloc_(ptr, local, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT, "slot_copy_alloc1");
 	test(GetStatusDynamic(pos2), "slot_copy_alloc2");
-	getallocation_slot(pos2, &v);
+	getallocation_slot_(ptr, pos2, &v);
 	test(v, "slot_copy_alloc3");
-	getlocation_slot(pos2, &s);
+	getlocation_slot_(ptr, pos2, &s);
 	test(s == 22, "slot_copy_alloc4");
-	getform_slot(pos2, &check);
+	getform_slot_(ptr, pos2, &check);
 	test(check == T, "slot_copy_alloc5");
 
-	slot_copy_alloc(NULL, &pos2, pos1);
+	slot_copy_alloc_(ptr, NULL, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT, "slot_copy_alloc6");
 	test(! GetStatusDynamic(pos2), "slot_copy_alloc7");
 
-	slot_copy_local(local, &pos2, pos1);
+	slot_copy_local_(ptr, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT, "slot_copy_alloc8");
 	test(GetStatusDynamic(pos2), "slot_copy_alloc9");
 
-	slot_copy_heap(&pos2, pos1);
+	slot_copy_heap_(ptr, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT, "slot_copy_alloc10");
 	test(! GetStatusDynamic(pos2), "slot_copy_alloc11");
 
@@ -292,32 +300,34 @@ static int test_slot_vector_alloc(void)
 static int test_slot_vector_copy_alloc(void)
 {
 	addr pos1, pos2, pos;
+	Execute ptr;
 	LocalRoot local;
 	LocalStack stack;
 	size_t i;
 
+	ptr = Execute_Thread;
 	local = Local_Thread;
 	push_local(local, &stack);
 
 	slot_vector_heap(&pos1, 10);
 	for (i = 0; i < 10; i++) {
-		slot_heap(&pos);
+		slot_heap_(ptr, &pos);
 		SetSlotVector(pos1, i, pos);
 	}
-	slot_vector_copy_alloc(local, &pos2, pos1);
+	slot_vector_copy_alloc_(ptr, local, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT_VECTOR, "slot_vector_copy_alloc1");
 	test(GetStatusDynamic(pos2), "slot_vector_copy_alloc2");
 	test(lenarrayr(pos2) == 10, "slot_vector_copy_alloc3");
 
-	slot_vector_copy_alloc(NULL, &pos2, pos1);
+	slot_vector_copy_alloc_(ptr, NULL, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT_VECTOR, "slot_vector_copy_alloc4");
 	test(! GetStatusDynamic(pos2), "slot_vector_copy_alloc5");
 
-	slot_vector_copy_local(local, &pos2, pos1);
+	slot_vector_copy_local_(ptr, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT_VECTOR, "slot_vector_copy_alloc6");
 	test(GetStatusDynamic(pos2), "slot_vector_copy_alloc7");
 
-	slot_vector_copy_heap(&pos2, pos1);
+	slot_vector_copy_heap_(ptr, &pos2, pos1);
 	test(GetType(pos2) == LISPSYSTEM_SLOT_VECTOR, "slot_vector_copy_alloc8");
 	test(! GetStatusDynamic(pos2), "slot_vector_copy_alloc9");
 
@@ -396,8 +406,10 @@ static int test_closp(void)
 static int test_slotp(void)
 {
 	addr pos;
+	Execute ptr;
 
-	slot_heap(&pos);
+	ptr = Execute_Thread;
+	slot_heap_(ptr, &pos);
 	test(slotp(pos), "slotp1");
 	test(! slotp(T), "slotp2");
 
@@ -423,21 +435,32 @@ static int test_clos_funcall_p(void)
 
 static int test_slot_class_p(void)
 {
+	int check;
 	addr pos;
+	Execute ptr;
 
-	slot_heap(&pos);
-	test(! slot_class_p(pos), "slot_class_p1");
-	test(slot_instance_p(pos), "slot_class_p2");
-	setallocation_slot(pos, 1);
-	test(slot_class_p(pos), "slot_class_p3");
-	test(! slot_instance_p(pos), "slot_class_p4");
+	ptr = Execute_Thread;
+	slot_heap_(ptr, &pos);
+	slot_class_p_(ptr, pos, &check);
+	test(! check, "slot_class_p1");
+	slot_instance_p_(ptr, pos, &check);
+	test(check, "slot_class_p2");
+	setallocation_slot_(ptr, pos, 1);
+	slot_class_p_(ptr, pos, &check);
+	test(check, "slot_class_p3");
+	slot_instance_p_(ptr, pos, &check);
+	test(! check, "slot_class_p4");
 
-	slot_set_instance(pos);
-	test(! slot_class_p(pos), "slot_class_p5");
-	test(slot_instance_p(pos), "slot_class_p6");
-	slot_set_class(pos);
-	test(slot_class_p(pos), "slot_class_p7");
-	test(! slot_instance_p(pos), "slot_class_p8");
+	slot_set_instance_(ptr, pos);
+	slot_class_p_(ptr, pos, &check);
+	test(! check, "slot_class_p5");
+	slot_instance_p_(ptr, pos, &check);
+	test(check, "slot_class_p6");
+	slot_set_class_(ptr, pos);
+	slot_class_p_(ptr, pos, &check);
+	test(check, "slot_class_p7");
+	slot_instance_p_(ptr, pos, &check);
+	test(! check, "slot_class_p8");
 
 	RETURN;
 }
@@ -445,21 +468,23 @@ static int test_slot_class_p(void)
 static int test_clos_getp(void)
 {
 	int check;
+	Execute ptr;
 	addr slots, pos, name, value, v;
 	constindex index;
 
+	ptr = Execute_Thread;
 	slot_vector_heap(&slots, 4);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("aaa"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("aaa"));
 	SetSlotVector(slots, 0, pos);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("bbb"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("bbb"));
 	SetSlotVector(slots, 1, pos);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("standard-class"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("standard-class"));
 	SetSlotVector(slots, 2, pos);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("ddd"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("ddd"));
 	SetSlotVector(slots, 3, pos);
 
 	clos_heap(&pos, slots);
@@ -521,20 +546,22 @@ static int test_clos_getp(void)
 static int test_clos_slot_exists_p(void)
 {
 	int check;
+	Execute ptr;
 	addr slots, pos;
 
+	ptr = Execute_Thread;
 	slot_vector_heap(&slots, 4);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("aaa"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("aaa"));
 	SetSlotVector(slots, 0, pos);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("bbb"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("bbb"));
 	SetSlotVector(slots, 1, pos);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("standard-class"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("standard-class"));
 	SetSlotVector(slots, 2, pos);
-	slot_heap(&pos);
-	setname_slot(pos, readr_debug("ddd"));
+	slot_heap_(ptr, &pos);
+	setname_slot_(ptr, pos, readr_debug("ddd"));
 	SetSlotVector(slots, 3, pos);
 	clos_heap(&pos, slots);
 

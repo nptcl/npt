@@ -3,6 +3,7 @@
 #include "cons_list.h"
 #include "cons_plist.h"
 #include "clos.h"
+#include "clos_build.h"
 #include "clos_generic.h"
 #include "clos_instance.h"
 #include "clos_make.h"
@@ -103,6 +104,7 @@ static int clos_redefine_check_subclasses_(Execute ptr, addr pos, addr x, addr l
 static int clos_redefine_slots_(Execute ptr, addr pos, addr clos, addr slots1)
 {
 	/* slots1 -> slots2 */
+	int check;
 	addr slots2, slot, name, list;
 	size_t size1, size2, i;
 
@@ -114,8 +116,9 @@ static int clos_redefine_slots_(Execute ptr, addr pos, addr clos, addr slots1)
 	list = Nil;
 	for (i = 0; i < size2; i++) {
 		GetSlotVector(slots2, i, &slot);
-		getname_slot(slot, &name);
-		if (! clos_find_slotname(slots1, size1, name))
+		Return(getname_slot_(ptr, slot, &name));
+		Return(clos_find_slotname_(ptr, slots1, size1, name, &check));
+		if (! check)
 			cons_heap(&list, name, list);
 	}
 	nreverse(&list, list);
@@ -125,8 +128,9 @@ static int clos_redefine_slots_(Execute ptr, addr pos, addr clos, addr slots1)
 	list = Nil;
 	for (i = 0; i < size1; i++) {
 		GetSlotVector(slots1, i, &slot);
-		getname_slot(slot, &name);
-		if (! clos_find_slotname(slots2, size2, name))
+		Return(getname_slot_(ptr, slot, &name));
+		Return(clos_find_slotname_(ptr, slots2, size2, name, &check));
+		if (! check)
 			cons_heap(&list, name, list);
 	}
 	nreverse(&list, list);
@@ -220,9 +224,9 @@ static int clos_redefine_delete_accessor_(Execute ptr, addr clos, addr slots)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		getreaders_slot(pos, &list);
+		Return(getreaders_slot_(ptr, pos, &list));
 		Return(clos_redefine_delete_readers_(ptr, clos, list));
-		getwriters_slot(pos, &list);
+		Return(getwriters_slot_(ptr, pos, &list));
 		Return(clos_redefine_delete_writers_(ptr, clos, list));
 	}
 
@@ -280,7 +284,7 @@ static int clos_redefine_finalized_(Execute ptr, addr clos, addr name, addr rest
 	local = ptr->local;
 	Return(stdget_class_slots_(ptr, clos, &prev_slots));
 	Return(clos_ensure_class_supers_(rest, &supers, NULL));
-	Return(clos_ensure_class_slots_(rest, &slots));
+	Return(clos_ensure_class_slots_(ptr, rest, &slots));
 	Return(clos_ensure_class_direct_default_initargs_(local, clos, rest, &value));
 	Return(clos_redefine_check_subclasses_(ptr, clos, clos, supers));
 	/* update redefine */
@@ -302,7 +306,7 @@ static int clos_redefine_reference_(Execute ptr, addr clos, addr name, addr rest
 	/* class-precedence-list check */
 	local = ptr->local;
 	Return(clos_ensure_class_supers_(rest, &supers, &referp));
-	Return(clos_ensure_class_slots_(rest, &slots));
+	Return(clos_ensure_class_slots_(ptr, rest, &slots));
 	Return(clos_ensure_class_direct_default_initargs_(local, clos, rest, &value));
 	/* update redefine */
 	Return(clos_stdclass_direct_slots_(ptr, clos, slots));
@@ -385,7 +389,7 @@ int clos_ensure_class_redefine_(Execute ptr, addr clos, addr name, addr rest)
 /*
  *  version
  */
-static int getproperty_redefine_(addr pos, addr *ret)
+static int getproperty_redefine_(Execute ptr, addr pos, addr *ret)
 {
 	addr slots, root, slot, name, check;
 	size_t size, i;
@@ -395,7 +399,7 @@ static int getproperty_redefine_(addr pos, addr *ret)
 	root = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		getname_slot(slot, &name);
+		Return(getname_slot_(ptr, slot, &name));
 		Return(clos_get_(pos, name, &check));
 		if (check != Unbound) {
 			cons_heap(&root, name, root);
@@ -407,7 +411,8 @@ static int getproperty_redefine_(addr pos, addr *ret)
 	return 0;
 }
 
-static void clos_redefined_set_value(addr slots, addr values, addr x, addr v)
+static int clos_redefined_set_value_(Execute ptr,
+		addr slots, addr values, addr x, addr v)
 {
 	addr pos, check;
 	size_t size, i;
@@ -415,12 +420,14 @@ static void clos_redefined_set_value(addr slots, addr values, addr x, addr v)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		getname_slot(pos, &check);
+		Return(getname_slot_(ptr, pos, &check));
 		if (check == x) {
 			SetClosValue(values, i, v);
 			break;
 		}
 	}
+
+	return 0;
 }
 
 static int clos_redefined_instance_(Execute ptr, addr pos, addr clos)
@@ -450,8 +457,8 @@ static int clos_redefined_instance_(Execute ptr, addr pos, addr clos)
 		GetClosValue(pvalues, i, &v);
 		if (v != Unbound) {
 			GetSlotVector(pslots, i, &x);
-			getname_slot(x, &x);
-			clos_redefined_set_value(slots, values, x, v);
+			Return(getname_slot_(ptr, x, &x));
+			Return(clos_redefined_set_value_(ptr, slots, values, x, v));
 		}
 	}
 
@@ -467,7 +474,7 @@ static int clos_redefined_class_(Execute ptr, addr pos, addr clos)
 	addr call, add, del, prop;
 
 	/* update instance */
-	Return(getproperty_redefine_(pos, &prop));
+	Return(getproperty_redefine_(ptr, pos, &prop));
 	Return(clos_redefined_instance_(ptr, pos, clos));
 
 	/* argument */
@@ -514,7 +521,7 @@ int clos_version_check_(Execute ptr, addr pos, addr clos)
 /*
  *  update-instance-for-redefined-class
  */
-static int clos_redefine_method_find(addr pos, addr key)
+static int clos_redefine_method_find_(Execute ptr, addr pos, addr key, int *ret)
 {
 	addr list, check;
 	size_t size, i;
@@ -523,19 +530,20 @@ static int clos_redefine_method_find(addr pos, addr key)
 	LenSlotVector(pos, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(pos, i, &list);
-		getargs_slot(list, &list);
+		Return(getargs_slot_(ptr, list, &list));
 		while (list != Nil) {
 			GetCons(list, &check, &list);
 			if (check == key)
-				return 1;
+				return Result(ret, 1);
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int clos_redefine_method_initargs_(Execute ptr, addr pos, addr rest)
 {
+	int find;
 	addr key;
 
 	while (rest != Nil) {
@@ -543,7 +551,8 @@ static int clos_redefine_method_initargs_(Execute ptr, addr pos, addr rest)
 			goto error;
 		if (! consp_getcdr(rest, &rest))
 			goto error;
-		if (! clos_redefine_method_find(pos, key))
+		Return(clos_redefine_method_find_(ptr, pos, key, &find));
+		if (! find)
 			return fmte_("There is no name ~S in the initargs.", key, NULL);
 	}
 	return 0;
@@ -570,7 +579,8 @@ int clos_redefine_method_(Execute ptr,
 /*
  *  change-class
  */
-static int clos_change_class_find(addr copy, addr name, addr *ret)
+static int clos_change_class_find_(Execute ptr,
+		addr copy, addr name, addr *rvalue, int *ret)
 {
 	addr slots, array, value;
 	size_t size, i;
@@ -580,18 +590,19 @@ static int clos_change_class_find(addr copy, addr name, addr *ret)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &value);
-		getname_slot(value, &value);
+		Return(getname_slot_(ptr, value, &value));
 		if (name == value) {
-			GetClosValue(array, i, ret);
-			return 1;
+			GetClosValue(array, i, rvalue);
+			return Result(ret, 1);
 		}
 	}
 
-	return 0;
+	return Result(ret, 0);
 }
 
 static int clos_change_class_update_(Execute ptr, addr copy, addr pos, addr rest)
 {
+	int check;
 	addr call, slots, array, value;
 	size_t size, i;
 
@@ -601,8 +612,9 @@ static int clos_change_class_update_(Execute ptr, addr copy, addr pos, addr rest
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &value);
-		getname_slot(value, &value);
-		if (clos_change_class_find(copy, value, &value)) {
+		Return(getname_slot_(ptr, value, &value));
+		Return(clos_change_class_find_(ptr, copy, value, &value, &check));
+		if (check) {
 			SetClosValue(array, i, value);
 		}
 	}
@@ -649,8 +661,9 @@ int clos_change_class_(Execute ptr, addr pos, addr clos, addr rest)
 /*
  *  update-instance-for-different-class
  */
-static void clos_change_method_slots(Execute ptr, addr copy, addr pos, addr *ret)
+static int clos_change_method_slots_(Execute ptr, addr copy, addr pos, addr *ret)
 {
+	int find;
 	addr slots, check, ignore, list;
 	size_t size, i;
 
@@ -660,11 +673,14 @@ static void clos_change_method_slots(Execute ptr, addr copy, addr pos, addr *ret
 	list = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &check);
-		getname_slot(check, &check);
-		if (! clos_change_class_find(copy, check, &ignore))
+		Return(getname_slot_(ptr, check, &check));
+		Return(clos_change_class_find_(ptr, copy, check, &ignore, &find));
+		if (! find)
 			cons_heap(&list, check, list);
 	}
 	nreverse(ret, list);
+
+	return 0;
 }
 
 int clos_change_method_(Execute ptr, addr copy, addr pos, addr rest)
@@ -674,7 +690,7 @@ int clos_change_method_(Execute ptr, addr copy, addr pos, addr rest)
 
 	/* slots */
 	Return(clos_redefine_method_initargs_(ptr, pos, rest));
-	clos_change_method_slots(ptr, copy, pos, &list);
+	Return(clos_change_method_slots_(ptr, copy, pos, &list));
 
 	/* (shared-initialize ...) */
 	hold = LocalHold_local_push(ptr, list);

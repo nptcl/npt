@@ -34,176 +34,210 @@
 /*
  *  slot-value
  */
-void getname_slot(addr pos, addr *ret)
+int getname_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetNameSlot_Low(pos, ret);
+	return 0;
 }
 
-void gettype_slot(addr pos, addr *ret)
+int gettype_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetTypeSlot_Low(pos, ret);
+	return 0;
 }
 
-void getargs_slot(addr pos, addr *ret)
+int getargs_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetArgsSlot_Low(pos, ret);
+	return 0;
 }
 
-void getform_slot(addr pos, addr *ret)
+int getform_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetFormSlot_Low(pos, ret);
+	return 0;
 }
 
-void getfunction_slot(addr pos, addr *ret)
+int getfunction_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetFunctionSlot_Low(pos, ret);
+	return 0;
 }
 
-void getreaders_slot(addr pos, addr *ret)
+int getreaders_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetReadersSlot_Low(pos, ret);
+	return 0;
 }
 
-void getwriters_slot(addr pos, addr *ret)
+int getwriters_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetWritersSlot_Low(pos, ret);
+	return 0;
 }
 
-void getdocument_slot(addr pos, addr *ret)
+int getdocumentation_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetDocumentSlot_Low(pos, ret);
+	return 0;
 }
 
-void getclass_slot(addr pos, addr *ret)
+int getclass_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetClassSlot_Low(pos, ret);
+	return 0;
 }
 
-void getreadonly_slot(addr pos, addr *ret)
+int getreadonly_slot_(Execute ptr, addr pos, addr *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetReadOnlySlot_Low(pos, ret);
+	return 0;
 }
 
-void getallocation_slot(addr pos, int *ret)
+int getallocation_slot_(Execute ptr, addr pos, int *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetAllocationSlot_Low(pos, ret);
+	return 0;
 }
 
-void getlocation_slot(addr pos, size_t *ret)
+int getlocation_slot_(Execute ptr, addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetLocationSlot_Low(pos, ret);
+	return 0;
 }
 
-void getaccess_slot(addr pos, size_t *ret)
+int getaccess_slot_(Execute ptr, addr pos, size_t *ret)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	GetAccessSlot_Low(pos, ret);
+	return 0;
 }
 
 
 /*
  *  (setf slot-value)
  */
-void setname_slot(addr pos, addr value)
+int setname_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetNameSlot_Low(pos, value);
+	return 0;
 }
 
-void settype_slot(addr pos, addr value)
+int settype_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetTypeSlot_Low(pos, value);
+	return 0;
 }
 
-void setargs_slot(addr pos, addr value)
+int setargs_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetArgsSlot_Low(pos, value);
+	return 0;
 }
 
-void setform_slot(addr pos, addr value)
+int setform_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFormSlot_Low(pos, value);
+	return 0;
 }
 
-void setfunction_slot(addr pos, addr value)
+int setfunction_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetFunctionSlot_Low(pos, value);
+	return 0;
 }
 
-void setreaders_slot(addr pos, addr value)
+int setreaders_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetReadersSlot_Low(pos, value);
+	return 0;
 }
 
-void setwriters_slot(addr pos, addr value)
+int setwriters_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetWritersSlot_Low(pos, value);
+	return 0;
 }
 
-void setdocument_slot(addr pos, addr value)
+int setdocumentation_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetDocumentSlot_Low(pos, value);
+	return 0;
 }
 
-void setclass_slot(addr pos, addr value)
+int setclass_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetClassSlot_Low(pos, value);
+	return 0;
 }
 
-void setreadonly_slot(addr pos, addr value)
+int setreadonly_slot_(Execute ptr, addr pos, addr value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetReadOnlySlot_Low(pos, value);
+	return 0;
 }
 
-void setallocation_slot(addr pos, int value)
+int setallocation_slot_(Execute ptr, addr pos, int value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetAllocationSlot_Low(pos, value);
+	return 0;
 }
 
-void setlocation_slot(addr pos, size_t value)
+int setlocation_slot_(Execute ptr, addr pos, size_t value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetLocationSlot_Low(pos, value);
+	return 0;
 }
 
-void setaccess_slot(addr pos, size_t value)
+int setaccess_slot_(Execute ptr, addr pos, size_t value)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
 	Check(GetStatusReadOnly(pos), "readonly error");
 	SetAccessSlot_Low(pos, value);
+	return 0;
+}
+
+
+/* delete */
+void getname_slot_unsafe(addr pos, addr *ret)
+{
+	CheckType(pos, LISPSYSTEM_SLOT);
+	GetNameSlot_Low(pos, ret);
 }
 

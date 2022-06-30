@@ -80,7 +80,8 @@ void structure_instance2(struct defstruct *str)
 /*
  *  slots
  */
-static int structure_define2_slots_exists_p_(addr include, addr name, int *ret)
+static int structure_define2_slots_exists_p_(Execute ptr,
+		addr include, addr name, int *ret)
 {
 	int check;
 	addr slots, pos;
@@ -93,7 +94,7 @@ static int structure_define2_slots_exists_p_(addr include, addr name, int *ret)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &pos);
-		getname_slot(pos, &pos);
+		Return(getname_slot_(ptr, pos, &pos));
 		GetNameSymbol(pos, &pos);
 		Return(string_equal_(name, pos, &check));
 		if (check)
@@ -101,23 +102,25 @@ static int structure_define2_slots_exists_p_(addr include, addr name, int *ret)
 	}
 
 	GetIncludeStructure(include, &include);
-	return structure_define2_slots_exists_p_(include, name, ret);
+	return structure_define2_slots_exists_p_(ptr, include, name, ret);
 }
 
 static int structure_define2_slots_include_(struct defstruct *str)
 {
 	int check;
+	Execute ptr;
 	addr include, list, pos, name;
 
 	if (! str->include_p)
 		return 0;
+	ptr = str->ptr;
 	list = str->iargs;
 	include = str->iname;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		getname_slot(pos, &name);
+		Return(getname_slot_(ptr, pos, &name));
 		GetNameSymbol(name, &name);
-		Return(structure_define2_slots_exists_p_(include, name, &check));
+		Return(structure_define2_slots_exists_p_(ptr, include, name, &check));
 		if (! check)
 			return fmte_("The slot ~S is not included in structure.", pos, NULL);
 	}
@@ -125,34 +128,39 @@ static int structure_define2_slots_include_(struct defstruct *str)
 	return 0;
 }
 
-static void structure_define2_slots_named(addr name, size_t size_all, addr *ret)
+static int structure_define2_slots_named_(Execute ptr,
+		addr name, size_t size_all, addr *ret)
 {
 	addr pos, symbol, type;
 
-	slot_heap(&pos);
+	Return(slot_heap_(ptr, &pos));
 	GetConst(SYSTEM_STRUCTURE_NAMED, &symbol);
-	setname_slot(pos, symbol);
-	setform_slot(pos, name);
-	setlocation_slot(pos, size_all);
-	setaccess_slot(pos, size_all);
+	Return(setname_slot_(ptr, pos, symbol));
+	Return(setform_slot_(ptr, pos, name));
+	Return(setlocation_slot_(ptr, pos, size_all));
+	Return(setaccess_slot_(ptr, pos, size_all));
 	GetTypeTable(&type, T);
-	settype_slot(pos, type);
-	*ret = pos;
+	Return(settype_slot_(ptr, pos, type));
+
+	return Result(ret, pos);
 }
 
-static int structure_define2_slots_copy_(addr pos, size_t size_all, addr *ret)
+static int structure_define2_slots_copy_(Execute ptr,
+		addr pos, size_t size_all, addr *ret)
 {
-	slot_copy_heap(&pos, pos);
-	setlocation_slot(pos, size_all);
-	setaccess_slot(pos, size_all);
+	Return(slot_copy_heap_(ptr, &pos, pos));
+	Return(setlocation_slot_(ptr, pos, size_all));
+	Return(setaccess_slot_(ptr, pos, size_all));
 	return Result(ret, pos);
 }
 
 static int structure_define2_slots_direct_(struct defstruct *str)
 {
+	Execute ptr;
 	addr instance, direct, list, pos;
 	size_t size, size_all, i;
 
+	ptr = str->ptr;
 	/* slot vector */
 	list = str->slots;
 	Return(length_list_safe_(list, &size));
@@ -172,7 +180,7 @@ static int structure_define2_slots_direct_(struct defstruct *str)
 	i = 0;
 	if (str->named_p) {
 		str->named_index = size_all;
-		structure_define2_slots_named(str->name, size_all, &pos);
+		Return(structure_define2_slots_named_(ptr, str->name, size_all, &pos));
 		SetSlotVector(direct, i++, pos);
 		size_all++;
 	}
@@ -180,7 +188,7 @@ static int structure_define2_slots_direct_(struct defstruct *str)
 	/* slots */
 	while (i < size) {
 		Return_getcons(list, &pos, &list);
-		Return(structure_define2_slots_copy_(pos, size_all, &pos));
+		Return(structure_define2_slots_copy_(ptr, pos, size_all, &pos));
 		SetSlotVector(direct, i++, pos);
 		size_all++;
 	}
@@ -194,14 +202,15 @@ static int structure_define2_slots_direct_(struct defstruct *str)
 	return 0;
 }
 
-static int structure_define2_slots_arguments_(addr list, addr name1, addr *ret)
+static int structure_define2_slots_arguments_(Execute ptr,
+		addr list, addr name1, addr *ret)
 {
 	int check;
 	addr pos, name2;
 
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		getname_slot(pos, &name2);
+		Return(getname_slot_(ptr, pos, &name2));
 		GetNameSymbol(name2, &name2);
 		Return(string_equal_(name1, name2, &check));
 		if (check)
@@ -213,33 +222,37 @@ static int structure_define2_slots_arguments_(addr list, addr name1, addr *ret)
 
 static int structure_define2_slots_update_(struct defstruct *str, addr pos, addr *ret)
 {
+	Execute ptr;
 	addr name, make;
 	size_t value;
 
 	/* include arguments */
+	ptr = str->ptr;
 	if (str->include_p) {
-		getname_slot(pos, &name);
+		Return(getname_slot_(ptr, pos, &name));
 		GetNameSymbol(name, &name);
-		Return(structure_define2_slots_arguments_(str->iargs, name, &make));
+		Return(structure_define2_slots_arguments_(ptr, str->iargs, name, &make));
 		if (make != Unbound)
 			pos = make;
 	}
 
 	/* copy */
-	slot_copy_heap(&make, pos);
-	getlocation_slot(make, &value);
-	setlocation_slot(pos, value);
-	getaccess_slot(make, &value);
-	setaccess_slot(pos, value);
+	Return(slot_copy_heap_(ptr, &make, pos));
+	Return(getlocation_slot_(ptr, make, &value));
+	Return(setlocation_slot_(ptr, pos, value));
+	Return(getaccess_slot_(ptr, make, &value));
+	Return(setaccess_slot_(ptr, pos, value));
 
 	return Result(ret, make);
 }
 
 static int structure_define2_slots_effective_(struct defstruct *str)
 {
+	Execute ptr;
 	addr instance, direct, super, slots, pos;
 	size_t size1, size2, i, k;
 
+	ptr = str->ptr;
 	/* no include */
 	instance = str->instance;
 	GetDirectStructure(instance, &direct);
@@ -262,7 +275,7 @@ static int structure_define2_slots_effective_(struct defstruct *str)
 	}
 	for (k = 0; k < size2; k++, i++) {
 		GetSlotVector(direct, k, &pos);
-		slot_copy_heap(&pos, pos);
+		Return(slot_copy_heap_(ptr, &pos, pos));
 		SetSlotVector(slots, i, pos);
 	}
 	SetSlotsStructure(instance, slots);
@@ -306,7 +319,7 @@ static int function_structure_reader2(Execute ptr, addr var)
 		return fmte_("The argument ~S must be a structure-list.", var, NULL);
 	/* access */
 	GetSlotStructureType(data, &slot);
-	getaccess_slot(slot, &index);
+	Return(getaccess_slot_(ptr, slot, &index));
 	Return(getnth_(var, index, &var));
 	setresult_control(ptr, var);
 
@@ -356,7 +369,7 @@ static int function_structure_reader3(Execute ptr, addr var)
 	/* access */
 	GetSlotStructureType(data, &slot);
 	GetVectorStructureType(data, &type);
-	Return(structure_getarray_(var, slot, &var));
+	Return(structure_getarray_(ptr, var, slot, &var));
 	setresult_control(ptr, var);
 
 	return 0;
@@ -492,10 +505,12 @@ static void defun_structure_writer3(addr data, addr symbol)
  */
 static int structure_define2_callname_(struct defstruct *str, addr *ret, addr pos)
 {
+	Execute ptr;
 	addr name;
 
 	Check(! slotp(pos), "type error");
-	getname_slot(pos, &pos);
+	ptr = str->ptr;
+	Return(getname_slot_(ptr, pos, &pos));
 	Check(! symbolp(pos), "type error");
 	GetNameSymbol(pos, &pos);
 	if (str->conc_name == Unbound) {
@@ -517,15 +532,17 @@ static int structure_define2_callname_(struct defstruct *str, addr *ret, addr po
 static int structure_define2_intern_(struct defstruct *str,
 		addr package, addr pos, addr *ret)
 {
+	Execute ptr;
 	addr symbol, call, instance, cons;
 
 	/* callname */
+	ptr = str->ptr;
 	Return(structure_define2_callname_(str, &symbol, pos));
 	Return(intern_package_(package, symbol, &symbol, NULL));
 	Return(parse_callname_error_(&call, symbol));
 
 	/* push access */
-	getname_slot(pos, &pos);
+	Return(getname_slot_(ptr, pos, &pos));
 	cons_heap(&pos, pos, symbol);
 	instance = str->instance;
 	GetAccessStructure(instance, &cons);
@@ -538,10 +555,12 @@ static int structure_define2_intern_(struct defstruct *str,
 
 int structure_define2_call_(struct defstruct *str)
 {
+	Execute ptr;
 	addr package, type, slots, pos, call, readonly;
 	size_t size, i;
 
-	Return(getpackage_(str->ptr, &package));
+	ptr = str->ptr;
+	Return(getpackage_(ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
@@ -550,7 +569,7 @@ int structure_define2_call_(struct defstruct *str)
 
 		structure_type(str, pos, &type);
 		defun_structure_reader2(type, call);
-		getreadonly_slot(pos, &readonly);
+		Return(getreadonly_slot_(ptr, pos, &readonly));
 		if (readonly == Nil)
 			defun_structure_writer2(type, call);
 	}
@@ -560,10 +579,12 @@ int structure_define2_call_(struct defstruct *str)
 
 int structure_define3_call_(struct defstruct *str)
 {
+	Execute ptr;
 	addr package, type, slots, pos, call, readonly;
 	size_t size, i;
 
-	Return(getpackage_(str->ptr, &package));
+	ptr = str->ptr;
+	Return(getpackage_(ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
@@ -572,7 +593,7 @@ int structure_define3_call_(struct defstruct *str)
 
 		structure_type(str, pos, &type);
 		defun_structure_reader3(type, call);
-		getreadonly_slot(pos, &readonly);
+		Return(getreadonly_slot_(ptr, pos, &readonly));
 		if (readonly == Nil)
 			defun_structure_writer3(type, call);
 	}

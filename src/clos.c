@@ -2,7 +2,7 @@
 #include "clos.h"
 #include "clos_combination.h"
 #include "clos_generic.h"
-#include "clos_instance.h"
+#include "clos_build.h"
 #include "clos_make.h"
 #include "clos_slot.h"
 #include "clos_object.h"

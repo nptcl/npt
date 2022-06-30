@@ -20,7 +20,7 @@ int clos_errorp(addr pos, size_t index, constindex name)
 	LenSlotVector(slot, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slot, i, &pos);
-		getname_slot(pos, &check);
+		getname_slot_unsafe(pos, &check);
 		Check(! symbolp(check), "type error");
 		if (check == key)
 			return index != i;
@@ -41,7 +41,7 @@ int clos_getp(addr pos, addr key, addr *ret)
 	LenSlotVector(slot, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slot, i, &pos);
-		getname_slot(pos, &check);
+		getname_slot_unsafe(pos, &check);
 		Check(! symbolp(check), "type error");
 		if (check == key) {
 			GetClosValue(vector, i, ret);
@@ -64,7 +64,7 @@ int clos_setp(addr pos, addr key, addr value)
 	LenSlotVector(slot, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slot, i, &pos);
-		getname_slot(pos, &check);
+		getname_slot_unsafe(pos, &check);
 		Check(! symbolp(check), "type error");
 		if (check == key) {
 			SetClosValue(vector, i, value);

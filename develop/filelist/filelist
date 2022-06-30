@@ -53,6 +53,7 @@ character_check.c
 character_name.c
 character_queue.c
 character.c
+clos_build.c
 clos_cache.c
 clos_combination.c
 clos_defgeneric.c

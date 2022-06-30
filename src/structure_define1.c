@@ -110,7 +110,7 @@ static int structure_define1_slots_pushnew_(LocalRoot local,
 	return Result(ret, 1);
 }
 
-static int structure_define1_slots_find_(addr name, addr list, addr *ret)
+static int structure_define1_slots_find_(Execute ptr, addr name, addr list, addr *ret)
 {
 	int check;
 	addr pos, value;
@@ -118,7 +118,7 @@ static int structure_define1_slots_find_(addr name, addr list, addr *ret)
 	Check(! stringp(name), "type error");
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		getname_slot(pos, &value);
+		Return(getname_slot_(ptr, pos, &value));
 		GetNameSymbol(value, &value);
 		Return(string_equal_(name, value, &check));
 		if (check)
@@ -163,11 +163,13 @@ static int structure_define1_slots_set_(struct defstruct *str, size_t value)
 static int structure_define1_slots_include_(struct defstruct *str,
 		addr *slots, addr *root, size_t *ret)
 {
+	Execute ptr;
 	LocalRoot local;
 	addr list, pos, name, args;
 	size_t size, i;
 
-	local = str->ptr->local;
+	ptr = str->ptr;
+	local = ptr->local;
 	*root = *slots = Nil;
 	*ret = 0;
 	size = 0;
@@ -178,15 +180,15 @@ static int structure_define1_slots_include_(struct defstruct *str,
 		LenSlotVector(list, &size);
 		for (i = 0; i < size; i++) {
 			GetSlotVector(list, i, &pos);
-			slot_copy_heap(&pos, pos);
-			getname_slot(pos, &name);
+			Return(slot_copy_heap_(ptr, &pos, pos));
+			Return(getname_slot_(ptr, pos, &name));
 			GetNameSymbol(name, &name);
 			cons_local(local, root, name, *root);
-			Return(structure_define1_slots_find_(name, args, &pos));
+			Return(structure_define1_slots_find_(ptr, name, args, &pos));
 			Check(! slotp(pos), "type error");
 			cons_local(local, slots, pos, *slots);
 			/* location */
-			setlocation_slot(pos, i);
+			Return(setlocation_slot_(ptr, pos, i));
 		}
 	}
 
@@ -197,11 +199,13 @@ static int structure_define1_slots_slots_(struct defstruct *str,
 		addr *slots, addr *root, addr *rdirect, size_t *ret)
 {
 	int check;
+	Execute ptr;
 	LocalRoot local;
 	addr list, pos, name, direct;
 	size_t value, size, size_direct;
 
-	local = str->ptr->local;
+	ptr = str->ptr;
+	local = ptr->local;
 	Return(structure_define1_slots_get_(str, &value));
 
 	/* size */
@@ -218,14 +222,14 @@ static int structure_define1_slots_slots_(struct defstruct *str,
 	list = str->slots;
 	while (list != Nil) {
 		Return_getcons(list, &pos, &list);
-		getname_slot(pos, &name);
+		Return(getname_slot_(ptr, pos, &name));
 		GetNameSymbol(name, &name);
 		Return(structure_define1_slots_pushnew_(local, root, name, *root, &check));
 		if (check) {
 			/* slots */
 			cons_local(local, slots, pos, *slots);
-			setlocation_slot(pos, size++);
-			setaccess_slot(pos, value++);
+			Return(setlocation_slot_(ptr, pos, size++));
+			Return(setaccess_slot_(ptr, pos, value++));
 			/* direct-slots */
 			cons_local(local, &direct, pos, direct);
 			size_direct++;
@@ -240,15 +244,17 @@ static int structure_define1_slots_slots_(struct defstruct *str,
 
 static int structure_define1_slots_array_(struct defstruct *str, addr slots, size_t size)
 {
+	Execute ptr;
 	addr instance, array, pos;
 	size_t i;
 
+	ptr = str->ptr;
 	instance = str->instance;
 	slot_vector_heap(&array, size);
 	while (slots != Nil) {
 		Return_getcons(slots, &pos, &slots);
-		getlocation_slot(pos, &i);
-		setclass_slot(pos, instance);
+		Return(getlocation_slot_(ptr, pos, &i));
+		Return(setclass_slot_(ptr, pos, instance));
 		SetSlotVector(array, i, pos);
 	}
 	str->slots = array;
@@ -259,16 +265,18 @@ static int structure_define1_slots_array_(struct defstruct *str, addr slots, siz
 
 static int structure_define1_slots_direct_(struct defstruct *str, addr list, size_t size)
 {
+	Execute ptr;
 	addr instance, array, pos;
 	size_t i;
 
 	/* direct-slots array */
+	ptr = str->ptr;
 	instance = str->instance;
 	slot_vector_heap(&array, size);
 	nreverse(&list, list);
 	for (i = 0; list != Nil; i++) {
 		Return_getcons(list, &pos, &list);
-		setclass_slot(pos, instance);
+		Return(setclass_slot_(ptr, pos, instance));
 		SetSlotVector(array, i, pos);
 	}
 	Return(stdset_structure_direct_slots_(instance, array));
@@ -321,12 +329,12 @@ static int function_structure_reader1(Execute ptr, addr var)
 	/* closure */
 	getdata_control(ptr, &slot);
 	/* check-type */
-	getclass_slot(slot, &pos);
+	Return(getclass_slot_(ptr, slot, &pos));
 	Return(typep_structure_(var, pos, &check));
 	if (! check)
 		return fmte_("The structure ~S must be a ~S type.", pos, var, NULL);
 	/* result */
-	getlocation_slot(slot, &index);
+	Return(getlocation_slot_(ptr, slot, &index));
 	GetValueClos(var, &var);
 	GetClosValue(var, index, &var);
 	setresult_control(ptr, var);
@@ -369,7 +377,7 @@ static int function_structure_writer1(Execute ptr, addr value, addr var)
 	/* closure */
 	getdata_control(ptr, &slot);
 	/* check-type */
-	getclass_slot(slot, &pos);
+	Return(getclass_slot_(ptr, slot, &pos));
 	Return(typep_structure_(var, pos, &check));
 	if (! check)
 		return fmte_("The structure ~S must be a ~S type.", pos, var, NULL);
@@ -414,9 +422,11 @@ static void defun_structure_writer1(addr instance, addr slot, addr symbol)
 static int structure_define1_callname_(struct defstruct *str, addr *ret, addr pos)
 {
 	addr name;
+	Execute ptr;
 
 	Check(! slotp(pos), "type error");
-	getname_slot(pos, &pos);
+	ptr = str->ptr;
+	Return(getname_slot_(ptr, pos, &pos));
 	Check(! symbolp(pos), "type error");
 	GetNameSymbol(pos, &pos);
 	if (str->conc_name == Unbound) {
@@ -438,15 +448,17 @@ static int structure_define1_callname_(struct defstruct *str, addr *ret, addr po
 static int structure_define1_intern_(struct defstruct *str,
 		addr package, addr pos, addr *ret)
 {
+	Execute ptr;
 	addr symbol, call, instance, cons;
 
 	/* callname */
+	ptr = Execute_Thread;
 	Return(structure_define1_callname_(str, &symbol, pos));
 	Return(intern_package_(package, symbol, &symbol, NULL));
 	Return(parse_callname_error_(&call, symbol));
 
 	/* push access */
-	getname_slot(pos, &pos);
+	Return(getname_slot_(ptr, pos, &pos));
 	cons_heap(&pos, pos, symbol);
 	instance = str->instance;
 	Return(stdget_structure_access_(instance, &cons));
@@ -459,12 +471,14 @@ static int structure_define1_intern_(struct defstruct *str,
 
 int structure_define1_call_(struct defstruct *str)
 {
+	Execute ptr;
 	addr instance, package, slots, pos, call, readonly;
 	size_t size, i;
 
+	ptr = str->ptr;
 	instance = str->instance;
 	Check(! structure_class_p(instance), "type error");
-	Return(getpackage_(str->ptr, &package));
+	Return(getpackage_(ptr, &package));
 	slots = str->slots;
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
@@ -472,7 +486,7 @@ int structure_define1_call_(struct defstruct *str)
 		Return(structure_define1_intern_(str, package, pos, &call));
 
 		defun_structure_reader1(instance, pos, call);
-		getreadonly_slot(pos, &readonly);
+		Return(getreadonly_slot_(ptr, pos, &readonly));
 		if (readonly == Nil)
 			defun_structure_writer1(instance, pos, call);
 	}

@@ -84,7 +84,7 @@ error:
  */
 static int sysctl_clos_slots_(Execute ptr, addr pos)
 {
-	clos_getslots_heap(pos, &pos);
+	Return(clos_getslots_heap_(ptr, pos, &pos));
 	setvalues_control(ptr, pos, T, NULL);
 	return 0;
 }

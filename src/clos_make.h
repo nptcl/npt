@@ -23,7 +23,7 @@
 #define init_clos_make _n(init_clos_make)
 
 int clos_ensure_class_supers_(addr args, addr *ret, int *referp);
-int clos_ensure_class_slots_(addr args, addr *ret);
+int clos_ensure_class_slots_(Execute ptr, addr args, addr *ret);
 int clos_ensure_class_direct_default_initargs_(LocalRoot local,
 		addr pos, addr args, addr *ret);
 int clos_ensure_class_init_(Execute ptr, addr pos, int pushp);

@@ -20,7 +20,7 @@
 /*
  *  find
  */
-static int make_structure_dynamic_find_(addr key, addr slots, int *ret)
+static int make_structure_dynamic_find_(Execute ptr, addr key, addr slots, int *ret)
 {
 	int check;
 	addr value;
@@ -32,7 +32,7 @@ static int make_structure_dynamic_find_(addr key, addr slots, int *ret)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &value);
-		getname_slot(value, &value);
+		Return(getname_slot_(ptr, value, &value));
 		GetNameSymbol(value, &value);
 		Return(string_equal_(key, value, &check));
 		if (check)
@@ -42,17 +42,19 @@ static int make_structure_dynamic_find_(addr key, addr slots, int *ret)
 	return Result(ret, 0);
 }
 
-static int make_structure_dynamic_p_(int errorp, addr key, addr slots, int *ret)
+static int make_structure_dynamic_p_(Execute ptr,
+		int errorp, addr key, addr slots, int *ret)
 {
 	int check;
 
 	if (! errorp)
 		return Result(ret, 0);
-	Return(make_structure_dynamic_find_(key, slots, &check));
+	Return(make_structure_dynamic_find_(ptr, key, slots, &check));
 	return Result(ret, ! check);
 }
 
-static int make_structure_dynamic_(addr instance, addr slots, addr list, int errorp)
+static int make_structure_dynamic_(Execute ptr,
+		addr instance, addr slots, addr list, int errorp)
 {
 	int check;
 	addr key;
@@ -64,7 +66,7 @@ static int make_structure_dynamic_(addr instance, addr slots, addr list, int err
 			return fmte_("There is no value in the key ~S arguemnts.", key, NULL);
 		if (! symbolp(key))
 			return fmte_("The key ~S must be a symbol type.", key, NULL);
-		Return(make_structure_dynamic_p_(errorp, key, slots, &check));
+		Return(make_structure_dynamic_p_(ptr, errorp, key, slots, &check));
 		if (check) {
 			return fmte_("There is no slot ~S "
 					"in the structure ~S.", key, instance, NULL);
@@ -75,14 +77,15 @@ static int make_structure_dynamic_(addr instance, addr slots, addr list, int err
 	return 0;
 }
 
-static int make_structure_find_(addr key, addr list, addr *value, int *ret)
+static int make_structure_find_(Execute ptr,
+		addr key, addr list, addr *value, int *ret)
 {
 	int check;
 	addr left, right, g;
 
 	Check(! slotp(key), "type error");
 	GetConst(SYSTEM_STRUCTURE_GENSYM, &g);
-	getname_slot(key, &key);
+	Return(getname_slot_(ptr, key, &key));
 	GetNameSymbol(key, &key);
 	while (list != Nil) {
 		Return_getcons(list, &left, &list);
@@ -110,12 +113,13 @@ static int make_structure_value_(Execute ptr, addr slot, addr *ret)
 	addr pos;
 
 	/* initfunction */
-	getfunction_slot(slot, &pos);
+	Return(getfunction_slot_(ptr, slot, &pos));
 	if (pos != Nil)
 		return apply1_control_(ptr, ret, pos, Nil);
 
 	/* initform */
-	getform_slot(slot, ret);
+	Return(getform_slot_(ptr, slot, ret));
+
 	return 0;
 }
 
@@ -133,7 +137,7 @@ static int make_structure1_init_(Execute ptr, addr clos, addr args, int initp)
 			Return(structure_write1_(ptr, clos, slot, Unbound));
 			continue;
 		}
-		Return(make_structure_find_(slot, args, &pos, &check));
+		Return(make_structure_find_(ptr, slot, args, &pos, &check));
 		if (! check) {
 			Return(make_structure_value_(ptr, slot, &pos));
 		}
@@ -152,7 +156,7 @@ static int make_structure2_init_(Execute ptr, addr list, addr slots, addr args)
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		Return(make_structure_find_(slot, args, &pos, &check));
+		Return(make_structure_find_(ptr, slot, args, &pos, &check));
 		if (! check) {
 			Return(make_structure_value_(ptr, slot, &pos));
 		}
@@ -172,7 +176,7 @@ static int make_structure3_init_(Execute ptr,
 	LenSlotVector(slots, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &slot);
-		Return(make_structure_find_(slot, args, &pos, &check));
+		Return(make_structure_find_(ptr, slot, args, &pos, &check));
 		if (! check) {
 			Return(make_structure_value_(ptr, slot, &pos));
 		}
@@ -196,7 +200,7 @@ int make_structure1_(Execute ptr, addr *ret, addr pos, addr args, int initp)
 	GetInstanceStructureType(pos, &instance);
 	GetSlotStructureType(pos, &slots);
 	GetErrorpStructureType(pos, &errorp);
-	Return(make_structure_dynamic_(instance, slots, args, errorp));
+	Return(make_structure_dynamic_(ptr, instance, slots, args, errorp));
 	/* make */
 	clos_heap(&clos, slots);
 	SetClassOfClos(clos, instance);
@@ -230,7 +234,7 @@ int make_structure2_(Execute ptr, addr *ret, addr pos, addr args, int initp)
 	GetInstanceStructureType(pos, &instance);
 	GetSlotStructureType(pos, &slots);
 	/* make */
-	Return(make_structure_dynamic_(instance, slots, args, str->errorp));
+	Return(make_structure_dynamic_(ptr, instance, slots, args, str->errorp));
 	make_structure2_nil(&list, str->size_all);
 
 	if (initp) {
@@ -281,7 +285,7 @@ int make_structure3_(Execute ptr, addr *ret, addr pos, addr args, int initp)
 	GetSlotStructureType(pos, &slots);
 	GetVectorStructureType(pos, &type);
 	/* make */
-	Return(make_structure_dynamic_(instance, slots, args, str->errorp));
+	Return(make_structure_dynamic_(ptr, instance, slots, args, str->errorp));
 	Return(make_structure3_vector_(&vector, str->type1, str->type2, str->size_all));
 
 	if (initp) {

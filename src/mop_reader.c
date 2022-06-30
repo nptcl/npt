@@ -190,43 +190,45 @@ static void make_slot_definition_function(addr value, addr *ret)
 
 static int make_slot_definition_(Execute ptr, addr slot, addr *ret)
 {
-	addr clos, key, value, check;
+	int check;
+	addr clos, key, value, pos;
 
 	GetConst(CLOS_STANDARD_SLOT_DEFINITION, &clos);
 	Return(clos_instance_heap_(ptr, clos, &clos));
 	/* slot-definition-name */
-	getname_slot(slot, &value);
+	Return(getname_slot_(ptr, slot, &value));
 	GetConst(CLOSNAME_NAME, &key);
 	Return(clos_set_(clos, key, value));
 	/* slot-definition-type */
-	gettype_slot(slot, &value);
+	Return(gettype_slot_(ptr, slot, &value));
 	if (GetType(value) == LISPTYPE_TYPE) {
 		Return(type_object_(ptr, &value, value));
 	}
 	GetConst(CLOSNAME_TYPE, &key);
 	Return(clos_set_(clos, key, value));
 	/* slot-definition-allocation */
-	if (slot_instance_p(slot))
+	Return(slot_instance_p_(ptr, slot, &check));
+	if (check)
 		GetConst(KEYWORD_INSTANCE, &value);
 	else
 		GetConst(KEYWORD_CLASS, &value);
 	GetConst(CLOSNAME_ALLOCATION, &key);
 	Return(clos_set_(clos, key, value));
 	/* slot-definition-initargs */
-	getargs_slot(slot, &value);
+	Return(getargs_slot_(ptr, slot, &value));
 	GetConst(CLOSNAME_INITARGS, &key);
 	Return(clos_set_(clos, key, value));
 	/* slot-definition-initform */
-	getform_slot(slot, &value);
+	Return(getform_slot_(ptr, slot, &value));
 	if (value != Unbound) {
 		GetConst(CLOSNAME_INITFORM, &key);
 		Return(clos_set_(clos, key, value));
 		/* slot-definition-initfunction */
-		getfunction_slot(slot, &check);
-		if (check == Nil)
+		Return(getfunction_slot_(ptr, slot, &pos));
+		if (pos == Nil)
 			make_slot_definition_function(value, &value);
 		else
-			value = check;
+			value = pos;
 		GetConst(CLOSNAME_INITFUNCTION, &key);
 		Return(clos_set_(clos, key, value));
 	}

@@ -24,29 +24,29 @@ static inline void slot_unsafe(LocalRoot local, addr *ret)
 	alloc_smallsize(local, ret,
 			LISPSYSTEM_SLOT, SLOT_INDEX_SIZE, sizeoft(struct slot_struct));
 }
-void slot_alloc(LocalRoot local, addr *ret)
+int slot_alloc_(Execute ptr, LocalRoot local, addr *ret)
 {
 	addr pos;
 
 	slot_unsafe(local, &pos);
-	setallocation_slot(pos, 0);
-	setlocation_slot(pos, 0);
-	setaccess_slot(pos, 0);
-	setname_slot(pos, Unbound);
-	setform_slot(pos, Unbound);
-	*ret = pos;
+	Return(setallocation_slot_(ptr, pos, 0));
+	Return(setlocation_slot_(ptr, pos, 0));
+	Return(setaccess_slot_(ptr, pos, 0));
+	Return(setname_slot_(ptr, pos, Unbound));
+	Return(setform_slot_(ptr, pos, Unbound));
+
+	return Result(ret, pos);
 }
-void slot_local(LocalRoot local, addr *ret)
+int slot_local_(Execute ptr, addr *ret)
 {
-	CheckLocal(local);
-	slot_alloc(local, ret);
+	return slot_alloc_(ptr, ptr->local, ret);
 }
-void slot_heap(addr *ret)
+int slot_heap_(Execute ptr, addr *ret)
 {
-	slot_alloc(NULL, ret);
+	return slot_alloc_(ptr, NULL, ret);
 }
 
-void slot_copy_alloc(LocalRoot local, addr *ret, addr slot)
+int slot_copy_alloc_(Execute ptr, LocalRoot local, addr *ret, addr slot)
 {
 	int check;
 	addr pos, value;
@@ -61,8 +61,8 @@ void slot_copy_alloc(LocalRoot local, addr *ret, addr slot)
 	str2 = SlotStruct_Low(pos);
 	str2->location = str1->location;
 	str2->access = str1->access;
-	getallocation_slot(slot, &check);
-	setallocation_slot(pos, check);
+	Return(getallocation_slot_(ptr, slot, &check));
+	Return(setallocation_slot_(ptr, pos, check));
 
 	/* array */
 	for (i = 0; i < SLOT_INDEX_SIZE; i++) {
@@ -71,55 +71,54 @@ void slot_copy_alloc(LocalRoot local, addr *ret, addr slot)
 	}
 
 	/* result */
-	*ret = pos;
+	return Result(ret, pos);
 }
-void slot_copy_local(LocalRoot local, addr *ret, addr slot)
+int slot_copy_local_(Execute ptr, addr *ret, addr slot)
 {
-	CheckLocal(local);
-	slot_copy_alloc(local, ret, slot);
+	return slot_copy_alloc_(ptr, ptr->local, ret, slot);
 }
-void slot_copy_heap(addr *ret, addr slot)
+int slot_copy_heap_(Execute ptr, addr *ret, addr slot)
 {
-	slot_copy_alloc(NULL, ret, slot);
+	return slot_copy_alloc_(ptr, NULL, ret, slot);
 }
 
 
 /*
  *  control
  */
-int slot_class_p(addr pos)
+int slot_class_p_(Execute ptr, addr pos, int *ret)
 {
 	int check;
 
 	CheckType(pos, LISPSYSTEM_SLOT);
-	getallocation_slot(pos, &check);
+	Return(getallocation_slot_(ptr, pos, &check));
 
-	return check != 0;
+	return Result(ret, check != 0);
 }
 
-int slot_instance_p(addr pos)
+int slot_instance_p_(Execute ptr, addr pos, int *ret)
 {
 	int check;
 
 	CheckType(pos, LISPSYSTEM_SLOT);
-	getallocation_slot(pos, &check);
+	Return(getallocation_slot_(ptr, pos, &check));
 
-	return check == 0;
+	return Result(ret, check == 0);
 }
 
-void slot_set_class(addr pos)
+int slot_set_class_(Execute ptr, addr pos)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
-	setallocation_slot(pos, 1);
+	return setallocation_slot_(ptr, pos, 1);
 }
 
-void slot_set_instance(addr pos)
+int slot_set_instance_(Execute ptr, addr pos)
 {
 	CheckType(pos, LISPSYSTEM_SLOT);
-	setallocation_slot(pos, 0);
+	return setallocation_slot_(ptr, pos, 0);
 }
 
-int slot_set_allocation_(addr pos, addr value)
+int slot_set_allocation_(Execute ptr, addr pos, addr value)
 {
 	addr check;
 
@@ -127,17 +126,13 @@ int slot_set_allocation_(addr pos, addr value)
 
 	/* instance */
 	GetConst(KEYWORD_INSTANCE, &check);
-	if (check == value) {
-		slot_set_instance(pos);
-		return 0;
-	}
+	if (check == value)
+		return slot_set_instance_(ptr, pos);
 
 	/* class */
 	GetConst(KEYWORD_CLASS, &check);
-	if (check == value) {
-		slot_set_class(pos);
-		return 0;
-	}
+	if (check == value)
+		return slot_set_class_(ptr, pos);
 
 	/* error */
 	return fmte_("Invalid :allocation value ~S.", value, NULL);

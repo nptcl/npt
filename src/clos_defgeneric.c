@@ -394,7 +394,7 @@ static int generic_change_copy_(Execute ptr, addr gen, addr *ret)
 {
 	addr pos, value;
 
-	clos_allcopy_alloc(NULL, gen, &pos);
+	Return(clos_allcopy_alloc_(ptr, NULL, gen, &pos));
 
 	/* methods */
 	Return(stdget_generic_methods_(ptr, pos, &value));

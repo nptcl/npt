@@ -4,61 +4,65 @@
 #include "execute.h"
 #include "typedef.h"
 
-#define getname_slot _n(getname_slot)
-#define gettype_slot _n(gettype_slot)
-#define getargs_slot _n(getargs_slot)
-#define getform_slot _n(getform_slot)
-#define getfunction_slot _n(getfunction_slot)
-#define getreaders_slot _n(getreaders_slot)
-#define getwriters_slot _n(getwriters_slot)
-#define getdocument_slot _n(getdocument_slot)
-#define getclass_slot _n(getclass_slot)
-#define getreadonly_slot _n(getreadonly_slot)
-#define getallocation_slot _n(getallocation_slot)
-#define getlocation_slot _n(getlocation_slot)
-#define getaccess_slot _n(getaccess_slot)
+#define getname_slot_ _n(getname_slot_)
+#define gettype_slot_ _n(gettype_slot_)
+#define getargs_slot_ _n(getargs_slot_)
+#define getform_slot_ _n(getform_slot_)
+#define getfunction_slot_ _n(getfunction_slot_)
+#define getreaders_slot_ _n(getreaders_slot_)
+#define getwriters_slot_ _n(getwriters_slot_)
+#define getdocumentation_slot_ _n(getdocumentation_slot_)
+#define getclass_slot_ _n(getclass_slot_)
+#define getreadonly_slot_ _n(getreadonly_slot_)
+#define getallocation_slot_ _n(getallocation_slot_)
+#define getlocation_slot_ _n(getlocation_slot_)
+#define getaccess_slot_ _n(getaccess_slot_)
 
-#define setname_slot _n(setname_slot)
-#define settype_slot _n(settype_slot)
-#define setargs_slot _n(setargs_slot)
-#define setform_slot _n(setform_slot)
-#define setfunction_slot _n(setfunction_slot)
-#define setreaders_slot _n(setreaders_slot)
-#define setwriters_slot _n(setwriters_slot)
-#define setdocument_slot _n(setdocument_slot)
-#define setclass_slot _n(setclass_slot)
-#define setreadonly_slot _n(setreadonly_slot)
-#define setallocation_slot _n(setallocation_slot)
-#define setlocation_slot _n(setlocation_slot)
-#define setaccess_slot _n(setaccess_slot)
+#define setname_slot_ _n(setname_slot_)
+#define settype_slot_ _n(settype_slot_)
+#define setargs_slot_ _n(setargs_slot_)
+#define setform_slot_ _n(setform_slot_)
+#define setfunction_slot_ _n(setfunction_slot_)
+#define setreaders_slot_ _n(setreaders_slot_)
+#define setwriters_slot_ _n(setwriters_slot_)
+#define setdocumentation_slot_ _n(setdocumentation_slot_)
+#define setclass_slot_ _n(setclass_slot_)
+#define setreadonly_slot_ _n(setreadonly_slot_)
+#define setallocation_slot_ _n(setallocation_slot_)
+#define setlocation_slot_ _n(setlocation_slot_)
+#define setaccess_slot_ _n(setaccess_slot_)
 
-void getname_slot(addr pos, addr *ret);
-void gettype_slot(addr pos, addr *ret);
-void getargs_slot(addr pos, addr *ret);
-void getform_slot(addr pos, addr *ret);
-void getfunction_slot(addr pos, addr *ret);
-void getreaders_slot(addr pos, addr *ret);
-void getwriters_slot(addr pos, addr *ret);
-void getdocument_slot(addr pos, addr *ret);
-void getclass_slot(addr pos, addr *ret);
-void getreadonly_slot(addr pos, addr *ret);
-void getallocation_slot(addr pos, int *ret);
-void getlocation_slot(addr pos, size_t *ret);
-void getaccess_slot(addr pos, size_t *ret);
+#define getname_slot_unsafe _n(getname_slot_unsafe)
 
-void setname_slot(addr pos, addr value);
-void settype_slot(addr pos, addr value);
-void setargs_slot(addr pos, addr value);
-void setform_slot(addr pos, addr value);
-void setfunction_slot(addr pos, addr value);
-void setreaders_slot(addr pos, addr value);
-void setwriters_slot(addr pos, addr value);
-void setdocument_slot(addr pos, addr value);
-void setclass_slot(addr pos, addr value);
-void setreadonly_slot(addr pos, addr value);
-void setallocation_slot(addr pos, int value);
-void setlocation_slot(addr pos, size_t value);
-void setaccess_slot(addr pos, size_t value);
+int getname_slot_(Execute ptr, addr pos, addr *ret);
+int gettype_slot_(Execute ptr, addr pos, addr *ret);
+int getargs_slot_(Execute ptr, addr pos, addr *ret);
+int getform_slot_(Execute ptr, addr pos, addr *ret);
+int getfunction_slot_(Execute ptr, addr pos, addr *ret);
+int getreaders_slot_(Execute ptr, addr pos, addr *ret);
+int getwriters_slot_(Execute ptr, addr pos, addr *ret);
+int getdocumentation_slot_(Execute ptr, addr pos, addr *ret);
+int getclass_slot_(Execute ptr, addr pos, addr *ret);
+int getreadonly_slot_(Execute ptr, addr pos, addr *ret);
+int getallocation_slot_(Execute ptr, addr pos, int *ret);
+int getlocation_slot_(Execute ptr, addr pos, size_t *ret);
+int getaccess_slot_(Execute ptr, addr pos, size_t *ret);
+
+int setname_slot_(Execute ptr, addr pos, addr value);
+int settype_slot_(Execute ptr, addr pos, addr value);
+int setargs_slot_(Execute ptr, addr pos, addr value);
+int setform_slot_(Execute ptr, addr pos, addr value);
+int setfunction_slot_(Execute ptr, addr pos, addr value);
+int setreaders_slot_(Execute ptr, addr pos, addr value);
+int setwriters_slot_(Execute ptr, addr pos, addr value);
+int setdocumentation_slot_(Execute ptr, addr pos, addr value);
+int setclass_slot_(Execute ptr, addr pos, addr value);
+int setreadonly_slot_(Execute ptr, addr pos, addr value);
+int setallocation_slot_(Execute ptr, addr pos, int value);
+int setlocation_slot_(Execute ptr, addr pos, size_t value);
+int setaccess_slot_(Execute ptr, addr pos, size_t value);
+
+void getname_slot_unsafe(addr pos, addr *ret);
 
 #endif
 

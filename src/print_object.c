@@ -113,7 +113,7 @@ static int write_structure_(Execute ptr, addr stream, addr pos)
 	for (i = 0; i < size; i++) {
 		Return(write_char_stream_(stream, ' '));
 		GetSlotVector(x, i, &z);
-		getname_slot(z, &z);
+		Return(getname_slot_(ptr, z, &z));
 		GetNameSymbol(z, &z);
 		Return(write_char_stream_(stream, ':'));
 		Return(princ_print_(ptr, stream, z));

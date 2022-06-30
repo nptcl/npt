@@ -1,4 +1,5 @@
 #include "clos.h"
+#include "clos_build.h"
 #include "clos_instance.h"
 #include "clos_object.h"
 #include "clos_slot.h"
@@ -20,38 +21,41 @@
 /*
  *  defclass lisp-system::process
  */
-static void process_defclass_slot(addr slots, size_t n, constindex index)
+static int process_defclass_slot_(Execute ptr, addr slots, size_t n, constindex index)
 {
 	addr slot, pos;
 
-	slot_heap(&slot);
+	Return(slot_heap_(ptr, &slot));
 	GetConstant(index, &pos);
 	Check(! symbolp(pos), "type error");
-	setname_slot(slot, pos);
+	Return(setname_slot_(ptr, slot, pos));
 	SetSlotVector(slots, n, slot);
+
+	return 0;
 }
 
-static void process_defclass_slots(addr *ret)
+static int process_defclass_slots_(Execute ptr, addr *ret)
 {
 	addr slots;
 
 	slot_vector_heap(&slots, 14);
-	process_defclass_slot(slots, 0, CONSTANT_KEYWORD_PROGRAM);
-	process_defclass_slot(slots, 1, CONSTANT_KEYWORD_ARGS);
-	process_defclass_slot(slots, 2, CONSTANT_KEYWORD_ENVIRONMENT);
-	process_defclass_slot(slots, 3, CONSTANT_KEYWORD_WAIT);
-	process_defclass_slot(slots, 4, CONSTANT_KEYWORD_SEARCH);
-	process_defclass_slot(slots, 5, CONSTANT_KEYWORD_ELEMENT_TYPE);
-	process_defclass_slot(slots, 6, CONSTANT_KEYWORD_EXTERNAL_FORMAT);
-	process_defclass_slot(slots, 7, CONSTANT_KEYWORD_DIRECTORY);
-	process_defclass_slot(slots, 8, CONSTANT_KEYWORD_INPUT);
-	process_defclass_slot(slots, 9, CONSTANT_KEYWORD_OUTPUT);
-	process_defclass_slot(slots, 10, CONSTANT_KEYWORD_ERROR);
-	process_defclass_slot(slots, 11, CONSTANT_KEYWORD_IF_INPUT_DOES_NOT_EXIST);
-	process_defclass_slot(slots, 12, CONSTANT_KEYWORD_IF_OUTPUT_EXISTS);
-	process_defclass_slot(slots, 13, CONSTANT_KEYWORD_IF_ERROR_EXISTS);
-	slotvector_set_location(slots);
-	*ret = slots;
+	Return(process_defclass_slot_(ptr, slots, 0, CONSTANT_KEYWORD_PROGRAM));
+	Return(process_defclass_slot_(ptr, slots, 1, CONSTANT_KEYWORD_ARGS));
+	Return(process_defclass_slot_(ptr, slots, 2, CONSTANT_KEYWORD_ENVIRONMENT));
+	Return(process_defclass_slot_(ptr, slots, 3, CONSTANT_KEYWORD_WAIT));
+	Return(process_defclass_slot_(ptr, slots, 4, CONSTANT_KEYWORD_SEARCH));
+	Return(process_defclass_slot_(ptr, slots, 5, CONSTANT_KEYWORD_ELEMENT_TYPE));
+	Return(process_defclass_slot_(ptr, slots, 6, CONSTANT_KEYWORD_EXTERNAL_FORMAT));
+	Return(process_defclass_slot_(ptr, slots, 7, CONSTANT_KEYWORD_DIRECTORY));
+	Return(process_defclass_slot_(ptr, slots, 8, CONSTANT_KEYWORD_INPUT));
+	Return(process_defclass_slot_(ptr, slots, 9, CONSTANT_KEYWORD_OUTPUT));
+	Return(process_defclass_slot_(ptr, slots, 10, CONSTANT_KEYWORD_ERROR));
+	Return(process_defclass_slot_(ptr, slots, 11, CONSTANT_KEYWORD_IF_INPUT_DOES_NOT_EXIST));
+	Return(process_defclass_slot_(ptr, slots, 12, CONSTANT_KEYWORD_IF_OUTPUT_EXISTS));
+	Return(process_defclass_slot_(ptr, slots, 13, CONSTANT_KEYWORD_IF_ERROR_EXISTS));
+	Return(slotvector_set_location_(ptr, slots));
+
+	return Result(ret, slots);
 }
 
 static int process_defclass_class_(Execute ptr, addr slots)
@@ -82,7 +86,7 @@ static int process_defclass_(Execute ptr)
 		return 0;
 
 	/* defclass */
-	process_defclass_slots(&slots);
+	Return(process_defclass_slots_(ptr, &slots));
 	return process_defclass_class_(ptr, slots);
 }
 

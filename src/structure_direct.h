@@ -112,7 +112,7 @@ int referrorpstructuretype(addr pos);
 void geterrorpstructuretype(addr pos, int *ret);
 void seterrorpstructuretype(addr pos, int value);
 
-int structure_getarray_(addr vector, addr slot, addr *ret);
+int structure_getarray_(Execute ptr, addr vector, addr slot, addr *ret);
 int structure_write1_(Execute ptr, addr instance, addr slot, addr value);
 int structure_write2_(Execute ptr, addr list, addr slot, addr value);
 int structure_write3_(Execute ptr, addr vector, addr slot, addr type1, addr value);

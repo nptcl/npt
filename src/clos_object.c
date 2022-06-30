@@ -252,7 +252,7 @@ void clos_copy_alloc(LocalRoot local, addr pos, addr *ret)
 	*ret = value;
 }
 
-void clos_allcopy_alloc(LocalRoot local, addr pos, addr *ret)
+int clos_allcopy_alloc_(Execute ptr, LocalRoot local, addr pos, addr *ret)
 {
 	addr instance, x;
 	size_t size;
@@ -262,17 +262,17 @@ void clos_allcopy_alloc(LocalRoot local, addr pos, addr *ret)
 	/* slot */
 	GetSlotClos_Low(pos, &x);
 	LenSlotVector(x, &size);
-	slot_vector_copy_alloc(local, &x, x);
+	Return(slot_vector_copy_alloc_(ptr, local, &x, x));
 	SetSlotClos_Low(instance, x);
 	/* value */
 	GetValueClos_Low(pos, &x);
 	clos_value_copy_alloc(local, &x, x, size);
 	SetValueClos_Low(instance, x);
 	/* result */
-	*ret = instance;
+	return Result(ret, instance);
 }
 
-void clos_getslots_heap(addr pos, addr *ret)
+int clos_getslots_heap_(Execute ptr, addr pos, addr *ret)
 {
 	addr list, slots, x;
 	size_t size, i;
@@ -283,10 +283,12 @@ void clos_getslots_heap(addr pos, addr *ret)
 	list = Nil;
 	for (i = 0; i < size; i++) {
 		GetSlotVector(slots, i, &x);
-		getname_slot(x, &x);
+		Return(getname_slot_(ptr, x, &x));
 		cons_heap(&list, x, list);
 	}
 	nreverse(ret, list);
+
+	return 0;
 }
 
 int clos_funcall_p(addr pos)
@@ -347,7 +349,7 @@ void slot_vector_heap(addr *ret, size_t size)
 	slot_vector_alloc(NULL, ret, size);
 }
 
-void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos)
+int slot_vector_copy_alloc_(Execute ptr, LocalRoot local, addr *ret, addr pos)
 {
 	addr vector, value;
 	size_t size, i;
@@ -357,34 +359,32 @@ void slot_vector_copy_alloc(LocalRoot local, addr *ret, addr pos)
 	slot_vector_alloc(local, &vector, size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(pos, i, &value);
-		slot_copy_alloc(local, &value, value);
+		Return(slot_copy_alloc_(ptr, local, &value, value));
 		SetSlotVector(vector, i, value);
 	}
-	*ret = vector;
+
+	return Result(ret, vector);
 }
-void slot_vector_copy_local(LocalRoot local, addr *ret, addr pos)
+int slot_vector_copy_local_(Execute ptr, addr *ret, addr pos)
 {
-	CheckLocal(local);
-	slot_vector_copy_alloc(local, ret, pos);
+	return slot_vector_copy_alloc_(ptr, ptr->local, ret, pos);
 }
-void slot_vector_copy_heap(addr *ret, addr pos)
+int slot_vector_copy_heap_(Execute ptr, addr *ret, addr pos)
 {
-	slot_vector_copy_alloc(NULL, ret, pos);
+	return slot_vector_copy_alloc_(ptr, NULL, ret, pos);
 }
 
-void slot_vector_copyheap_alloc(LocalRoot local, addr *ret, addr pos)
+int slot_vector_copyheap_alloc_(Execute ptr, LocalRoot local, addr *ret, addr pos)
 {
 	CheckType(pos, LISPSYSTEM_SLOT_VECTOR);
-	if (local || (! GetStatusDynamic(pos))) {
-		*ret = pos;
-		return;
-	}
+	if (local || (! GetStatusDynamic(pos)))
+		return Result(ret, pos);
 
 	/* local -> heap */
-	slot_vector_copy_alloc(local, ret, pos);
+	return slot_vector_copy_alloc_(ptr, local, ret, pos);
 }
 
-void slot_vector_clear(addr pos)
+int slot_vector_clear_(Execute ptr, addr pos)
 {
 	addr slot;
 	size_t size, i;
@@ -393,7 +393,9 @@ void slot_vector_clear(addr pos)
 	LenSlotVector(pos, &size);
 	for (i = 0; i < size; i++) {
 		GetSlotVector(pos, i, &slot);
-		setclass_slot(slot, Nil);
+		Return(setclass_slot_(ptr, slot, Nil));
 	}
+
+	return 0;
 }
 
