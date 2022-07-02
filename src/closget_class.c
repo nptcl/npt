@@ -1,5 +1,6 @@
 #include "clos_define.h"
 #include "clos_object.h"
+#include "clos_variable.h"
 #include "closget.h"
 #include "closget_class.h"
 #include "constant.h"
@@ -17,9 +18,7 @@ static int stdget_class_constant_(addr pos, addr *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_class_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_STANDARD_CLASS, &check);
-	if (clos == check) {
+	if (clos == Clos_standard_class) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
@@ -121,9 +120,7 @@ static int stdset_class_constant_(addr pos, addr value,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_class_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_STANDARD_CLASS, &check);
-	if (clos == check) {
+	if (clos == Clos_standard_class) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
 		return 0;
@@ -225,9 +222,7 @@ static int stdboundp_class_constant_(addr pos, int *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_class_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_STANDARD_CLASS, &check);
-	if (clos == check) {
+	if (clos == Clos_standard_class) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_getelt(pos, (size_t)index1, &pos);
 	}

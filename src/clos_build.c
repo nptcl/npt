@@ -3,6 +3,7 @@
 #include "clos_instance.h"
 #include "clos_object.h"
 #include "clos_slot.h"
+#include "clos_variable.h"
 #include "closget.h"
 #include "closget_class.h"
 #include "closget_slot.h"
@@ -1374,6 +1375,16 @@ static void build_clos_class_variable(void)
 {
 	addr pos;
 
+	/* standard-direct-slot-definition */
+	GetConst(CLOS_STANDARD_DIRECT_SLOT_DEFINITION, &pos);
+	CheckType(pos, LISPTYPE_CLOS);
+	Clos_standard_direct_slot_definition = pos;
+
+	/* standard-effective-slot-definition */
+	GetConst(CLOS_STANDARD_EFFECTIVE_SLOT_DEFINITION, &pos);
+	CheckType(pos, LISPTYPE_CLOS);
+	Clos_standard_effective_slot_definition = pos;
+
 	/* standard-class */
 #ifdef LISP_DEBUG
 	GetConst(CLOS_STANDARD_CLASS, &pos);
@@ -1384,22 +1395,42 @@ static void build_clos_class_variable(void)
 	/* standard-generic-function */
 	GetConst(CLOS_STANDARD_GENERIC_FUNCTION, &pos);
 	CheckType(pos, LISPTYPE_CLOS);
-	Clos_standard_generic = pos;
+	Clos_standard_generic_function = pos;
 
 	/* standard-method */
 	GetConst(CLOS_STANDARD_METHOD, &pos);
 	CheckType(pos, LISPTYPE_CLOS);
 	Clos_standard_method = pos;
 
-	/* method-combination */
-	GetConst(CLOS_METHOD_COMBINATION, &pos);
+	/* long-method-combination */
+	GetConst(CLOS_LONG_METHOD_COMBINATION, &pos);
 	CheckType(pos, LISPTYPE_CLOS);
-	Clos_standard_combination = pos;
+	Clos_long_method_combination = pos;
+
+	/* short-method-combination */
+	GetConst(CLOS_SHORT_METHOD_COMBINATION, &pos);
+	CheckType(pos, LISPTYPE_CLOS);
+	Clos_short_method_combination = pos;
+
+	/* define-long-method-combination */
+	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &pos);
+	CheckType(pos, LISPTYPE_CLOS);
+	Clos_define_long_method_combination = pos;
+
+	/* define-short-method-combination */
+	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &pos);
+	CheckType(pos, LISPTYPE_CLOS);
+	Clos_define_short_method_combination = pos;
 
 	/* eql-specializer */
 	GetConst(CLOS_EQL_SPECIALIZER, &pos);
 	CheckType(pos, LISPTYPE_CLOS);
-	Clos_standard_specializer = pos;
+	Clos_eql_specializer = pos;
+
+	/* structure-class */
+	GetConst(CLOS_STRUCTURE_CLASS, &pos);
+	CheckType(pos, LISPTYPE_CLOS);
+	Clos_structure_class = pos;
 }
 
 static int build_clos_class_call_(Execute ptr)

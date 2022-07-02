@@ -1,5 +1,6 @@
 #include "clos.h"
 #include "clos_object.h"
+#include "clos_variable.h"
 #include "constant.h"
 #include "cons.h"
 #include "execute.h"
@@ -82,6 +83,104 @@ error:
 /*
  *  clos
  */
+static int sysctl_clos_variable_result_(Execute ptr, addr index)
+{
+	if (index == NULL)
+		goto error;
+	if (index == Unbound)
+		goto error;
+	if (! closp(index))
+		goto error;
+	setvalues_control(ptr, index, T, NULL);
+	return 0;
+
+error:
+	setvalues_control(ptr, Nil, T, NULL);
+	return 0;
+}
+
+static int sysctl_clos_variable_(Execute ptr, addr args)
+{
+	const char *str;
+	int check;
+	addr pos, index;
+
+	if (! consp_getcons(args, &pos, &args))
+		goto error;
+	if (args != Nil)
+		goto error;
+
+	str = "standard-direct-slot-definition";
+	index = Clos_standard_direct_slot_definition;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "standard-effective-slot-definition";
+	index = Clos_standard_effective_slot_definition;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "standard-class";
+	index = Clos_standard_class;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "standard-generic-function";
+	index = Clos_standard_generic_function;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "standard-method";
+	index = Clos_standard_method;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "long-method-combination";
+	index = Clos_long_method_combination;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "short-method-combination";
+	index = Clos_short_method_combination;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "define-long-method-combination";
+	index = Clos_define_long_method_combination;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "define-short-method-combination";
+	index = Clos_define_short_method_combination;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "eql-specializer";
+	index = Clos_eql_specializer;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+	str = "structure-class";
+	index = Clos_structure_class;
+	Return(string_designator_equalp_char_(pos, str, &check));
+	if (check)
+		return sysctl_clos_variable_result_(ptr, index);
+
+error:
+	setvalues_control(ptr, Nil, Nil, NULL);
+	return 0;
+}
+
 static int sysctl_clos_slots_(Execute ptr, addr pos)
 {
 	Return(clos_getslots_heap_(ptr, pos, &pos));
@@ -109,10 +208,18 @@ error:
 
 static int sysctl_clos_(Execute ptr, addr args)
 {
+	int check;
 	addr pos;
 
 	if (! consp_getcons(args, &pos, &args))
 		goto error;
+
+	/* variable */
+	Return(string_designator_equalp_char_(pos, "variable", &check));
+	if (check)
+		return sysctl_clos_variable_(ptr, args);
+
+	/* clos */
 	if (! closp(pos))
 		goto error;
 	return sysctl_clos_object_(ptr, pos, args);

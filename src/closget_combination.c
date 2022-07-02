@@ -1,5 +1,6 @@
 #include "condition.h"
 #include "clos_object.h"
+#include "clos_variable.h"
 #include "closget.h"
 #include "closget_combination.h"
 #include "typedef.h"
@@ -16,9 +17,7 @@ static int stdget_longcomb_constant_(addr pos, addr *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_longcomb_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_LONG_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_long_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
@@ -88,9 +87,7 @@ static int stdget_shortcomb_constant_(addr pos, addr *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_shortcomb_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_SHORT_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_short_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
@@ -142,9 +139,7 @@ static int stdget_longdef_constant_(addr pos, addr *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_longdef_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_define_long_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
@@ -208,9 +203,7 @@ static int stdget_shortdef_constant_(addr pos, addr *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_shortdef_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_define_short_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		return clos_checkelt_(pos, (size_t)index1, ret);
 	}
@@ -259,9 +252,7 @@ static int stdset_longcomb_constant_(addr pos, addr value,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_longcomb_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_LONG_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_long_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
 		return 0;
@@ -332,9 +323,7 @@ static int stdset_shortcomb_constant_(addr pos, addr value,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_shortcomb_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_SHORT_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_short_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
 		return 0;
@@ -387,9 +376,7 @@ static int stdset_longdef_constant_(addr pos, addr value,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_longdef_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_define_long_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
 		return 0;
@@ -454,9 +441,7 @@ static int stdset_shortdef_constant_(addr pos, addr value,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_shortdef_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_define_short_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_setelt(pos, (size_t)index1, value);
 		return 0;
@@ -506,9 +491,7 @@ static int stdboundp_longcomb_constant_(addr pos, int *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_longcomb_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_LONG_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_long_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_getelt(pos, (size_t)index1, &pos);
 	}
@@ -580,9 +563,7 @@ static int stdboundp_shortcomb_constant_(addr pos, int *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_shortcomb_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_SHORT_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_short_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_getelt(pos, (size_t)index1, &pos);
 	}
@@ -636,9 +617,7 @@ static int stdboundp_longdef_constant_(addr pos, int *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_longdef_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_DEFINE_LONG_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_define_long_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_getelt(pos, (size_t)index1, &pos);
 	}
@@ -704,9 +683,7 @@ static int stdboundp_shortdef_constant_(addr pos, int *ret,
 	CheckType(pos, LISPTYPE_CLOS);
 	Check(Clos_shortdef_size <= index1, "index error");
 	GetClassOfClos(pos, &clos);
-	Check(clos == Unbound, "unbound error");
-	GetConst(CLOS_DEFINE_SHORT_METHOD_COMBINATION, &check);
-	if (clos == check) {
+	if (clos == Clos_define_short_method_combination) {
 		Check(clos_errorp(pos, (size_t)index1, index2), "index error");
 		clos_getelt(pos, (size_t)index1, &pos);
 	}

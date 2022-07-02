@@ -1,4 +1,5 @@
 #include "clos.h"
+#include "clos_variable.h"
 #include "condition.h"
 #include "core.h"
 #include "execute.h"
@@ -156,11 +157,17 @@ static int savecore_clos(filestream fm)
 	int i;
 	addr value;
 	addr array[] = {
+		Clos_standard_direct_slot_definition,
+		Clos_standard_effective_slot_definition,
 		Clos_standard_class,
-		Clos_standard_generic,
+		Clos_standard_generic_function,
 		Clos_standard_method,
-		Clos_standard_combination,
-		Clos_standard_specializer,
+		Clos_long_method_combination,
+		Clos_short_method_combination,
+		Clos_define_long_method_combination,
+		Clos_define_short_method_combination,
+		Clos_eql_specializer,
+		Clos_structure_class,
 		NULL
 	};
 	for (i = 0; ; i++) {
@@ -172,7 +179,7 @@ static int savecore_clos(filestream fm)
 			return 1;
 		}
 	}
-	Check(i != 5, "index error");
+	Check(i != 11, "index error");
 
 	return 0;
 }
@@ -181,11 +188,17 @@ static int loadcore_clos(filestream fm)
 	int i;
 	addr *value;
 	addr *array[] = {
+		&Clos_standard_direct_slot_definition,
+		&Clos_standard_effective_slot_definition,
 		&Clos_standard_class,
-		&Clos_standard_generic,
+		&Clos_standard_generic_function,
 		&Clos_standard_method,
-		&Clos_standard_combination,
-		&Clos_standard_specializer,
+		&Clos_long_method_combination,
+		&Clos_short_method_combination,
+		&Clos_define_long_method_combination,
+		&Clos_define_short_method_combination,
+		&Clos_eql_specializer,
+		&Clos_structure_class,
 		NULL
 	};
 	for (i = 0; ; i++) {
@@ -197,7 +210,7 @@ static int loadcore_clos(filestream fm)
 			return 1;
 		}
 	}
-	Check(i != 5, "index error");
+	Check(i != 11, "index error");
 
 	return 0;
 }

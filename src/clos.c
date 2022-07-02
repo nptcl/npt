@@ -7,6 +7,7 @@
 #include "clos_slot.h"
 #include "clos_object.h"
 #include "clos_type.h"
+#include "clos_variable.h"
 #include "closget.h"
 #include "closget_slot.h"
 #include "condition.h"
@@ -17,50 +18,6 @@
 #include "package.h"
 #include "symbol.h"
 
-static int Clos_standard_ignore = 0;
-
-/*
- *  access
- */
-void clos_standard_ignore(int value)
-{
-	Clos_standard_ignore = value;
-}
-
-int clos_standard_class_p_debug(addr pos)
-{
-	return (! Clos_standard_ignore)
-		&& clos_standard_class_p_Low(pos);
-}
-
-int clos_standard_generic_p_debug(addr pos)
-{
-	return (! Clos_standard_ignore)
-		&& clos_standard_generic_p_Low(pos);
-}
-
-int clos_standard_method_p_debug(addr pos)
-{
-	return (! Clos_standard_ignore)
-		&& clos_standard_method_p_Low(pos);
-}
-
-int clos_standard_combination_p_debug(addr pos)
-{
-	return (! Clos_standard_ignore)
-		&& clos_standard_combination_p_Low(pos);
-}
-
-int clos_standard_specializer_p_debug(addr pos)
-{
-	return (! Clos_standard_ignore)
-		&& clos_standard_specializer_p_Low(pos);
-}
-
-
-/*
- *  table
- */
 /* clos */
 void clos_find_class_nil(addr name, addr *ret)
 {
@@ -186,6 +143,7 @@ void init_clos(void)
 	init_clos_generic();
 	init_clos_make();
 	init_clos_type();
+	init_clos_variable();
 }
 
 static void build_clos_table(Execute ptr)
@@ -200,14 +158,6 @@ static void build_clos_table(Execute ptr)
 
 void build_clos(Execute ptr)
 {
-	/* Variable */
-	Clos_standard_class = 0;
-	Clos_standard_generic = 0;
-	Clos_standard_method = 0;
-	Clos_standard_combination = 0;
-	Clos_standard_specializer = 0;
-	Clos_standard_ignore = 0;
-	/* build */
 	build_clos_table(ptr);
 	build_clos_class(ptr);
 	build_clos_combination(ptr);

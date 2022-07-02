@@ -11,6 +11,7 @@
 #include "clos_redefine.h"
 #include "clos_object.h"
 #include "clos_type.h"
+#include "clos_variable.h"
 #include "closget.h"
 #include "closget_class.h"
 #include "closget_slot.h"
@@ -357,7 +358,6 @@ static int clos_redefine_finalize_(Execute ptr, addr clos, addr name, addr rest)
 
 int clos_ensure_class_redefine_(Execute ptr, addr clos, addr name, addr rest)
 {
-	int check;
 	addr metaclass, pos;
 
 	/* readonly check */
@@ -375,8 +375,7 @@ int clos_ensure_class_redefine_(Execute ptr, addr clos, addr name, addr rest)
 	}
 
 	/* standard-class only */
-	check = clos_standard_class_p(metaclass);
-	if (! check) {
+	if (Clos_standard_class != metaclass) {
 		return fmte_("This implementation can only redefine a STANDARD-CLASS. "
 				"(~S, ~S)", clos, name, NULL);
 	}

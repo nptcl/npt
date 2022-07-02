@@ -65,11 +65,13 @@ clos_object.c
 clos_redefine.c
 clos_slot.c
 clos_type.c
+clos_variable.c
 clos.c
 closget_class.c
 closget_combination.c
 closget_generic.c
 closget_method.c
+closget_old.c
 closget_slot.c
 closget_specializer.c
 closget_structure.c

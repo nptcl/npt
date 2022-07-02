@@ -48,16 +48,6 @@ size_t ControlCounter = 0;
 
 
 /*
- *  clos
- */
-addr Clos_standard_class = 0;
-addr Clos_standard_generic = 0;
-addr Clos_standard_method = 0;
-addr Clos_standard_combination = 0;
-addr Clos_standard_specializer = 0;
-
-
-/*
  *  execute
  */
 threadlocal ThreadLocal_Execute;

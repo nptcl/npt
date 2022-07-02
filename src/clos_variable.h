@@ -1,0 +1,35 @@
+#ifndef __CLOS_VARIABLE_HEADER__
+#define __CLOS_VARIABLE_HEADER__
+
+#include "typedef.h"
+
+#define Clos_standard_direct_slot_definition _n(Clos_standard_direct_slot_definition)
+#define Clos_standard_effective_slot_definition _n(Clos_standard_effective_slot_definition)
+#define Clos_standard_class _n(Clos_standard_class)
+#define Clos_standard_generic_function _n(Clos_standard_generic_function)
+#define Clos_standard_method _n(Clos_standard_method)
+#define Clos_long_method_combination _n(Clos_long_method_combination)
+#define Clos_short_method_combination _n(Clos_short_method_combination)
+#define Clos_define_long_method_combination _n(Clos_define_long_method_combination)
+#define Clos_define_short_method_combination _n(Clos_define_short_method_combination)
+#define Clos_eql_specializer _n(Clos_eql_specializer)
+#define Clos_structure_class _n(Clos_structure_class)
+
+#define init_clos_variable _n(init_clos_variable)
+
+extern addr Clos_standard_direct_slot_definition;
+extern addr Clos_standard_effective_slot_definition;
+extern addr Clos_standard_class;
+extern addr Clos_standard_generic_function;
+extern addr Clos_standard_method;
+extern addr Clos_long_method_combination;
+extern addr Clos_short_method_combination;
+extern addr Clos_define_long_method_combination;
+extern addr Clos_define_short_method_combination;
+extern addr Clos_eql_specializer;
+extern addr Clos_structure_class;
+
+void init_clos_variable(void);
+
+#endif
+
